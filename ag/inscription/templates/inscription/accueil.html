@@ -1,0 +1,80 @@
+{% extends "inscription/base.html" %}
+{% load inscription %}
+
+{% block formulaire %}
+<h1>Formulaire d'inscription 1/7 - Accueil</h1>
+<ul id="etapes">
+    {% for etape in etapes %}
+    {% if etape.tab_visible %}
+        <li{% ifequal etape.n etape_courante.n %} class="etape_courante"{% else %}{% endifequal %}>
+        {{ etape.label }}</li>
+    {% endif %}
+    {% endfor %}
+</ul>
+<form class="uniForm" method="post">
+  {% csrf_token %}
+
+<div class="buttonHolder">
+  <p><strong>Bienvenue sur le formulaire d'inscription à la 16e assemblée
+      générale de l'AUF!</strong></p>
+
+  <p>L'assemblée générale de l'AUF se tiendra à São Paolo, Brésil, du 7 au 10
+      mai 2013. L'inscription s'effectue en sept étapes successives. À la fin
+      du processus, un récapitulatif des informations saisies vous sera soumis
+      pour validation. En cas d'erreur, il vous sera alors possible de modifier
+      tout ou partie des sections du formulaire
+      que vous aurez rempli.</p>
+
+  <p>Date limite d'inscription : <strong>1er mars 2013</strong></p>
+
+  <p>Pour toute information, écrivez-nous à <a href=mailto:ag2013@auf.org?subject=AG%202013%20-Formulaire%20en%20ligne>ag2013@auf.org</a></p>
+</div>
+
+<div style="margin-bottom: 20px;">
+
+{% if inscription.est_pour_mandate %}
+
+  <h3>Établissement:<strong> {{ inscription.get_etablissement.nom }}</strong></h3>
+    <h4>Type d'inscription:<strong> Représentant mandaté</strong></h4>
+  <p>Conformément aux dispositions des statuts, les représentants mandatés
+      représentent officiellement un établissement ou un réseau membre de l'AUF
+      (titulaire ou associé). Chaque institution ou réseau membre de l'AUF ne
+      compte qu'un seul représentant mandaté. Les autres personnes issues du
+      même établissement ou du même réseau sont « accompagnateur(s) ».</p>
+  <p><strong>Si le représentant mandaté n'est pas le chef d'établissement ou le
+      président du réseau, il est impératif que ce dernier désigne un représentant
+      mandaté pour le remplacer lors de l'assemblée générale.</strong></p>
+
+{% else %}
+
+  <h3>Établissement:<strong> {{ inscription.get_etablissement.nom }}</strong></h3>
+    <h4>Type d'inscription:<strong> Accompagnateur</strong></h4>
+  <p>Les accompagnateurs issus du même établissement que le représentant mandaté
+      peuvent s'inscrire à l'assemblée générale. Ils sont admis à l'ensemble des
+      travaux, sauf disposition contraire, mais ils ne peuvent s'exprimer que par
+      la voix du représentant mandaté et n'ont pas droit de vote.</p>
+  <p>Pour information, les accompagnateurs ne peuvent pas demander une prise
+      en charge. Les frais de leur mission doivent être entièrement pris en
+      charge par leur institution de rattachement.</p>
+
+{% endif %}
+
+</div>
+
+  {% if inscription.etablissement_delinquant %}
+  <p class="avertissement">Attention : d'après les informations en notre
+      possession, votre établissement n'est pas à jour de sa cotisation à
+      l'AUF. Vous pouvez remplir le présent formulaire d'inscription, mais
+      votre inscription ne sera validée qu'après règlement de l'année ou des
+      années de cotisation impayées. Pour nous contacter à ce sujet, merci d'écrire
+      à <a href="mailto:ag2013@auf.org?subject=AG%202013%20-Formulaire%20en%20ligne%20-%20cotisation">
+      ag2013@auf.org</a> en rappelant votre nom ainsi que celui de votre établissement.</p>
+  {% endif %}
+
+  <div class="buttonHolder">
+  {% checkbox form.identite_confirmee %}
+  {% checkbox form.conditions_acceptees %}
+    <input type="submit" value="Débuter l'inscription en ligne" class="secondaryAction" />
+  </div>
+</form>
+{% endblock %}

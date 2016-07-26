@@ -1,0 +1,17 @@
+<div id="holder_{{ field.html_name }}" class="ctrlHolder{% if field.errors %} error{% endif %}">
+  <label for="{{ field.auto_id }}">
+    {% if field.field.widget.is_required %}
+    <span class="required">*</span>
+    {% endif %}
+    {{ field.label }}
+  </label>
+  {{ field }}
+  {% if field.errors or field.help_text %}
+  <p class="formHint{% if field.errors %} warning{% endif %}">
+    {% for error in field.errors %}
+    {{ error }}
+    {% endfor %}
+    {{ field.help_text }}
+  </p>
+  {% endif %}
+</div>

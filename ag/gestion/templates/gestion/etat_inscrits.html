@@ -1,0 +1,110 @@
+{% extends "gestion/base.html" %}
+{% block title %}Liste des participants inscrits{% endblock %}
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css"
+          href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css">
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+				<a href="{% url etats_listes %}">États et listes</a> &rsaquo;
+				Liste des participants inscrits
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+<div id="Lparticipants">
+<h2>Liste des participants inscrits</h2>
+<div id="utils">
+<p> Rapport généré le :  {{ maintenant|date:"D, d-m-Y à H:s" }}</p>
+</div>
+<h2>{{ liste_inscrits.0.0 }}{# Établissements #}</h2>
+<ul>
+    {% for pays in liste_inscrits.0.1 %}
+        <li class="niveau1"><h3>{{ pays.titre }}</h3>
+            <ul>
+                {% for etablissement in pays.elements %}
+                <li class="niveau2"><p>{{ etablissement.titre }}</p>
+                    <table>
+                        {% for statut in etablissement.elements %}
+                            <tr><td>{{ statut.titre }}</td>
+                                <td>
+                                <ul>
+                                    {% for participant in statut.elements %}
+                                        <li class="niveau3">{{ participant.nom }}, {{ participant.prenom }}</li>
+                                    <li class="niveau4">{{ participant.poste}}</li>
+                                    {% endfor %}
+                                </ul></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+</div>
+<div id="Lautres">
+<h2>{{ liste_inscrits.1.0 }}{# Observateurs #}</h2>
+ <ul><li class="niveau2">
+<table>
+    {% for institution in liste_inscrits.1.1 %}
+    <tr><td><p>{{ institution.titre }}</p></td>
+        <td><ul>
+            {% for participant in institution.elements %}
+                <li class="niveau3">{{ participant.nom }}, {{ participant.prenom }}</li>
+                <li class="niveau4">{{ participant.poste}}</li>
+            {% endfor %}
+        </ul></td>
+        </tr>
+    {% endfor %}</table>
+</li></ul>
+<h2>{{ liste_inscrits.2.0 }}{# Instances #}</h2>
+ <ul><li class="niveau2">
+<table>
+    {% for instance in liste_inscrits.2.1 %}
+        <tr><td><p>{{ instance.titre }}</p></td>
+            <td><ul>
+                {% for participant in instance.elements %}
+                    <li class="niveau3">{{ participant.nom }}, {{ participant.prenom }}</li>
+                    <li class="niveau4">{{ participant.poste}}</li>
+                {% endfor %}
+            </ul></td>
+        </tr>
+    {% endfor %}</table>
+</li></ul>
+<h2>{{ liste_inscrits.3.0 }}{# Personnel AUF #}</h2>
+<ul>
+    {% for institution in liste_inscrits.3.1 %}
+    <li class="niveau2"><p>{{ institution.titre }}</p>
+    <table>
+        {% for region in institution.elements %}
+        <tr><td><p>{{ region.titre }}</p></td>
+        <td><ul>
+        {% for participant in region.elements %}
+              <li class="niveau3">{{ participant.nom }}, {{ participant.prenom }}</li>
+              <li class="niveau4">{{ participant.poste}}</li>
+        {% endfor %}
+        </ul></td>
+        </tr>
+        {% endfor %}
+    </table>
+    </li>
+    {% endfor %}
+</ul>
+<h2>{{ liste_inscrits.4.0 }}{# Autres #}</h2>
+<table>
+{% for institution in liste_inscrits.4.1 %}
+    <tr><td><p>{{ institution.titre }}</p></td>
+        <td><ul>
+            {% for participant in institution.elements %}
+              <li class="niveau3">{{ participant.nom }}, {{ participant.prenom }}</li>
+              <li class="niveau4">{{ participant.poste}}</li>
+            {% endfor %}
+        </ul></td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

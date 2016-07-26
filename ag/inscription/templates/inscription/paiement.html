@@ -1,0 +1,170 @@
+{% extends "inscription/base.html" %}
+{% load inscription %}
+
+{% block formulaire %}
+<h1>Formulaire d'inscription 5/7 - Modalités</h1>
+ <ul id="etapes">
+    {% for etape in etapes %}
+    {% if etape.tab_visible %}
+        <li{% ifequal etape.n etape_courante.n %} class="etape_courante"{% else %}{% endifequal %}>
+        {{ etape.label }}</li>
+    {% endif %}
+    {% endfor %}
+</ul>
+<form class="uniForm" method="post">
+  {% csrf_token %}
+ 
+{% if paypal_cancel %}
+		<div class="message erreur">
+    	<h4>Votre paiment en ligne n'a pas été complété !</h4>
+			<p>Recommencez ou choisissez une autre option de paiement.<br>Si vous éprouvez des difficultés, n'hésitez pas à nous contacter à l'adresse suivante : 
+			<a href="mailto:ag2013@auf.org?subject=AG%202013%20-Formulaire%20en%20ligne%20-%20support-Inscription#%20-{{ inscription.numero }}">ag2013@auf.org</a>.
+    	</p>
+		</div>
+  {% endif %}
+ <div class="buttonHolder">
+    <p>Les frais de participation à l'assemblée générale
+    doivent être payés en euros <strong>avant le 1er mars 2013</strong>,
+    délai de rigueur. Toute inscription dont le paiement complet n'est pas
+    effectué avant cette date ne sera pas validée.</p> <p><strong>Le paiement par carte
+    bancaire au terme de l'inscription est à privilégier.</strong> <br>À l'exception du paiement 
+		en ligne, une preuve de paiement doit obligatoirement
+    être envoyée à <a href="mailto:ag2013@auf.org">ag2013@auf.org</a> ou par
+    courrier au <a href="/faq/">secrétariat de l'assemblée
+      générale</a> (copie d’ordre de virement bancaire, reçu de paiement dans
+    une implantation AUF, etc.). Toute preuve de paiement doit mentionner le
+    numéro de confirmation d'inscription, le nom de la personne inscrite et
+    de son établissement.</p>
+
+		<p><strong>Pour poursuivre l'inscription, merci de sélectionner une option de
+      paiement. <br>Vous serez ensuite dirigé sur une page d'aperçu avant de confirmer et d'envoyer votre formulaire.</strong> </p>
+  </div>
+  <fieldset>
+  <h2>Option de paiement</h2>
+ {% if form.errors %}
+  <div id="errorMsg">
+    <p>Vous devez choisir un mode de paiement parmi les choix ci-dessous.</p>
+  </div>
+  {% endif %}
+    <div id="CB" class="ctrlHolder noLabel selectPaiement">
+      <ul>
+        <li>
+          <label>
+            <input type="radio" name="{{ form.paiement.html_name }}" value="CB"
+            {% if form.paiement.value == 'CB' %}checked{% endif %}>
+            Carte bancaire
+          </label>
+        </li>
+      </ul>
+      <p class="infoPaiement">Apès la validation de l'aperçu, vous serez redirigé vers la page AUF utilisant 
+					la solution de paiement en ligne PayPal. Une fois votre paiement confirmé, 
+					veuillez cliquer sur le lien "Retour à AG2013" pour obtenir votre récapitulatif
+					d'inscription{% if inscription.est_pour_mandate %} et pour inviter vos accompagnateurs{% endif %}.</p>
+    </div>
+    <div id="VB" class="ctrlHolder noLabel selectPaiement">
+      <ul>
+        <li>
+          <label>
+            <input type="radio" name="{{ form.paiement.html_name }}" value="VB"
+            {% if form.paiement.value == 'VB' %}checked{% endif %}>
+            Virement bancaire
+          </label>
+        </li>
+      </ul>
+      <p class="infoPaiement">Veuillez effectuer le virement bancaire aux
+          coordonnées ci-dessous:<br /><span color="red">IMPORTANT: Merci
+          d'indiquer dans le libellé le numéro de confirmation d'inscription
+          que vous obtiendrez à l'étape de confirmation de celle-ci. À défaut,
+          nous ne pourrons pas valider votre paiement et votre participation
+          à l'assemblée générale.</span>
+</P>
+<TABLE id="tableBanque" WIDTH=60% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=0 CELLSPACING=0>
+    <COL WIDTH=30*>
+    <COL WIDTH=50*>
+    <TR VALIGN=TOP>
+<TD>HSBC FRANCE</TD><TD>Relevé d’identité bancaire</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Code banque</TD><TD>30056</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Code guichet</TD><TD>00264</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Numéro de compte</TD><TD>02640075438</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Clé RIB</TD><TD>34</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>IBAN</TD><TD>Identifiant international</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Code BIC</TD><TD>FR76-3005-6002-6402-6400-7543-834</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD><BR></TD><TD>CCFRFRPP</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Domiciliation</TD><TD>HSBC FR PARIS CATALOGNE</TD>
+    </TR>
+    <TR VALIGN=TOP>
+<TD>Titulaire du compte</TD><TD>AUF ASSEMBLEE GÉNÉRALE</TD>
+    </TR>
+</TABLE>
+    </div>
+    <div id="CE" class="ctrlHolder noLabel selectPaiement">
+      <ul>
+        <li>
+          <label>
+            <input type="radio" name="{{ form.paiement.html_name }}" value="CE"
+            {% if form.paiement.value == 'CE' %}checked{% endif %}>
+            Chèque en euros
+          </label>
+        </li>
+      </ul>
+      <p class="infoPaiement">Veuillez libeller votre chèque en euros à l’ordre
+          de l’Agence universitaire de la Francophonie et le transmettre par courrier
+          avec le récapitulatif de votre inscription imprimable à l'issue du processus
+          d'inscription à l'adresse suivante :<br />
+Agence universitaire de la Francophonie<br />
+Secrétariat de l'assemblée générale<br />
+Case postale du Musée<br />
+C.P. 49714<br />
+Montréal (Québec) H3T 2A5<br />
+Canada</p>
+    </div>
+    <div id="DL" class="ctrlHolder noLabel selectPaiement">
+      <ul>
+        <li>
+          <label>
+            <input type="radio" name="{{ form.paiement.html_name }}" value="DL"
+            {% if form.paiement.value == 'DL' %}checked{% endif %}>
+            Devises locales
+          </label>
+        </li>
+      </ul>
+      <p class="infoPaiement">Le paiement en devises locales (espèces, chèque, virement),
+					 peut s'effectuer dans toutes les implantations de l’Agence universitaire de la 
+					Francophonie, dont les adresses sont disponibles sur le
+          <a href="http://www.auf.org/auf_dans_le_monde">site de l'AUF</a></p>
+    </div>
+  </fieldset>
+<!--  <h2>Conditions d'annulation</h2>
+  <p>Toute demande d'annulation devra être faite par écrit (courrier, fax ou courriel) au secrétariat de l'Assemblée générale qui accusera réception de la demande d'annulation. Jusqu'au 1er mars 2013, le remboursement des frais payés sera effectué (un montant forfaitaire de 50 euros sera déduit pour frais de gestion). À partir du 2 mars 2013, aucun remboursement ne sera effectué. Tout remboursement sera effectué après la tenue de l'Assemblée générale. Aucune inscription ne sera validée sans réception du règlement de la totalité des frais. Dans l'éventualité où l'établissement membre représenté est en défaut de cotisation, ou que la prise en charge du participant par l'AUF est refusée, l'inscription sera annulée et les frais engagés remboursés, et ce sans limite de temps (un montant forfaitaire de 50 euros sera déduit pour frais de gestion).</p>
+
+  <p>Les conditions et les demandes d'annulation pour l'excursion organisée à Rio de Janeiro sont fixées par l'agence de voyages X. L'AUF décline toute responsabilité dans le domaine.</p>
+-->
+  <div class="buttonHolder">
+    <!--<p>En cliquant sur ce bouton, j'atteste avoir compris et accepte les présentes conditions générales d'annulation de ma participation à la 16e Assemblée générale de l'AUF.</p>
+    -->
+    <input type="submit" value="Sauvegarder et continuer" class="secondaryAction" id="submit-button" />
+  </div>
+
+</form>
+<div style="display:none;">
+<form id="paypal-form" action="{{ form.paypal_form.paypal_url }}" method="post">
+{{ form.paypal_form.as_p }}
+</form>
+</div>
+{% endblock %}

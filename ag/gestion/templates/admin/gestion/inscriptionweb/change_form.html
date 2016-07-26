@@ -1,0 +1,77 @@
+{% extends "admin/change_form.html" %}
+{% block extrahead %}
+    {{ block.super }}
+<script type="text/javascript">
+django.jQuery(function() {
+    function dependent_control(master, slave) {
+        if (master.length) {
+            master.change(function () {
+                update_dependent_control(master, slave);
+            });
+            update_dependent_control(master, slave);
+        }
+    }
+
+    function update_dependent_control(master, slave) {
+        if (master.is(':checked')) {
+            slave.show();
+        }
+        else {
+            slave.hide();
+        }
+    }
+    dependent_control(
+            django.jQuery('#id_inscription_validee'),
+            django.jQuery('div.statut')
+    );
+
+    django.jQuery('#id_inscription_validee').change(function() {
+        django.jQuery('#id_prise_en_charge_hebergement').trigger('change');
+        django.jQuery('#id_prise_en_charge_transport').trigger('change');
+    });
+    dependent_control(
+            django.jQuery('#id_accepter_hebergement'),
+            django.jQuery('div.facturer_supplement_chambre_double')
+    );
+
+    function update_prise_en_charge(demandee_select, acceptee_checkbox) {
+        if (demandee_select.val() == 3) {
+            acceptee_checkbox.parents('div.form-row').hide();
+            acceptee_checkbox.attr('checked', false)
+        }
+        else {
+            if (django.jQuery('#id_inscription_validee').is(':checked'))
+                acceptee_checkbox.parents('div.form-row').show();
+            else
+                acceptee_checkbox.parents('div.form-row').hide();
+        }
+    }
+
+    function dependent_prise_en_charge(demandee_select, acceptee_checkbox) {
+        if (demandee_select.length) {
+            demandee_select.change(function () {
+                update_prise_en_charge(demandee_select, acceptee_checkbox);
+            });
+            update_prise_en_charge(demandee_select, acceptee_checkbox);
+        }
+    }
+
+    dependent_prise_en_charge(django.jQuery('#id_prise_en_charge_hebergement'),
+            django.jQuery('#id_accepter_hebergement'));
+    dependent_prise_en_charge(django.jQuery('#id_prise_en_charge_transport'),
+            django.jQuery('#id_accepter_transport'));
+
+});
+</script>
+{% endblock %}
+{% block content_title %}
+<h1>{{ adminform.form.instance.nom }}, {{ adminform.form.instance.prenom }}</h1>
+<h3>{% if adminform.form.instance.est_pour_mandate %}
+(mandaté)
+{% else %}
+(accompagnateur)
+{% endif %} - {{ adminform.form.instance.get_etablissement.statut }} - {{ adminform.form.instance.get_etablissement.pays.nord_sud }} </h3> 
+<h3>{{ adminform.form.instance.get_etablissement.nom }}
+</h3>
+
+{% endblock %}

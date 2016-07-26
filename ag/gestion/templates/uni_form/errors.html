@@ -1,0 +1,11 @@
+{% if form.non_field_errors %}
+
+<p class="errornote">
+    {% ifequal form.errors|length 1 %}
+    Veuillez corriger l'erreur ci-dessous.
+    {% else %}
+    Veuillez corriger les erreurs ci-dessous.
+    {% endifequal %}
+</p>
+{{ form.non_field_errors }}
+{% endif %}

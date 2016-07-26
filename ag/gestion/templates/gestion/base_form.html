@@ -1,0 +1,31 @@
+{% extends "gestion/base.html" %}
+{% load crispy_forms_tags %}
+{% load adminmedia %}
+{% block extrahead %}
+    {{ block.super }}
+    {#% url 'admin:jsi18n' as jsi18nurl %#}
+    {%  comment %}
+    <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+    {%  endcomment %}
+    {{ media }}
+    <link rel="stylesheet" type="text/css"
+          href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/i18n/jquery-ui-i18n.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/etablissement.js"></script>
+{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block js_initializations %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            init_recherche_etablissement();
+        });
+    </script>
+{% endblock %}
+
+

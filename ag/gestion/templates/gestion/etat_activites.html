@@ -1,0 +1,65 @@
+{% extends "gestion/base.html" %}
+{% block title %}Participation aux soirées{% endblock title %}
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css"
+          href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" 
+         src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+				<a href="{% url etats_listes %}">États et listes</a> &rsaquo;
+        Participation aux soirées
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+<div id="Lsoiree">
+<h2>Participation aux soirées</h2>
+<div id="utils">
+<p>Rapport généré le :  {{ maintenant|date:"D, d-m-Y à H:s" }}</p>
+</div>
+<script>
+$(function() { 
+            var count = 0;
+            $('ul').each(function(){
+                if(count != 0){
+
+                    var len = $(this).find('li').length;
+
+                    $(this).parent().find('.count').html(len);
+                }
+                count++;
+
+            })  
+         });
+</script>
+<div id="Lactivite">
+<ul>
+    {% for activite, hotels in participants_activites.items %}
+        <li class="niveau1"><h3>{{ activite }}
+            ({{ activite.nombre_personnes_total }} personnes)
+        </h3><ul>
+        {% for hotel, participants in hotels.items %}
+            <li class="niveau2"> {{ hotel }}  ( <span class="count"></span> ) participants
+            <ul>
+            {% for participant, invites in participants.items %}
+                <li class="niveau3">
+                <a href="{% url fiche_participant participant.id %}">
+                {{ participant.get_nom_complet }}</a>
+                {% if invites %}
+                <ul>
+                {% for invite in invites %}
+                    <li>{{ invite.nom_complet }}</li>
+                {% endfor %}
+                </ul>{% endif %}</li>
+            {% endfor %}
+            </ul></li>
+        {% endfor %}
+        </ul></li>
+    {% endfor %}
+</ul>
+</div>
+</div>
+{% endblock content %}

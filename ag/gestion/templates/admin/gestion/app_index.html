@@ -1,0 +1,9 @@
+{% extends "admin/app_index.html" %}
+{% block content %}
+    {{ block.super }}
+{% if app_list %}
+    <div>
+    <a href="{% url tableau_de_bord %}">Interface de gestion des participants</a>
+    </div>
+{% endif %}
+{% endblock %}

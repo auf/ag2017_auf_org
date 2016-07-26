@@ -1,0 +1,30 @@
+{% extends "gestion/base_edit_form.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Invités{% endblock title %}
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.formset.min.js"></script>
+<style type="text/css">
+.hidden-row { display: none; }
+</style>
+{% endblock extrahead %}
+{% block page_crumb %}Invités{% endblock %}
+{% block form_fields %}
+<h1>Modifier Invités</h1>
+    {% crispy formset_invites formset_invites.form.helper %}
+{% endblock %}
+
+{% block js_initializations %}
+{{ block.super }}
+<script type="text/javascript">
+    $(function() {
+        $('.invite-fieldset').formset({
+            prefix: '{{ formset_invites.prefix }}',
+            addText:'Ajouter un invité',
+            deleteText:'supprimer'
+        });
+    });
+</script>
+{% endblock %}
+
+

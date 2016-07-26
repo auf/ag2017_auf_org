@@ -1,0 +1,64 @@
+{% extends "gestion/base.html" %}
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css"
+          href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/i18n/jquery-ui-i18n.min.js"></script>
+{% endblock %}
+{% block title %}États et listes - AG2013{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        États et listes
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+<ul>
+<li><a href="{% url etat_inscrits %}">Liste des participants inscrits</a>
+    (<a href="{% url export_donnees_csv %}">
+        Export CSV
+    </a>)
+</li>
+<li><a href="{% url etat_activites %}">Participation aux soirées</a></li>
+<li><a href="{% url etat_paiements %}">
+    État des paiements
+</a></li>
+{% comment %}
+<li>Arrivées
+    <form action="{% url etat_arrivees_departs %}" method="get">
+      {{ form_arrivees }}
+      <input type="submit" value="afficher"/>
+    </form></li>
+<li>Départs
+    <form action="{% url etat_arrivees_departs %}" method="get">
+      {{ form_departs }}
+        <input type="submit" value="afficher"/>
+    </form></li>
+{% endcomment %}
+<li><a href="{% url etat_vols %}">Liste des vols</a></li>
+<li><a href="{% url liste_participants_activites_scientifiques %}">
+    Participation aux ateliers scientifiques
+</a></li>
+<li><a href="{% url etat_votants %}">
+    Liste des membres votants
+</a></li>
+</ul>
+
+{% endblock %}
+{% block js_initializations %}
+{{ block.super }}
+{% comment %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $.datepicker.setDefaults( $.datepicker.regional[ "fr" ] );
+    $('input[name$="jour"]').datepicker( {
+       dateFormat: "d/m/yy",
+       minDate: new Date(2013,4,1 ),
+       maxDate: new Date(2013,4,30 )
+   } );
+});
+</script>
+{% endcomment %}
+{% endblock %}

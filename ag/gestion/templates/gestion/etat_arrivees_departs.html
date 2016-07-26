@@ -1,0 +1,63 @@
+{% extends "gestion/base.html" %}
+{% block title %}Arrivées et départs{% endblock title %}
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css"
+          href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css">
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+				<a href="{% url etats_listes %}">États et listes</a> &rsaquo;
+        Arrivées et départs
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+<h1>Assemblée générale de l'AUF 2013</h1>
+<h2>
+{{ arrivees_departs_display }} {{ ville }} le {{ jour|date:"SHORT_DATE_FORMAT" }}
+</h2>
+<div id="utils">
+<p>Rapport généré le :  {{ maintenant|date:"D, d-m-Y à H:s" }}</p>
+</div>
+<ul>
+{% for vol in vols %}
+  {% if vol.participants %}
+  <li>
+    <table>
+        <thead>
+          <tr>
+              <th>Heure</th>
+              <th>Compagnie</th>
+              <th>Vol</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ vol.heure|time:"H:i" }}</td>
+            <td>{{ vol.compagnie }}</td>
+            <td>{{ vol.numero_vol }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <ul>
+        {% for participant in vol.participants %}
+        <li>{{ participant.get_nom_complet }}
+          {% if participant.invites_vol %}
+            avec
+            {% for invite in participant.invites_vol %}
+                {{ invite.nom_complet }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          {% endif %}</li>
+        {% endfor %}
+    </ul>
+    <p>
+    Nb. participants: {{ vol.participants|length }}<br/>
+    Nb. invités: {{ vol.nb_invites }}<br/>
+    Nb. total de personnes: {{ vol.participants|length|add:vol.nb_invites }}<br/>
+    </p>
+  </li>
+  {% endif %}
+{% endfor %}
+</ul>
+{% endblock %}

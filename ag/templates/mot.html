@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load cms_tags%}
+<!--test-->
+
+{% block langue %}
+<div class='selectBox2'>
+<div id="google_translate_element"></div>
+			<script type="text/javascript">
+				function googleTranslateElementInit() {
+				  new google.translate.TranslateElement({pageLanguage: 'fr', includedLanguages: 'ar,en,es,fr,pt', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
+				}
+			</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</div>
+{% endblock %}
+
+{% block content %}
+
+	{% placeholder Texte %}
+    
+    {% if  mot_list1 %}
+         {% for item in mot_list1 %}
+         	<div class="reponse2" id="{{ item.recteur|truncatewords_html:1 }}">
+            	<img class="bio" src="{{ MEDIA_URL }}{{ item.image }}"  alt="{{ item.recteur }}" />
+                <p style="font-style:italic; line-height: 20px">"{{ item.message|safe }}"</p>
+                <p><strong>{{ item.recteur }}</strong><br>{{ item.fonction }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+                 <p>Pas de mot</p>
+    {% endif %}
+
+{% endblock %}

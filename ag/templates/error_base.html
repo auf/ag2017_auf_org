@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+  background: #242424;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+#logo {
+  width: 785px;
+  margin: auto;
+  margin-top: 100px;
+}
+
+#content {
+  border: 2px solid #838383;
+  margin: auto;
+  width: 785px;
+  background: #ebebeb;
+  padding: 2em;
+  text-shadow: 1px 1px 0 #fcfcfc;
+}
+
+#content h1 {
+  font-size: 1.55em;
+  margin-top: 0
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head>
+<body>
+<!--test-->
+<div id="logo">
+  <img src="/static/img/logo.png">
+</div>
+<div id="content">
+  {% block content %}{% endblock %}
+</div>
+</body>

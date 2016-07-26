@@ -1,0 +1,60 @@
+<script>
+
+function ajouter_champ(nom_champ, data) {
+    var valeur = $("#rech-etablissement-" + nom_champ).val();
+    if (valeur)
+        data[nom_champ] = valeur;
+}
+
+function effectuer_recherche() {
+    var data = {};
+    ajouter_champ('nom', data);
+    ajouter_champ('region_id', data);
+    ajouter_champ('pays', data);
+    $.ajax({
+        url: "{% url recherche_etablissement %}",
+        data: data
+    }).done(function() {
+
+            });
+}
+$.ready(function() {
+    $('#selection-etablissement [id^=rech-etablissement-]').each(function() {
+
+    }
+            .data('timeout', null)
+            .keyup(function(){
+                jQuery(this).data('timeout', setTimeout(function(){
+                    var mytext = jQuery('input#search').val();
+                    submitQuizForm();
+                    jQuery('input#search').next().html(mytext);
+                }, 2000)
+                )
+                        .keydown(function(){
+                            clearTimeout(jQuery(this).data('timeout'));
+                        });
+            });
+
+})
+</script>
+<div id="selection-etablissement" title="Sélection d'un établissement">
+    <form>
+        <fieldset>
+            <label for="rech-etablissement-nom">Nom</label>
+            <input type="text" id="rech-etablissement-nom" class="text ui-widget-content ui-corner-all" />
+            <label for="rech-etablissement-pays">Pays</label>
+            <input type="text" id="rech-etablissement-pays" class="text ui-widget-content ui-corner-all" />
+            <label for="rech-etablissement-region">Région</label>
+            <select id="rech-etablissement-region" class="select ui-widget-content ui-corner-all">
+                {%  for region in liste_regions %}
+                    <option value="{{ region.id }}">{{ region.nom }}</option>
+                {% endfor %}
+            </select>
+        </fieldset>
+    </form>
+    <fieldset>
+        <label for="resultat-rech-etablissement">Établissements trouvés :</label>
+        <select id="resultat-rech-etablissement" size="16" class="select ui-widget-content ui-corner-all">
+        </select>
+    </fieldset>
+</div>

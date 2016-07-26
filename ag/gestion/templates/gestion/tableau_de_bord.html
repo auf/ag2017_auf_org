@@ -1,0 +1,216 @@
+{% extends "gestion/base.html" %}
+{% block title %}Tableau de bord - AG2013{% endblock %}
+{% block content %}
+<ul class="object-tools">
+  <li><a href="{% url participants %}">Liste des participants</a></li>
+</ul>
+<div class="module">
+<h2>Inscriptions Web</h2>
+<table>
+    <thead>
+    <tr>
+        {% for mois, nb in inscriptions_par_mois %}
+        <th>{{ mois|date:"M" }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for mois, nb in inscriptions_par_mois %}
+            <td>{{ nb }}</td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
+
+</div>
+<div class="module">
+<h2>Nombre de participants</h2>
+<table>
+  <thead>
+	<tr>
+		<th>Total</th>
+        <th>{{ total_participants }}</th>
+	</tr>
+	</thead>
+  <tbody>
+    <tr>
+      	<td>Actifs</td>
+     	<td><a href="{% url participants %}">{{ total_actifs }}</a></td>
+    </tr>
+    <tr>
+		<td>Désactivés</td>
+		<td><a href="{% url participants %}?desactive=on">{{ total_desactives }}</a></td>
+	</tr>
+  <thead>
+	<tr>
+		<th>Problématiques</th>
+        <th><a href="{% url participants %}?probleme=problematique">{{ total_problematiques }}</a></th>
+	</tr>
+	</thead>
+{% for probleme in par_probleme %}
+    {% if probleme.nombre %}
+    <tr>
+    	<td>{{ probleme.libelle }}</td>
+    	<td><a href="{% url participants %}?probleme={{ probleme.code }}">{{ probleme.nombre }}</a></td>
+    </tr>
+    {% endif %}
+{% endfor %}
+  </tbody>
+</table>
+</div>
+    <div class="module">
+        <h2>Par point de suivi</h2>
+        <table>
+            <thead><tr><th>Point de suivi</th><th>Nombre de participants</th></tr></thead>
+            <tbody>
+            {% for point_de_suivi in points_de_suivi %}
+                <tr>
+                    <td>{{ point_de_suivi.libelle }}</td>
+                    <td><a href="{% url participants %}?suivi={{ point_de_suivi.id }}">{{ point_de_suivi.nombre_participants }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<div class="module">
+    <h2>Par statut</h2>
+    <table>
+        <thead><tr><th>Statut</th><th>Dossiers complets</th>
+            <th>Dossiers incomplets</th>
+        <th>Total</th></tr></thead>
+        <tbody>
+        {% for statut, nombre_clos, nombre_ouverts, total in par_statut %}
+            <tr>
+                <td>{{ statut.libelle }}</td>
+                <td>{{ nombre_clos }}</td>
+                <td>{{ nombre_ouverts }}</td>
+                <td>{{ total }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>Invités</td>
+            <td>-</td>
+            <td>-</td>
+            <td>{{ nb_invites }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="module">
+    <h2>Votants et associés</h2>
+    <table>
+        <thead>
+            <tr><th>Région</th><th>Votants</th><th>Associés</th><th>Total</th></tr></thead>
+        <tbody>
+        {% for nombres_region in nombres_votants %}
+            <tr>{% for donnee in nombres_region %}<td>{{ donnee }}</td>{% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot><tr>
+            <td>Total</td>
+            {% for total in totaux_votants %}
+            <td>{{ total }}</td>{% endfor %}
+        </tr></tfoot>
+    </table>
+</div>
+
+<div class="module">
+    <h2>Occupation des Hôtels</h2>
+    <table>
+        <thead><tr><th rowspan="2">Date</th>
+            {% for hotel in hotels %}
+            <th colspan="{{ hotel.nombre_types_chambres }}">{{ hotel.libelle }}</th>
+            {% endfor %}</tr>
+            <tr>
+                {% for hotel in hotels %}
+                    {% for chambre in hotel.chambres.values %}
+                        <th>{{ chambre.type_chambre.libelle_plur }}</th>
+                    {% endfor %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for donnees in donnees_hotels_par_jour %}
+            <tr>
+                <td>{{ donnees.0 }}</td>
+                {% for nombre_chambres in donnees.1 %}
+                    <td>{{ nombre_chambres }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>Total nuitées</td>
+            {% for total in totaux_hotels %}
+               <td>{{ total }}</td>
+            {% endfor %}
+
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="module">
+    <h2>Participation aux Activités</h2>
+    <table>
+        <thead>
+        <tr><th>Activité</th>
+        <th>Nb. Participants <br/>pris en charge</th>
+        <th>Nb. Participants non<br/>pris en charge</th>
+        <th>Nb. invités</th><th>Total</th></tr></thead>
+        {% for donnees_activite in activites %}
+            <tr>
+                {% for donnee in donnees_activite %}
+                <td>{{ donnee }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+<div class="module">
+    <h2>État des paiements</h2>
+    <table>
+        <thead>
+        <tr><th></th>
+            <th>Ayant payé tous les frais liés à <br/>
+                leur participation à l’AG
+            </th>
+            <tr>
+                <td>Participants</td>
+                <td>{{ nb_tout_paye }}</td>
+            </tr>
+            <tr>
+                <td>Représentants mandatés <br/>avec droit de vote</td>
+                <td>{{ nb_tout_paye_droit_de_vote }}</td>
+            </tr>
+    </table>
+</div>
+<div class="module">
+    <h2>État des Prises en charge</h2>
+    <table>
+        <thead>
+        <tr><th></th>
+            <th>Frais d'inscription</th>
+            <th>Transport</th>
+            <th>Hébergement</th>
+            <th>Activités</th>
+            <th>Aucune</th>
+            <th>Total</th></tr></thead>
+        {% for donnees in prises_en_charge %}
+            <tr>
+                {% for donnee in donnees %}
+                    <td>{{ donnee }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+
+{% endblock content %}

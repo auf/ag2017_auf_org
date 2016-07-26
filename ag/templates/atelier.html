@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags%}
+<!--test-->
+
+{% block langue %}
+<div class='selectBox2'>
+<div id="google_translate_element"></div>
+			<script type="text/javascript">
+				function googleTranslateElementInit() {
+				  new google.translate.TranslateElement({pageLanguage: 'fr', includedLanguages: 'ar,en,es,fr,pt', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
+				}
+			</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</div>
+{% endblock %}
+    	<!-- partie centrale -->
+        <div id="corp">
+					{% block content %}
+					{% placeholder Texte %}
+					{% endblock %}
+      	</div>
+	
+<!-- sidebar -->
+{% block sidebar %}
+	<div id="sid">           
+		<div id="smenu" class="box">
+			<h2>Les ateliers</h2>
+			<ul>
+				{% show_menu 2 2 100 100 %}
+			</ul>
+		</div>
+
+<div id="act_sci">
+
+</div>
+<script type="text/javascript">
+$(function() {
+    $('#act_sci').act_sci_picker();
+});
+</script>
+
+
+</div> 
+{% endblock %}
+

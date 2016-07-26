@@ -1,0 +1,7 @@
+<h2>Réservez votre participation</h2>
+
+<form id="act_sci_login_form" method="POST" action="{% url act_sci_login %}">
+    {% csrf_token %}
+    {{ login_form }}
+    <input type="submit" value="Connexion" />
+</form>

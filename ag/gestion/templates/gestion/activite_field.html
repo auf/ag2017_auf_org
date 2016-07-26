@@ -1,0 +1,13 @@
+{% load crispy_forms_field %}
+<div class="form-row">
+    {% for field in multifield.bound_fields %}
+        {% if forloop.first %}
+        <label for="{{ field.id_for_label }}">
+            {{ field.label }}
+        </label>
+        {% else %}
+            {{ field.label }}
+        {% endif %}
+        {% crispy_field field %}&nbsp;
+    {% endfor %}
+</div>

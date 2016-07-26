@@ -1,0 +1,102 @@
+{% extends 'gestion/base_edit_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Transport{% endblock title %}
+{% block extrahead %}
+    {{ block.super }}
+    {% include "gestion/extrahead_vols.html" %}
+{% endblock %}
+{% block page_crumb %}Transport{% endblock %}
+{% block form_fields %}
+<h1>Modifier Transport</h1>
+{% crispy form_top %}
+{% crispy form_arrivee_depart %}
+<div class="module vols organise_par_auf">
+<h2>Vols</h2>
+    <div id="vol_groupe" style="display: none;">
+
+    </div>
+    <div id="vol_non_groupe">
+    {{ formset_vols.management_form }}
+    <table>
+        {% include "gestion/header_table_vols.html" %}
+        <tbody>
+            {% for form in formset_vols %}
+                {% crispy form %}
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% crispy form_bottom %}
+{% endblock form_fields %}
+{% block js_initializations %}
+    {{ block.super }}
+{% include "gestion/js_init_vols.html" %}
+<script type="text/javascript">
+$(function() {
+    function dependent_control(master, slave) {
+        if (master.length) {
+            master.change(function () {
+                update_dependent_control(master, slave);
+            });
+            update_dependent_control(master, slave);
+        }
+    }
+
+    function update_dependent_control(master, slave) {
+        if (master.is(':checked')) {
+            slave.show();
+        }
+        else {
+            slave.hide();
+    }
+}
+
+dependent_control(
+        $('#id_top-transport_organise_par_auf_1'),
+        $('.organise_par_auf')
+);
+
+dependent_control(
+        $('#id_top-transport_organise_par_auf_0'),
+        $('.organise_par_participant')
+);
+
+// verrue car l'évènement change n'est pas déclenché lorsqu'un radio
+// est déselectionné...
+$('#id_top-transport_organise_par_auf_0').change(function () {
+    update_dependent_control(
+            $('#id_top-transport_organise_par_auf_1'),
+            $('.organise_par_auf')
+    );
+});
+$('#id_top-transport_organise_par_auf_1').change(function () {
+    update_dependent_control(
+            $('#id_top-transport_organise_par_auf_0'),
+            $('.organise_par_participant')
+    );
+});
+
+$.ajaxSetup({cache:false});
+
+var select_vol_groupe = $('#id_top-vol_groupe');
+
+function vol_groupe_changed(){
+    var div_groupe = $("div#vol_groupe");
+    var val = select_vol_groupe.val();
+    if (val) {
+        div_groupe.load('/gestion/itineraire/'+ val +'/');
+        div_groupe.show();
+
+    } else {
+        div_groupe.hide();
+    }
+}
+
+select_vol_groupe.change(vol_groupe_changed);
+vol_groupe_changed();
+
+});
+</script>
+{% endblock %}
+

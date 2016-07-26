@@ -1,0 +1,5 @@
+{% extends "gestion/base_edit_form.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Suivi{% endblock title %}
+{% block page_crumb %}Suivi{% endblock %}
+{% block form_fields %}{% crispy form %}{% endblock %}

@@ -1,0 +1,11 @@
+Ici sont les modèles de courriels envoyés par l'application auf.django.mailing
+l'actuelle façon n'utilise pas ces fichiers 
+le html est tiré de la DB "mailing_modelecourriel"
+
+Les modèles reprennent les codes présents (et d'autres codes sont à développer):
+
+modele_courriel_mandate.code = 'mand' (mand.html)
+- le courriel d'invitation inital > envoyés aux PHA des établissements
+
+modele_courriel_accompagnateur.code = 'acc' (acc.html)
+- le courriel d'invitation aux accompagnateurs > les destinataires sont désignés par les PHA via le formulaire de la page Confirmation.html

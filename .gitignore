@@ -1,0 +1,31 @@
+# binaires
+*.pyc
+*.pyo
+
+# Fichier temporaires:
+.*.swp
+*~
+\#*#
+
+# DB de dev
+*.db
+
+# restants de merge
+*.orig
+*.rej
+
+# Configuration du projet - par environnement
+/ag/conf.py
+
+# buildout
+/.installed.cfg
+/bin
+/develop-eggs
+/eggs
+/parts
+/sitestatic
+
+
+/ag/media
+/ag/medias_participants
+/medias_participants

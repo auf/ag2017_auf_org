@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+{% load adminmedia i18n %}
+<head>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}base.css"/>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}changelists.css"/>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}menu.css" />
+{% block extrastyle %}{% endblock %}
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/ie.css" /><![endif]-->
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";</script>
+{% block extrahead %}
+{% endblock %}
+<meta name="robots" content="NONE,NOARCHIVE" />
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+  <!-- Container -->
+  <div id="container">
+    <div id="header">
+      <div id="branding">
+        <h1 id="site-name">Gestion des participants</h1>
+      </div>
+      <div id="user-tools">
+        Bienvenue,
+        <strong>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</strong>.
+        <a href="{% url changement_mot_de_passe %}">Modifier votre mot de passe</a> /
+        <a href="{% url logout %}">Déconnexion</a>
+      </div>
+      {% include "menu.html" %}
+    </div>
+
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="{% url tableau_de_bord %}">Accueil</a>&rsaquo;
+    </div>
+    {% endblock breadcrumbs %}
+
+    {% if messages %}
+    <ul class="messagelist">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div id="content" class="{% block coltype %}colM{% endblock %}">
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block content %}
+        {% block object-tools %}{% endblock %}
+        {{ content }}
+        {% endblock %}
+        {% block sidebar %}{% endblock %}
+        <br class="clear" />
+    </div>
+
+    {% block footer %}
+    <div id="footer"></div>
+    {% block js_initializations %}{% endblock %}
+    {% endblock footer %}
+</div>
+<!-- END Container -->
+
+</body>
+</html>

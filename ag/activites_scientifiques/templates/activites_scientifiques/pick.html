@@ -1,0 +1,40 @@
+<div id="act_sci_participant"></div>
+<div id="bouton_deconnexion"><a href="{% url act_sci_logout %}">Déconnexion</a></div>
+<h2>{{ participant.get_nom_prenom }}</h2>
+{{ adresse_courriel }}
+Veuillez sélectionner une activité pour réserver votre place
+{#% now "jS F Y H:i:s" %#}
+<form id="pick_act_sci_form" method="post" action="{% url act_sci_pick %}">
+    {% csrf_token %}
+    <ul>
+    {% for activite in activites %}
+    <li><label for="id_activites_{{ activite.id }}">
+        <input type="radio"
+               {% if activite.complet and participant.activite_scientifique != activite %}
+                  disabled="disabled"
+               {% endif %}
+               {% ifequal activite participant.activite_scientifique %}
+                   checked="checked"
+               {% endifequal %}
+                id="id_activites_{{ activite.id }}"
+                name="activites"
+                value="{{ activite.id }}"
+                />
+        {{ activite }}
+    </label></li>
+    {% endfor %}
+    </ul>
+    {# { pick_form }} #}
+</form>
+{% if just_saved %}<div id="just_saved">Changement enregistré !</div>{% endif %}
+{% if participant.activite_scientifique %}
+<div id="bouton_retirer"><a href="{% url act_sci_clear %}"><img src="/static/img/retirer_gris.png" width="14px">Annuler ma participation</a></div>
+{% endif %}
+<script type="text/javascript">
+    $(function() {
+        $('input').click(function() {
+            $('#pick_act_sci_form').submit()
+        });
+        $('#just_saved').delay(2000).fadeOut();
+    });
+</script>

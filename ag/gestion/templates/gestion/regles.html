@@ -1,0 +1,242 @@
+{% extends "gestion/base.html" %}
+{% block title %}Règles de gestion AG 2013{% endblock title %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        Règles de gestion
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+<h3>Configuration du sytème</h3>
+<table>
+		<tbody>
+		<tr style="background-color: #F0F0F0;">
+			<td>La synchronisation CODA (défaut de cotisation) s'effectue 1 fois par jour 7:00 AM heure de MTL</td>
+		</tr>
+		<tr>
+			<td>La mise à jour d'une adresse courriel PHA (actif) dans GDE, entraînera automatiquement un envoi à cette adresse (invitation inscription PHA)</td>
+		</tr>
+<tr style="background-color: #F0F0F0;">
+			<td>Les règles de prise en charge sont des paramètres automatiques dans le formulaire d'inscription</td>
+		</tr>
+		<tr>
+			<td>L'ajout d'un participant à même l'outil de gestion (sans formulaire web) n'est pas limitatif sur les règles de prises en charge (entrée manuelle)</td>
+		</tr>
+		</tbody>
+</table>
+
+<h3>Tableau des prises en charge</h3>
+<table style="
+    border: 1px solid #ccc;
+">
+		<tbody><tr style="
+    background-color: #ccc;
+    font-weight: bold;
+">
+			<td>objet</td>
+			<td>statut</td>
+			<td>type</td>
+			<td>Institution</td>
+			<td>Critères</td>
+			<td>PEC Frais</td>
+			<td>PEC Transp</td>
+			<td>PEC Heb</td>
+			<td>PEC Act</td>
+			<td>Perdiems</td>
+		</tr>
+		<tr>
+			<td>invité</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>non</td>
+			<td>non</td>
+			<td>supp</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>Participant</td>
+			<td>Représentant</td>
+			<td>Mandaté</td>
+			<td>Établissement</td>
+			<td>[membre titulaire]</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>[membre associé]</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>[membre titulaire du sud]</td>
+			<td>non</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td><b>Oui</b></td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>[membre associé du sud]</td>
+			<td>non</td>
+			<td>non</td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td><b>Oui</b></td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>"</td>
+			<td>"</td>
+			<td>Acompagnateur</td>
+			<td>"</td>
+			<td>[membre titulaire]</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>"</td>
+			<td>[membre associé]</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>"</td>
+			<td>Membre d'une instance</td>
+			<td>CA</td>
+			<td>Instance de l’AUF</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>"</td>
+			<td>CS</td>
+			<td>"</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>"</td>
+			<td>Personnel AUF</td>
+			<td>(rôle?)</td>
+			<td>Personnel de l'AUF</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>Observateurs</td>
+			<td>Intervenant</td>
+			<td>...</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td><b>Oui</b></td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>"</td>
+			<td>"</td>
+			<td>Journaliste</td>
+			<td>...</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td><b>Oui</b></td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>"</td>
+			<td>Opérateur</td>
+			<td>...</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+<tr style="
+    background-color: #F0F0F0;
+">
+			<td>"</td>
+			<td>"</td>
+			<td>Représentant politique</td>
+			<td>...</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+		<tr>
+			<td>"</td>
+			<td>"</td>
+			<td>Autre</td>
+			<td>...</td>
+			<td>-</td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td><b>Oui</b></td>
+			<td>non</td>
+			<td>non</td>
+		</tr>
+	</tbody></table>
+{% endblock %}

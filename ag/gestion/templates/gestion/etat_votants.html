@@ -1,0 +1,79 @@
+{% extends "gestion/base.html" %}
+{% block title %}Membres votants - AG2013{% endblock %}
+{% block extrahead %}
+    {{ block.super }}
+<script type="text/javascript" 
+         src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url tableau_de_bord %}">Accueil</a>&rsaquo;
+    <a href="{% url etats_listes %}">États et listes</a>&rsaquo;
+    Liste des membres votants
+</div>
+{% endblock %}
+{% block content %}
+<h2>Membres votants</h2>
+<div id="utils">
+<p>Rapport généré le :  {{ maintenant|date:"D, d-m-Y à H:s" }}</p>
+<p><a href="{% url votants_csv %}">Télécharger la liste en format CSV</a></p>
+</div>
+<div id="countT"><button id="hideT">Masquer</button><div id="monDivT"></div></div>
+<div id="countA"><button id="hideA">Masquer</button><div id="monDivA"></div></div>
+<script>
+$(function() {
+    $('#monDivT').append('  les  ('+$('.ligne-titulaire').length+')  représentants des membres Titulaires');
+    $('#monDivA').append('  les  ('+$('.ligne-associe').length+')  représentants des membres Associés');
+});
+</script>
+<script>
+$(document).ready(function(){
+  $("#hideT").click(function(){
+    $(this).toggleClass("selected");
+    $("#monDivT").toggleClass("barre");
+      if ($(this).hasClass("selected")) {
+          $(".ligne-titulaire").hide();
+      } else {
+          $(".ligne-titulaire").show();
+      }
+  });
+  $("#hideA").click(function(){
+    $(this).toggleClass("selected");
+    $("#monDivA").toggleClass("barre");
+    if ($(this).hasClass("selected")) {
+        $(".ligne-associe").hide();
+    } else {
+        $(".ligne-associe").show();
+    }
+  });
+});
+</script>
+<table>
+<thead>
+  <tr><th>Civilité</th><th>Nom</th><th>Prénom</th><th>Courriel</th>
+      <th>Poste</th><th>Statut</th><th>Établissement</th>
+      <th>Qualité</th><th>Statut</th><th>Pays</th>
+      <th>Région</th><th>Région vote</th>
+  </tr>
+</thead>
+{% for participant in votants %}
+<tr class="{% ifequal participant.etablissement.statut "T" %}ligne-titulaire{% else %}ligne-associe{% endifequal %}">
+  <td>{{ participant.get_genre_display }}</td>
+  <td><a href="{% url fiche_participant participant.id %}">
+    {{ participant.nom|upper }}</a></td>
+  <td>{{ participant.prenom }}</td>
+  <td>{{ participant.courriel }}</td>
+  <td>{{ participant.poste }}</td>
+  <td>{{ participant.statut.libelle }}</td>
+  <td>{{ participant.etablissement.nom }}</td>
+  <td>{{ participant.etablissement.qualite }}</td>
+  <td>{{ participant.etablissement.get_statut_display }}</td>
+  <td>{{ participant.etablissement.pays.nom }}</td>
+  <td>{{ participant.etablissement.region.nom }}</td>
+  <td>{{ participant.get_region_vote_string }}</td>
+</tr>
+{% endfor %}
+</table>
+<script type="text/javascript">
+</script>
+{% endblock %}

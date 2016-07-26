@@ -1,0 +1,31 @@
+{% extends "admin/change_list.html" %}
+{% block search %}{{ block.super }}
+{% comment %}
+Tentative infructueuse d'implémenter la demande #3537
+<div>
+<form><label for="select_etablissement">Établissement</label>
+    <select id="select_etablissement">
+            <option value="">---------------------</option>
+        {% for etablissement in etablissements %}
+            <option value="{{ etablissement.id }}"
+                {% if etablissement.id == etablissement_id %}SELECTED{% endif %}>
+                {{ etablissement.nom }}</option>
+        {% endfor %}
+    </select></form>
+</div>
+<script type="text/javascript">
+    django.jQuery(function() {
+        django.jQuery("#select_etablissement").change(function() {
+            var queryParameters = {}, queryString = location.search.substring(1),
+                    re = /([^&=]+)=([^&]*)/g, m;
+            while (m = re.exec(queryString)) {
+                queryParameters[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+            }
+            queryParameters['etablissement_id'] =  django.jQuery("#select_etablissement").val();
+            location.search =  django.jQuery.param(queryParameters);
+
+        });
+});
+</script>
+{% endcomment %}
+{% endblock %}

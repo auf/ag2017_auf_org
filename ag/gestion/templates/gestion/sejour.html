@@ -1,0 +1,86 @@
+{% extends 'gestion/base_edit_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Séjour{% endblock title %}
+{% block page_crumb %}Séjour{% endblock %}
+{% block form_fields %}<h1>Modifier Séjour</h1>{% crispy form %}{% endblock %}
+{% block js_initializations %}
+{{ block.super }}
+<script type="text/javascript">
+    $(function () {
+        function dependent_control(master, slave) {
+            if (master.length) {
+                master.change(function () {
+                    update_dependent_control(master, slave);
+                });
+                update_dependent_control(master, slave);
+            }
+        }
+
+        function update_dependent_control(master, slave) {
+            if (master.is(':checked')) {
+                slave.show();
+            }
+            else {
+                slave.hide();
+            }
+        }
+
+        dependent_control(
+                $('#id_reservation_par_auf_1'),
+                $('#infos_hotel')
+        );
+
+
+        // verrue car l'évènement change n'est pas déclenché lorsqu'un radio
+        // est déselectionné...
+        $('#id_reservation_par_auf_0').change(function () {
+            update_dependent_control(
+                    $('#id_reservation_par_auf_1'),
+                    $('#infos_hotel')
+            );
+        });
+
+        $.datepicker.setDefaults( $.datepicker.regional[ "fr" ] );
+        function init_date_picker(field_id) {
+            $( "#" + field_id ).datepicker( {
+                dateFormat: "d/m/yy",
+                minDate: new Date(2013,4,1 ),
+                maxDate: new Date(2013,4,30 )
+            } );
+        }
+        init_date_picker("id_date_depart");
+        init_date_picker("id_date_arrivee");
+        var chambres_hotels = JSON.parse('{{ chambres_hotels|safe }}')
+        function display_hotel_info() {
+
+            var hotel_id = $("input[name='hotel']:checked").val();
+            if (hotel_id) {
+                $("span.after_field_chambre").html("Non disponible");
+                var chambres = chambres_hotels[hotel_id];
+                for(var type_chambre in chambres) {
+                    if (!chambres.hasOwnProperty(type_chambre)
+                            || typeof(chambres[type_chambre]) === "function")
+                        continue;
+                    var chambre_data = chambres[type_chambre];
+                    var nb_restantes = chambre_data.nb_restantes;
+                    var nb_total = chambre_data.nb_total;
+                    var str_disponible = nb_restantes>1?" disponibles":" disponible";
+                    $("span#after_field_"+chambre_data.field_name).html(
+                        nb_restantes.toString() + str_disponible + " sur " + nb_total.toString()
+                    );
+                }
+            } else {
+                $("span.after_field_chambre").html("");
+            }
+        }
+        $("input[name='hotel']").change(
+        function() {
+            display_hotel_info();
+        });
+        display_hotel_info();
+
+    });
+
+
+</script>
+{% endblock %}

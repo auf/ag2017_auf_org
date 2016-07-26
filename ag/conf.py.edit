@@ -1,0 +1,35 @@
+# -*- encoding: utf-8 -*
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ag',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST' : '',
+        'PORT' : '',
+        'OPTIONS': {
+            "init_command": "SET storage_engine=INNODB",
+        },
+    }
+}
+
+DESTINATAIRES_NOTIFICATIONS = {
+    'service_institutions': [],
+    'finance': [],
+    'bureau_missions': [],
+    'inscription': [],
+    'gestion': [],
+}
+
+AG_INSCRIPTION_SENDER = ''
+
+PAYPAL_EMAIL_ADDRESS = ''
+PAYPAL_URL = ''
+PAYPAL_PDT_TOKEN = ''
+
+RAVEN_CONFIG = {
+    'dsn': '',
+}
+
+EMAIL_HOST = 'smtp-horssite.ca.auf.org'

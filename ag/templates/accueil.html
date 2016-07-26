@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load i18n cms_tags%}
+{% block langue %}
+<div class='selectBox'>
+              	<span class='selected'>Sélectionner une langue</span>
+              	<span class='selectArrow'></span>
+              	<div class="selectOptions" >
+                    <form name='langform' action='/i18n/setlang/' method='POST'>{% csrf_token %}
+                        {% for lang in LANGUAGES %}
+                             <span class="selectOption" onclick="document.langform.language.value='{{ lang.0 }}';document.langform.submit();">{{ lang.1}}</span>
+                         {% endfor %}
+                         <input name='language' type=hidden value="{{ LANGUAGE_CODE }}">
+                 	</form>
+              	</div>
+</div>
+{% endblock %}
+
+{% block diapo %}
+<script>
+$(function() {
+    $('#accueil').addClass("active");
+});
+</script>
+<div id="baseline">
+    	<div id="baseline2">
+        
+        	<div id="logoligne">
+                <div id="logo">
+                    <img src="{{ STATIC_URL }}img/logo4.png">
+                </div>
+                
+                <div id="ligne">
+                    <span>16</span><sup>&#7497;</sup><h4>assemblée générale</h4>
+                    <h2>São Paulo, Brésil</h2>
+                    <h3>7- 10 Mai 2013</h3>
+                </div>
+            </div>
+            
+            <div id="diapo">                
+                <div class="image">
+    				<img src="{{ STATIC_URL }}img/diapo4.jpg">
+                </div>
+                <div class="image">
+    				<img src="{{ STATIC_URL }}img/diapo2.jpg">
+                    <div class="note"><a  href="{% url info_inscription %}">Inscrivez vous grâce au formulaire en ligne</a></div>
+                </div>
+                <div class="image">
+    				<img src="{{ STATIC_URL }}img/diapo6.jpg">
+                </div>
+            </div>
+            
+        </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+	{% placeholder Texte %}
+
+{% endblock %}

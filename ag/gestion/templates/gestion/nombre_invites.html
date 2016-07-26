@@ -1,0 +1,8 @@
+    {% if participant.invite_set.count %}
+        {{ participant.invite_set.count }} invité(s)
+<div class="form-row" style="font-weight: bold; color:red;">
+    {% else %}
+<div class="form-row" style="">
+        Aucun invité
+    {% endif %}
+</div>

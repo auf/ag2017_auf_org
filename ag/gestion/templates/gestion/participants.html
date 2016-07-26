@@ -1,0 +1,103 @@
+{% extends "gestion/base_form.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Liste participants - AG2013{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+  Participants
+</div>
+{% endblock breadcrumbs %}
+{% block content %}
+<ul class="object-tools">
+  <li><a href="{% url ajout_participant %}" class="addlink"
+    >Ajouter un participant</a></li>
+</ul>
+{% crispy form %}
+
+<div id="liste_participants" class="results">
+{% if participants %}
+<p>{% with count=participants.count %}
+    {{ count }} participant{{ count|pluralize }} trouvé{{ count|pluralize }}
+    avec ces critères.
+    {% endwith %}
+</p>
+
+<table cellspacing="0">
+  <thead>
+    <tr>
+      <th rowspan="2">Participant</th>
+      <th rowspan="2">Institution représentée</th>
+      <th rowspan="2">Pays</th>
+      <th rowspan="2">Région</th>
+      <th rowspan="2">Statut</th>
+      <th rowspan="2">Numéro</th>
+      <th colspan="2">Prise en charge</th>
+      <th rowspan="2">Date inscription</th>
+      <th rowspan="2">Cotisations</th>
+      <th rowspan="2">Paiement</th>
+    </tr>
+    <tr><th>Transport</th><th>Séjour</th></tr>
+  </thead>
+  <tbody>
+  {% for participant in participants %}
+  <tr>
+    <td>
+      <a href="{% url fiche_participant participant.id %}">
+        {{ participant.get_nom_prenom }}</a>
+    </td>
+    <td>{{ participant.nom_institution }}</td>
+    <td>{{ participant.pays }}</td>
+    <td>{{ participant.get_region }}</td>
+    <td>{{ participant.statut.libelle }}</td>
+    <td>{{ participant.numero }}</td>
+    <td>{{ participant.get_prise_en_charge_transport_text }}</td>
+    <td>{{ participant.get_prise_en_charge_sejour_text }}</td>
+
+    <td>{% if participant.inscription %}{{ participant.inscription.date_fermeture }}{% else %}N/A{% endif %}</td>
+    <td>{% if participant.type_institution == 'E' %}
+      {% if participant.est_delinquant  %}Délinquant{% else %}À jour{% endif %}
+      {% else %}N/A{% endif %}</td>
+
+    <td>{{ participant.get_paiement_string }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{% ifequal participants None %}
+{% else %}
+<p>Aucun participant trouvé avec ces critères</p>
+{% endifequal %}
+{% endif %}
+</div>
+{% endblock content %}
+
+{% block js_initializations %}
+{{ block.super }}
+<script>
+var liste_pays = [
+    {% for pays in liste_pays %}
+        "{{ pays }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+$(document).ready(function() {
+  $('.form-row:not(:has(input[name=nom]))').each(function() {
+    var $vals = $(this)
+      .find('input[type!=checkbox],textarea,:checked,:selected')
+      .filter(function() { return $(this).val(); });
+    if ($vals.length == 0) {
+      $(this).hide();
+    }
+  });
+
+  var $plus = $('<button type="button">Plus d\'options</button>');
+  $('.submit-row').prepend($plus);
+  $plus.click(function() {
+    $('.form-row').show();
+    $(this).hide();
+  });
+
+  $('#id_pays').autocomplete({source: liste_pays});
+});
+</script>
+{% endblock %}

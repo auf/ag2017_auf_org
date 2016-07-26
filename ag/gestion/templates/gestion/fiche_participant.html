@@ -1,0 +1,502 @@
+{% extends "gestion/base.html" %}
+{% load gestion %}
+{% load permissions %}
+{% block extrahead %}
+    {{ block.super }}
+    <style type="text/css">
+        #table-facturation td.align-left { text-align: left; }
+        #table-facturation td { text-align: right; }
+    </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+{% endblock %}
+
+{% block title %}{{ participant.get_nom_prenom }}{% endblock title %}
+{% block branding %}
+    {{ block.super }}
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        <a href="{% url participants %}">Participants</a> &rsaquo;
+        {{ participant.nom }}, {{ participant.prenom }}
+    </div>
+{% endblock breadcrumbs %}
+{% block coltype %}{% endblock %}
+{% block content %}
+
+<h2>Fiche du participant</h2>
+
+    <div class="actions">
+        <a href="#" onclick="window.print(); return false;" class="printlink">Imprimer</a>
+        &nbsp;|&nbsp;
+    {% ifhasperm perms_dict.PERM_SUPPRESSION participant %}
+    <a href="javascript:supprimer_participant({{ participant.id }})" class="deletelink">
+        Supprimer ce participant</a>
+    {% endifhasperm %}
+    </div>
+
+    <div id="colonne" class="colM">
+    <div class="module">
+    <h2>Renseignements Personnels</h2>
+    <div class="actions">
+    {% ifhasperm perms_dict.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS participant %}
+    <a href="{% url renseignements_personnels participant.id %}" class="changelink">Modifier</a>
+    {% endifhasperm %}
+    </div>
+    <table cellspacing="0"><tbody>
+        {% champ_fiche renseignements_personnels "nom" %}
+        {% champ_fiche renseignements_personnels "prenom" %}
+        {% champ_fiche renseignements_personnels "nationalite" %}
+        {% champ_fiche renseignements_personnels "date_naissance" %}
+        {% champ_fiche renseignements_personnels "courriel" %}
+<tr>
+    <td colspan="2"><h2 style="background: #bad0e7;">Établissement représenté</h2></td>
+</tr>
+        {% champ_fiche renseignements_personnels "poste" %}
+        {% ifequal participant.type_institution "E" %}
+          {% champ_fiche renseignements_personnels "statut" %}
+          <tr>
+              <td class="tag">Établissement</td>
+              <td>{{ participant.etablissement.nom }}</td>
+          </tr>
+            <tr>
+                <td class="tag">Région</td>
+                <td>{{ participant.get_region.nom }}</td>
+            </tr>
+        {% endifequal %}
+        {% ifequal participant.type_institution "A" %}
+        {% champ_fiche renseignements_personnels "type_autre_institution" %}
+        {% champ_fiche renseignements_personnels "nom_autre_institution" %}
+        {% champ_fiche renseignements_personnels "pays_autre_institution" %}
+        {% champ_fiche renseignements_personnels "region" %}
+        {% endifequal %}
+        {% ifequal participant.type_institution "I" %}
+        {% champ_fiche renseignements_personnels "instance_auf" %}
+        {% champ_fiche renseignements_personnels "region" %}
+        {% champ_fiche renseignements_personnels "pays_autre_institution" %}
+        {% endifequal %}
+<tr>
+    <td colspan="2"><h2 style="background: #bad0e7;">Adresse de facturation</h2></td>
+</tr>
+        {% champ_fiche renseignements_personnels "adresse" %}
+        {% champ_fiche renseignements_personnels "ville" %}
+        {% champ_fiche renseignements_personnels "code_postal" %}
+        {% champ_fiche renseignements_personnels "pays" %}
+        {% champ_fiche renseignements_personnels "telephone" %}
+        {% champ_fiche renseignements_personnels "telecopieur" %}
+
+    </tbody></table>
+    </div>
+    <div class="module">
+        <h2>Invités</h2>
+        <div class="actions">
+        {% ifhasperm perms_dict.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS participant %}
+        <a href="{% url invites participant.id %}" class="changelink">Modifier</a>
+        {% endifhasperm %}
+        </div>
+				<table cellspacing="0">
+        <tr>
+            <td class="tag">{% include "gestion/nombre_invites.html" %}</td>
+						<td>
+        {% if participant.nombre_invites %}
+            <ul>
+                {% for invite in participant.invite_set.all %}
+                    <li>{{ invite.get_genre_display }}&nbsp;{{ invite.prenom }}&nbsp;{{ invite.nom }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <ul><li class="vide">------</li></ul>
+        {% endif %}
+ 				</td>
+        </tr>
+        </table>
+    </div>
+    <div class="module">
+        <h2 class="vert">Séjour</h2>
+        <div class="actions">
+        {% ifhasperm perms_dict.PERM_MODIF_SEJOUR participant %}
+        <a href="{% url sejour participant.id %}" class="changelink">Modifier</a>
+        {% endifhasperm %}
+        </div>
+        <table cellspacing="0">
+        <tr>
+            <td class="tag">Hôtel réservé par l'AUF</td>
+            {% if participant.reservation_hotel_par_auf %}<td style="font-weight: bolder;">Oui{% else %}<td>Non{% endif %}
+            </td></tr>
+            {% if participant.hotel %}
+                {% champ_fiche sejour "hotel" %}
+                {% champ_fiche sejour "date_arrivee" %}
+                {% champ_fiche sejour "date_depart" %}
+                {% if participant.reservation_hotel_par_auf %}
+                  <tr><td class="tag">
+                      Chambres réservées
+                  </td><td>
+                      {% spaceless %}
+                      {% for chambre in participant.chambres_reservees %}
+                          {{ chambre.nombre }}&nbsp;
+                          {% ifequal chambre.nombre 1 %}
+                              {{ chambre.type.libelle_sing }}
+                          {% else %}
+                              {{ chambre.type.libelle_plur }}
+                          {% endifequal %}
+                          {% if not forloop.last %},&nbsp;{% endif %}
+                      {% endfor %}
+                      {% endspaceless %}
+                  </td></tr>
+                {% endif %}
+          {% else %}
+                <tr><td class="tag">Hôtel</td>
+                    <td style="color:red;">À préciser</td>
+                </tr>
+        {% endif %}
+        <tr>
+            <td class="tag">Activités</td>
+            <td>
+            {% spaceless %}
+                {% if participation_activites %}
+                    {% for participation in participation_activites %}
+                        {{ participation.activite.libelle }}
+                        {% if participation.avec_invites %}
+                            &nbsp;(avec invités){% endif %}{% if not forloop.last %},&nbsp;{% endif %}
+                    {% endfor %}
+                {% else %}
+                    ------
+                {% endif %}
+            {% endspaceless %}
+            </td>
+        </tr>
+        <tr>
+            <td class="tag">Atelier scientifique</td>
+            <td>
+                {% spaceless %}
+                    {% if participant.activite_scientifique %}
+                        {{ participant.activite_scientifique.libelle }}
+                    {% else %}
+                        ------
+                    {% endif %}
+                {% endspaceless %}
+            </td>
+        </tr>
+        </table>
+    </div>
+
+    <div class="module">
+        <h2 class="vert">Transport</h2>
+        <div class="actions">
+        {% if participant.transport_organise_par_auf %}
+        <a href="{% url itineraire_pdf participant.id %}" class="printlink">Imprimer</a>
+        {% endif %}
+        {% ifhasperm perms_dict.PERM_MODIF_SEJOUR participant %}
+        <a href="{% url transport participant.id %}" class="changelink">Modifier</a>
+        {% endifhasperm %}
+        </div>
+        <table cellspacing="0"><tbody>
+        <tr>
+            <td class="tag">Itinéraire</td>
+                {% if participant.transport_organise_par_auf %}
+ 						<td style="font-weight: bolder;">
+                    Organisé par l'AUF
+                {% else %}
+ 						<td>
+                    Organisé par le participant lui-même
+                {% endif %}
+            </td>
+        </tr>
+        {% if participant.transport_organise_par_auf %}
+            {% champ_fiche transport_top "numero_dossier_transport" %}
+            {% champ_fiche transport_top "modalite_retrait_billet" %}
+            {% champ_fiche transport_top "statut_dossier_transport" %}
+            {% champ_fiche transport_top "vol_groupe" %}
+            <tr>
+            <td colspan="2">
+            {% if participant.itineraire.count %}
+                {% include "gestion/table_itineraire.html" with itineraire=participant.itineraire prix_total=participant.frais_transport   %}
+            {% endif %}
+            </td>
+            </tr>
+            {% champ_fiche transport_bottom "notes_transport" %}
+            {% champ_fiche transport_bottom "remarques_transport" %}
+        {% else %}
+            {% champ_fiche transport_arrdep "date_arrivee" %}
+            {% champ_fiche transport_arrdep "heure_arrivee" %}
+            {% champ_fiche transport_arrdep "compagnie_arrivee" %}
+            {% champ_fiche transport_arrdep "numero_vol_arrivee" %}
+            {% champ_fiche transport_arrdep "ville_arrivee" %}
+            {% champ_fiche transport_arrdep "date_depart" %}
+            {% champ_fiche transport_arrdep "heure_depart" %}
+            {% champ_fiche transport_arrdep "compagnie_depart" %}
+            {% champ_fiche transport_arrdep "numero_vol_depart" %}
+            {% champ_fiche transport_arrdep "ville_depart" %}
+        {% endif %}
+        </tbody></table>
+    </div>
+
+		<div class="module">
+        <h2 class="vert">Notes de frais</h2>
+        <div class="actions">
+            {% ifhasperm perms_dict.PERM_MODIF_NOTES_DE_FRAIS participant %}
+                <a href="{% url notes_de_frais participant.id %}" class="changelink">Modifier</a>
+            {% endifhasperm %}
+        </div>
+        <table cellspacing="0"><tbody>
+        {% for frais in participant.get_all_frais %}
+            <tr>
+                <td class="tag">{{ frais.type_frais.libelle }}</td>
+                <td><div class="frais-montant">{{ frais.quantite }}x{{ frais.montant|floatformat:2 }}
+								&nbsp;&euro;</div></td>
+            </tr>
+            {% if forloop.last %}
+                <tr>
+                    <td class="tag">Total</td>
+                    <td><div class="frais-montant">{{ participant.frais_autres|floatformat:2 }}
+										&nbsp;&euro;</div></td>
+                </tr>
+                <tr>
+                    <td class="tag">Modalité de versement</td>
+                    <td>{{ participant.get_modalite_versement_frais_sejour_display }}</td>
+                </tr>
+            {% endif %}
+        {% empty %}
+        <tr><td class="tag">Aucune</td></tr>
+        {% endfor %}
+        </tbody></table>
+    </div>
+
+    <div class="module">
+        <h2 class="rouge">Facturation</h2>
+        <div class="actions">
+        {% if participant.numero_facture %}
+            <a href="{% url facture_pdf participant.id %}" class="printlink">Imprimer</a>
+        {% endif %}
+        {% ifhasperm perms_dict.PERM_MODIF_FACTURATION participant %}
+        <a href="{% url facturation participant.id %}" class="changelink">Modifier</a>
+        {% endifhasperm %}
+        </div>
+        <table>
+        <tr>
+            <td class="tag">Prise en charge</td>
+            <td>{% spaceless %}
+                {% for prise_en_charge in prises_en_charge %}
+                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}
+                {% endfor %}{% endspaceless %}
+            </td>
+        </tr>
+        {% champ_fiche facturation "accompte" %}
+        {% if participant.montant_accompte_devise_locale %}
+        <tr>
+            <td class="tag">Paiement (devises locales)</td>
+            <td>{{ participant.montant_accompte_devise_locale }}&nbsp;
+                {{ participant.accompte_devise_locale }}</td>
+        </tr>
+        {% endif %}
+        {% champ_fiche facturation "paiement" %}
+        {% if participant.paiement == 'CB' and participant.inscription %}
+            <tr>
+                <td class="tag">
+                    Paypal
+                </td>
+                <td>
+                    {{ participant.inscription.statut_paypal_text }}<br/>
+                    {{ participant.inscription.numeros_confirmation_paypal }}
+
+                </td>
+            </tr>
+        {% endif %}
+         <tr><td class="tag">Validée</td><td>{% if participant.facturation_validee %}Oui{% else %}Non{% endif %}</td></tr>
+        {% if participant.facturation_validee %}
+        <tr><td class="tag">Numéro facture</td><td>{{ participant.numero_facture }}</td></tr>
+        {% champ_fiche facturation "date_facturation" %}
+        {% endif %}
+        {% champ_fiche facturation "imputation" %}
+        {% champ_fiche facturation "notes_facturation" %}
+        <tr><td colspan="2">
+            <table id="table-facturation">
+                <thead>
+                <tr><th></th><th>Dépenses totales <br/>de la mission</th>
+                    <th></th><th>Dépenses à facturer <br/>selon la prise en charge</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class='align-left'>Frais d'inscription</td>
+                    <td>{{ participant.frais_inscription|floatformat:2 }}&nbsp;&euro;</td>
+                    <th></th>
+                    <td>{{ participant.frais_inscription_facture|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                <tr>
+                    <td class='align-left'>Frais de transport</td>
+                    <td>{{ participant.frais_transport|floatformat:2 }}&nbsp;&euro;</td>
+                    <th></th>
+                    <td>{{ participant.frais_transport_facture|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                <tr>
+                    <td class='align-left'>Frais d'hébergement</td>
+                    <td>{{ participant.frais_hebergement|floatformat:2 }}&nbsp;&euro;</td>
+                    <th></th>
+                    <td>{{ participant.frais_hebergement_facture|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                <tr>
+                    <td class='align-left'>Activités</td>
+                    <td>{{ participant.frais_activites|floatformat:2 }}&nbsp;&euro;</td>
+                    <th></th>
+                    <td>{{ participant.frais_activites_facture|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                {% for frais in participant.get_all_frais %}
+                    <tr>
+                        <td class='align-left'>{{ frais.type_frais.libelle }}</td>
+                        <td>{{ frais.total|floatformat:2 }} &euro;</td>
+                        <th></th>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <th>Montant total</th>
+                    <td>{{ participant.total_frais|floatformat:2 }}&nbsp;&euro;</td>
+                    <th>Total à facturer</th>
+                    <td>{{ participant.total_facture|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td></td>
+                    <td class='align-left'>Accompte</td>
+                    <td>{{ participant.accompte|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td></td>
+                    <th>Solde à payer</th>
+                    <td>{{ participant.solde|floatformat:2 }}&nbsp;&euro;</td>
+                </tr>
+                </tbody>
+            </table>
+        </td></tr>
+        </table>
+    </div>
+    <div class="module">
+        <h2>Fichiers</h2>
+        <div class="actions">
+        {% ifhasperm perms_dict.PERM_MODIF_FICHIERS participant %}
+        <a href="{% url fichiers participant.id %}" class="changelink">Modifier</a>
+        {% endifhasperm %}
+        </div>
+        <table cellspacing="0">
+            <tbody>
+            {% for fichier in fichiers %}
+                <ul>
+                <li {% if fichier.efface_le %}class="strikethrough"{% endif %}><a href="{% url media_participant nom_fichier=fichier.filename %}">{{ fichier.filename }}</a></li>
+                </ul>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+<div style="position: absolute; top: 95px;" id="f-status">
+        <div id="resume">
+<div align="right">{{ participant.numero }}</div>
+            <h1>{{ participant.nom|upper }}, {{ participant.prenom }}</h1>
+            <table cellspacing="0">
+                <tbody>
+                {% if participant.desactive %}
+                    <tr><td style="font-weight: bold; color:red;">
+                        Désactivé
+                    </td></tr>
+                {% endif %}
+
+                <tr><td>{{ participant.poste }}</td></tr>
+                <tr><td>{{ participant.statut }}</td></tr>
+                <tr><td>{{ participant.nom_institution }}</td></tr>
+                <tr><td>{{ participant.get_type_institution_display }}
+                    {% ifequal participant.type_institution "E" %}
+                        -&nbsp;{{ participant.etablissement.get_statut_display }}
+                        {% if participant.get_etablissement_sud %}
+                        -&nbsp;Sud
+                        {% endif %}
+                    {% endifequal %}
+                </td></tr>
+                <tr><td>
+                    {{ participant.get_region }}
+                </td></tr>
+                <tr><td>{% include "gestion/nombre_invites.html" %}</td></tr>
+                </tbody></table>
+        </div>
+        <div id="status">
+            <div id="suivi" class="module">
+                <h2>Suivi</h2>
+                <div class="actions">
+                    {% ifhasperm perms_dict.PERM_MODIF_SUIVI participant %}
+                        <a href="{% url suivi participant.id %}" class="changelink">Modifier</a>
+                    {% endifhasperm %}
+                </div>
+                {% if participant.suivi.count %}
+                    <ul>
+                        {% for point in participant.suivi.all %}
+                            <li>{{ point.libelle }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="vide">(Non renseigné)</p>
+                {% endif %}
+
+            </div>
+            <div id="commentaires" class="module">
+                <h2>Commentaires</h2>
+                <div class="actions">
+                    {% ifhasperm perms_dict.PERM_MODIF_SUIVI participant %}
+                        <a href="{% url suivi participant.id %}" class="changelink">Modifier</a>
+                    {% endifhasperm %}
+                </div>
+                {% if participant.commentaires %}
+                <div><p>{{ participant.commentaires|linebreaksbr }}</p></div>
+                {% else %}
+                <p class="vide">(Aucun)</p>
+                {% endif %}
+            </div>
+           <div id="alertes">
+              {% for probleme in problemes %}
+                  {% ifequal probleme.niveau "error" %}
+                  <p class="errornote">
+                  {% else %}
+                  <p class="warningnote">
+                  {% endifequal %}
+                  {{ probleme.libelle }}
+                  </p>
+              {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div style="display: none;">
+    <form id="supprimer" method="post" action="{% url supprimer_participant %}">
+        {% csrf_token %}
+        <input type="hidden" name="id" id="id_suppression_participant"/>
+    </form>
+    </div>
+{% endblock content %}
+{% block js_initializations %}
+<script type="text/javascript">
+    function supprimer_participant(id) {
+        if (confirm('Voulez-vous vraiment supprimer ce participant ?') == true) {
+            $("input#id_suppression_participant").val(id);
+            $("form#supprimer").submit();
+        }
+    }
+</script>
+<script type="text/javascript">
+
+    var fixed = false;
+
+    $(document).scroll(function() {
+        if( $(this).scrollTop() >= 85 ) {
+            if( !fixed ) {
+                fixed = true;
+                $('#f-status').css({position:'fixed',top:10});
+            }
+        } else {
+            if( fixed ) {
+                fixed = false;
+                $('#f-status').css({position:'absolute',top:95});
+            }
+        }
+    });
+</script>
+{% endblock %}

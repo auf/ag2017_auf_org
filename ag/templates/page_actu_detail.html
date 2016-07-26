@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load cms_tags%}
+<!--test-->
+
+{% block langue %}
+<div class='selectBox2'>
+<div id="google_translate_element"></div>
+			<script type="text/javascript">
+				function googleTranslateElementInit() {
+				  new google.translate.TranslateElement({pageLanguage: 'fr', includedLanguages: 'ar,en,es,fr,pt', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false}, 'google_translate_element');
+				}
+			</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</div>
+{% endblock %}
+
+{% block content %}
+
+	{% with actualite as item %}
+
+    <h1>{{ item.titre }}</h1>
+    
+    	{% if item.image %}
+        	<img src="{{ MEDIA_URL }}{{ item.image }}" class="bio" alt="{{ item.titre }}"/>
+       {% endif %}        
+        <div class="text">
+             <p>{{ item.texte|safe}}</p>         
+        </div>   
+            
+	{% endwith %}
+
+{% endblock %}

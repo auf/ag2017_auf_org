@@ -1,0 +1,26 @@
+<div class="ctrlHolder{% if field.errors %} error{% endif %}">
+  <label for="{{ field.auto_id }}">
+    {% if field.field.widget.is_required %}
+    <span class="required">*</span>
+    {% endif %}
+    {{ field.label }}
+  </label>
+  <ul class="inline-radio">
+       <li>
+       {% for value, label in field.field.choices %}
+       <label>
+         <input name="{{ field.html_name }}" type="radio" value="{{ value }}"
+               {% if field.value == value %}checked{% endif %}>
+        {{ label }}
+      </label>
+      {% endfor %}
+      </li>
+  </ul>
+  {% if field.errors %}
+  <p class="formHint{% if field.errors %} warning{% endif %}">
+  {% for error in field.errors %}
+  {{ error }}
+  {% endfor %}
+  </p>
+  {% endif %}
+</div>

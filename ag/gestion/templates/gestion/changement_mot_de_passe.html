@@ -1,0 +1,40 @@
+{% extends "gestion/base_form.html" %}
+
+{% block extratitle %}Changement de mot de passe{% endblock %}
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+    Changement de mot de passe
+  </div>
+{% endblock %}
+
+{% block coltype %}{% endblock %}
+{% block content %}
+<div id="content-main">
+  <form action="" method="post">{% csrf_token %}
+    <div>
+      <h1>Changement de mot de passe</h1>
+      <fieldset class="module aligned wide">
+        <div class="form-row">
+          {{ form.old_password.errors }}
+          {{ form.old_password.label_tag }}: {{ form.old_password }}
+        </div>
+        <div class="form-row">
+          {{ form.new_password1.errors }}
+          {{ form.new_password1.label_tag }}: {{ form.new_password1 }}
+        </div>
+
+        <div class="form-row">
+          {{ form.new_password2.errors }}
+          {{ form.new_password2.label_tag }}: {{ form.new_password2 }}
+        </div>
+      </fieldset>
+
+      <div class="submit-row">
+        <input type="submit" value="Modifier mon mot de passe" class="default" />
+      </div>
+      <script type="text/javascript">document.getElementById("id_old_password").focus();</script>
+    </div>
+  </form>
+</div>
+{% endblock %}

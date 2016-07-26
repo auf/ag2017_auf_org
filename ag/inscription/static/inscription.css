@@ -1,0 +1,275 @@
+#corp { width: 940px; }
+
+form h2 {
+border-bottom: solid 1px #EFEFEF;
+text-decoration: none;
+padding: 10px 0;
+margin: 24px 0px 20px 0px;
+}
+
+h3 {
+font-size: 16px;
+margin: 24px 0 20px 0;
+text-decoration: none;
+border-bottom: solid 1px #999;
+padding: 8px 0 8px 0;
+}
+
+h4 {
+font-size: 14px;
+text-decoration: none;
+margin: 18px 0 12px 0;
+padding: 10px 0 12px 0;
+}
+
+fieldset {border-top: 1px solid #efefef !important;}
+
+
+.Data {
+	width: 480px;
+	color: #3F3F3F;
+	font-family: Tahoma, Arial, Verdana, sans-serif;
+	position: relative;
+	left: 250px;
+}
+
+.ctrlHolder .Label {
+	position: relative;
+	top: 15px;
+	left: 0px;
+}
+
+#holder_identite_confirmee, #holder_conditions_acceptees{
+	font-size: 13px;
+}
+
+.uniForm .ctrlHolder {
+	padding: 7px 5px 9px 5px;
+}
+
+#content .ctrlHolder ul li {
+margin: 10px;
+}
+
+#contents #etapes {
+	width: 940px;
+}
+
+#contents #etapes li {
+	display: inline-block;
+	margin-right: 8px;
+	padding-left: 30px;
+	background: url(img/separ2.png) left no-repeat;
+}
+
+#contents .etape_courante {
+	font-weight: bold;
+	color: #00334D !important;
+}
+#holder_accompagnateur label {width:100%;}
+#holder_type_chambre_hotel {}
+#holder_date_arrivee_hotel {}
+#holder_date_depart_hotel {}
+
+.inline-radio label {display: inline !important;}
+
+.uniForm .inlineLabels ul {width:50%;}
+
+.ui-datepicker {font-size: smaller;}
+
+a.primaryAction {text-decoration: none;}
+
+.avertissement {background: #ffff88; border: 1px solid #666; padding: 1em;}
+
+.prix {
+	float: right;
+	width: 10%;
+	font-size:16px;
+}
+
+.total {
+	float: right;
+	width: 10%;
+	font-size:17px;
+}
+
+.detail {
+	color: #960528;
+}
+
+.calcul fieldset {
+	border-bottom: 1px solid #EFEFEF;
+}
+
+.calcul .formHint{
+	color: #242424;
+	float: right;
+	width: 10%;
+	font-size:14px;
+  font-style: normal;
+}
+
+.selectPaiement ul {
+	width: 30%;
+}
+
+.infoPaiement {
+	float: right;
+	width: 60%;
+	color: #555;
+	margin-top: 5px;
+}
+
+#tableBanque {
+	width: 60%;
+	float: right;
+	font-size: 12px;
+	color: #555;
+	background-color: #ebebeb;
+}
+
+#tableBanque td {
+	padding: 5px 10px 5px 10px;
+	border-color: #999;
+}
+
+.uniForm .buttonHolder .primaryAction{ font-size: 15px; padding: 8px 14px; font-weight: normal;}
+
+.PrintMessage p {
+	width: 500px;
+	float: left;
+}
+
+.message {background: none repeat scroll 0 0 #F8F8F8;
+    border: 1px solid #CCCCCC;
+    margin: 8px 0 0;
+    padding: 0 1.5em;}
+	
+.erreur h4 {color:red; padding: 10px 0 10px 0;}
+.succes h4 {color:green;}
+
+#message {
+	padding: 0 20px;
+	position: relative;
+	top: -13px;
+}
+
+#message h4 {
+	padding-top: 0;
+}
+
+#confirmation{
+	overflow: hidden;
+}
+
+#bouton_invitation a {
+	z-index: 10;
+	display: block;
+	margin: 10px 20px 20px 20px;
+	text-align: center;
+	padding: 10px 0px 32px 0px;
+    color: #fff;
+	font-weight: bold;
+    background: #7db41a url(img/invit.png) bottom center no-repeat;
+}
+
+#bouton_invitation a:hover {
+	color: white;
+	background: #7db41a url(img/invito.png) bottom center no-repeat;
+}
+
+#Imprimer {
+	float: right;
+	margin-top: 4px;
+}
+#header_print {display:none;}
+#conditions_print {display:none;}
+
+#liste_adresses {
+	width: 420px;
+}
+#invite_mails {
+	padding-left: 20px;
+	width: 350px;
+}
+
+#accompagnateurs {
+	float: right;
+	padding-left: 20px;
+	width: 350px;
+	border-top: 1px solid #EFEFEF !important;
+	border-left: 1px solid #EFEFEF !important;
+}
+
+#accompagnateurs h3 {
+	margin-top: 0;
+}
+
+#accompagnateurs ul {
+	margin-left: 0;
+}
+
+	
+#accompagnateurs ul li {
+	margin-bottom: 0;
+	margin-left: 0;
+	background: url(img/puce.png) left no-repeat;
+	padding-top: 5px;
+}
+
+#accompagnateurs ul li div {
+	position: relative;
+}
+
+.indice {
+	 left: 180px; 
+	 top: -12px; 
+	 color: grey; 
+	 font-size: 12px;
+}
+
+.bouton {
+	background: none repeat scroll 0 0 #F7F7F7;
+    border: 1px solid #AAAAAA;
+    color: #363636;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 10px 0 2px;
+    padding: 6px 8px;
+    transition: all 0.2s linear 0s;
+}
+
+.Invites {
+padding: 22px;
+background: url(img/fond2.jpg);
+border: 1px solid #CCC;
+}
+
+
+
+@media print {
+	#top, #baseline3, #baseline4, #footer, #logoligne, #etapes, #bouton_invitation, #confirmation { display: none; }
+  h1,h2,h3 { display: block; margin: 10px 0px 0px 0px; padding: 0px 0px 0px 0px; }
+	#titre { display: none; }
+	#corp p { font-size: 14pt; }
+	#message { display: none; }
+	.message { display: none; }
+    #header_print { display:inline; width: 100%;}
+    #header_print img { border:none; height:80px;}
+    #content form { background-color:transparent;}
+    #recap {padding:0 25px;}
+    h2 { margin-top: 20px; font-size: 18px; border:none;}
+	h3 { margin-top: 10px; font-size: 16px; border-top:1px solid #FFFFFF;}
+	.uniForm .ctrlHolder { padding: 0; border-bottom: 1px solid #EFEFEF;}
+	div .Data { left: 200px; width: 600px; top:-15px; font-size: 13px; }
+	div .Label { top:5px; font-size: 13px; }
+	div .ctrlHolder {font-size: 13px; }
+    div .ctrlHolder, div .Label, div .Data { top: 0px; line-height: 1,2; padding: 0 0 0 0; margin: 0 0 0 0; border: none; }
+    #conditions_print { display: block; margin: 20px 0 0 0; border-top: solid 1px; page-break-before: always; }
+    #conditions_print h1 { display: block; font-size: 13px; line-height: 1 }
+    #conditions_print h2 { font-size: 12px; margin: 10px 0 0 0; padding: 5px 0 0 0;}
+    #conditions_print p { font-size:12px;}
+    #conditions_screen { display: none; }
+    form.Invites { display: none; }
+    .buttonHolder { display: none; }
+}

@@ -1,0 +1,51 @@
+{% extends "gestion/base_form.html" %}
+{% load crispy_forms_tags %}
+{% block extrahead %}
+    {{ block.super }}
+    {% include "gestion/extrahead_vols.html" %}
+{% endblock %}
+{% block title %}{% if vol_groupe.id %}Vol Groupé: {{ vol_groupe.nom }}{% else %}Nouveau vol groupé{% endif %}{% endblock title %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+    <a href="{% url liste_vols_groupes %}">Vols groupés</a> &rsaquo;
+    {% if vol_groupe.id %}
+    {{ vol_groupe.nom }}
+    {% else %}
+    Nouveau
+    {% endif %}
+</div>
+{% endblock breadcrumbs %}
+{% block content %}
+    <div id="content-main">
+        <form method='post'>
+            <div>
+                <h1>Vol groupé</h1>
+                {% crispy form %}
+                <div class="module vols">
+                    <h2>Vols</h2>
+                    {{ formset.management_form }}
+                    <table>
+                        {% include "gestion/header_table_vols.html" %}
+                        <tbody>
+                        {% for form in formset %}
+                            {% crispy form %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="submit-row">
+                    <input type='submit' value='Enregistrer' class="default"/>
+                    {% if vol_groupe.id and not vol_groupe.est_utilise %}
+                    <p class="deletelink-box"><a href="{% url supprimer_vol_groupe vol_groupe.id %}" class="deletelink">Supprimer</a></p>
+                    {% endif %}
+                    <input type='submit' name='annuler' value='Annuler'/>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+{% block js_initializations %}
+{{ block.super }}
+{% include "gestion/js_init_vols.html" with formset_vols=formset %}
+{% endblock js_initializations %}

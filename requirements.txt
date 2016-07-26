@@ -1,0 +1,8 @@
+django-cms
+django-crispy-forms
+raven
+reportlab
+South
+django-sendfile
+python-memcached
+django-tinymce

@@ -1,0 +1,5 @@
+{% extends 'gestion/base_edit_form.html' %}
+{% block title %}{{ block.super }} - Facturation{% endblock title %}
+{% load crispy_forms_tags %}
+{% block page_crumb %}Facturation{% endblock %}
+{% block form_fields %}<h1>Modifier Facturation</h1>{% crispy form %}{% endblock %}

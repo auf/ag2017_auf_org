@@ -1,0 +1,25 @@
+<script type="text/javascript">
+    $(function() {
+        $('.vol-row').formset({
+            prefix: '{{ formset_vols.prefix }}',
+            addText:'Ajouter un vol',
+            deleteText:'supprimer',
+            added: function(row) {
+                init_datepicker(row.find("input.dateinput"));
+            }
+        });
+
+        function init_datepicker(target) {
+            target.datepicker( {
+                dateFormat: "d/m/yy",
+                minDate: new Date(2013,3,1 ),
+                maxDate: new Date(2013,6,30 ),
+                defaultDate: new Date(2013,4,1 )
+            } );
+
+        }
+
+        $.datepicker.setDefaults( $.datepicker.regional[ "fr" ] );
+        init_datepicker($("input.dateinput"));
+    });
+</script>

@@ -1,0 +1,59 @@
+{% extends 'gestion/base_edit_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Fichiers{% endblock title %}
+{% block page_crumb %}Fichiers{% endblock %}
+{% block content %}
+<h1>Gestion des fichiers attachés</h1>
+    <div id="content-main">
+    <div class="module">
+        <h2>Fichiers</h2>
+        {% if fichiers %}
+            <table>
+                <tr><th>Nom</th><th>Créé le</th><th>Créé par</th><th></th></tr>
+                {% for fichier in fichiers %}
+                <tr>
+                    <td {% if fichier.efface_le %}class="strikethrough"{% endif %}>
+                        <a href="{% url media_participant nom_fichier=fichier.filename %}">
+                            {{ fichier.filename }}</a>
+                    </td>
+                    <td>{{ fichier.cree_le }}</td>
+                    <td>{{ fichier.cree_par }}</td>
+                    <td>
+                        {% if fichier.efface_le %}
+                          Effacé le {{ fichier.efface_le }}, par {{ fichier.efface_par }}
+                        {% else %}
+                          <a href="javascript:submit_delete({{ fichier.id }})" >supprimer</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            Aucun fichier.
+        {% endif %}
+    </div>
+    <div class="module">
+        <h2>Téléverser un nouveau fichier</h2>
+        <form method="post" enctype="multipart/form-data" >
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Envoyer"/>
+        </form>
+    </div>
+    </div>
+    <div style="display:None;">
+        <form id="form_delete" method="post">
+            {% csrf_token %}
+            <input id="fichier_a_effacer" name="fichier_a_effacer" type="hidden" value="" />
+        </form>
+    </div>
+{% endblock content %}
+{% block js_initializations %}
+{{ block.super }}
+<script type="text/javascript">
+    function submit_delete(id) {
+        $("input#fichier_a_effacer").val(id);
+        $("form#form_delete").submit();
+    }
+</script>
+{% endblock %}

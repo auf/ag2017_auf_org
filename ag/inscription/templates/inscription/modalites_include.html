@@ -1,0 +1,65 @@
+{% if inscription.paiement == 'VB' %}
+		<h1>MODALITÉS DE PAIEMENT PAR VIREMENT BANCAIRE</h1>
+		<p style="font-size:12px;">Veuillez effectuer le virement bancaire aux
+		coordonnées ci-dessous:<br /><span color="red">IMPORTANT:</span> Merci
+		d'indiquer dans le libellé le numéro de confirmation d'inscription:
+		<strong> {{ inscription.numero }} </strong><br> 
+		À défaut, nous ne pourrons pas valider votre paiement et votre participation
+		à l'assemblée générale.
+		</p>
+		<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#888888" CELLPADDING=2 CELLSPACING=0 style="font-size:13px; margin-bottom: 50px;">
+    <COL WIDTH=30*>
+    <COL WIDTH=50*>
+    <TR VALIGN=TOP>
+		<TD>HSBC FRANCE</TD><TD>Relevé d’identité bancaire</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Code banque</TD><TD>30056</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Code guichet</TD><TD>00264</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Numéro de compte</TD><TD>02640075438</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Clé RIB</TD><TD>34</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>IBAN</TD><TD>Identifiant international</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Code BIC</TD><TD>FR76-3005-6002-6402-6400-7543-834</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD><BR></TD><TD>CCFRFRPP</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Domiciliation</TD><TD>HSBC FR PARIS CATALOGNE</TD>
+    </TR>
+    <TR VALIGN=TOP>
+		<TD>Titulaire du compte</TD><TD>AUF ASSEMBLEE GÉNÉRALE</TD>
+    </TR>
+		</TABLE>
+{% endif %}
+{% if inscription.paiement == 'CE' %}
+		<h1>MODALITÉS DE PAIEMENT PAR CHÈQUE EN EURO</h1>
+		<p style="font-size:12px;">Veuillez libeller votre chèque en euros à l’ordre
+		de l’Agence universitaire de la Francophonie et le transmettre par courrier
+		avec ce récapitulatif d'inscription à l'adresse suivante :<br /><br />
+		Agence universitaire de la Francophonie<br />
+		Secrétariat de l'assemblée générale<br />
+		Case postale du Musée<br />
+		C.P. 49714<br />
+		Montréal (Québec) H3T 2A5<br />
+		Canada</p>
+{% endif %}
+{% if inscription.paiement == 'DL' %}
+		<h1>MODALITÉS DE PAIEMENT EN DEVISES LOCALES</h1>
+		<p style="font-size:12px;">Le paiement en devises locales (espèces, chèque, virement),
+		peut s'effectuer dans toutes les implantations de l’Agence universitaire de la 
+		Francophonie, dont les adresses sont disponibles sur le site de l'AUF à l'adresse suivante :
+		<a href="http://www.auf.org/auf_dans_le_monde">http://www.auf.org/auf_dans_le_monde</a></p>
+{% endif %}
+
+

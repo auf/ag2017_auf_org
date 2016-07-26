@@ -1,0 +1,53 @@
+{% extends 'gestion/base_edit_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Renseignements personnels{% endblock title %}
+{% block page_crumb %}Renseignements personnels{% endblock %}
+{% block form_fields %}<h1>Modifier Renseignements personnels</h1>{% crispy form %}{% endblock %}
+{% block js_initializations %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready( function() {
+            function manage_controls_institution() {
+                var type_institution = $("#id_type_institution").val();
+                var controls_to_show;
+                var managed_controls = [
+                    'recherche_etablissement',
+                    'id_type_autre_institution',
+                    'id_nom_autre_institution',
+                    'id_instance_auf',
+                    'id_region',
+                    'id_pays_autre_institution'
+                ];
+                switch (type_institution) {
+                    case 'E':
+                        controls_to_show = [ 'recherche_etablissement' ];
+                        break;
+                    case 'I':
+                        controls_to_show = [ 'id_instance_auf', 'id_region',
+                            'id_pays_autre_institution'];
+                        break;
+                    case 'A':
+                        controls_to_show = [ 'id_type_autre_institution',
+                            'id_nom_autre_institution', 'id_region',
+                            'id_pays_autre_institution'];
+                        break;
+                    default:
+                        controls_to_show = [];
+                }
+                for (var i = 0; i < managed_controls.length; i++) {
+                    var control_name = managed_controls[i];
+                    if (controls_to_show.indexOf(control_name) > -1) {
+                        $('#' + control_name).closest('div.form-row').show();
+                    } else {
+                        $('#' + control_name).closest('div.form-row').hide();
+                    }
+                }
+            }
+
+            $("#id_type_institution").change(function() {
+                manage_controls_institution();
+            });
+            manage_controls_institution();
+        });
+    </script>
+{% endblock js_initializations %}

@@ -1,0 +1,128 @@
+{% load cms_tags sekizai_tags menu_tags%}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+  <meta charset="utf-8" />
+  <meta name="description" content="Ag 2013" />
+  <meta name="author" content="AUF" />
+  <meta name="google-translate-customization" content="348cc25c484ffe60-c257e7d0f621ac72-gc4a750e733277c46-20"></meta>
+  <title>AG 2013</title>
+  <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}favicon.ico">
+  <link href="{{ STATIC_URL }}style.css?v=1" rel="stylesheet" type="text/css" media="screen" />
+  <link href="{{ STATIC_URL }}style_print.css?v=1" rel="stylesheet" type="text/css" media="print" />
+  {% render_block "css" %}
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/i18n/jquery-ui-i18n.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}scripts/site.js"></script>
+    <script src="{{ STATIC_URL }}scripts/jquery.form.js"></script>
+    <script src="{{ STATIC_URL }}js/activites_scientifiques.js"></script>
+  <script src="{{ STATIC_URL }}scripts/jquery.bxSlider.min.js" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="{{ STATIC_URL }}scripts/innershiv.min.js"></script>
+  <![endif]-->
+  <!--[if IE 6]><script type="text/javascript" src="scripts/DD_belatedPNG_0.0.8a-min.js"></script><![endif]-->
+  <!--[if lt IE 8]><script src="{{ STATIC_URL }}scripts/font.js"></script><![endif]-->
+  <!--[if lte IE 8]> <link type="text/css" href="{{ STATIC_URL }}styleIE.css" rel="stylesheet"><![endif]-->
+  {% render_block "js" %}
+  {% block extrahead %}{% endblock %}
+</head>
+<body>
+
+	<!-- PARTIE LOGO ET TEXTE-->
+	<div id="baseline">
+        
+        	<div id="logoligne">
+                <div id="logo">
+                    <img src="{{ STATIC_URL }}img/logo.jpg">
+               	</div>
+                <div id="ligne">
+                    <span>16</span><sup>&#7497;</sup><h4>assemblée générale</h4>
+                    <h2>São Paulo, Brésil</h2>
+                    <h3>7- 10 Mai 2013</h3>
+                </div>
+     		</div>
+            
+    </div>
+ 
+    <!-- PARTIE MENU ET DIAPORAMA-->
+    <header id="top">
+    	
+		<!-- menu -->
+    	<nav id="top2">
+            <ul>
+                <li><a href="/" id=""><img src="{{ STATIC_URL }}img/accueil.png"></a></li>
+                {% show_menu 0 1 100 100 %}
+            </ul>
+            
+			{% block langue %}
+    		{% endblock %}
+            <div style="clear: both;"></div>
+            
+      	</nav>
+        
+        {% block diapo %}
+    	{% endblock %}
+ 
+	 </header>
+     
+    
+    <!-- PARTIE CENTRALE -->
+    <div id="contents">
+    
+    	<!-- partie centrale -->
+        <div id="corp">
+          {% block content %}
+          {% endblock %}
+      	</div>
+        
+        <!-- sidebar -->
+		{% block sidebar %}
+            <div id="sid">
+            
+                <div class="box">
+                     <h2>Ils ont dit </h2>
+                     {% if  mot_list2 %}
+                        {% for item in mot_list2 %}
+                            <p><a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}"><img class="flott" src="{{ MEDIA_URL }}{{ item.image }}" width="94" height="122" alt="{{ item.recteur }}"></a>
+                            <a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}">“{{ item.message|striptags|safe|truncatewords_html:60 }}”</a></p>
+                            <p><a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}"><strong>{{ item.recteur }}</strong> <br>{{ item.fonction }}</a></p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Pas de mot</p>
+                    {% endif %}
+                </div>         
+       
+                <div class="box">
+                    <h2>Vidéo à la une </h2>
+                    {% if video_list %}
+                        {% for item in video_list %}
+                            <div class="video">{{ item.video|safe }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="video"><iframe frameborder="0" width="280" height="161" src="http://www.dailymotion.com/embed/video/xmklf5?logo=0&hideInfos=1"></iframe></div>
+                    {% endif %}
+                </div>    
+                 
+                <div class="box">
+                    <h2>Partenaires</h2>
+                    {% if  partenaire_list %}
+                        {% for item in partenaire_list %}
+                            <div class="comman"><a href="{{ item.lien }}" target="_blank"><img src="{{ MEDIA_URL }}{{ item.image }}" alt="{{ item.nom }}"></a></div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Pas de partenaire</p>
+                    {% endif %}
+                </div>                
+    
+            </div>
+		{% endblock %}        
+	</div>
+       
+{% block footer %}    
+  	<!-- PARTIE FOOTER-->
+        <footer id="footer">
+            <p> © AUF 2012 Tous droits réservés <span><a href="/plan-du-site/">Plan du site</a> - <a href="http://www.auf.org" target="_blank">Visiter le site institutionnel de l'AUF</a> - <a href="/mentions-legales/">Mentions légales</a> - <a href="/contact/" >Contact</a></span></p>
+        </footer>
+{% endblock %}
+</body>

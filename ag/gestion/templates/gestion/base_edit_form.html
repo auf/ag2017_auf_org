@@ -1,0 +1,34 @@
+{% extends 'gestion/base_form.html' %}
+{% block title %}{% if participant.nom %}{{ participant.nom }}, {{ participant.prenom }}{% else %}Nouveau participant{% endif %}{% endblock title %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        <a href="{% url participants %}">Participants</a> &rsaquo;
+        {% if participant and participant.id %}
+            <a href="{% url fiche_participant participant.id %}">
+                {{ participant.nom }}, {{ participant.prenom }}
+            </a> &rsaquo;
+            {% block page_crumb %}{% endblock %}
+        {% else %}
+            Nouveau
+        {% endif %}
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+    <div id="content-main">
+        <form method='post'>
+            <div>
+                {% block form_fields %}{% endblock %}
+                <div class="submit-row">
+                    <input type='submit' name='annuler' value='Annuler'/>
+                    {% if show_save_and_add_new_button %}
+                    <input type='submit' name="enregistrer_et_nouveau"
+                           value='Enregistrer et ajouter un nouveau'/>
+                    {% endif %}
+                    <input type='submit' value='Enregistrer' class="default"/>
+                    {# <p class="deletelink-box"><a href="delete/" class="deletelink">Supprimer</a></p> #}
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

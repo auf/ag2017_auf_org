@@ -1,0 +1,29 @@
+<table id="itineraire">
+    {% include "gestion/header_table_vols.html" %}
+    <tbody>
+    {% for vol in itineraire %}
+        <tr>
+            <td>{{ vol.date_depart|date:"d/m/Y" }}</td>
+            <td>{{ vol.heure_depart|time:"H:i" }}</td>
+            <td>{{ vol.ville_depart }}</td>
+            <td>{{ vol.date_arrivee|date:"d/m/Y" }}</td>
+            <td>{{ vol.heure_arrivee|time:"H:i" }}</td>
+            <td>{{ vol.ville_arrivee }}</td>
+            <td>{{ vol.compagnie }}</td>
+            <td>{{ vol.numero_vol}}</td>
+            <td style="text-align: right;">{% if vol.prix %}{{ vol.prix|floatformat:2 }} &euro;{% endif %}</td>
+        </tr>
+    {% endfor %}
+    <tr style="background-color: #dbecfc;">
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Total:</td>
+        <td style="text-align: right;">{{ prix_total|floatformat:2 }} €</td>
+    </tr>
+    </tbody>
+</table>

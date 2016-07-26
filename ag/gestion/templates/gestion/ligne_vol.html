@@ -1,0 +1,8 @@
+{% load crispy_forms_field %}
+<tr class='vol-row'>
+    {% for field in multifield.bound_fields %}
+        <td class='{% if field.errors %}errors{% endif %}'>
+            {% if field.errors %}{{ field.errors }}{% endif %}
+            {% crispy_field field %}</td>
+    {% endfor %}
+</tr>

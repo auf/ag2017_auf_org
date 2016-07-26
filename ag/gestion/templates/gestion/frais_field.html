@@ -1,0 +1,11 @@
+{% load crispy_forms_field %}
+<tr>
+    <td>{{ multifield.label_html }}</td>
+    {% for field in multifield.bound_fields %}
+        <td class='{% if field.errors %}errors{% endif %}'>
+            {% if field.errors %}{{ field.errors }}{% endif %}
+            {% crispy_field field %}</td>
+        <td>
+        {% ifequal forloop.counter0 0 %}x{% else %}&euro;{% endifequal %}</td>
+    {% endfor %}
+</tr>

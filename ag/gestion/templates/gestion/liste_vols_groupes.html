@@ -1,0 +1,55 @@
+{% extends "gestion/base.html" %}
+{% block title %}Vols Groupés{% endblock title %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        Vol Groupés
+    </div>
+{% endblock breadcrumbs %}
+{% block content %}
+<ul class="object-tools">
+    <li><a href="{% url ajouter_vol_groupe %}" class="addlink"
+            >Ajouter un vol groupé</a></li>
+</ul>
+
+<div id="liste_participants" class="results">
+    <table cellspacing="0">
+        <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Nb. participants</th>
+            <th>Nb. sièges</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for vol in liste_vols %}
+            <tr><td>
+                {% if user.is_staff %}
+                <a href="{% url modifier_vol_groupe vol.id %}">{{ vol.nom }}</a>
+                {% else %}
+                {{ vol.nom }}
+                {% endif %}<br/>
+                {% with participants=vol.get_participants %}
+                    {% if participants %}
+                        <ul>
+                            {% for participant in participants %}
+                                <li><a href="{% url fiche_participant participant.id %}">
+                                    {{ participant.get_nom_prenom }}</a>,&nbsp;
+                                    {% if participant.etablissement %}{{ participant.etablissement.nom }},&nbsp;{% endif %}
+                                    {{ participant.get_region }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        Aucun participant pour ce vol.
+                    {% endif %}
+                {% endwith %}
+                </td>
+                <td>{{ vol.get_nb_participants }}</td>
+                <td>{{ vol.nombre_de_sieges }}</td></tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

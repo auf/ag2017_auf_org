@@ -1,0 +1,190 @@
+<h3>Renseignements personnels</h3>
+
+<fieldset class="inlineLabels">
+  <div class="ctrlHolder">
+    <div class="Label">Nom</div>
+    <div class="Data">
+    {{ inscription.get_genre_display }} {{ inscription.prenom }} {{ inscription.nom }}
+    </div>
+  </div>
+  <div class="ctrlHolder">
+    <div class="Label">Nationalité</div>
+    <div class="Data">{{ inscription.nationalite }}</div>
+  </div>
+  {% if inscription.date_naissance %}
+  <div class="ctrlHolder">
+    <div class="Label">Date de naissance</div>
+    <div class="Data">{{ inscription.date_naissance }}</div>
+  </div>
+  {% endif %}
+  <div class="ctrlHolder">
+    <div class="Label">Poste occupé</div>
+    <div class="Data">{{ inscription.poste }}</div>
+  </div>
+  <div class="ctrlHolder">
+    <div class="Label">Courriel</div>
+    <div class="Data">{{ inscription.courriel }}</div>
+  </div>
+  <div class="ctrlHolder">
+    <div class="Label">Adresse</div>
+    <div class="Data">
+      {{ inscription.adresse|linebreaksbr }}<br>
+      {{ inscription.ville }} {{ inscription.code_postal }}<br>
+      {{ inscription.pays }}
+    </div>
+  </div>
+  <div class="ctrlHolder">
+    <div class="Label">Téléphone</div>
+    <div class="Data">{{ inscription.telephone }}</div>
+  </div>
+  {% if inscription.telecopieur %}
+  <div class="ctrlHolder">
+    <div class="Label">Télécopieur</div>
+    <div class="Data">{{ inscription.telecopieur }}</div>
+  </div>
+  {% endif %}
+  <div class="ctrlHolder">
+    <div class="Label">Établissement</div>
+    <div class="Data">{{ inscription.get_etablissement.nom }}</div>
+  </div>
+  {% if inscription.accompagnateur %}
+  <div class="ctrlHolder">
+    <div class="Label">
+      En compagnie de
+    </div>
+    <div class="Data">
+      {{ inscription.get_accompagnateur_genre_display }}
+      {{ inscription.accompagnateur_prenom }}
+      {{ inscription.accompagnateur_nom }}
+    </div>
+  </div>
+  {% endif %}
+</fieldset>
+
+<h3>Transport et hébergement</h3>
+
+<fieldset class="inlineLabels">
+  <div class="ctrlHolder">
+    <div class="Label">Hébergement</div>
+    <div class="Data">
+      {% if inscription.prise_en_charge_hebergement %}
+      Prise en charge par l'AUF
+			{% if inscription.accompagnateur %}<br />
+				</div>	<div class="Data">(supplément pour invité) :<span style="float:right;">
+				{{ montants.supplement_chambre_double.affiche }}</span>
+	      {% endif %}
+      {% else %}
+      Prise en charge par le participant
+      {% endif %}
+    </div>
+  </div>
+  <div class="ctrlHolder">
+    <div class="Label">Transport</div>
+    <div class="Data">
+      {% if inscription.prise_en_charge_transport %}
+      Prise en charge par l'AUF
+      {% else %}
+      Prise en charge par le participant
+      {% endif %}
+    </div>
+  </div>
+  {% if inscription.arrivee_date or inscription.arrivee_heure or inscription.arrivee_compagnie or inscription.arrivee_vol %}
+  <div class="ctrlHolder">
+    <div class="Label">Arrivée</div>
+    <div class="Data">
+      {{ inscription.arrivee_date }}
+      {% if inscription.arrivee_heure %}{{ inscription.arrivee_heure }}{% endif %}
+    </div>
+    {% if inscription.arrivee_compagnie or inscription.arrivee_vol %}
+    <div class="Data">
+      Vol:
+      {{ inscription.arrivee_compagnie }}
+      {{ inscription.arrivee_vol }}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if inscription.depart_de or inscription.depart_date or inscription.depart_heure or inscription.depart_compagnie or inscription.depart_vol %}
+  <div class="ctrlHolder">
+    <div class="Label">Départ</div>
+    <div class="Data">
+      {{ inscription.depart_date }}
+      {% if inscription.depart_heure %}{{ inscription.depart_heure }}{% endif %}
+      {% if inscription.depart_de %}
+      de {{ inscription.get_depart_de_display }}
+      {% endif %}
+    </div>
+    {% if inscription.depart_compagnie or inscription.depart_vol %}
+    <div class="Data">
+      Vol:
+      {{ inscription.depart_compagnie }}
+      {{ inscription.depart_vol }}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</fieldset>
+
+<h3>Programmation</h3>
+
+<fieldset class="inlineLabels">
+  <div class="ctrlHolder">
+    <div class="Label">Frais d'inscription</div>
+    <div class="Data"><span style="float:right;">{{ inscription.get_frais_inscription }}&nbsp;€</span></div>
+  </div>
+  <div class="ctrlHolder">
+    <div class="Label">
+      Activités sélectionnées
+    </div>
+
+<!-- UNESP -->
+    {% if not inscription.programmation_soiree_unesp and not inscription.programmation_soiree_interconsulaire and not inscription.programmation_gala %}
+    <div class="Data">Aucune.</div>
+    {% endif %}
+
+    {% if inscription.programmation_soiree_unesp %}
+    <div class="Data">
+      Soirée organisée par l'UNESP du 7 mai 2013 :
+				<span style="float:right;">
+				{% if montants.sortie_unesp_membre.montant %}{{ montants.sortie_unesp_membre.affiche }}
+				{% else %} inclus</span>
+				{% endif %}	
+			
+				{% if inscription.programmation_soiree_unesp_invite %}
+				</div>	<div class="Data">(avec invité) :<span style="float:right;">
+				{{ montants.sortie_unesp_invite.affiche }}</span>  
+      	{% endif %}
+    </div>
+    {% endif %}
+
+<!-- INTER -->
+    {% if inscription.programmation_soiree_interconsulaire %}
+    <div class="Data">
+      Soirée interconsulaire du 8 mai 2013 :
+				<span style="float:right;">
+				{% if montants.sortie_8_mai_membre.montant %}{{ montants.sortie_8_mai_membre.affiche }}
+				{% else %} inclus</span>
+				{% endif %}
+
+	      {% if inscription.programmation_soiree_interconsulaire_invite %}
+				</div>	<div class="Data">(avec invité) :<span style="float:right;">
+				{{ montants.sortie_8_mai_invite.affiche }}</span>
+	      {% endif %}
+    </div>
+    {% endif %}
+
+<!-- RENC -->
+    {% if inscription.programmation_gala %}
+    <div class="Data">
+      Soirée de gala de clôture le 9 mai 2013&nbsp;:
+				<span style="float:right;">
+				{{ montants.gala_membre.affiche }}</span>
+      	{% if inscription.programmation_gala_invite %}
+				</div>	<div class="Data">(avec invité) :
+              <span style="float:right;">{{ montants.gala_invite.affiche }}</span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</fieldset>

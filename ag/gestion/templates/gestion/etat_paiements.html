@@ -1,0 +1,60 @@
+{% extends "gestion/base.html" %}
+{% block title %}Paiements - AG2013{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url tableau_de_bord %}">Accueil</a>&rsaquo;
+        <a href="{% url etats_listes %}">États et listes</a>&rsaquo;
+        Paiements
+    </div>
+{% endblock %}
+{% block content %}
+<h2>État des paiements</h2>
+<div id="utils">
+    <p>Rapport généré le :  {% now "D, d-m-Y à H:s" %}</p>
+    <p><a href="{% url etat_paiements_csv %}">Télécharger la liste en format CSV
+    </a></p>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th colspan="5">Participant</th>
+            <th colspan="2">Établissement</th>
+            <th>Invités</th>
+            <th>Inscription</th>
+            <th colspan="3">Transport</th>
+            <th colspan="2">Séjour</th>
+            <th>Activités</th>
+            <th colspan="3">Facturation</th>
+            <th colspan="2">Frais de séjour</th>
+        </tr>
+        <tr>
+            <th>Civilité</th><th>Nom</th><th>Prénom</th><th>Poste</th>
+            <th>Statut</th><th>Établissement</th><th>Délinquant ?</th>
+            <th>Nombre</th><th>Prise en charge</th>
+            <th>Prise en charge</th><th>Transport organisé AUF</th>
+            <th>Prise en charge</th><th>Réservation par AUF</th>
+            <th>Prise en charge</th><th>Fact. validée</th>
+            <th>Mode paiement</th><th>Accompte (&euro;)</th>
+            <th>Solde</th><th>Total (&euro;)</th><th>Modalité versement</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p in donnees %}
+        <tr class="liste_{% cycle 'odd' 'even' %}">
+            <td>{{ p.P_genre }}</td>
+            <td><a href="{% url fiche_participant p.P_id %}">{{ p.P_nom }}</a></td>
+            <td>{{ p.P_prenom }}</td><td>{{ p.P_poste }}</td>
+            <td>{{ p.P_statut }}</td><td>{{ p.E_nom }}</td>
+            <td>{{ p.E_delinquant }}</td> <td>{{ p.P_invites }}</td>
+            <td>{{ p.f_PEC_I }}</td><td>{{ p.f_PEC_T }}</td>
+            <td>{{ p.f_AUF_T }}</td><td>{{ p.f_PEC_S }}</td>
+            <td>{{ p.f_AUF_S }}</td><td>{{ p.f_PEC_A }}</td>
+            <td>{{ p.f_valide }}</td><td>{{ p.f_mode }}</td>
+            <td class='align-right'>{{ p.f_accompte }}</td>
+            <td class='align-right'>{{ p.f_solde }}</td>
+            <td class='align-right'>{{ p.n_total }}</td><td>{{ p.n_mode }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
