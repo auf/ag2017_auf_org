@@ -49,7 +49,6 @@ INSTALLED_APPS = (
     'ag.outil',
     'ag.actualite',
     'ag.activites_scientifiques',
-    'auf.django.auth',
     'auf.django.references',
     'auf.django.permissions',
     'auf.django.mailing',
@@ -67,7 +66,6 @@ INSTALLED_APPS = (
     'menus',
     'mptt',
     'tinymce',
-    'auf.django.pong',
     )
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_TEMPLATE_CONTEXT_PROCESSORS + (
@@ -130,7 +128,6 @@ MAILING_TEMPORISATION = 2
 
 AUTH_PROFILE_MODULE = 'core.UserProfile'
 AUTHENTICATION_BACKENDS = (
-    'auf.django.auth.backends.CascadeBackend',
     'django.contrib.auth.backends.ModelBackend',
     'auf.django.permissions.AuthenticationBackend',
     )

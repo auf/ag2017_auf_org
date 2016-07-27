@@ -822,6 +822,7 @@ class GestionTestCase(TestCase):
         i.date_fermeture = datetime.date(2012, 7, 23)
         i.save()
         statut = StatutParticipant.objects.get(code='repr_tit')
+        assert settings.DESTINATAIRES_NOTIFICATIONS['service_institutions']
         nb_mails_before = len(mail.outbox)
         p = transfert_inscription.transfere(i, statut, False, False, False)
         self.assertEqual(len(mail.outbox), nb_mails_before + 1)
@@ -1217,22 +1218,22 @@ class PermissionsGestionTestCase(TestCase):
     def setUp(self):
         create_fixtures(self, do_login=False)
         self.participant = creer_participant()
-        self.user_sans_role = User(username='sansrole', password='abc')
-        self.user_sans_role.save()
-        self.user_lecteur = User(username='lecteur', password='abc')
-        self.user_lecteur.save()
+        self.user_sans_role = User.objects.create_user(username='sansrole',
+                                                       password='abc')
+        self.user_lecteur = User.objects.create_user(username='lecteur',
+                                                     password='abc')
         self.user_lecteur.roles.add(AGRole(type_role=ROLE_LECTEUR))
-        self.user_sai = User(username='sai', password='abc')
-        self.user_sai.save()
+        self.user_sai = User.objects.create_user(username='sai',
+                                                 password='abc')
         self.user_sai.roles.add(AGRole(type_role=ROLE_SAI))
-        self.user_sejour = User(username='sejour', password='abc')
-        self.user_sejour.save()
+        self.user_sejour = User.objects.create_user(username='sejour',
+                                                    password='abc')
         self.user_sejour.roles.add(AGRole(type_role=ROLE_SEJOUR))
-        self.user_comptable = User(username='comptable', password='abc')
-        self.user_comptable.save()
+        self.user_comptable = User.objects.create_user(username='comptable',
+                                                       password='abc')
         self.user_comptable.roles.add(AGRole(type_role=ROLE_COMPTABLE))
-        self.user_admin = User(username='admin', password='abc')
-        self.user_admin.save()
+        self.user_admin = User.objects.create_user(username='admin',
+                                                   password='abc')
         self.user_admin.roles.add(AGRole(type_role=ROLE_ADMIN))
 
     def tearDown(self):
@@ -1397,11 +1398,9 @@ class PermissionsGestionTestCase(TestCase):
         participant_MO2.region = region_MO
         participant_MO2.save()
 
-        user_mo = User(username='mo', password='abc')
-        user_mo.save()
+        user_mo = User.objects.create_user(username='mo', password='abc')
         user_mo.roles.add(AGRole(type_role=ROLE_SAI, region=region_MO))
-        user_eo = User(username='eo', password='abc')
-        user_eo.save()
+        user_eo = User.objects.create_user(username='eo', password='abc')
         user_eo.roles.add(AGRole(type_role=ROLE_SAI, region=region_EO))
 
         self.try_url(reverse('renseignements_personnels',
@@ -1414,12 +1413,12 @@ class PermissionsGestionTestCase(TestCase):
                              args=[participant_MO2.id]), [user_mo],
                      [user_eo])
 
-        user_mo_lecteur = User(username='mol', password='abc')
-        user_mo_lecteur.save()
+        user_mo_lecteur = User.objects.create_user(username='mol',
+                                                   password='abc')
         user_mo_lecteur.roles.add(
             AGRole(type_role=ROLE_LECTEUR, region=region_MO))
-        user_eo_lecteur = User(username='eol', password='abc')
-        user_eo_lecteur.save()
+        user_eo_lecteur = User.objects.create_user(username='eol',
+                                                   password='abc')
         user_eo_lecteur.roles.add(
             AGRole(type_role=ROLE_LECTEUR, region=region_EO))
         self.try_url(reverse('notes_de_frais',

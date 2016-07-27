@@ -7,7 +7,6 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-    url(r'^api/pong/', include('auf.django.pong.urls')),
     url(r'^contact/', 'ag.views.contact', name='contact'),
     url(r'^inscription/', include('ag.inscription.urls')),
     url(r'^gestion/', include('ag.gestion.urls')),
@@ -22,7 +21,6 @@ urlpatterns = patterns(
 )
 
 urlpatterns += patterns('',
-    (r'^admin/filebrowser/', include('filebrowser.urls')),
     (r'^tinymce/', include('tinymce.urls')),
 )
 
