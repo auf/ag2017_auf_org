@@ -42,7 +42,6 @@ STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, 'static'),)
 ROOT_URLCONF = 'ag.urls'
 
 INSTALLED_APPS = (
-    'filebrowser',
     'django.contrib.sites',
     'ag.core',
     'ag.inscription',
