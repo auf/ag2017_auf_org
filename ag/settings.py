@@ -58,13 +58,10 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'raven.contrib.django',
-    'south',
     'crispy_forms',
     'sekizai',
     'cms',
-    'cms.plugins.text',
     'menus',
-    'mptt',
     'tinymce',
     )
 
@@ -93,8 +90,7 @@ MIDDLEWARE_CLASSES = (
     'auf.django.piwik.middleware.TrackMiddleware',
     'auf.django.permissions.PermissionDeniedMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',    
+    'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',    
     'cms.middleware.toolbar.ToolbarMiddleware',      
     'django.middleware.cache.FetchFromCacheMiddleware',
