@@ -49,6 +49,7 @@ STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, 'static'),)
 ROOT_URLCONF = 'ag.urls'
 
 INSTALLED_APPS = (
+    'auf.django.references',
     'django.contrib.sites',
     'ag.core',
     'ag.inscription',
@@ -56,7 +57,6 @@ INSTALLED_APPS = (
     'ag.outil',
     'ag.actualite',
     'ag.activites_scientifiques',
-    'auf.django.references',
     'auf.django.permissions',
     'auf.django.mailing',
     'django.contrib.auth',
@@ -174,8 +174,6 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
-                # list if you haven't customized them:
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
