@@ -15,13 +15,20 @@ MANAGERS = ADMINS
 
 TIME_ZONE = 'America/Montreal'
 
-LANGUAGE_CODE = 'fr-ca'
+LANGUAGE_CODE = 'fr'
 gettext = lambda x: x
-CMS_LANGUAGES = (
-    ('fr', gettext('French')),
-)
 
 SITE_ID = 1
+
+CMS_LANGUAGES = {
+    1: [
+        {
+            'code': 'fr',
+            'name': gettext('French'),
+        }
+    ]
+}
+
 DEFAULT_LANGUAGE = 1
 
 DATE_INPUT_FORMATS = ('%d/%m/%Y', '%Y-%m-%d')
@@ -60,6 +67,7 @@ INSTALLED_APPS = (
     'raven.contrib.django',
     'crispy_forms',
     'sekizai',
+    'treebeard',
     'cms',
     'menus',
     'tinymce',
@@ -132,8 +140,6 @@ LOGIN_REDIRECT_URL = '/gestion/'
 
 CRISPY_TEMPLATE_PACK = 'uni_form'
 
-SITE_ID = 1
-
 PATH_FICHIERS_PARTICIPANTS = os.path.join(SITE_ROOT, 'medias_participants')
 GESTION_AG_SENDER = 'ressources-informatiques@auf.org'
 
@@ -158,3 +164,27 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 DATE_FERMETURE_INSCRIPTIONS = datetime.date(2013, 3, 22)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # insert your TEMPLATE_DIRS here
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
