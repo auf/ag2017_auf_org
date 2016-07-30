@@ -711,6 +711,7 @@ class ArriveeDepartForm(GestionForm):
 class InviteForm(ModelForm):
     class Meta:
         model = Invite
+        fields = ('genre', 'nom', 'prenom')
 
     def __init__(self, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
@@ -850,6 +851,7 @@ VolGroupeFormSet = inlineformset_factory(VolGroupe, InfosVol, VolForm,
 class VolGroupeForm(ModelForm):
     class Meta:
         model = VolGroupe
+        fields = ('nom', 'nombre_de_sieges')
 
     def __init__(self, *args, **kwargs):
         super(VolGroupeForm, self).__init__(*args, **kwargs)
