@@ -14,6 +14,7 @@ from ag.gestion.montants import (
 class InscriptionForm(forms.ModelForm):
     class Meta:
         model = Inscription
+        exclude = ()
 
 
 class AccueilForm(forms.ModelForm):

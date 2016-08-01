@@ -135,6 +135,9 @@ def require_field(form, cleaned_data, field_name, shown_on_field=None):
 
 
 class GestionModelForm(ModelForm):
+    class Meta:
+        exclude = ()
+
     def get_participant(self):
         return self.instance
 
