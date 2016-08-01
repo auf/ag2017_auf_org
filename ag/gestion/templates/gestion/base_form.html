@@ -1,6 +1,5 @@
 {% extends "gestion/base.html" %}
 {% load crispy_forms_tags %}
-{% load adminmedia %}
 {% block extrahead %}
     {{ block.super }}
     {#% url 'admin:jsi18n' as jsi18nurl %#}
@@ -15,7 +14,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/i18n/jquery-ui-i18n.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/etablissement.js"></script>
 {% endblock %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}admin/css/forms.css" />{% endblock %}
 
 {% block bodyclass %}change-form{% endblock %}
 
