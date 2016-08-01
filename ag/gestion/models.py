@@ -51,7 +51,7 @@ class StatutParticipant(core.TableReferenceOrdonnee):
 
 class PointDeSuiviManager(Manager):
     def avec_nombre_participants(self):
-        queryset = self.get_query_set().filter(
+        queryset = self.get_queryset().filter(
             Q(participant__desactive=False) |
             Q(participant__isnull=True))
         queryset = queryset.annotate(
@@ -176,7 +176,7 @@ class TypeFrais(core.TableReference):
 
 class ActiviteManager(Manager):
     def with_stats(self):
-        qs = self.get_query_set()
+        qs = self.get_queryset()
         BASE_QUERY = """
             (SELECT count(*) FROM gestion_participationactivite gp
             INNER JOIN gestion_participant p on p.id = gp.participant_id
@@ -274,32 +274,32 @@ class ParticipationActivite(Model):
 
 class ParticipantsManager(Manager):
 
-    def get_query_set(self):
+    def get_queryset(self):
         return ParticipantsQuerySet(self.model)
 
     def actifs(self, **kwargs):
-        return self.get_query_set().actifs(**kwargs)
+        return self.get_queryset().actifs(**kwargs)
 
     def sql_expr(self, *args, **kwargs):
-        return self.get_query_set().sql_expr(*args, **kwargs)
+        return self.get_queryset().sql_expr(*args, **kwargs)
 
     def sql_filter(self, *args, **kwargs):
-        return self.get_query_set().sql_filter(*args, **kwargs)
+        return self.get_queryset().sql_filter(*args, **kwargs)
 
     def sql_extra_fields(self, *args, **kwargs):
-        return self.get_query_set().sql_extra_fields(*args, **kwargs)
+        return self.get_queryset().sql_extra_fields(*args, **kwargs)
 
     def avec_region_vote(self):
-        return self.get_query_set().avec_region_vote()
+        return self.get_queryset().avec_region_vote()
 
     def filter_region_vote(self, code_region_vote):
-        return self.get_query_set().filter_region_vote(code_region_vote)
+        return self.get_queryset().filter_region_vote(code_region_vote)
 
 
 class ParticipantsActifsManager(ParticipantsManager):
 
-    def get_query_set(self):
-        return super(ParticipantsActifsManager, self).get_query_set().actifs()
+    def get_queryset(self):
+        return super(ParticipantsActifsManager, self).get_queryset().actifs()
 
 nouveau_participant = Signal()
 
@@ -826,8 +826,8 @@ class ReservationChambre(Model):
 
 
 class VolGroupeManager(Manager):
-    def get_query_set(self):
-        return super(VolGroupeManager, self).get_query_set()\
+    def get_queryset(self):
+        return super(VolGroupeManager, self).get_queryset()\
             .extra(select={'nb_participants': """
                 (SELECT count(*) from gestion_participant
                  WHERE gestion_participant.vol_groupe_id =
