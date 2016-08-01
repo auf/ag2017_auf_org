@@ -90,6 +90,7 @@ def create_fixtures(test_case, do_login=True):
     modele_courriel_mandate.sujet = 'test'
     modele_courriel_mandate.code = 'mand'
     modele_courriel_mandate.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_mandate.html = False
     modele_courriel_mandate.save()
     test_case.modele_courriel_mandate = modele_courriel_mandate
 
@@ -97,6 +98,7 @@ def create_fixtures(test_case, do_login=True):
     modele_courriel_mandate_rappel.sujet = 'test rappel mand'
     modele_courriel_mandate_rappel.code = 'mand_rel'
     modele_courriel_mandate_rappel.corps = 'Rappel {{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_mandate_rappel.html = False
     modele_courriel_mandate_rappel.save()
     test_case.modele_courriel_mandate_rappel = modele_courriel_mandate_rappel
 
@@ -104,6 +106,7 @@ def create_fixtures(test_case, do_login=True):
     modele_courriel_accompagnateur.sujet = 'test accompagnateur'
     modele_courriel_accompagnateur.code = 'acc'
     modele_courriel_accompagnateur.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_accompagnateur.html = False
     modele_courriel_accompagnateur.save()
     test_case.modele_courriel_accompagnateur = modele_courriel_mandate
 
@@ -111,6 +114,7 @@ def create_fixtures(test_case, do_login=True):
     modele_courriel_rappel.sujet = 'test rappel'
     modele_courriel_rappel.code = 'rappel'
     modele_courriel_rappel.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
     if do_login:
