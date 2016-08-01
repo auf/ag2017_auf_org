@@ -532,17 +532,17 @@ class VoteTestCase(TestCase):
             nom=u"Égypte", code=u"EG", region=region_MO, code_iso3=u'EG')
         etablissement_MO = Etablissement.objects.create(
             nom=u'etab_mo', pays=pays_eg, region=region_MO, statut=u'A',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         etablissement_FR = Etablissement.objects.create(
             nom=u'etab_fr', pays=pays_fr, region=region_EO, statut=u'T',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         etablissement_DE = Etablissement.objects.create(
             nom=u'etab_de', pays=pays_de, region=region_EO, statut=u'T',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         etablissement_DOM_TOM = Etablissement.objects.create(
             id=EXCEPTIONS_DOM_TOM[0],
             nom=u'etab_dom_tom', pays=pays_fr, region=region_MO, statut=u'T',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         statuts = dict((statut.code, statut)
                        for statut in StatutParticipant.objects.all())
 
