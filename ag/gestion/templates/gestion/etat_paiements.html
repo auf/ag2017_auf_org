@@ -2,8 +2,8 @@
 {% block title %}Paiements - AG2013{% endblock %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a>&rsaquo;
-        <a href="{% url etats_listes %}">États et listes</a>&rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
+        <a href="{% url "etats_listes" %}">États et listes</a>&rsaquo;
         Paiements
     </div>
 {% endblock %}
@@ -11,7 +11,7 @@
 <h2>État des paiements</h2>
 <div id="utils">
     <p>Rapport généré le :  {% now "D, d-m-Y à H:s" %}</p>
-    <p><a href="{% url etat_paiements_csv %}">Télécharger la liste en format CSV
+    <p><a href="{% url "etat_paiements_csv" %}">Télécharger la liste en format CSV
     </a></p>
 </div>
 <table>
@@ -42,7 +42,7 @@
     {% for p in donnees %}
         <tr class="liste_{% cycle 'odd' 'even' %}">
             <td>{{ p.P_genre }}</td>
-            <td><a href="{% url fiche_participant p.P_id %}">{{ p.P_nom }}</a></td>
+            <td><a href="{% url "fiche_participant" p.P_id %}">{{ p.P_nom }}</a></td>
             <td>{{ p.P_prenom }}</td><td>{{ p.P_poste }}</td>
             <td>{{ p.P_statut }}</td><td>{{ p.E_nom }}</td>
             <td>{{ p.E_delinquant }}</td> <td>{{ p.P_invites }}</td>

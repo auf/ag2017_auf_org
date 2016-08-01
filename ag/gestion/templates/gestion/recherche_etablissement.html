@@ -12,7 +12,7 @@ function effectuer_recherche() {
     ajouter_champ('region_id', data);
     ajouter_champ('pays', data);
     $.ajax({
-        url: "{% url recherche_etablissement %}",
+        url: "{% url "recherche_etablissement" %}",
         data: data
     }).done(function() {
 

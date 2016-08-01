@@ -10,38 +10,38 @@
 {% block title %}États et listes - AG2013{% endblock %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
         États et listes
     </div>
 {% endblock breadcrumbs %}
 {% block content %}
 <ul>
-<li><a href="{% url etat_inscrits %}">Liste des participants inscrits</a>
-    (<a href="{% url export_donnees_csv %}">
+<li><a href="{% url "etat_inscrits" %}">Liste des participants inscrits</a>
+    (<a href="{% url "export_donnees_csv" %}">
         Export CSV
     </a>)
 </li>
-<li><a href="{% url etat_activites %}">Participation aux soirées</a></li>
-<li><a href="{% url etat_paiements %}">
+<li><a href="{% url "etat_activites" %}">Participation aux soirées</a></li>
+<li><a href="{% url "etat_paiements" %}">
     État des paiements
 </a></li>
 {% comment %}
 <li>Arrivées
-    <form action="{% url etat_arrivees_departs %}" method="get">
+    <form action="{% url "etat_arrivees_departs" %}" method="get">
       {{ form_arrivees }}
       <input type="submit" value="afficher"/>
     </form></li>
 <li>Départs
-    <form action="{% url etat_arrivees_departs %}" method="get">
+    <form action="{% url "etat_arrivees_departs" %}" method="get">
       {{ form_departs }}
         <input type="submit" value="afficher"/>
     </form></li>
 {% endcomment %}
-<li><a href="{% url etat_vols %}">Liste des vols</a></li>
-<li><a href="{% url liste_participants_activites_scientifiques %}">
+<li><a href="{% url "etat_vols" %}">Liste des vols</a></li>
+<li><a href="{% url "liste_participants_activites_scientifiques" %}">
     Participation aux ateliers scientifiques
 </a></li>
-<li><a href="{% url etat_votants %}">
+<li><a href="{% url "etat_votants" %}">
     Liste des membres votants
 </a></li>
 </ul>

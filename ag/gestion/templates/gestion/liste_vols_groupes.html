@@ -2,13 +2,13 @@
 {% block title %}Vols Groupés{% endblock title %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
         Vol Groupés
     </div>
 {% endblock breadcrumbs %}
 {% block content %}
 <ul class="object-tools">
-    <li><a href="{% url ajouter_vol_groupe %}" class="addlink"
+    <li><a href="{% url "ajouter_vol_groupe" %}" class="addlink"
             >Ajouter un vol groupé</a></li>
 </ul>
 
@@ -25,7 +25,7 @@
         {% for vol in liste_vols %}
             <tr><td>
                 {% if user.is_staff %}
-                <a href="{% url modifier_vol_groupe vol.id %}">{{ vol.nom }}</a>
+                <a href="{% url "modifier_vol_groupe" vol.id %}">{{ vol.nom }}</a>
                 {% else %}
                 {{ vol.nom }}
                 {% endif %}<br/>
@@ -33,7 +33,7 @@
                     {% if participants %}
                         <ul>
                             {% for participant in participants %}
-                                <li><a href="{% url fiche_participant participant.id %}">
+                                <li><a href="{% url "fiche_participant" participant.id %}">
                                     {{ participant.get_nom_prenom }}</a>,&nbsp;
                                     {% if participant.etablissement %}{{ participant.etablissement.nom }},&nbsp;{% endif %}
                                     {{ participant.get_region }}

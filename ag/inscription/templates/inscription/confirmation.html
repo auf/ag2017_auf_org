@@ -138,7 +138,7 @@ $(function() {
 <a id="invitation"></a>
 <br /><br /><br />
 {% if inscription.est_pour_mandate and not inscriptions_terminees %}
-<form method="post" class="Invites" action="{% url ajout_invitations %}">
+<form method="post" class="Invites" action="{% url "ajout_invitations" %}">
 <h2>Invitations aux accompagnateurs</h2>
 <p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur de votre établissement en indiquant leur adresse électronique. Revenez en tout temps sur cette page pour envoyer d'autres invitations. Le lien vers cette page figure dans votre courriel de confirmation.</p>
 

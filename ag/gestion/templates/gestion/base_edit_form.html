@@ -2,10 +2,10 @@
 {% block title %}{% if participant.nom %}{{ participant.nom }}, {{ participant.prenom }}{% else %}Nouveau participant{% endif %}{% endblock title %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
-        <a href="{% url participants %}">Participants</a> &rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
+        <a href="{% url "participants" %}">Participants</a> &rsaquo;
         {% if participant and participant.id %}
-            <a href="{% url fiche_participant participant.id %}">
+            <a href="{% url "fiche_participant" participant.id %}">
                 {{ participant.nom }}, {{ participant.prenom }}
             </a> &rsaquo;
             {% block page_crumb %}{% endblock %}

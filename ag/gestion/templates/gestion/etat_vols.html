@@ -2,15 +2,15 @@
 {% block title %}Tous les vols - AG2013{% endblock %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a>&rsaquo;
-        <a href="{% url etats_listes %}">États et listes</a>&rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
+        <a href="{% url "etats_listes" %}">États et listes</a>&rsaquo;
         Tous les vols
     </div>
 {% endblock %}
 {% block content %}
 <div id="utils">
     <p>Rapport généré le :  {% now "D, d-m-Y à H:s" %}</p>
-    <p><a href="{% url etat_vols_csv %}">Télécharger la liste en format CSV</a></p>
+    <p><a href="{% url "etat_vols_csv" %}">Télécharger la liste en format CSV</a></p>
 </div>
 <h2>Tous les vols</h2>
 <div id="filtre_ville">
@@ -72,14 +72,14 @@
             <td class="ville1">{{ ligne.ville1 }}</td>
             <td>{{ ligne.dep_arr }}</td>
             <td>{{ ligne.genre }}</td>
-            <td><a href="{% url fiche_participant ligne.participant_id %}">
+            <td><a href="{% url "fiche_participant" ligne.participant_id %}">
                 {{ ligne.nom }}</a></td>
             <td>{{ ligne.prenom }}</td>
             <td>{{ ligne.vers_de }}</td>
             <td class="ville2">{{ ligne.ville2 }}</td>
             <td>{{ ligne.date2|date:"d-m-Y" }}</td>
             <td>{% if ligne.vol_groupe_id %}
-                <a href="{% url modifier_vol_groupe ligne.vol_groupe_id %}">
+                <a href="{% url "modifier_vol_groupe" ligne.vol_groupe_id %}">
                 {{ ligne.vol_groupe_nom }}</a>
                 {% else %}---
                 {% endif %}</td>

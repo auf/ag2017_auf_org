@@ -2,7 +2,7 @@
 {% block title %}Tableau de bord - AG2013{% endblock %}
 {% block content %}
 <ul class="object-tools">
-  <li><a href="{% url participants %}">Liste des participants</a></li>
+  <li><a href="{% url "participants" %}">Liste des participants</a></li>
 </ul>
 <div class="module">
 <h2>Inscriptions Web</h2>
@@ -36,23 +36,23 @@
   <tbody>
     <tr>
       	<td>Actifs</td>
-     	<td><a href="{% url participants %}">{{ total_actifs }}</a></td>
+     	<td><a href="{% url "participants" %}">{{ total_actifs }}</a></td>
     </tr>
     <tr>
 		<td>Désactivés</td>
-		<td><a href="{% url participants %}?desactive=on">{{ total_desactives }}</a></td>
+		<td><a href="{% url "participants" %}?desactive=on">{{ total_desactives }}</a></td>
 	</tr>
   <thead>
 	<tr>
 		<th>Problématiques</th>
-        <th><a href="{% url participants %}?probleme=problematique">{{ total_problematiques }}</a></th>
+        <th><a href="{% url "participants" %}?probleme=problematique">{{ total_problematiques }}</a></th>
 	</tr>
 	</thead>
 {% for probleme in par_probleme %}
     {% if probleme.nombre %}
     <tr>
     	<td>{{ probleme.libelle }}</td>
-    	<td><a href="{% url participants %}?probleme={{ probleme.code }}">{{ probleme.nombre }}</a></td>
+    	<td><a href="{% url "participants" %}?probleme={{ probleme.code }}">{{ probleme.nombre }}</a></td>
     </tr>
     {% endif %}
 {% endfor %}
@@ -67,7 +67,7 @@
             {% for point_de_suivi in points_de_suivi %}
                 <tr>
                     <td>{{ point_de_suivi.libelle }}</td>
-                    <td><a href="{% url participants %}?suivi={{ point_de_suivi.id }}">{{ point_de_suivi.nombre_participants }}</a></td>
+                    <td><a href="{% url "participants" %}?suivi={{ point_de_suivi.id }}">{{ point_de_suivi.nombre_participants }}</a></td>
                 </tr>
             {% endfor %}
             </tbody>
