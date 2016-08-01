@@ -95,7 +95,7 @@ class RenseignementsPersonnels(models.Model):
         return super(RenseignementsPersonnels, self).save(**kwargs)
 
 class Invitation(models.Model):
-    etablissement = models.ForeignKey(ref.Etablissement)
+    etablissement = models.ForeignKey(ref.Etablissement, db_constraint=False)
     pour_mandate = models.BooleanField()
     courriel = models.EmailField(null=True)
     jeton = models.CharField(max_length=TAILLE_JETON, default=generer_jeton)

@@ -351,10 +351,12 @@ class Participant(RenseignementsPersonnels):
     nom_autre_institution = CharField(
         u"Nom de l'institution", max_length=64, null=True)
     pays_autre_institution = ForeignKey(Pays, verbose_name=u"Pays", null=True,
-                                        blank=True)
+                                        blank=True, db_constraint=False)
     etablissement = ForeignKey(
-        Etablissement, null=True, verbose_name=u"Établissement")
-    region = ForeignKey(Region, verbose_name=u"Région", null=True)
+        Etablissement, null=True, verbose_name=u"Établissement",
+        db_constraint=False)
+    region = ForeignKey(Region, verbose_name=u"Région", null=True,
+                        db_constraint=False)
     # facturation
     accompte = FloatField(u'paiement (€)', default=0, blank=True)
     montant_accompte_devise_locale = FloatField(u'paiement en devises locales',
