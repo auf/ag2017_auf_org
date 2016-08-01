@@ -1378,7 +1378,7 @@ class PermissionsGestionTestCase(TestCase):
 
         etablissement_MO = Etablissement(
             nom=u'etab_mo', pays=pays_eg, region=region_MO, statut=u'A',
-            qualite=u'ESR'
+            qualite=u'ESR', membre=True
         )
         etablissement_MO.save()
 
