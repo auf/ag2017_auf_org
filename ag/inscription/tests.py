@@ -1,21 +1,24 @@
 # -*- encoding: utf-8 -*-
+import html5lib
+import datetime
+
+from auf.django.mailing.models import Enveloppe, ModeleCourriel
+from auf.django.references.models import Etablissement
+
+from ag.core.test_utils import find_input_by_id
 import mock
 from ag.gestion.models import Participant, StatutParticipant
-from auf.django.mailing.models import Enveloppe, ModeleCourriel
-import datetime
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
     infos_montant_par_code, InvitationEnveloppe
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
-from auf.django.references.models import Etablissement
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core import mail
 from django.test import TestCase
 from django.core.management import call_command
-
 
 ETAPES_INSCRIPTION_TEST = (
         {
@@ -200,11 +203,14 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(('renseignements-personnels',))
         self.ajouter_accompagnateur(inscription)
         response = self.client.get(url_etape(inscription, 'transport-hebergement'))
-        self.assertContains(response,
-            u'<input type="radio" id="id_prise_en_charge_hebergement_0"')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        self.assertNotEqual(
+            find_input_by_id(tree, "id_prise_en_charge_hebergement_0"),
+            None)
         self.assertContains(response, u"pas prendre en charge l'hébergement")
-        self.assertContains(response,
-            u'input type="radio" id="id_prise_en_charge_transport_0"')
+        self.assertNotEqual(
+            find_input_by_id(tree, "id_prise_en_charge_transport_0"), None)
         self.assertContains(response, u"pas prendre en charge le transport")
         th_data = to_form_data(self.INSCRIPTION_TEST_DATA['transport-hebergement'])
         response = self.client.post(
@@ -220,10 +226,13 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(('renseignements-personnels',),
             etablissement=etablissement_associe)
         response = self.client.get(url_etape(inscription, 'transport-hebergement'))
-        self.assertContains(response,
-            u'<input type="radio" id="id_prise_en_charge_hebergement_0"')
-        self.assertNotContains(response,
-            u'input type="radio" id="id_prise_en_charge_transport_0"')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+
+        self.assertNotEqual(
+            find_input_by_id(tree, "id_prise_en_charge_hebergement_0"), None)
+        self.assertEqual(
+            find_input_by_id(tree, "id_prise_en_charge_transport_0"), None)
         th_data = to_form_data(self.INSCRIPTION_TEST_DATA['transport-hebergement'])
         response = self.client.post(
             url_etape(inscription, 'transport-hebergement'), th_data)
@@ -234,10 +243,13 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(('renseignements-personnels',))
         response = self.client.get(url_etape(inscription, 'transport-hebergement'))
         # on propose la prise en charge aux mandatés du Sud sans accompagnateurs
-        self.assertContains(response,
-            u'<input type="radio" id="id_prise_en_charge_hebergement_0"')
-        self.assertContains(response,
-            u'input type="radio" id="id_prise_en_charge_transport_0"')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        self.assertNotEqual(
+            find_input_by_id(tree, "id_prise_en_charge_hebergement_0"), None)
+        self.assertNotEqual(
+            find_input_by_id(tree, "id_prise_en_charge_transport_0"), None)
+
         th_data = to_form_data(self.INSCRIPTION_TEST_DATA['transport-hebergement'])
         response = self.client.post(
             url_etape(inscription, 'transport-hebergement'), th_data)
@@ -247,15 +259,19 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(('renseignements-personnels',),
             mandate=False)
         response = self.client.get(url_etape(inscription, 'transport-hebergement'))
-        self.assertNotContains(response,
-            u'<input type="radio" id="id_prise_en_charge_hebergement_0"')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        self.assertEqual(
+            find_input_by_id(tree, "id_prise_en_charge_hebergement_0"), None)
         # on ne propose pas la prise en charge aux mandatés du Nord
         inscription = self.create_inscription(('renseignements-personnels',),
             mandate=True,
             etablissement=Etablissement.objects.get(id=self.etablissement_nord_id))
         response = self.client.get(url_etape(inscription, 'transport-hebergement'))
-        self.assertNotContains(response,
-            u'<input type="radio" id="id_prise_en_charge_hebergement_0"')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        self.assertEqual(
+            find_input_by_id(tree, "id_prise_en_charge_hebergement_0"), None)
 
     def test_programmation(self):
         inscription = self.create_inscription(('renseignements-personnels', 'transport-hebergement'))

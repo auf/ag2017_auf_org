@@ -4,6 +4,7 @@ from ag.gestion import transfert_inscription
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
 from ag.inscription.models import Inscription, Invitation
+from ag.core.test_utils import find_input_by_id, find_input_by_name
 from ag.tests import create_fixtures, creer_participant
 from auf.django.references.models import Etablissement, Pays, Region
 from ag.gestion.montants import infos_montant_par_code
@@ -13,7 +14,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core import mail
 from django.test import TestCase
-
+import html5lib
 
 CODE_HOTEL = 'gtulip'
 TYPE_CHAMBRE_TEST = CHAMBRE_DOUBLE
@@ -424,18 +425,15 @@ class GestionTestCase(TestCase):
         self.assertEquals(infos.compagnie, u'AIR FRANCE')
         infos = participant.get_infos_arrivee()
         self.assertEquals(infos.numero_vol, u'AF627')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        input_element = find_input_by_name(tree,
+                                           "top-transport_organise_par_auf")
 
-        self.assertContains(
-            response,
-            u'<input checked="checked" name="top-transport_organise_par_auf" '
-            u'value="False"'
-        )
-        self.assertContains(
-            response,
-            u'<input id="id_arrdep-date_arrivee" type="text" '
-            u'class="dateinput" value="05/06/2013" '
-            u'name="arrdep-date_arrivee" />'
-        )
+        self.assertEqual(input_element.get("value"), "False")
+        input_element = find_input_by_id(tree,
+                                         "id_arrdep-date_arrivee")
+        self.assertEqual(input_element.get("value"), "05/06/2013")
 
     def test_transport_organise_auf(self):
         participant = self.participant
@@ -454,17 +452,15 @@ class GestionTestCase(TestCase):
         #            text_file.write(str(response))
         self.assertRedirects(response, self.url_fiche_participant())
         response = self.client.get(reverse('transport', args=[participant.id]))
-        self.assertContains(
-            response,
-            u'<input checked="checked" name="top-transport_organise_par_auf" '
-            u'value="True"'
-        )
-        self.assertContains(
-            response,
-            u'<input id="id_vols-0-date_depart" type="text" '
-            u'class="dateinput" value="02/06/2013" '
-            u'name="vols-0-date_depart" />'
-        )
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        input_element = find_input_by_name(tree,
+                                           "top-transport_organise_par_auf")
+
+        self.assertEqual(input_element.get("value"), "True")
+        input_element = find_input_by_id(tree,
+                                         "id_vols-0-date_depart")
+        self.assertEqual(input_element.get("value"), "02/06/2013")
 
     def test_invites(self):
         participant = self.participant
@@ -487,10 +483,10 @@ class GestionTestCase(TestCase):
                                     data=data)
         self.assertRedirects(response, self.url_fiche_participant())
         response = self.client.get(reverse('invites', args=[participant.id]))
-        self.assertContains(
-            response,
-            u'<input name="invite_set-0-nom" value="nom_invite"'
-        )
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        input_element = find_input_by_name(tree, "invite_set-0-nom")
+        self.assertEqual(input_element.get('value'), "nom_invite")
         response = self.client.get(reverse('transport', args=[participant.id]))
         self.assertContains(response, u'1 invité')
 
@@ -520,7 +516,10 @@ class GestionTestCase(TestCase):
         response = self.client.get(
             reverse('facturation', args=[participant.id])
         )
-        self.assertContains(response, u'value="100.0" name="accompte"')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        input_element = tree.find("//input[@name='{0}']".format('accompte'))
+        self.assertEqual(input_element.get('value'), '100.0')
 
     def test_numero_facture(self):
         participant = self.participant
