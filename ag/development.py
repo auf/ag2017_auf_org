@@ -37,6 +37,27 @@ if 'test' in sys.argv or 'bin/test' in sys.argv:
     }
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     MAILING_TEMPORISATION = 0
+    LOGGING = {
+        'version': 1,
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': '/tmp/codesy-debug.log',
+            },
+        },
+        'loggers': {
+            'django.db.backends.schema': {
+                'handlers': ['file'],
+                'propagate': True,
+                'level': 'INFO',
+            },
+            '': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+            }
+        }
+    }
 
 PAYPAL_EMAIL_ADDRESS = 'berang_1344607404_biz@auf.org'
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
