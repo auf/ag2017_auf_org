@@ -96,7 +96,7 @@ class RenseignementsPersonnels(models.Model):
 
 class Invitation(models.Model):
     etablissement = models.ForeignKey(ref.Etablissement, db_constraint=False)
-    pour_mandate = models.BooleanField()
+    pour_mandate = models.BooleanField(default=False)
     courriel = models.EmailField(null=True)
     jeton = models.CharField(max_length=TAILLE_JETON, default=generer_jeton)
 
@@ -140,7 +140,8 @@ class Inscription(RenseignementsPersonnels):
     invitation = models.OneToOneField(Invitation)
 
     # Accueil
-    identite_confirmee = models.BooleanField('identité confirmée')
+    identite_confirmee = models.BooleanField('identité confirmée',
+                                             default=False)
     conditions_acceptees = models.BooleanField(
         mark_safe(
             u'J\'ai lu et j\'accepte les '
@@ -148,7 +149,8 @@ class Inscription(RenseignementsPersonnels):
             u'onclick="javascript:window.open'
             u'(\'/inscription/conditions-generales/\');return false;" '
             u'target="_blank">conditions générales d\'inscription</a>'
-        )
+        ),
+        default=False
     )
 
     # Renseignements personnels
@@ -156,7 +158,8 @@ class Inscription(RenseignementsPersonnels):
     # Accompagnateur
     accompagnateur = models.BooleanField(
         u"Je serai accompagné(e) par une autre personne qui ne participera "
-        u"pas à l'assemblée générale"
+        u"pas à l'assemblée générale",
+        default=False
     )
     accompagnateur_genre = models.CharField(
         u'genre', max_length=1,
@@ -169,23 +172,29 @@ class Inscription(RenseignementsPersonnels):
 
     # Programmation
     programmation_soiree_unesp = models.BooleanField(
-        u"Je participerai à la soirée organisée par l'UNESP le 7 mai 2013."
+        u"Je participerai à la soirée organisée par l'UNESP le 7 mai 2013.",
+        default=False
     )
     programmation_soiree_unesp_invite = models.BooleanField(
-        u"Mon invité également."
+        u"Mon invité également.",
+        default=False
     )
     programmation_soiree_interconsulaire = models.BooleanField(
-        u"Je participerai à la soirée interconsulaire le 8 mai 2013."
+        u"Je participerai à la soirée interconsulaire le 8 mai 2013.",
+        default=False
     )
     programmation_soiree_interconsulaire_invite = models.BooleanField(
-        u"Mon invité également."
+        u"Mon invité également.",
+        default=False
     )
     programmation_gala = models.BooleanField(
         u"Je participerai à la soirée de gala de clôture de l'assemblée "
-        u"générale le 9 mai 2013."
+        u"générale le 9 mai 2013.",
+        default=False
     )
     programmation_gala_invite = models.BooleanField(
-        u"Mon invité également."
+        u"Mon invité également.",
+        default=False
     )
 
     # Transport et hébergement
@@ -376,6 +385,10 @@ class Inscription(RenseignementsPersonnels):
 paypal_signal = Signal()
 
 
+class PDTInvalide(Exception):
+    pass
+
+
 class PaiementPaypal(models.Model):
     STATUS_ACCEPTED = ['Processed', 'Completed']
 
@@ -415,14 +428,15 @@ class PaiementPaypal(models.Model):
         self.pdt_reponse = reponse
         lignes = reponse.split('\n')
         self.pdt_valide = unquote_plus(lignes[0]) == 'SUCCESS'
+        if not self.pdt_valide:
+            raise PDTInvalide
         d = {}
-        if self.pdt_valide:
-            del lignes[0]
-            for ligne in lignes:
-                ligne = unquote_plus(ligne)
-                if "=" in ligne:
-                    key, value = ligne.split("=")
-                    d[key] = value
+        del lignes[0]
+        for ligne in lignes:
+            ligne = unquote_plus(ligne)
+            if "=" in ligne:
+                key, value = ligne.split("=")
+                d[key] = value
         return d
 
     def verifier_ipn(self, request):

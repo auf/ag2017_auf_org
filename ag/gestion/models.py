@@ -40,7 +40,7 @@ class StatutParticipant(core.TableReferenceOrdonnee):
         verbose_name = u"Statut participant"
         verbose_name_plural = u"Statuts participants"
         ordering = ['ordre']
-    droit_de_vote = BooleanField()
+    droit_de_vote = BooleanField(default=False)
 
     def __unicode__(self):
         libelle = self.libelle
@@ -266,7 +266,7 @@ class ActiviteScientifique(core.TableReference):
 class ParticipationActivite(Model):
     activite = ForeignKey(Activite)
     participant = ForeignKey('Participant')
-    avec_invites = BooleanField()
+    avec_invites = BooleanField(default=False)
 
     class Meta:
         unique_together = ('activite', 'participant')

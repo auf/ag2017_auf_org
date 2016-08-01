@@ -9,7 +9,6 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.transaction import commit_manually
 from django.db.utils import IntegrityError
 from django.dispatch import Signal
 from django.http import Http404, HttpResponse
@@ -22,8 +21,8 @@ inscription_confirmee = Signal()
 import ag.gestion.notifications  # NOQA
 from ag.inscription.models import (
     Inscription, get_infos_montants, Invitation, InvitationEnveloppe,
-    PaiementPaypal
-)
+    PaiementPaypal,
+    PDTInvalide)
 from ag.inscription.forms import (
     AccueilForm, RenseignementsPersonnelsForm, ProgrammationForm,
     TransportHebergementForm, PaiementForm, InscriptionForm,
@@ -305,24 +304,22 @@ def save_paiement(paiement):
             transaction.rollback()
 
 
-@commit_manually
 def paypal_return(request, id):
+    inscription = get_object_or_404(Inscription, id=id)
+    inscription.paiement = 'CB'
+    inscription.save()
+    numero_transaction = request.GET.get('tx', None)
     try:
-        inscription = get_object_or_404(Inscription, id=id)
-        inscription.paiement = 'CB'
-        inscription.save()
-        transaction.commit()
-        numero_transaction = request.GET.get('tx', None)
-        try:
-            paiement = PaiementPaypal.objects.get(
-                numero_transaction=numero_transaction
-            )
-        except PaiementPaypal.DoesNotExist:
-            paiement = PaiementPaypal()
-            paiement.numero_transaction = numero_transaction
-        if not paiement.pdt_valide:
-            d = paiement.verifier_pdt()
-            if d:
+        paiement = PaiementPaypal.objects.get(
+            numero_transaction=numero_transaction
+        )
+    except PaiementPaypal.DoesNotExist:
+        paiement = PaiementPaypal()
+        paiement.numero_transaction = numero_transaction
+    try:
+        with transaction.atomic():
+            if not paiement.pdt_valide:
+                d = paiement.verifier_pdt()
                 paiement.inscription = inscription
                 paiement.montant = d.get('mc_gross', None)
                 paiement.devise = d.get('mc_currency', None)
@@ -330,33 +327,30 @@ def paypal_return(request, id):
                 paiement.raison_attente = d.get('pending_reason', None)
                 payment_date = d.get('payment_date', None)
                 if payment_date:
-                    for format in PAYPAL_DATE_FORMATS:
+                    for date_format in PAYPAL_DATE_FORMATS:
                         try:
                             paiement.date_heure = datetime.datetime(
-                                *time.strptime(payment_date, format)[:6]
+                                *time.strptime(payment_date, date_format)[:6]
                             )
                         except ValueError:
                             continue
                 save_paiement(paiement)
             else:
-                transaction.rollback()
-        else:
-            transaction.rollback()
-        if paiement.numero_transaction:
-            return redirect(
-                reverse('processus_inscription', args=['confirmation']) +
-                '?paypal_tx=' + paiement.numero_transaction
-            )
-        else:
-            return redirect('processus_inscription', 'paiement')
-    except:
-        transaction.rollback()
-        raise
+                raise PDTInvalide()
+    except PDTInvalide:
+        pass
+    if paiement.numero_transaction:
+        return redirect(
+            reverse('processus_inscription', args=['confirmation']) +
+            '?paypal_tx=' + paiement.numero_transaction
+        )
+    else:
+        return redirect('processus_inscription', 'paiement')
 
 
 @csrf_exempt
 @require_POST
-@commit_manually
+# @commit_manually
 def paypal_ipn(request):
     def form_to_paiement(form, paiement):
         paiement.montant = form.cleaned_data['mc_gross']
