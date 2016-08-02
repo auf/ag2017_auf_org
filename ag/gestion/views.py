@@ -27,7 +27,7 @@ def liste_etablissements_json(request):
         etablissements = Etablissement.objects.select_related('pays') \
             .filter(membre=True).values('id', 'nom', 'pays__nom')
         data = json.dumps(list(etablissements))
-        return HttpResponse(data, mimetype="application/json")
+        return HttpResponse(data, content_type="application/json")
 
 
 def critere_prise_en_charge_bool(critere):
