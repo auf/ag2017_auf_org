@@ -2,6 +2,13 @@
 
 from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
+from .views import (
+    participants_view,
+    suivi_view,
+    renseignements_personnels_view,
+    fichiers_view,
+    invites_view,
+    itineraire_view)
 
 urlpatterns = patterns(
     'ag.gestion.views',
@@ -10,25 +17,25 @@ urlpatterns = patterns(
         name='regles'),
     url(r'^liste_etablissements_json/$', 'liste_etablissements_json',
         name='liste_etablissements_json'),
-    url(r'^participants/$', 'participants', name='participants'),
+    url(r'^participants/$', participants_view, name='participants'),
     url(r'^participants/(\d+)/fiche/$', 'fiche_participant',
         name='fiche_participant'),
     url(r'^participants/(\d+)/renseignements-personnels/$',
-        'renseignements_personnels',
+        renseignements_personnels_view,
         name='renseignements_personnels'),
     url(r'^participants/(\d+)/sejour/$', 'sejour',
         name='sejour'),
     url(r'^participants/(\d+)/notes-de-frais/$', 'notes_de_frais',
         name='notes_de_frais'),
-    url(r'^participants/(\d+)/suivi/$', 'suivi',
+    url(r'^participants/(\d+)/suivi/$', suivi_view,
         name='suivi'),
     url(r'^participants/(\d+)/transport/$', 'transport',
         name='transport'),
-    url(r'^participants/(\d+)/invites/$', 'invites',
+    url(r'^participants/(\d+)/invites/$', invites_view,
         name='invites'),
     url(r'^participants/(\d+)/facturation/$', 'facturation',
         name='facturation'),
-    url(r'^participants/(\d+)/fichiers/$', 'fichiers',
+    url(r'^participants/(\d+)/fichiers/$', fichiers_view,
         name='fichiers'),
     url(r'^media_participant/(?P<nom_fichier>.*)$', 'media_participant',
         name='media_participant'),
@@ -59,7 +66,7 @@ urlpatterns = patterns(
     url(r'^etat_vols.csv$', 'etat_vols_csv', name='etat_vols_csv'),
     url(r'^export_donnees_csv$', 'export_donnees_csv',
         name='export_donnees_csv'),
-    url(r'^itineraire/(\d+)/$', 'itineraire',
+    url(r'^itineraire/(\d+)/$', itineraire_view,
         name='itineraire'),
     url(r'^etat_paiements/$', 'etat_paiements', name='etat_paiements'),
     url(r'^etat_paiements_csv/$', 'etat_paiements_csv',
