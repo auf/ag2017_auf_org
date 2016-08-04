@@ -3,8 +3,9 @@
 {% load i18n %}
 <head>
 <title>{% block title %}{% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}base.css"/>
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}changelists.css"/>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}admin/css/base.css"/>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}admin/css/changelists.css"/>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}gestion.css" />
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}menu.css" />
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}admin/css/ie.css" /><![endif]-->
