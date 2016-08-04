@@ -1091,7 +1091,8 @@ class AGRole(Model, Role):
         (ROLE_SEJOUR, u'Séjour')
     )
     user = ForeignKey(User, verbose_name=u'utilisateur', related_name='roles')
-    region = ForeignKey(Region, verbose_name=u'Région', null=True, blank=True)
+    region = ForeignKey(Region, verbose_name=u'Région', null=True, blank=True,
+                        db_constraint=False)
     type_role = CharField(u'Type', max_length=1, choices=TYPES_ROLES)
 
     class Meta:

@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('type_role', models.CharField(max_length=1, verbose_name='Type', choices=[(b'C', 'Comptable'), (b'I', 'SAI'), (b'L', 'Lecteur'), (b'A', 'Admin'), (b'S', 'S\xe9jour')])),
-                ('region', models.ForeignKey(verbose_name='R\xe9gion', blank=True, to='references.Region', null=True)),
+                ('region', models.ForeignKey(verbose_name='R\xe9gion', blank=True, to='references.Region', null=True, db_constraint=False)),
                 ('user', models.ForeignKey(related_name='roles', verbose_name='utilisateur', to=settings.AUTH_USER_MODEL)),
             ],
             options={
