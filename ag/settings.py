@@ -2,9 +2,6 @@
 import os
 import socket
 import datetime
-from django.utils.translation import gettext_lazy as _
-from django.conf.global_settings import \
-        TEMPLATE_CONTEXT_PROCESSORS as DEFAULT_TEMPLATE_CONTEXT_PROCESSORS
 
 # Rapports d'erreurs
 SERVER_EMAIL = 'ne-pas-repondre@auf.org'
@@ -73,21 +70,6 @@ INSTALLED_APPS = (
     'tinymce',
     )
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'cms.context_processors.media',
-    'sekizai.context_processors.sekizai',
-    'ag.outil.context_processors.list_Video',
-    'ag.outil.context_processors.list_Video2',
-    'ag.outil.context_processors.list_mot1',
-    'ag.outil.context_processors.list_mot2',
-    'ag.outil.context_processors.list_partenaire',
-    'ag.outil.context_processors.list_slider',
-    'ag.outil.context_processors.list_actu',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -104,11 +86,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.FetchFromCacheMiddleware',
     )
 
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), "templates"),
-)
-
-gettext = lambda s: s
 
 CMS_TEMPLATES = (
     ('accueil.html', gettext(u'Page Accueil')),

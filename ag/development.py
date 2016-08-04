@@ -3,12 +3,20 @@ import sys
 
 from ag.settings import *  # NOQA
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 INSTALLED_APPS += ('django_nose',)
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+
+if os.environ.get('DJDT', '0') == '1':
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS += ('debug_toolbar',)
+
+
 #Décommentez ces lignes pour activer la debugtoolbar
+
+
 # INTERNAL_IPS = ('127.0.0.1',)
 # INSTALLED_APPS += ('debug_toolbar',)
 #
