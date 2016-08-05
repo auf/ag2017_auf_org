@@ -381,7 +381,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         self.assertEqual(len(enveloppes),
             self.total_etablissements_membres_avec_courriel - 2)
         for enveloppe in enveloppes:
-            invitation = enveloppe.invitationenveloppe_set.all()[0].invitation
+            invitation = enveloppe.invitationenveloppe.invitation
             self.assertEqual(Participant.objects.filter(etablissement=invitation.etablissement).count(), 0)
 
         call_command('envoyer_invitations')

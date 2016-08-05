@@ -111,7 +111,7 @@ class Invitation(models.Model):
 
 
 class InvitationEnveloppe(models.Model):
-    enveloppe = models.ForeignKey(Enveloppe, unique=True)
+    enveloppe = models.OneToOneField(Enveloppe)
     invitation = models.ForeignKey(Invitation)
 
     def get_adresse(self):
