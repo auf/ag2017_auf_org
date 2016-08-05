@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import re
-from auf.django.references.models import Etablissement, Region
+from ag.reference.models import Etablissement, Region
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Div, MultiField, HTML, Submit
 from crispy_forms.layout import Field as crispy_Field

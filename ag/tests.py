@@ -2,7 +2,7 @@
 import datetime
 from ag.gestion.models import AGRole, ROLE_ADMIN, StatutParticipant, TypeInstitutionSupplementaire, Participant
 from auf.django.mailing.models import ModeleCourriel
-from auf.django.references.models import Pays, Region, Etablissement
+from ag.reference.models import Pays, Region, Etablissement
 from django.contrib.auth.models import User
 
 
@@ -20,11 +20,10 @@ def create_fixtures(test_case, do_login=True):
     test_case.region = region
 
     pays = Pays()
-    pays.region = region
     pays.nom = u'Pays test'
     pays.code = 'TS'
     pays.actif = True
-    pays.nord_sud = 'Sud'
+    pays.sud = True
     pays.save()
 
     pays_nord = Pays()
@@ -32,7 +31,7 @@ def create_fixtures(test_case, do_login=True):
     pays_nord.nom = u'Pays test nord'
     pays_nord.code = 'NN'
     pays_nord.actif = True
-    pays_nord.nord_sud = 'Nord'
+    pays_nord.sud = False
     pays_nord.code_iso3 ='NN'
     pays_nord.save()
 

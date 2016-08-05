@@ -3,7 +3,7 @@ import html5lib
 import datetime
 
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
-from auf.django.references.models import Etablissement
+from ag.reference.models import Etablissement
 
 from ag.core.test_utils import find_input_by_id
 import mock

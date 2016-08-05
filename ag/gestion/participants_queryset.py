@@ -4,19 +4,19 @@ from ag.gestion.montants import get_infos_montants, infos_montant_par_code
 from django.db.models import Q
 from django.db.models.query import QuerySet
 
-EXCEPT_DOM_TOM_SQL = "ref_etablissement.id in ({0})". \
+EXCEPT_DOM_TOM_SQL = "reference_etablissement.id in ({0})". \
     format(', '.join(map(str, EXCEPTIONS_DOM_TOM)))
 CONDITION_VOTE_SQL = """
                     gestion_statutparticipant.droit_de_vote=1
-                    AND ref_etablissement.statut in ('T', 'A')
+                    AND reference_etablissement.statut in ('T', 'A')
                     AND gestion_participant.type_institution = 'E'
                     AND gestion_participant.desactive = 0
-                    AND ref_etablissement.qualite in ('RES', 'CIR', 'ESR')
+                    AND reference_etablissement.qualite in ('RES', 'CIR', 'ESR')
                     """
 CALCUL_REGION_VOTE_SQL = """
-        IF(ref_etablissement.qualite = 'RES', '{REG_RESEAU}',
+        IF(reference_etablissement.qualite = 'RES', '{REG_RESEAU}',
                           IF({EXCEPT_DOM_TOM}, '{REG_EUROPE_OUEST}',
-                             (CASE ref_region.code
+                             (CASE reference_region.code
                              WHEN 'ACGL' THEN '{REG_AFRIQUE}'
                              WHEN 'AO' THEN '{REG_AFRIQUE}'
                              WHEN 'A' THEN '{REG_AMERIQUES}'
@@ -29,7 +29,8 @@ CALCUL_REGION_VOTE_SQL = """
                              END)
                              )
                        )
-        """.format(EXCEPT_DOM_TOM=EXCEPT_DOM_TOM_SQL, **REGIONS_VOTANTS_CONSTS_DICT)
+        """.format(EXCEPT_DOM_TOM=EXCEPT_DOM_TOM_SQL,
+                   **REGIONS_VOTANTS_CONSTS_DICT)
 REGION_VOTE_SQL = """
             IF({CONDITION_VOTE_SQL},
                {CALCUL_REGION_VOTE_SQL},
@@ -266,7 +267,7 @@ class ParticipantsQuerySet(QuerySet):
                        desactive=False,
                        etablissement__qualite__in=('RES', 'CIR', 'ESR'),
                        # cette dernière condition force la jointure sur region
-                       etablissement__region__code__startswith='')
+                       etablissement__region__nom__startswith='')
         if code_region_vote == REG_FRANCE:
             code_region_vote = REG_EUROPE_OUEST
             qs = qs.filter(Q(etablissement__pays__code='FR') |
@@ -287,4 +288,4 @@ class ParticipantsQuerySet(QuerySet):
                            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
                            # cette dernière condition force la jointure sur
                            # region
-                           etablissement__region__code__startswith='')
+                           etablissement__region__nom__startswith='')

@@ -6,7 +6,7 @@ from ag.gestion.models import *
 from ag.inscription.models import Inscription, Invitation
 from ag.core.test_utils import find_input_by_id, find_input_by_name
 from ag.tests import create_fixtures, creer_participant
-from auf.django.references.models import Etablissement, Pays, Region
+from ag.reference.models import Etablissement, Pays, Region
 from ag.gestion.montants import infos_montant_par_code
 
 import datetime
@@ -1370,10 +1370,8 @@ class PermissionsGestionTestCase(TestCase):
         region_EO.code = u'EO'
         region_EO.nom = u"Europe de l'Ouest"
         region_EO.save()
-        pays_eg = Pays(
-            nom=u"Égypte", code=u"EG", region=region_MO, code_iso3=u'EG'
-        )
-        pays_eg.save()
+        pays_eg = Pays.objects.create(
+            nom=u"Égypte", code=u"EG", sud=True)
 
         etablissement_MO = Etablissement(
             nom=u'etab_mo', pays=pays_eg, region=region_MO, statut=u'A',

@@ -2,7 +2,7 @@
 from optparse import make_option
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
 from ag.inscription.models import Invitation, InvitationEnveloppe
-from auf.django.references.models import Etablissement
+from ag.reference.models import Etablissement
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 

@@ -2,18 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django.core.files.storage
 import auf.django.permissions
-import django.db.models.deletion
-from django.conf import settings
+import django.core.files.storage
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('references', '__first__'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('inscription', '__first__'),
     ]
 
     operations = [
@@ -26,7 +21,7 @@ class Migration(migrations.Migration):
                 ('jeton', models.CharField(max_length=96)),
                 ('enveloppe_id', models.IntegerField()),
                 ('modele_id', models.IntegerField()),
-                ('nord_sud', models.CharField(max_length=765, blank=True)),
+                ('sud', models.BooleanField()),
                 ('statut', models.CharField(max_length=3, blank=True)),
             ],
             options={
@@ -67,8 +62,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('type_role', models.CharField(max_length=1, verbose_name='Type', choices=[(b'C', 'Comptable'), (b'I', 'SAI'), (b'L', 'Lecteur'), (b'A', 'Admin'), (b'S', 'S\xe9jour')])),
-                ('region', models.ForeignKey(verbose_name='R\xe9gion', blank=True, to='references.Region', null=True, db_constraint=False)),
-                ('user', models.ForeignKey(related_name='roles', verbose_name='utilisateur', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'R\xf4le utilisateur',
@@ -93,8 +86,6 @@ class Migration(migrations.Migration):
                 ('fichier', models.FileField(storage=django.core.files.storage.FileSystemStorage(location=b'/media/benselme/data/dev/projects/auf/ag2017_auf_org/medias_participants'), upload_to=b'.')),
                 ('cree_le', models.DateTimeField(auto_now_add=True, verbose_name='cr\xe9\xe9 le ')),
                 ('efface_le', models.DateTimeField(null=True, verbose_name='effac\xe9 le ')),
-                ('cree_par', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL, null=True)),
-                ('efface_par', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -199,7 +190,6 @@ class Migration(migrations.Migration):
                 ('reservation_hotel_par_auf', models.BooleanField(default=False, verbose_name="r\xe9servation d'un h\xf4tel")),
                 ('notes_hebergement', models.TextField(verbose_name='notes h\xe9bergement', blank=True)),
                 ('commentaires', models.TextField(null=True, blank=True)),
-                ('activite_scientifique', models.ForeignKey(blank=True, to='gestion.ActiviteScientifique', null=True)),
             ],
             options={
                 'abstract': False,
@@ -209,9 +199,7 @@ class Migration(migrations.Migration):
             name='ParticipationActivite',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('avec_invites', models.BooleanField()),
-                ('activite', models.ForeignKey(to='gestion.Activite')),
-                ('participant', models.ForeignKey(to='gestion.Participant')),
+                ('avec_invites', models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
@@ -234,7 +222,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('type_chambre', models.CharField(max_length=1, choices=[(b'S', 'Chambre simple'), (b'D', 'Chambre double'), (b'1', 'Chambre simple sup\xe9rieure'), (b'2', 'Chambre double sup\xe9rieure'), (b'L', 'Chambre Luxo (simple)'), (b'A', 'Chambre anti-allerg\xe9nique')])),
                 ('nombre', models.IntegerField()),
-                ('participant', models.ForeignKey(to='gestion.Participant')),
             ],
         ),
         migrations.CreateModel(
@@ -244,7 +231,7 @@ class Migration(migrations.Migration):
                 ('code', models.CharField(max_length=16, blank=True)),
                 ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
                 ('ordre', models.IntegerField()),
-                ('droit_de_vote', models.BooleanField()),
+                ('droit_de_vote', models.BooleanField(default=False)),
             ],
             options={
                 'ordering': ['ordre'],
@@ -289,113 +276,5 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['nom'],
             },
-        ),
-        migrations.CreateModel(
-            name='InscriptionWeb',
-            fields=[
-            ],
-            options={
-                'ordering': ['date_fermeture'],
-                'verbose_name': 'Inscription',
-                'proxy': True,
-            },
-            bases=('inscription.inscription',),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='activites',
-            field=models.ManyToManyField(to='gestion.Activite', through='gestion.ParticipationActivite'),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='etablissement',
-            field=models.ForeignKey(db_constraint=False, verbose_name='\xc9tablissement', to='references.Etablissement', null=True),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='hotel',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='gestion.Hotel', null=True),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='inscription',
-            field=models.ForeignKey(to='inscription.Inscription', null=True),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='pays_autre_institution',
-            field=models.ForeignKey(db_constraint=False, verbose_name='Pays', blank=True, to='references.Pays', null=True),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='region',
-            field=models.ForeignKey(db_constraint=False, verbose_name='R\xe9gion', to='references.Region', null=True),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='statut',
-            field=models.ForeignKey(to='gestion.StatutParticipant', on_delete=django.db.models.deletion.PROTECT),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='suivi',
-            field=models.ManyToManyField(to='gestion.PointDeSuivi'),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='type_autre_institution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='gestion.TypeInstitutionSupplementaire', null=True),
-        ),
-        migrations.AddField(
-            model_name='participant',
-            name='vol_groupe',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='gestion.VolGroupe', null=True),
-        ),
-        migrations.AddField(
-            model_name='invite',
-            name='participant',
-            field=models.ForeignKey(to='gestion.Participant'),
-        ),
-        migrations.AddField(
-            model_name='infosvol',
-            name='participant',
-            field=models.ForeignKey(to='gestion.Participant', null=True),
-        ),
-        migrations.AddField(
-            model_name='infosvol',
-            name='vol_groupe',
-            field=models.ForeignKey(to='gestion.VolGroupe', null=True),
-        ),
-        migrations.AddField(
-            model_name='frais',
-            name='participant',
-            field=models.ForeignKey(to='gestion.Participant'),
-        ),
-        migrations.AddField(
-            model_name='frais',
-            name='type_frais',
-            field=models.ForeignKey(to='gestion.TypeFrais'),
-        ),
-        migrations.AddField(
-            model_name='fichier',
-            name='participant',
-            field=models.ForeignKey(to='gestion.Participant'),
-        ),
-        migrations.AddField(
-            model_name='chambre',
-            name='hotel',
-            field=models.ForeignKey(to='gestion.Hotel'),
-        ),
-        migrations.AlterUniqueTogether(
-            name='reservationchambre',
-            unique_together=set([('participant', 'type_chambre')]),
-        ),
-        migrations.AlterUniqueTogether(
-            name='participationactivite',
-            unique_together=set([('activite', 'participant')]),
-        ),
-        migrations.AlterUniqueTogether(
-            name='chambre',
-            unique_together=set([('hotel', 'type_chambre')]),
         ),
     ]

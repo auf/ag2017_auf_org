@@ -5,7 +5,7 @@ import os
 import unicodedata
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 
-from auf.django.references.models import Etablissement, Region, Pays
+from ag.reference.models import Etablissement, Region, Pays
 from auf.django.permissions import Role
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -774,7 +774,7 @@ class Participant(RenseignementsPersonnels):
         return display
 
     def get_etablissement_sud(self):
-        return self.etablissement and self.etablissement.pays.nord_sud == "Sud"
+        return self.etablissement and self.etablissement.pays.sud
 
     def get_region_vote_string(self):
         return REGIONS_VOTANTS_DICT[self.region_vote]
@@ -1149,7 +1149,7 @@ class Invitation(Model):
     jeton = CharField(max_length=96)
     enveloppe_id = IntegerField()
     modele_id = IntegerField()
-    nord_sud = CharField(max_length=765, blank=True)
+    sud = BooleanField()
     statut = CharField(max_length=3, blank=True)
 
     class Meta:

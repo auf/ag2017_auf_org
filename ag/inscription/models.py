@@ -4,7 +4,7 @@ import urllib2
 from urllib import unquote_plus
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
-from auf.django.references import models as ref
+from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -94,8 +94,9 @@ class RenseignementsPersonnels(models.Model):
         self.nom = self.nom.upper()
         return super(RenseignementsPersonnels, self).save(**kwargs)
 
+
 class Invitation(models.Model):
-    etablissement = models.ForeignKey(ref.Etablissement, db_constraint=False)
+    etablissement = models.ForeignKey(Etablissement)
     pour_mandate = models.BooleanField(default=False)
     courriel = models.EmailField(null=True)
     jeton = models.CharField(max_length=TAILLE_JETON, default=generer_jeton)
@@ -309,7 +310,7 @@ class Inscription(RenseignementsPersonnels):
         return self.invitation.pour_mandate
 
     def est_pour_sud(self):
-        return self.invitation.etablissement.pays.nord_sud == "Sud"
+        return self.invitation.etablissement.pays.sud
 
     def get_jeton(self):
         return self.invitation.enveloppe.jeton

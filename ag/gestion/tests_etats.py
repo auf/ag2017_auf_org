@@ -8,7 +8,7 @@ from ag.gestion.models import *
 from ag.gestion.tests import CODE_HOTEL
 from ag.inscription.models import Invitation, Inscription
 from ag.tests import create_fixtures, creer_participant
-from auf.django.references.models import Pays, Etablissement, Region
+from ag.reference.models import Pays, Etablissement, Region
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils import formats
@@ -525,11 +525,11 @@ class VoteTestCase(TestCase):
         region_EO = Region.objects.create(code=u'EO',
                                           nom=u"Europe de l'Ouest")
         pays_fr = Pays.objects.create(
-            nom=u"France", code=u"FR", region=region_EO, code_iso3=u'FR')
+            nom=u"France", code=u"FR", sud=False)
         pays_de = Pays.objects.create(
-            nom=u"Allemagne", code=u"DE", region=region_EO, code_iso3=u'DE')
+            nom=u"Allemagne", code=u"DE", sud=False)
         pays_eg = Pays.objects.create(
-            nom=u"Égypte", code=u"EG", region=region_MO, code_iso3=u'EG')
+            nom=u"Égypte", code=u"EG", sud=True)
         etablissement_MO = Etablissement.objects.create(
             nom=u'etab_mo', pays=pays_eg, region=region_MO, statut=u'A',
             qualite=u'ESR', membre=True)

@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('mailing', '__first__'),
-        ('references', '__first__'),
+        ('reference', '0001_initial'),
     ]
 
     operations = [
@@ -33,18 +33,18 @@ class Migration(migrations.Migration):
                 ('date_arrivee_hotel', models.DateField(null=True, verbose_name="Date d'arriv\xe9e", blank=True)),
                 ('date_depart_hotel', models.DateField(null=True, verbose_name='Date de d\xe9part', blank=True)),
                 ('paiement', models.CharField(blank=True, max_length=2, verbose_name=b'modalit\xc3\xa9s de paiement', choices=[(b'CB', b'Carte bancaire'), (b'VB', b'Virement bancaire'), (b'CE', b'Ch\xc3\xa8que en euros'), (b'DL', b'Devises locales')])),
-                ('identite_confirmee', models.BooleanField(verbose_name=b'identit\xc3\xa9 confirm\xc3\xa9e')),
-                ('conditions_acceptees', models.BooleanField(verbose_name='J\'ai lu et j\'accepte les <a href="/inscription/conditions-generales/" onclick="javascript:window.open(\'/inscription/conditions-generales/\');return false;" target="_blank">conditions g\xe9n\xe9rales d\'inscription</a>')),
-                ('accompagnateur', models.BooleanField(verbose_name="Je serai accompagn\xe9(e) par une autre personne qui ne participera pas \xe0 l'assembl\xe9e g\xe9n\xe9rale")),
+                ('identite_confirmee', models.BooleanField(default=False, verbose_name=b'identit\xc3\xa9 confirm\xc3\xa9e')),
+                ('conditions_acceptees', models.BooleanField(default=False, verbose_name='J\'ai lu et j\'accepte les <a href="/inscription/conditions-generales/" onclick="javascript:window.open(\'/inscription/conditions-generales/\');return false;" target="_blank">conditions g\xe9n\xe9rales d\'inscription</a>')),
+                ('accompagnateur', models.BooleanField(default=False, verbose_name="Je serai accompagn\xe9(e) par une autre personne qui ne participera pas \xe0 l'assembl\xe9e g\xe9n\xe9rale")),
                 ('accompagnateur_genre', models.CharField(blank=True, max_length=1, verbose_name='genre', choices=[(b'M', b'M.'), (b'F', b'Mme')])),
                 ('accompagnateur_nom', models.CharField(max_length=100, verbose_name=b'nom', blank=True)),
                 ('accompagnateur_prenom', models.CharField(max_length=100, verbose_name='pr\xe9nom(s)', blank=True)),
-                ('programmation_soiree_unesp', models.BooleanField(verbose_name="Je participerai \xe0 la soir\xe9e organis\xe9e par l'UNESP le 7 mai 2013.")),
-                ('programmation_soiree_unesp_invite', models.BooleanField(verbose_name='Mon invit\xe9 \xe9galement.')),
-                ('programmation_soiree_interconsulaire', models.BooleanField(verbose_name='Je participerai \xe0 la soir\xe9e interconsulaire le 8 mai 2013.')),
-                ('programmation_soiree_interconsulaire_invite', models.BooleanField(verbose_name='Mon invit\xe9 \xe9galement.')),
-                ('programmation_gala', models.BooleanField(verbose_name="Je participerai \xe0 la soir\xe9e de gala de cl\xf4ture de l'assembl\xe9e g\xe9n\xe9rale le 9 mai 2013.")),
-                ('programmation_gala_invite', models.BooleanField(verbose_name='Mon invit\xe9 \xe9galement.')),
+                ('programmation_soiree_unesp', models.BooleanField(default=False, verbose_name="Je participerai \xe0 la soir\xe9e organis\xe9e par l'UNESP le 7 mai 2013.")),
+                ('programmation_soiree_unesp_invite', models.BooleanField(default=False, verbose_name='Mon invit\xe9 \xe9galement.')),
+                ('programmation_soiree_interconsulaire', models.BooleanField(default=False, verbose_name='Je participerai \xe0 la soir\xe9e interconsulaire le 8 mai 2013.')),
+                ('programmation_soiree_interconsulaire_invite', models.BooleanField(default=False, verbose_name='Mon invit\xe9 \xe9galement.')),
+                ('programmation_gala', models.BooleanField(default=False, verbose_name="Je participerai \xe0 la soir\xe9e de gala de cl\xf4ture de l'assembl\xe9e g\xe9n\xe9rale le 9 mai 2013.")),
+                ('programmation_gala_invite', models.BooleanField(default=False, verbose_name='Mon invit\xe9 \xe9galement.')),
                 ('prise_en_charge_hebergement', models.NullBooleanField(verbose_name=b'Je demande la prise en charge de mon h\xc3\xa9bergement.')),
                 ('prise_en_charge_transport', models.NullBooleanField(verbose_name=b'Je demande la prise en charge de mon transport.')),
                 ('arrivee_date', models.DateField(help_text=b'format: jj/mm/aaaa', null=True, verbose_name=b"date d'arriv\xc3\xa9e \xc3\xa0 S\xc3\xa3o Paulo", blank=True)),
@@ -67,17 +67,17 @@ class Migration(migrations.Migration):
             name='Invitation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('pour_mandate', models.BooleanField()),
+                ('pour_mandate', models.BooleanField(default=False)),
                 ('courriel', models.EmailField(max_length=254, null=True)),
                 ('jeton', models.CharField(default=auf.django.mailing.models.generer_jeton, max_length=32)),
-                ('etablissement', models.ForeignKey(to='references.Etablissement', db_constraint=False)),
+                ('etablissement', models.ForeignKey(to='reference.Etablissement')),
             ],
         ),
         migrations.CreateModel(
             name='InvitationEnveloppe',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('enveloppe', models.ForeignKey(to='mailing.Enveloppe', unique=True)),
+                ('enveloppe', models.OneToOneField(to='mailing.Enveloppe')),
                 ('invitation', models.ForeignKey(to='inscription.Invitation')),
             ],
         ),

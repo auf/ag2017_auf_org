@@ -90,7 +90,7 @@ class InscriptionAdmin(ModelAdmin):
     get_date_fermeture.short_description = u'Confirmation'
 
     def get_nom_region(self, obj):
-        return obj.get_etablissement().pays.region.nom
+        return obj.get_etablissement().region.nom
     get_nom_region.short_description = u'Région'
 
     def get_nom_prenom(self, obj):
@@ -149,7 +149,7 @@ class InvitationAdmin(ModelAdmin):
         'jeton',
         'enveloppe_id',
         'modele_id',
-        'nord_sud',
+        'sud',
         'statut',
     )
 

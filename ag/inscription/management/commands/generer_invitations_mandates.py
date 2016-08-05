@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import sys
 from ag.inscription.models import Invitation, InvitationEnveloppe
-from auf.django.references.models import Etablissement
+from ag.reference.models import Etablissement
 from django.core.management.base import BaseCommand
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
 
