@@ -1105,10 +1105,17 @@ class AGRole(Model, Role):
             s += u' ' + self.region.nom
         return s
 
-    def has_perm(self, perm):
-        return (self.type_role == ROLE_ADMIN
-                or perm == PERM_LECTURE
-                or (perm, self.type_role) in ALLOWED)
+    def has_perm(self, perm, obj=None):
+        allowed = (self.type_role == ROLE_ADMIN or
+                   perm == PERM_LECTURE or
+                   (perm, self.type_role) in ALLOWED)
+        if allowed and obj and isinstance(obj, Participant):
+            allowed = (allowed and
+                       ((obj.type_institution == Participant.ETABLISSEMENT and
+                         obj.etablissement.region == self.region) or
+                        obj.region == self.region)
+                       )
+        return allowed
 
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
