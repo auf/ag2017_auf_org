@@ -5,3 +5,4 @@ django-extensions
 mock
 lxml
 pytest-django
+factory_boy==2.7.0
