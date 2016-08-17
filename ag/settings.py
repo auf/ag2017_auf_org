@@ -100,8 +100,6 @@ CMS_TEMPLATES = (
 )
 
 
-SOUTH_TESTS_MIGRATE = False
-
 ADMIN_TOOLS_INDEX_DASHBOARD = 'project.dashboard.CustomIndexDashboard'
 
 MAILING_MODELE_PARAMS_ENVELOPPE = 'inscription.InvitationEnveloppe'

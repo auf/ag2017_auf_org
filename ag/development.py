@@ -5,10 +5,6 @@ from ag.settings import *  # NOQA
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
-INSTALLED_APPS += ('django_nose',)
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-
 if os.environ.get('DJDT', '0') == '1':
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS += ('debug_toolbar',)
@@ -29,7 +25,8 @@ AUTH_PASSWORD_REQUIRED = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 AG_INSCRIPTION_SENDER = 'beranger.enselme@auf.org'
 
-if 'test' in sys.argv or 'bin/test' in sys.argv:
+if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
+                'py.test' in sys.argv[0]:
     AUF_REFERENCES_MANAGED = True
     DATABASES = {
         'default': {
@@ -66,6 +63,17 @@ if 'test' in sys.argv or 'bin/test' in sys.argv:
             }
         }
     }
+
+    class DisableMigrations(object):
+
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return "notmigrations"
+
+    MIGRATION_MODULES = DisableMigrations()
+
 
 PAYPAL_EMAIL_ADDRESS = 'berang_1344607404_biz@auf.org'
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
