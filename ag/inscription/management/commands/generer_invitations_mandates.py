@@ -2,13 +2,19 @@
 import sys
 from ag.inscription.models import Invitation, InvitationEnveloppe
 from ag.reference.models import Etablissement
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        modele_courriel = ModeleCourriel.objects.get(code="mand")
+        try:
+            modele_courriel = ModeleCourriel.objects.get(code="mand")
+        except ModeleCourriel.DoesNotExist:
+            raise CommandError(
+                u"Il est nécessaire de créer un modèle de courriel avec"
+                u"le code 'mand' pour lancer la génération des invitations.")
+
         etablissements = Etablissement.objects.exclude(responsable_courriel="")\
             .filter(membre=True)\
             .exclude(invitation__invitationenveloppe__enveloppe__modele=modele_courriel)
