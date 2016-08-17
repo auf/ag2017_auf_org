@@ -1,8 +1,16 @@
-django-cms
-django-crispy-forms
+MySQL-python==1.2.5
+Pillow==3.3.0
+Django==1.8.14
+django-cms==3.3
+-e git://github.com/auf/auf_django_mailing.git@v0.6#egg=auf.django.mailing
+django-crispy-forms==1.6.0
 raven
-reportlab
-South
-django-sendfile
-python-memcached
-django-tinymce
+reportlab==2.4
+django-sendfile==0.3.10
+
+-e git://github.com/auf/auf_django_permissions.git#egg=auf.django.permissions
+-e git://github.com/auf/auf_django_piwik.git#egg=auf.django.piwik
+
+python-memcached==1.48
+django-tinymce==2.3.0
+django-treebeard==4.0.1

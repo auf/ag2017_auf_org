@@ -1,0 +1,7 @@
+-r requirements.txt
+
+django-debug-toolbar
+django-extensions
+mock
+lxml
+pytest-django
