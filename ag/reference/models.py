@@ -11,10 +11,22 @@ class Pays(models.Model):
     def get_sud_display(self):
         return u"sud" if self.sud else u"nord"
 
+    def __unicode__(self):
+        return self.nom
+
+    def __repr__(self):
+        return u"<Pays: {}>".format(self.nom)
+
 
 class Region(models.Model):
     code = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.nom
+
+    def __repr__(self):
+        return u"<Région: {}>".format(self.nom)
 
 
 class Etablissement(models.Model):
@@ -49,3 +61,10 @@ class Etablissement(models.Model):
         null=True
     )
     membre = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.nom
+
+    def __repr__(self):
+        return u"<Établissement: {}-{}>".format(self.id, self.nom)
+
