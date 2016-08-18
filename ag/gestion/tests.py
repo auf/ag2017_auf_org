@@ -42,6 +42,7 @@ class GestionTestCase(TestCase):
 
     def setUp(self):
         create_fixtures(self)
+        self.client.login(username='john', password='johnpassword')
 
         self.participant = creer_participant()
 
@@ -1174,6 +1175,7 @@ class TableauDeBordTestCase(TestCase):
 
     def setUp(self):
         create_fixtures(self)
+        self.client.login(username='john', password='johnpassword')
         self.participants = [
             creer_participant(nom=u'Participant' + str(n),
                               prenom=u'prenom' + str(n))
@@ -1215,7 +1217,7 @@ class PermissionsGestionTestCase(TestCase):
     fixtures = ['test_data.json']
 
     def setUp(self):
-        create_fixtures(self, do_login=False)
+        create_fixtures(self)
         self.participant = creer_participant()
         self.user_sans_role = User.objects.create_user(username='sansrole',
                                                        password='abc')
@@ -1439,7 +1441,8 @@ class TestsVolsGroupes(TestCase):
     fixtures = ['test_data.json']
 
     def setUp(self):
-        create_fixtures(self, True)
+        create_fixtures(self)
+        self.client.login(username='john', password='johnpassword')
 
     def tearDown(self):
         self.client.logout()

@@ -1,96 +1,56 @@
 # -*- encoding: utf-8 -*-
 import datetime
+from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory
 from ag.gestion.models import AGRole, ROLE_ADMIN, StatutParticipant, TypeInstitutionSupplementaire, Participant
 from auf.django.mailing.models import ModeleCourriel
 from ag.reference.models import Pays, Region, Etablissement
 from django.contrib.auth.models import User
 
 
-def create_fixtures(test_case, do_login=True):
-    test_case.user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
+def create_fixtures(test_case):
+    test_case.user = User.objects.create_user('john', 'lennon@thebeatles.com',
+                                              'johnpassword')
     test_case.user.roles.add(AGRole(type_role=ROLE_ADMIN))
     test_case.user.is_staff = True
     test_case.user.save()
 
-    region = Region()
-    region.actif = True
-    region.nom = u'Région test'
-    region.code = 'RTST'
-    region.save()
+    region = RegionFactory()
     test_case.region = region
 
-    pays = Pays()
-    pays.nom = u'Pays test'
-    pays.code = 'TS'
-    pays.actif = True
-    pays.sud = True
-    pays.save()
+    test_case.pays_sud = pays = PaysFactory(code='TS', sud=True)
+    test_case.pays_nord = pays_nord = PaysFactory(code='NN', sud=False)
 
-    pays_nord = Pays()
-    pays_nord.region = region
-    pays_nord.nom = u'Pays test nord'
-    pays_nord.code = 'NN'
-    pays_nord.actif = True
-    pays_nord.sud = False
-    pays_nord.code_iso3 ='NN'
-    pays_nord.save()
-
-    etablissement = Etablissement()
-    etablissement.nom = u'Établissement test'
-    etablissement.pays = pays
-    etablissement.responsable_courriel = 'abc@test.org'
-    etablissement.membre = True
-    etablissement.qualite = 'ESR'
-    etablissement.statut = 'T'
-    etablissement.region = region
-    etablissement.save()
+    etablissement = EtablissementFactory(
+        pays=pays,
+        responsable_courriel='abc@test.org',
+        membre=True,
+        qualite='ESR',
+        statut='T',
+        region=region
+    )
     test_case.etablissement_id = etablissement.id
 
-
-    etablissement_nord = Etablissement()
-    etablissement_nord.nom = u'Établissement test nord'
-    etablissement_nord.pays = pays_nord
-    etablissement_nord.membre = True
-    etablissement_nord.responsable_courriel = 'nord@test.org'
-    etablissement.statut = 'T'
-    etablissement_nord.save()
+    etablissement_nord = EtablissementFactory(
+        pays=pays_nord, membre=True, responsable_courriel='nord@test.org',
+        statut='T')
     test_case.etablissement_nord_id = etablissement_nord.id
 
-    etablissement_sud_associe = Etablissement()
-    etablissement_sud_associe.nom = u'Établissement test sud associé'
-    etablissement_sud_associe.pays = pays
-    etablissement_sud_associe.membre = True
-    etablissement_sud_associe.responsable_courriel = 'sud_assoc@test.org'
-    etablissement_sud_associe.qualite = 'ESR'
-    etablissement_sud_associe.statut = 'A'
-    etablissement_sud_associe.save()
+    etablissement_sud_associe = EtablissementFactory(
+        pays=pays, membre=True, responsable_courriel='sud_assoc@test.org',
+        qualite='ESR', statut='A')
     test_case.etablissement_sud_associe_id = etablissement_sud_associe.id
 
-    etablissement_non_membre = Etablissement()
-    etablissement_non_membre.nom = u'Établissement test nord'
-    etablissement_non_membre.pays = pays_nord
-    etablissement_non_membre.membre = False
-    etablissement_non_membre.responsable_courriel = 'nord@test.org'
-    etablissement_non_membre.save()
+    etablissement_non_membre = EtablissementFactory(
+        pays=pays_nord, membre=False, responsable_courriel='nord@test.org')
     test_case.etablissement_non_membre_id = etablissement_non_membre.id
 
-
-    etablissement_pas_de_courriel = Etablissement()
-    etablissement_pas_de_courriel.nom = u'Établissement pas de courriel'
-    etablissement_pas_de_courriel.pays = pays_nord
-    etablissement_pas_de_courriel.membre = True
-    etablissement_pas_de_courriel.responsable_courriel = ''
-    etablissement_pas_de_courriel.save()
-    test_case.etablissement_pas_de_courriel_id = etablissement_pas_de_courriel.id
+    etablissement_sans_courriel = EtablissementFactory(
+        membre=True, responsable_courriel='', pays=pays_nord)
+    test_case.etablissement_pas_de_courriel_id = etablissement_sans_courriel.id
 
     test_case.total_etablissements_membres_avec_courriel = 3
 
-    modele_courriel_mandate = ModeleCourriel()
-    modele_courriel_mandate.sujet = 'test'
-    modele_courriel_mandate.code = 'mand'
-    modele_courriel_mandate.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
-    modele_courriel_mandate.html = False
-    modele_courriel_mandate.save()
+    modele_courriel_mandate = make_modele_courriel_mandate()
     test_case.modele_courriel_mandate = modele_courriel_mandate
 
     modele_courriel_mandate_rappel = ModeleCourriel()
@@ -116,8 +76,13 @@ def create_fixtures(test_case, do_login=True):
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
-    if do_login:
-        test_case.client.login(username='john', password='johnpassword')
+
+def make_modele_courriel_mandate():
+    return ModeleCourriel.objects.create(
+        sujet='test', code='mand',
+        corps='{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}',
+        html=False,
+    )
 
 
 def creer_participant(nom=None, prenom=None, code_statut='memb_inst',

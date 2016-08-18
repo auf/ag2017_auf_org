@@ -12,6 +12,7 @@ class LoginTestCase(TestCase):
 
     def setUp(self):
         create_fixtures(self)
+        self.client.login(username='john', password='johnpassword')
         self.participant = creer_participant('test_activite_scientifique',
                                              courriel=COURRIEL_TEST)
 
@@ -59,6 +60,7 @@ class PickTestCase(TestCase):
 
     def setUp(self):
         create_fixtures(self)
+        self.client.login(username='john', password='johnpassword')
         self.participant = creer_participant('test_activite_scientifique',
                                              courriel=COURRIEL_TEST)
 
