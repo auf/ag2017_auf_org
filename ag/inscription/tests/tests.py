@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+import unittest
 import html5lib
 import datetime
 
@@ -144,6 +145,43 @@ class InscriptionTestMixin(object):
         return inscription
 
 
+class EtapesProcessusTestCase(unittest.TestCase):
+    def setUp(self):
+        self.etapes_processus = EtapesProcessus(
+            donnees_etapes=ETAPES_INSCRIPTION_TEST)
+
+    def test_etape_suivante_si_pas_derniere(self):
+        e0 = self.etapes_processus[0]
+        e1 = self.etapes_processus[1]
+        assert self.etapes_processus.etape_suivante(e0) == e1
+
+    def test_etape_suivante_si_derniere(self):
+        e0 = self.etapes_processus[-1]
+        assert self.etapes_processus.etape_suivante(e0) is None
+
+    def test_etape_par_url(self):
+        etape = self.etapes_processus.etape_par_url('renseignements-personnels')
+        assert etape.url_title == 'renseignements-personnels'
+
+    def test_derniere_visible(self):
+        etapes = EtapesProcessus(donnees_etapes=(
+            {'n': 1, 'tab_visible': True},
+            {'n': 2, 'tab_visible': False}))
+        assert etapes[0].est_derniere_visible()
+
+    def test_pas_derniere_visible(self):
+        etapes = EtapesProcessus(donnees_etapes=(
+            {'n': 1, 'tab_visible': True},
+            {'n': 2, 'tab_visible': True}))
+        assert not etapes[0].est_derniere_visible()
+
+    def test_derniere(self):
+        assert self.etapes_processus[-1].est_derniere()
+
+    def test_pas_derniere(self):
+        assert not self.etapes_processus[-2].est_derniere()
+
+
 # noinspection PyUnresolvedReferences
 @mock.patch('ag.inscription.views.inscriptions_terminees', lambda: False)
 class TestsInscription(TestCase, InscriptionTestMixin):
@@ -154,18 +192,6 @@ class TestsInscription(TestCase, InscriptionTestMixin):
 
     def tearDown(self):
         self.client.logout()
-
-    def test_etapes_processus(self):
-        etapes_processus = EtapesProcessus(
-            donnees_etapes=ETAPES_INSCRIPTION_TEST)
-        etape = etapes_processus.etape_par_url('renseignements-personnels')
-        self.assertEqual(etape, etapes_processus[1])
-        self.assertTrue(etape.est_derniere_visible())
-        self.assertFalse(etape.est_derniere())
-        derniere_etape = etapes_processus.etape_suivante(etape)
-        self.assertEqual(derniere_etape, etapes_processus[2])
-        self.assertTrue(derniere_etape.est_derniere())
-        self.assertEqual(etapes_processus.etape_suivante(derniere_etape), None)
 
     def test_accueil_non_mandate(self):
         inscription = self.create_inscription([], mandate=False)
