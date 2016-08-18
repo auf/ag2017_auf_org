@@ -16,8 +16,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-inscription_confirmee = Signal()
-#noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences
 import ag.gestion.notifications  # NOQA
 from ag.inscription.models import (
     Inscription, get_infos_montants, Invitation, InvitationEnveloppe,
@@ -28,6 +27,8 @@ from ag.inscription.forms import (
     TransportHebergementForm, PaiementForm, InscriptionForm,
     PaypalNotificationForm, PAYPAL_DATE_FORMATS
 )
+
+inscription_confirmee = Signal()
 
 
 def inscriptions_terminees():
@@ -46,11 +47,8 @@ class Etape(object):
     def est_derniere(self):
         return self.processus.est_derniere(self)
 
-    def on_post(self, request, inscription):
-        pass
-
     def __str__(self):
-        return '<etape %s>' % self.url_title
+        return '<etape %s>' % getattr(self, 'url_title', '?')
 
     def __unicode__(self):
         return self.__str__()
@@ -304,8 +302,8 @@ def save_paiement(paiement):
             transaction.rollback()
 
 
-def paypal_return(request, id):
-    inscription = get_object_or_404(Inscription, id=id)
+def paypal_return(request, id_):
+    inscription = get_object_or_404(Inscription, id=id_)
     inscription.paiement = 'CB'
     inscription.save()
     numero_transaction = request.GET.get('tx', None)
