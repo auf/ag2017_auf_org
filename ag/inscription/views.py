@@ -16,8 +16,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-# noinspection PyUnresolvedReferences
-import ag.gestion.notifications  # NOQA
 from ag.inscription.models import (
     Inscription, get_infos_montants, Invitation, InvitationEnveloppe,
     PaiementPaypal,
@@ -29,6 +27,9 @@ from ag.inscription.forms import (
 )
 
 inscription_confirmee = Signal()
+
+# noinspection PyUnresolvedReferences
+import ag.gestion.notifications  # NOQA
 
 
 def inscriptions_terminees():
