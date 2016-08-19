@@ -231,7 +231,6 @@ class Inscription(RenseignementsPersonnels):
     )
     depart_vol = models.CharField('vol', max_length=100, blank=True)
 
-
     fermee = models.BooleanField(
         u"Confirmée par le participant", default=False
     )
@@ -293,8 +292,7 @@ class Inscription(RenseignementsPersonnels):
         liste = []
         liste_codes = frozenset(self.get_liste_codes_frais())
         for code, infos_montant in get_infos_montants().iteritems():
-            if code in liste_codes\
-            and infos_montant.categorie == 'acti':
+            if code in liste_codes and infos_montant.categorie == 'acti':
                 liste.append(infos_montant)
         return liste
 
@@ -331,14 +329,13 @@ class Inscription(RenseignementsPersonnels):
             return invitations
 
     def prise_en_charge_hebergement_possible(self):
-        return (self.est_pour_mandate() and self.est_pour_sud()
-                and self.get_etablissement().statut  in ("T", "A")
-            )
+        return (self.est_pour_mandate() and self.est_pour_sud() and
+                self.get_etablissement().statut in ("T", "A"))
 
     def prise_en_charge_transport_possible(self):
         return (
-            self.est_pour_mandate() and self.est_pour_sud()
-            and self.get_etablissement().statut == "T"
+            self.est_pour_mandate() and self.est_pour_sud() and
+            self.get_etablissement().statut == "T"
         )
 
     def paiement_paypal_ok(self):
@@ -352,16 +349,16 @@ class Inscription(RenseignementsPersonnels):
         )
         return sum(
             paiement.montant for paiement in paiements
-            if paiement.montant
-            and paiement.statut in PaiementPaypal.STATUS_ACCEPTED
+            if (paiement.montant and
+                paiement.statut in PaiementPaypal.STATUS_ACCEPTED)
         )
 
     def numeros_confirmation_paypal(self):
         return u', '.join([
             paiement.numero_transaction
             for paiement in self.paiementpaypal_set.all()
-            if paiement.montant
-            and paiement.statut in PaiementPaypal.STATUS_ACCEPTED
+            if (paiement.montant and
+                paiement.statut in PaiementPaypal.STATUS_ACCEPTED)
         ])
 
     def statut_paypal_text(self):
