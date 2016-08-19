@@ -1,4 +1,5 @@
 # encoding: utf-8
+import collections
 import datetime
 import json
 import time
@@ -183,25 +184,78 @@ def connexion_inscription(request, jeton):
     return redirect('processus_inscription', 'accueil')
 
 
+def get_paypal_context(request, inscription_id):
+    return {
+        'paypal_cancel': request.GET.get('paypal_cancel', False),
+        'paypal_tx': request.GET.get('paypal_tx', None),
+        'paypal_url': settings.PAYPAL_URL,
+        'paypal_email_address': settings.PAYPAL_EMAIL_ADDRESS,
+        'paypal_return_url': request.build_absolute_uri(reverse(
+            'paypal_return', args=(inscription_id,)
+        )),
+        'paypal_notify_url': request.build_absolute_uri(
+            reverse('paypal_ipn')
+        ),
+        'paypal_cancel_url': request.build_absolute_uri(
+            reverse('paypal_cancel')
+        ),
+    }
+
+
+def get_montants_context():
+    toutes_infos_montants = get_infos_montants()
+    return {
+        'montants': toutes_infos_montants,
+        'montants_json': json.dumps(dict(
+            (code, infos_montant.__dict__)
+            for code, infos_montant in toutes_infos_montants.iteritems()
+        )),
+    }
+
+
+AppelEtapeProcessus = collections.namedtuple(
+    'AppelEtapeProcessus',
+    ('etapes_processus', 'etape_courante', 'request',
+     'inscription'))
+
+
+def redirect_etape(url_title):
+    return redirect('processus_inscription', url_title)
+
+
+def appel_apercu(appel_etape_processus):
+    request = appel_etape_processus.request
+    if request.method == 'POST':
+        if 'modifier' in request.POST:
+            return redirect_etape('renseignements-personnels')
+        else:
+            return redirect_etape_suivante(appel_etape_processus)
+
+
+def redirect_etape_suivante(appel_etape_processus):
+        return appel_etape_processus.etapes_processus\
+            .redirect_etape_suivante(appel_etape_processus.etape_courante)
+
+
 def processus_inscription(request, url_title=None):
+    etapes_processus = EtapesProcessus()
+    etape_courante = etapes_processus.etape_par_url(url_title)
+
     request.session['django_language'] = 'fr'
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
         return redirect('info_inscription')
     inscription = get_object_or_404(Inscription, id=inscription_id)
+
+    appel_etape_processus = AppelEtapeProcessus(
+        etapes_processus=etapes_processus, etape_courante=etape_courante,
+        inscription=inscription, request=request)
+
     if inscription.fermee and url_title != 'confirmation':
-        return redirect('processus_inscription', 'confirmation')
+        return redirect_etape('confirmation')
 
-    etapes_processus = EtapesProcessus()
-    etape_courante = etapes_processus.etape_par_url(url_title)
-
-    if url_title == 'apercu' and request.method == 'POST':
-        if 'modifier' in request.POST:
-            return redirect(
-                'processus_inscription', 'renseignements-personnels'
-            )
-        else:
-            return etapes_processus.redirect_etape_suivante(etape_courante)
+    if url_title == 'apercu':
+        redir = appel_apercu(appel_etape_processus)
     elif url_title == 'confirmation':
         if not inscription.fermee:
             inscription.fermer()
@@ -213,36 +267,27 @@ def processus_inscription(request, url_title=None):
         form.require_fields()
         if request.method == "POST" and form.is_valid():
             form.save()
-            return etapes_processus.redirect_etape_suivante(etape_courante)
+            return redirect_etape_suivante(appel_etape_processus)
     else:
         form = None
 
-    toutes_infos_montants = get_infos_montants()
-    return render(request, 'inscription/' + etape_courante.template, {
+    context = {
         'form': form,
-        'inscriptions_terminees': inscriptions_terminees(),
         'inscription': inscription,
         'etape_courante': etape_courante,
         'etapes': etapes_processus,
-        'montants': toutes_infos_montants,
-        'montants_json': json.dumps(dict(
-            (code, infos_montant.__dict__)
-            for code, infos_montant in toutes_infos_montants.iteritems()
-        )),
-        'paypal_cancel': request.GET.get('paypal_cancel', False),
-        'paypal_tx': request.GET.get('paypal_tx', None),
-        'paypal_url': settings.PAYPAL_URL,
-        'paypal_email_address': settings.PAYPAL_EMAIL_ADDRESS,
-        'paypal_return_url': request.build_absolute_uri(reverse(
-            'paypal_return', args=(inscription.id,)
-        )),
-        'paypal_notify_url': request.build_absolute_uri(
-            reverse('paypal_ipn')
-        ),
-        'paypal_cancel_url': request.build_absolute_uri(
-            reverse('paypal_cancel')
-        ),
-    })
+    }
+
+    if url_title in ('confirmation', 'apercu'):
+        context.update(get_paypal_context(request, inscription_id))
+
+    if url_title == 'programmation':
+        context.update(get_montants_context())
+
+    if url_title == 'confirmation':
+        context['inscriptions_terminees'] = inscriptions_terminees()
+
+    return render(request, 'inscription/' + etape_courante.template, context)
 
 
 @require_POST

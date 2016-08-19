@@ -101,6 +101,9 @@ class Invitation(models.Model):
     courriel = models.EmailField(null=True)
     jeton = models.CharField(max_length=TAILLE_JETON, default=generer_jeton)
 
+    def get_region(self):
+        return self.etablissement.region
+
     def get_adresse(self):
         if hasattr(settings, 'MAILING_TEST_ADDRESS'):
             return settings.MAILING_TEST_ADDRESS
@@ -239,6 +242,9 @@ class Inscription(RenseignementsPersonnels):
     @property
     def numero(self):
         return 'A%04d' % self.id
+
+    def get_region(self):
+        return self.invitation.get_region()
 
     def get_liste_codes_frais(self):
         liste = ['frais_inscription']
