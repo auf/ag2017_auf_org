@@ -58,9 +58,8 @@ class Etape(object):
 
 class EtapesProcessus(list):
 
-    def __init__(self, **kwargs):
-        donnees_etapes = kwargs.pop('donnees_etapes')
-        super(EtapesProcessus, self).__init__(self, **kwargs)
+    def __init__(self, donnees_etapes):
+        super(EtapesProcessus, self).__init__(self)
         for donnees_etape in donnees_etapes:
             self.append(Etape(self, donnees_etape))
 
