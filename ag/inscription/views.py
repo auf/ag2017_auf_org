@@ -55,72 +55,11 @@ class Etape(object):
     def __unicode__(self):
         return self.__str__()
 
-ETAPES_INSCRIPTION = (
-    {
-        "n": 0,
-        "url_title": "accueil",
-        "label": u"Accueil",
-        "template": "accueil.html",
-        "form_class": AccueilForm,
-        "tab_visible": True,
-    },
-    {
-        "n": 1,
-        "url_title": "renseignements-personnels",
-        "label": u"Participant",
-        "template": "renseignements_personnels.html",
-        "form_class": RenseignementsPersonnelsForm,
-        "tab_visible": True,
-    },
-    {
-        "n": 2,
-        "url_title": "programmation",
-        "label": u"Programmation",
-        "template": "programmation.html",
-        "form_class": ProgrammationForm,
-        "tab_visible": True,
-    },
-    {
-        "n": 3,
-        "url_title": "transport-hebergement",
-        "label": u"Séjour",
-        "template": "transport_hebergement.html",
-        "form_class": TransportHebergementForm,
-        "tab_visible": True,
-    },
-    {
-        "n": 4,
-        "url_title": "paiement",
-        "label": u"Modalités",
-        "template": "paiement.html",
-        "form_class": PaiementForm,
-        "tab_visible": True,
-#            "etape_class": EtapePaiement,
-    },
-    {
-        "n": 5,
-        "url_title": "apercu",
-        "label": u"Aperçu",
-        "template": "apercu.html",
-        "form_class": None,
-        "tab_visible": True,
-#            "etape_class": EtapeApercu,
-    },
-    {
-        "n": 6,
-        "url_title": "confirmation",
-        "label": u"Confirmation",
-        "template": "confirmation.html",
-        "form_class": None,
-        "tab_visible": True,
-    },
-)
-
 
 class EtapesProcessus(list):
 
     def __init__(self, **kwargs):
-        donnees_etapes = kwargs.pop('donnees_etapes', ETAPES_INSCRIPTION)
+        donnees_etapes = kwargs.pop('donnees_etapes')
         super(EtapesProcessus, self).__init__(self, **kwargs)
         for donnees_etape in donnees_etapes:
             self.append(Etape(self, donnees_etape))
@@ -223,43 +162,42 @@ def redirect_etape(url_title):
     return redirect('processus_inscription', url_title)
 
 
-def appel_apercu(appel_etape_processus):
-    request = appel_etape_processus.request
-    if request.method == 'POST':
-        if 'modifier' in request.POST:
-            return redirect_etape('renseignements-personnels')
-        else:
-            return redirect_etape_suivante(appel_etape_processus)
-
-
 def redirect_etape_suivante(appel_etape_processus):
         return appel_etape_processus.etapes_processus\
             .redirect_etape_suivante(appel_etape_processus.etape_courante)
 
 
 def processus_inscription(request, url_title=None):
-    etapes_processus = EtapesProcessus()
+    etapes_processus = EtapesProcessus(donnees_etapes=ETAPES_INSCRIPTION)
     etape_courante = etapes_processus.etape_par_url(url_title)
-
     request.session['django_language'] = 'fr'
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
         return redirect('info_inscription')
     inscription = get_object_or_404(Inscription, id=inscription_id)
+    if inscription.fermee and url_title != 'confirmation':
+        return redirect_etape('confirmation')
 
     appel_etape_processus = AppelEtapeProcessus(
         etapes_processus=etapes_processus, etape_courante=etape_courante,
         inscription=inscription, request=request)
 
-    if inscription.fermee and url_title != 'confirmation':
-        return redirect_etape('confirmation')
+    if etape_courante.func:
+        etape_result = etape_courante.func(appel_etape_processus)
+    else:
+        etape_result = {}
 
-    if url_title == 'apercu':
-        redir = appel_apercu(appel_etape_processus)
-    elif url_title == 'confirmation':
-        if not inscription.fermee:
-            inscription.fermer()
-            inscription_confirmee.send_robust(inscription)
+    if isinstance(etape_result, HttpResponse):
+        return etape_result
+
+    assert isinstance(etape_result, dict)
+
+    context = {
+        'inscription': inscription,
+        'etape_courante': etape_courante,
+        'etapes': etapes_processus,
+    }
+    context.update(etape_result)
 
     form_class = etape_courante.form_class
     if form_class:
@@ -268,26 +206,102 @@ def processus_inscription(request, url_title=None):
         if request.method == "POST" and form.is_valid():
             form.save()
             return redirect_etape_suivante(appel_etape_processus)
-    else:
-        form = None
-
-    context = {
-        'form': form,
-        'inscription': inscription,
-        'etape_courante': etape_courante,
-        'etapes': etapes_processus,
-    }
-
-    if url_title in ('confirmation', 'apercu'):
-        context.update(get_paypal_context(request, inscription_id))
-
-    if url_title == 'programmation':
-        context.update(get_montants_context())
-
-    if url_title == 'confirmation':
-        context['inscriptions_terminees'] = inscriptions_terminees()
-
+        context['form'] = form
     return render(request, 'inscription/' + etape_courante.template, context)
+
+
+def apercu(appel_etape_processus):
+    request = appel_etape_processus.request
+    if request.method == 'POST':
+        if 'modifier' in request.POST:
+            return redirect_etape('renseignements-personnels')
+        else:
+            return redirect_etape_suivante(appel_etape_processus)
+    return get_paypal_context(appel_etape_processus.request,
+                              appel_etape_processus.inscription.id)
+
+
+def confirmation(appel_etape_processus):
+    inscription = appel_etape_processus.inscription
+    if not inscription.fermee:
+        inscription.fermer()
+        inscription_confirmee.send_robust(inscription)
+    context = get_paypal_context(appel_etape_processus.request,
+                                 appel_etape_processus.inscription.id)
+    context['inscriptions_terminees'] = inscriptions_terminees()
+    return context
+
+
+# noinspection PyUnusedLocal
+def programmation(appel_etape_processus):
+        return get_montants_context()
+
+
+ETAPES_INSCRIPTION = (
+    {
+        "n": 0,
+        "url_title": "accueil",
+        "label": u"Accueil",
+        "template": "accueil.html",
+        "form_class": AccueilForm,
+        "tab_visible": True,
+        "func": None,
+    },
+    {
+        "n": 1,
+        "url_title": "renseignements-personnels",
+        "label": u"Participant",
+        "template": "renseignements_personnels.html",
+        "form_class": RenseignementsPersonnelsForm,
+        "tab_visible": True,
+        "func": None,
+    },
+    {
+        "n": 2,
+        "url_title": "programmation",
+        "label": u"Programmation",
+        "template": "programmation.html",
+        "form_class": ProgrammationForm,
+        "tab_visible": True,
+        "func": programmation,
+    },
+    {
+        "n": 3,
+        "url_title": "transport-hebergement",
+        "label": u"Séjour",
+        "template": "transport_hebergement.html",
+        "form_class": TransportHebergementForm,
+        "tab_visible": True,
+        "func": None,
+    },
+    {
+        "n": 4,
+        "url_title": "paiement",
+        "label": u"Modalités",
+        "template": "paiement.html",
+        "form_class": PaiementForm,
+        "tab_visible": True,
+        "func": None,
+    },
+    {
+        "n": 5,
+        "url_title": "apercu",
+        "label": u"Aperçu",
+        "template": "apercu.html",
+        "form_class": None,
+        "tab_visible": True,
+        "func": apercu,
+    },
+    {
+        "n": 6,
+        "url_title": "confirmation",
+        "label": u"Confirmation",
+        "template": "confirmation.html",
+        "form_class": None,
+        "tab_visible": True,
+        "func": confirmation,
+    },
+)
 
 
 @require_POST
