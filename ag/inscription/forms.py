@@ -24,13 +24,14 @@ class AccueilForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AccueilForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.est_pour_mandate():
+        assert self.instance is not None
+        if self.instance.est_pour_mandate():
             label = (
                 u"J'atteste être le représentant dûment délégué par "
                 u"la plus haute autorité de mon établissement pour "
                 u"participer à la 16e assemblée générale de l'AUF."
             )
-        elif self.instance and not self.instance.est_pour_mandate():
+        else:
             representants = Inscription.objects.filter(
                 invitation__pour_mandate=True,
                 invitation__etablissement=self.instance.get_etablissement()
