@@ -405,17 +405,18 @@ def paypal_return(request, id_):
         return redirect('processus_inscription', 'paiement')
 
 
+def form_to_paiement(paypal_form, paiement_paypal):
+    paiement_paypal.montant = paypal_form.cleaned_data['mc_gross']
+    paiement_paypal.devise = paypal_form.cleaned_data['mc_currency']
+    paiement_paypal.statut = paypal_form.cleaned_data['payment_status']
+    paiement_paypal.raison_attente = paypal_form.cleaned_data['pending_reason']
+    paiement_paypal.date_heure = paypal_form.cleaned_data['payment_date']
+
+
 @csrf_exempt
 @require_POST
 # @commit_manually
 def paypal_ipn(request):
-    def form_to_paiement(form, paiement):
-        paiement.montant = form.cleaned_data['mc_gross']
-        paiement.devise = form.cleaned_data['mc_currency']
-        paiement.statut = form.cleaned_data['payment_status']
-        paiement.raison_attente = form.cleaned_data['pending_reason']
-        paiement.date_heure = form.cleaned_data['payment_date']
-
     try:
         assert request.method == 'POST'
         form = PaypalNotificationForm(request.POST)
