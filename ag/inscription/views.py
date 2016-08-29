@@ -214,7 +214,7 @@ def apercu(appel_etape_processus):
     request = appel_etape_processus.request
     if request.method == 'POST':
         if 'modifier' in request.POST:
-            return redirect_etape('renseignements-personnels')
+            return redirect_etape('participant')
         else:
             return redirect_etape_suivante(appel_etape_processus)
     return get_paypal_context(appel_etape_processus.request,
@@ -249,9 +249,9 @@ ETAPES_INSCRIPTION = (
     },
     {
         "n": 1,
-        "url_title": "renseignements-personnels",
+        "url_title": "participant",
         "label": u"Participant",
-        "template": "renseignements_personnels.html",
+        "template": "participant.html",
         "form_class": RenseignementsPersonnelsForm,
         "tab_visible": True,
         "func": None,
