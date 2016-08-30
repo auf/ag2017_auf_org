@@ -3,75 +3,75 @@
 from django.core.cache import cache
 
 MONTANTS_DATA = {
-    'frais_inscription' :
-            {
-            'label' : u'Frais d\'inscription',
-            'montant' : 330,
-            'categorie' : 'insc',
-            },
-    'frais_inscription_invite' :
-            {
-            'label' : u"Frais d\'inscription (invité)",
-            'montant' : 0,
-            'nom_champ' : 'accompagnateur',
-            'valeur_champ' : True,
-            'categorie' : 'insc',
-            },
-    'supplement_chambre_double' :
-            {
-            'label' : u"Supplément chambre double",
+    'frais_inscription':
+        {
+            'label': u'Frais d\'inscription',
+            'montant': 330,
+            'categorie': 'insc',
+        },
+    'frais_inscription_invite':
+        {
+            'label': u"Frais d\'inscription (invité)",
+            'montant': 0,
+            'nom_champ': 'accompagnateur',
+            'valeur_champ': True,
+            'categorie': 'insc',
+        },
+    'supplement_chambre_double':
+        {
+            'label': u"Supplément chambre double",
             'montant': 200,
-            'categorie' : 'hebe',
-            },
-    'sortie_unesp_membre' :
-            {
-            'label' : u"Soirée organisée par l'UNESP (membre)",
-            #'montant': 0, vient de la table activités
-            'nom_champ' : 'programmation_soiree_unesp',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'sortie_unesp_invite' :
-            {
-            'label' : u"Soirée organisée par l'UNESP (accompagnateur)",
-            #'montant': 0, vient de la table activités
-            'nom_champ' : 'programmation_soiree_unesp_invite',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'sortie_8_mai_membre' :
-            {
-            'label' : u"Soirée interconsulaire (membre)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_soiree_interconsulaire',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'sortie_8_mai_invite' :
-            {
-            'label' : u"Soirée interconsulaire (invité)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_soiree_interconsulaire_invite',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'gala_membre' :
-            {
-            'label' : u"Soirée de gala de clôture (membre)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_gala',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'gala_invite' :
-            {
-            'label' : u"Soirée de gala de clôture (accompagnateur)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_gala_invite',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    }
+            'categorie': 'hebe',
+        },
+    'sortie_unesp_membre':
+        {
+            'label': u"Soirée organisée par l'UNESP (membre)",
+            # 'montant': 0, vient de la table activités
+            'nom_champ': 'programmation_soiree_unesp',
+            'valeur_champ': True,
+            'categorie': 'acti',
+        },
+    'sortie_unesp_invite':
+        {
+            'label': u"Soirée organisée par l'UNESP (accompagnateur)",
+            # 'montant': 0, vient de la table activités
+            'nom_champ': 'programmation_soiree_unesp_invite',
+            'valeur_champ': True,
+            'categorie': 'acti',
+        },
+    'sortie_8_mai_membre':
+        {
+            'label': u"Soirée interconsulaire (membre)",
+            # 'montant': 0,vient de la table activités
+            'nom_champ': 'programmation_soiree_interconsulaire',
+            'valeur_champ': True,
+            'categorie': 'acti',
+        },
+    'sortie_8_mai_invite':
+        {
+            'label': u"Soirée interconsulaire (invité)",
+            # 'montant': 0,vient de la table activités
+            'nom_champ': 'programmation_soiree_interconsulaire_invite',
+            'valeur_champ': True,
+            'categorie': 'acti',
+        },
+    'gala_membre':
+        {
+            'label': u"Soirée de gala de clôture (membre)",
+            # 'montant': 0,vient de la table activités
+            'nom_champ': 'programmation_gala',
+            'valeur_champ': True,
+            'categorie': 'acti',
+        },
+    'gala_invite':
+        {
+            'label': u"Soirée de gala de clôture (accompagnateur)",
+            # 'montant': 0,vient de la table activités
+            'nom_champ': 'programmation_gala_invite',
+            'valeur_champ': True,
+            'categorie': 'acti',
+        },
+}
 
 
 class InfosMontant(object):
@@ -85,14 +85,16 @@ class InfosMontant(object):
             return u'Inclus'
 
 
+def get_montant_activite_from_db(code):
+    from ag.gestion.models import Activite
+    activite = Activite.objects.get(code=code)
+    return activite.prix, activite.prix_invite
+
+
 def init_montants():
     montants = {}
     for code, infos_montants_data in MONTANTS_DATA.iteritems():
         montants[code] = InfosMontant(infos_montants_data)
-    from ag.gestion.models import Activite
-    def get_montant_activite_from_db(code):
-        activite = Activite.objects.get(code=code)
-        return activite.prix, activite.prix_invite
     montants['sortie_unesp_membre'].montant, montants['sortie_unesp_invite'].montant \
         = get_montant_activite_from_db('unesp')
     montants['sortie_8_mai_membre'].montant, montants['sortie_8_mai_invite'].montant\
@@ -120,6 +122,3 @@ def get_infos_montants():
         cache.set('montants_inscription_ag', montants)
 
     return montants
-
-
-
