@@ -35,15 +35,23 @@ $(document).ready(function() {
   {% csrf_token %}
 
 <div class="buttonHolder">
-  <p><strong>Pour débuter l'inscription, merci de saisir vos renseignements personnels.</strong> <br><br>Les champs marqués d'un astérisque (<span class="required">*</span>) doivent obligatoirement être remplis.</p>
+  <p><strong>Pour débuter l'inscription, merci de saisir vos renseignements
+    personnels.</strong> <br><br>Les champs marqués d'un astérisque (<span
+      class="required">*</span>) doivent obligatoirement être remplis.</p>
 </div>
+
+  <div class="buttonHolder">
+    Notez que nous avons inséré les informations qui nous ont été communiquées
+    sur vous et votre établissement. Veuillez compléter les informations
+    manquantes et corriger en cas d'erreur.
+  </div>
+
 
   <fieldset class="inlineLabels">
     <h2>Renseignements personnels</h2>
     {% inline_radio form.genre %}
     {% field form.nom %}
     {% field form.prenom %}
-    {% field form.nationalite %}
     {% field form.poste %}
     {% field form.courriel %}
     {% field form.adresse %}
@@ -59,15 +67,17 @@ $(document).ready(function() {
     {% checkbox form.accompagnateur %}
     <div id="details-accompagnateurs">
 
-    {% if inscription.prise_en_charge_hebergement_possible or inscription.prise_en_charge_transport_possible %}
-			<p class="avertissement">Attention : L'AUF ne pourra prendre en charge le
-      transport ni le séjour de votre invité, un supplément
-		  sera facturé pour la réservation d'une chambre double.</p>
-    {% endif %}
+      {% if inscription.prise_en_charge_hebergement_possible or inscription.prise_en_charge_transport_possible %}
+        <p class="avertissement">Attention : L'AUF ne pourra prendre en charge
+          le transport ni le séjour de votre accompagnateur personnel.<br/>
+          Si vous acceptez la prise en charge de votre séjour, un supplément
+          sera facturé pour la réservation d'une chambre double pour vous et
+          votre invité.</p>
+      {% endif %}
 
-    {% inline_radio form.accompagnateur_genre %}
-    {% field form.accompagnateur_nom %}
-    {% field form.accompagnateur_prenom %}
+      {% inline_radio form.accompagnateur_genre %}
+      {% field form.accompagnateur_nom %}
+      {% field form.accompagnateur_prenom %}
     </div>
   </fieldset>
 
