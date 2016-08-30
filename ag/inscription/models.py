@@ -98,7 +98,7 @@ class RenseignementsPersonnels(models.Model):
 class Invitation(models.Model):
     etablissement = models.ForeignKey(Etablissement)
     pour_mandate = models.BooleanField(default=False)
-    courriel = models.EmailField(null=True)
+    courriel = models.EmailField(null=True)  # si non spécifié par établissement
     jeton = models.CharField(max_length=TAILLE_JETON, default=generer_jeton)
 
     def get_region(self):
@@ -326,7 +326,7 @@ class Inscription(RenseignementsPersonnels):
         self.code_postal = etablissement.code_postal
         self.pays = etablissement.pays.nom
         self.telephone = etablissement.telephone
-        self.courriel = self.invitation.courriel
+        self.courriel = self.invitation.get_adresse()
         if self.est_pour_mandate():
             self.nom = etablissement.responsable_nom
             self.prenom = etablissement.responsable_prenom
