@@ -226,7 +226,6 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         self.assertEquals(inscription.genre, rp_data['genre'])
         self.assertEquals(inscription.nom, rp_data['nom'].upper())
         self.assertEquals(inscription.prenom, rp_data['prenom'])
-        self.assertEquals(inscription.nationalite, rp_data['nationalite'])
 
     def ajouter_accompagnateur(self, inscription):
         inscription.accompagnateur = True
