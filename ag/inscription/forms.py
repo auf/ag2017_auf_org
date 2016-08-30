@@ -68,15 +68,14 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
     class Meta:
         model = Inscription
         fields = (
-            'genre', 'nom', 'prenom', 'nationalite',
-            'poste', 'courriel', 'adresse', 'ville', 'pays',
-            'code_postal', 'telephone', 'telecopieur', 'accompagnateur',
+            'genre', 'nom', 'prenom', 'poste', 'courriel', 'adresse', 'ville',
+            'pays', 'code_postal', 'telephone', 'telecopieur', 'accompagnateur',
             'accompagnateur_genre', 'accompagnateur_nom',
             'accompagnateur_prenom'
         )
         widgets = dict(
             (f, forms.TextInput(attrs={'size': 40}))
-            for f in ('nom', 'prenom', 'nationalite', 'poste', 'courriel',
+            for f in ('nom', 'prenom', 'poste', 'courriel',
                       'ville', 'pays', 'accompagnateur_nom',
                       'accompagnateur_prenom')
         )
