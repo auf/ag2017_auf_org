@@ -51,6 +51,14 @@ class Etablissement(models.Model):
     telephone = models.CharField(u'téléphone', max_length=255, blank=True)
     fax = models.CharField(max_length=255, blank=True)
 
+    responsable_genre = models.CharField(u'genre', max_length=1, blank=True)
+    responsable_nom = models.CharField(u'nom', max_length=255, blank=True)
+    responsable_prenom = models.CharField(
+        u'prénom', max_length=255, blank=True
+    )
+    responsable_fonction = models.CharField(
+        u'fonction', max_length=255, blank=True
+    )
     responsable_courriel = models.EmailField(u'courriel', blank=True)
 
     statut = models.CharField(
