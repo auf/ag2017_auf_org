@@ -4,7 +4,7 @@ import html5lib
 import datetime
 
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
-from ag.reference.models import Etablissement
+from ag.reference.models import Etablissement, Pays
 
 from ag.core.test_utils import find_input_by_id
 import mock
@@ -603,3 +603,46 @@ def test_inscription_terminee():
         lambda cls: settings.DATE_FERMETURE_INSCRIPTIONS -
         datetime.timedelta(days=1))
     assert (not inscriptions_terminees())
+
+
+class PreremplirTest(unittest.TestCase):
+    def get_inscription(self, pour_mandate):
+        p = Pays(nom=u"pppp")
+        etablissement = Etablissement(
+            nom=u"eeee", adresse=u"adr", ville=u"laville",
+            code_postal=u"60240", pays=p, telephone=u"123123123",
+            responsable_nom=u"rn", responsable_prenom=u"rp",
+            responsable_courriel=u"rc", responsable_fonction=u"rf",
+            responsable_genre=u"F")
+        invitation = Invitation(pour_mandate=pour_mandate,
+                                etablissement=etablissement)
+        inscription = Inscription(invitation=invitation)
+        inscription.preremplir()
+        return inscription
+
+    def test_pas_pour_mandate_renseignements_personnels_non_remplis(self):
+        i = self.get_inscription(pour_mandate=False)
+        assert not i.nom
+        assert not i.prenom
+        assert not i.courriel
+        assert not i.poste
+        assert not i.genre
+
+    def test_pour_mandate_renseignements_personnels_remplis(self):
+        i = self.get_inscription(pour_mandate=True)
+        e = i.get_etablissement()
+        assert i.nom == e.responsable_nom
+        assert i.prenom == e.responsable_prenom
+        assert i.courriel == e.responsable_courriel
+        assert i.poste == e.responsable_fonction
+        assert i.genre == e.responsable_genre
+
+    def test_champs_etablissement_copies(self):
+        i = self.get_inscription(False)
+        e = i.get_etablissement()
+        assert i.ville == e.ville
+        assert i.pays == e.pays.nom
+        assert i.adresse.startswith(e.nom)
+        assert i.adresse.endswith(e.adresse)
+        assert i.code_postal == e.code_postal
+        assert i.telephone == e.telephone

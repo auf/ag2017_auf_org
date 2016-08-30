@@ -320,12 +320,18 @@ class Inscription(RenseignementsPersonnels):
         return self.invitation.enveloppe.jeton
 
     def preremplir(self):
-        self.adresse = self.get_etablissement().nom + "\n" + \
-                self.get_etablissement().adresse
-        self.ville = self.get_etablissement().ville
-        self.code_postal = self.get_etablissement().code_postal
-        self.pays = self.get_etablissement().pays.nom
-        self.telephone = self.get_etablissement().telephone
+        etablissement = self.get_etablissement()
+        self.adresse = etablissement.nom + "\n" + etablissement.adresse
+        self.ville = etablissement.ville
+        self.code_postal = etablissement.code_postal
+        self.pays = etablissement.pays.nom
+        self.telephone = etablissement.telephone
+        if self.est_pour_mandate():
+            self.nom = etablissement.responsable_nom
+            self.prenom = etablissement.responsable_prenom
+            self.genre = etablissement.responsable_genre
+            self.poste = etablissement.responsable_fonction
+            self.courriel = etablissement.responsable_courriel
 
     def get_invitations_accompagnateurs(self):
         if self.est_pour_mandate():
