@@ -615,7 +615,8 @@ class PreremplirTest(unittest.TestCase):
             responsable_courriel=u"rc", responsable_fonction=u"rf",
             responsable_genre=u"F")
         invitation = Invitation(pour_mandate=pour_mandate,
-                                etablissement=etablissement)
+                                etablissement=etablissement,
+                                courriel=u"invitation@courriel.com")
         inscription = Inscription(invitation=invitation)
         inscription.preremplir()
         return inscription
@@ -624,7 +625,6 @@ class PreremplirTest(unittest.TestCase):
         i = self.get_inscription(pour_mandate=False)
         assert not i.nom
         assert not i.prenom
-        assert not i.courriel
         assert not i.poste
         assert not i.genre
 
@@ -633,7 +633,6 @@ class PreremplirTest(unittest.TestCase):
         e = i.get_etablissement()
         assert i.nom == e.responsable_nom
         assert i.prenom == e.responsable_prenom
-        assert i.courriel == e.responsable_courriel
         assert i.poste == e.responsable_fonction
         assert i.genre == e.responsable_genre
 
@@ -646,3 +645,4 @@ class PreremplirTest(unittest.TestCase):
         assert i.adresse.endswith(e.adresse)
         assert i.code_postal == e.code_postal
         assert i.telephone == e.telephone
+        assert i.courriel == i.invitation.courriel

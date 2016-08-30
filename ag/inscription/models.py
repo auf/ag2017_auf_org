@@ -326,12 +326,12 @@ class Inscription(RenseignementsPersonnels):
         self.code_postal = etablissement.code_postal
         self.pays = etablissement.pays.nom
         self.telephone = etablissement.telephone
+        self.courriel = self.invitation.courriel
         if self.est_pour_mandate():
             self.nom = etablissement.responsable_nom
             self.prenom = etablissement.responsable_prenom
             self.genre = etablissement.responsable_genre
             self.poste = etablissement.responsable_fonction
-            self.courriel = etablissement.responsable_courriel
 
     def get_invitations_accompagnateurs(self):
         if self.est_pour_mandate():
