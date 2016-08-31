@@ -12,6 +12,7 @@ def find_input_by_name(tree, html_name):
         return tree.find("//input[@name='{0}']".format(html_name))
 
 
+# noinspection PyUnresolvedReferences
 class PaysFactory(factory.DjangoModelFactory):
     class Meta:
         model = ref_models.Pays
@@ -20,6 +21,7 @@ class PaysFactory(factory.DjangoModelFactory):
     sud = False
 
 
+# noinspection PyUnresolvedReferences
 class RegionFactory(factory.DjangoModelFactory):
     class Meta:
         model = ref_models.Region
@@ -27,6 +29,7 @@ class RegionFactory(factory.DjangoModelFactory):
     nom = factory.LazyAttribute(lambda a: 'Region ' + a.code)
 
 
+# noinspection PyUnresolvedReferences
 class EtablissementFactory(factory.DjangoModelFactory):
     class Meta:
         model = ref_models.Etablissement
