@@ -8,7 +8,7 @@ from ag.reference.models import Etablissement, Pays
 
 from ag.core.test_utils import find_input_by_id
 import mock
-from ag.gestion.models import Participant, StatutParticipant
+from ag.gestion.models import Participant, StatutParticipant, Activite
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
@@ -100,8 +100,8 @@ class InscriptionTestMixin(object):
             u'date_naissance': datetime.date(1965, 03, 15),
         },
         'programmation': {
-            u'programmation_soiree_unesp': True,
-            u'programmation_soiree_interconsulaire': True,
+            u'programmation_soiree_9_mai': True,
+            u'programmation_soiree_10_mai': True,
         },
         'paiement': {
             u'paiement': u'VB',
@@ -337,7 +337,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         response = self.client.get(url_etape(inscription, 'programmation'))
         self.assertContains(
             response,
-            'id="id_programmation_soiree_interconsulaire_invite"')
+            'id="id_programmation_soiree_9_mai_invite"')
         self.assertContains(response, 'id="id_programmation_gala_invite"')
         response = self.client.post(url_etape(inscription, 'programmation'),
                                     data=to_form_data(
@@ -372,7 +372,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         response = self.client.get(url_etape(inscription, 'apercu'))
         self.assertNotContains(response, u"supplément pour invité")
         self.assertContains(response,
-                            u"Soirée organisée par l'UNESP du 7 mai 2013")
+                            Activite.objects.get(code='soiree_9_mai').libelle)
         self.assertNotContains(
             response,
             u"Rencontre avec les universités membres du 10 mai 2013")
@@ -418,13 +418,10 @@ class TestsInscription(TestCase, InscriptionTestMixin):
                           infos_montant_par_code('frais_inscription').montant)
         inscription.accompagnateur = True
         liste = frozenset(inscription.get_liste_codes_frais())
-        self.assertEqual(liste, frozenset(
-            ('frais_inscription', 'frais_inscription_invite')))
+        self.assertEqual(liste, frozenset(('frais_inscription',)))
         self.assertEquals(
             inscription.get_frais_inscription(),
-            infos_montant_par_code(
-                'frais_inscription').montant + infos_montant_par_code(
-                'frais_inscription_invite').montant)
+            infos_montant_par_code('frais_inscription').montant)
 
     def test_commande_generer_invitation_mandates(self):
         call_command('generer_invitations_mandates')

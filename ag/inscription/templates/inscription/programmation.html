@@ -103,28 +103,34 @@ $(function() {
 <form class="uniForm" method="post">
   {% csrf_token %}
 
-	<div class="message">
-		<h4>L'inscription à l'assemblée générale vous permet de participer :</h4>
-		<p><strong>- à l'ensemble des activités scientifiques </strong>
-		<span style="font-style: italic;">(tables rondes, rencontres académiques expresses, activités 
-		Aufiennes, présentation-discussion autour du système universitaire brésilien)</span> <br>
-		<strong>- aux temps forts institutionnels</strong> <span style="font-style: italic;">
-		(ouverture de l'assemblée générale, modification des statuts, adoption des rapports 
-		d'activité, renouvellement de la présidence et des instances de gouvernance)</span> 
-		<br><strong>- ainsi qu'aux moments de détente ménagés dans le programme</strong> 
-		<span style="font-style: italic;">(soirées offertes par l'UNESP le 7 mai, par les 
-		consulats francophones le 8 mai et soirée de gala de clôture par l'AUF le 9 mai)</span>.</p>
-<p><strong>Veuillez sélectionner les activités que vous souhaitez réserver{% if inscription.accompagnateur %} pour vous et votre invité
-    {% endif %}.</strong></p> 
-	</div>
- <h3>Frais d'inscription</h3>
+  <div class="message">
+    <p><strong>Les frais d'inscription ne s'appliquent qu'aux participants de
+      l'AG</strong></p>
+    <ul>
+      <li>Transferts aéroport ↔ hôtel (en fonction des vols groupés proposés
+        par AUF)</li>
+      <li>3 Déjeuners (10, 11 et 12 mai), 3 Dîners (9, 10 et 11 mai), Cocktail
+        dînatoire (12 mai), 6 pauses café (10, 11 et 12 mai)</li>
+      <li>Trousse du participant contenant tous les documents et accessoires de
+        l'AG</li>
+      <li>Connexion WIFI</li>
+    </ul>
+
+    <p><strong>Veuillez sélectionner les activités que vous souhaitez réserver
+      {% if inscription.accompagnateur %} pour vous et votre invité
+      {% endif %}.</strong></p>
+  </div>
+  <h3>Frais d'inscription</h3>
 
   <div class="ctrlHolder">
     <p class="prix"><span id="montant_frais_inscription">0</span>&nbsp;€</p>
+
     <div class="detail">(paiement obligatoire)</div>
   </div>
-		<p>Les frais d'inscription comprennent aussi les transports des hôtels vers les lieux de réunion, 
-		les repas du midi, les pauses café, la trousse du participant ainsi que les soirées organisées.</p>
+  <p>Les frais d'inscription comprennent aussi les transports des hôtels vers
+    les lieux de réunion,
+    les repas du midi, les pauses café, la trousse du participant ainsi que les
+    soirées organisées.</p>
 
   <h3>Activités des 7, 8 et 9 mai 2013</h3>
 <p class="detail">(Réservation requise)</p>

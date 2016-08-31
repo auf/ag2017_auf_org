@@ -1,7 +1,9 @@
 # -*- encoding: utf-8 -*-
 import datetime
 from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory
-from ag.gestion.models import AGRole, ROLE_ADMIN, StatutParticipant, TypeInstitutionSupplementaire, Participant
+from ag.gestion import montants
+from ag.gestion.models import AGRole, ROLE_ADMIN, StatutParticipant, TypeInstitutionSupplementaire, Participant, \
+    Activite
 from auf.django.mailing.models import ModeleCourriel
 from ag.reference.models import Pays, Region, Etablissement
 from django.contrib.auth.models import User
@@ -75,6 +77,10 @@ def create_fixtures(test_case):
     modele_courriel_rappel.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
+
+    for code_activite, (_, _) in montants.CODES_MONTANTS_ACTIVITES:
+        Activite.objects.create(code=code_activite, libelle=code_activite,
+                                prix=0, prix_invite=30)
 
 
 def make_modele_courriel_mandate():

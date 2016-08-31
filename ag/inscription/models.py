@@ -133,6 +133,20 @@ class InvitationEnveloppe(models.Model):
         }
         return context
 
+# À certains champs correspondent des montants (ex:
+CODES_CHAMPS_MONTANTS = {
+    'programmation_soiree_9_mai': 'soiree_9_mai_membre',
+    'programmation_soiree_9_mai_invite': 'soiree_9_mai_invite',
+    'programmation_soiree_10_mai': 'soiree_10_mai_membre',
+    'programmation_soiree_10_mai_invite': 'soiree_10_mai_invite',
+    'programmation_gala': 'gala_membre',
+    'programmation_gala_invite': 'gala_invite',
+    'forfait_invite_dejeuners': 'forfait_invite_dejeuners',
+    'forfait_invite_transfert': 'forfait_invite_transfert',
+}
+
+
+paypal_signal = Signal()
 
 class Inscription(RenseignementsPersonnels):
 
@@ -175,31 +189,24 @@ class Inscription(RenseignementsPersonnels):
     )
 
     # Programmation
-    programmation_soiree_unesp = models.BooleanField(
-        u"Je participerai à la soirée organisée par l'UNESP le 7 mai 2013.",
-        default=False
-    )
-    programmation_soiree_unesp_invite = models.BooleanField(
-        u"Mon invité également.",
-        default=False
-    )
-    programmation_soiree_interconsulaire = models.BooleanField(
-        u"Je participerai à la soirée interconsulaire le 8 mai 2013.",
-        default=False
-    )
-    programmation_soiree_interconsulaire_invite = models.BooleanField(
-        u"Mon invité également.",
-        default=False
-    )
+    programmation_soiree_9_mai = models.BooleanField(
+        u"Je participerai à la soirée du 9 mai.", default=False)
+    programmation_soiree_9_mai_invite = models.BooleanField(
+        u"Dîner du 9 mai", default=False)
+    programmation_soiree_10_mai = models.BooleanField(
+        u"Je participerai à la soirée du 10 mai.", default=False)
+    programmation_soiree_10_mai_invite = models.BooleanField(
+        u"Dîner du 10 mai", default=False)
     programmation_gala = models.BooleanField(
         u"Je participerai à la soirée de gala de clôture de l'assemblée "
-        u"générale le 9 mai 2013.",
-        default=False
-    )
+        u"générale le 11 mai", default=False)
     programmation_gala_invite = models.BooleanField(
-        u"Mon invité également.",
-        default=False
-    )
+        u"Dîner de gala du 11 mai", default=False)
+    forfait_invite_dejeuners = models.BooleanField(
+        u"Forfait 3 Déjeuners (9,10 et 11)", default=False)
+    forfait_invite_transfert = models.BooleanField(
+        u"2 transferts aéroport et hôtel (seulement si votre accompagnateur "
+        u"voyage avec vous)", default=False)
 
     # Transport et hébergement
     prise_en_charge_hebergement = models.NullBooleanField(
@@ -246,25 +253,26 @@ class Inscription(RenseignementsPersonnels):
     def get_region(self):
         return self.invitation.get_region()
 
+    CHAMPS_PROGRAMMATION = (
+        (programmation_soiree_9_mai, programmation_soiree_9_mai_invite),
+        (programmation_soiree_10_mai, programmation_soiree_10_mai_invite),
+        (programmation_gala, programmation_gala_invite),
+    )
+
+    def append_code_montant(self, liste, champ):
+        if getattr(self, champ.name):
+            liste.append(CODES_CHAMPS_MONTANTS[champ.name])
+
+    # noinspection PyTypeChecker
     def get_liste_codes_frais(self):
         liste = ['frais_inscription']
-        if self.accompagnateur:
-            liste.append('frais_inscription_invite')
-            if self.prise_en_charge_hebergement:
-                liste.append('supplement_chambre_double')
-        if self.programmation_gala:
-            liste.append('gala_membre')
-            if self.accompagnateur and self.programmation_gala_invite:
-                liste.append('gala_invite')
-        if self.programmation_soiree_unesp:
-            liste.append('sortie_unesp_membre')
-            if self.accompagnateur and self.programmation_soiree_unesp_invite:
-                liste.append('sortie_unesp_invite')
-        if self.programmation_soiree_interconsulaire:
-            liste.append('sortie_8_mai_membre')
-            if self.accompagnateur and \
-               self.programmation_soiree_interconsulaire_invite:
-                liste.append('sortie_8_mai_invite')
+        if self.accompagnateur and self.prise_en_charge_hebergement:
+            liste.append('supplement_chambre_double')
+        for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
+            self.append_code_montant(liste, champ_membre)
+            if self.accompagnateur:
+                self.append_code_montant(liste, champ_invite)
+
         return liste
 
     def get_facture(self):
@@ -391,8 +399,6 @@ class Inscription(RenseignementsPersonnels):
     def __unicode__(self):
         return self.nom.upper() + u', ' + self.prenom + u' (' \
             + self.get_etablissement().nom + u')'
-
-paypal_signal = Signal()
 
 
 class PDTInvalide(Exception):

@@ -5,7 +5,7 @@ from django import forms
 from django.forms.widgets import RadioSelect
 from django.utils.safestring import mark_safe
 
-from ag.inscription.models import Inscription
+from ag.inscription.models import Inscription, CODES_CHAMPS_MONTANTS
 from ag.gestion.montants import (
     infos_montant_par_nom_champ, infos_montant_par_code
 )
@@ -111,21 +111,20 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
 class ProgrammationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        infos_montants = kwargs.pop('infos_montants')
         super(ProgrammationForm, self).__init__(*args, **kwargs)
         for key in self.fields:
-            field = self.fields[key]
-            infos_montant = infos_montant_par_nom_champ(key)
-            if infos_montant:
-                field.help_text = infos_montant.affiche
+            if key in CODES_CHAMPS_MONTANTS:
+                infos_montant = infos_montants[CODES_CHAMPS_MONTANTS[key]]
+                self.fields[key].help_text = infos_montant.affiche
 
     class Meta:
         model = Inscription
         fields = (
-            'programmation_soiree_unesp', 'programmation_soiree_unesp_invite',
-            'programmation_soiree_interconsulaire',
-            'programmation_soiree_interconsulaire_invite',
-            'programmation_gala',
-            'programmation_gala_invite'
+            'programmation_soiree_9_mai', 'programmation_soiree_9_mai_invite',
+            'programmation_soiree_10_mai', 'programmation_soiree_10_mai_invite',
+            'programmation_gala', 'programmation_gala_invite',
+            'forfait_invite_dejeuners', 'forfait_invite_transfert',
         )
 
     def clean_programmation_soiree_unesp_invite(self):
