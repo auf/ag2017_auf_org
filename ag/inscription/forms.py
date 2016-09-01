@@ -113,10 +113,10 @@ class ProgrammationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         infos_montants = kwargs.pop('infos_montants')
         super(ProgrammationForm, self).__init__(*args, **kwargs)
-        for key in self.fields:
-            if key in CODES_CHAMPS_MONTANTS:
+        for key in self.champs_montants():
                 infos_montant = infos_montants[CODES_CHAMPS_MONTANTS[key]]
                 self.fields[key].help_text = infos_montant.affiche
+        self.infos_montants = infos_montants
 
     class Meta:
         model = Inscription
@@ -126,6 +126,9 @@ class ProgrammationForm(forms.ModelForm):
             'programmation_gala', 'programmation_gala_invite',
             'forfait_invite_dejeuners', 'forfait_invite_transfert',
         )
+
+    def champs_montants(self):
+        return (key for key in self.fields if key in CODES_CHAMPS_MONTANTS)
 
     def clean_programmation_soiree_unesp_invite(self):
         return self._clean_invite_field('programmation_soiree_unesp')
@@ -144,6 +147,15 @@ class ProgrammationForm(forms.ModelForm):
 
     def require_fields(self):
         pass
+
+    def calcul_total_programmation(self):
+        self.is_valid()
+        total = 0
+        for nom_champ in self.champs_montants():
+            if self.cleaned_data[nom_champ]:
+                code_montant = CODES_CHAMPS_MONTANTS[nom_champ]
+                total += self.infos_montants[code_montant].montant
+        return total
 
 
 def transport_widgets():

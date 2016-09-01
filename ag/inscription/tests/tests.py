@@ -4,15 +4,16 @@ import html5lib
 import datetime
 
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
+from ag.gestion.montants import InfosMontant
 from ag.reference.models import Etablissement, Pays
 
 from ag.core.test_utils import find_input_by_id
 import mock
 from ag.gestion.models import Participant, StatutParticipant, Activite
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
-    TransportHebergementForm
+    TransportHebergementForm, ProgrammationForm
 from ag.inscription.models import Inscription, Invitation, \
-    infos_montant_par_code, InvitationEnveloppe
+    infos_montant_par_code, InvitationEnveloppe, CODES_CHAMPS_MONTANTS
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
 from django.conf import settings
@@ -642,3 +643,35 @@ class PreremplirTest(unittest.TestCase):
         assert i.code_postal == e.code_postal
         assert i.telephone == e.telephone
         assert i.courriel == i.invitation.courriel
+
+
+class CalculProgrammationTests(unittest.TestCase):
+    def setUp(self):
+        montant = 10
+        self.infos_montants = {}
+        for code_montant in CODES_CHAMPS_MONTANTS.values():
+            infos_montant = InfosMontant({'montant': montant})
+            self.infos_montants[code_montant] = infos_montant
+            montant += 10
+
+    def form(self, data):
+        return ProgrammationForm(data, infos_montants=self.infos_montants)
+
+    def test_rien_selectionne(self):
+        form = self.form({})
+        assert form.calcul_total_programmation() == 0
+
+    def test_un_champ_true(self):
+        nom_champ, code_montant = CODES_CHAMPS_MONTANTS.items()[0]
+        form = self.form({nom_champ: '1'})
+        assert form.calcul_total_programmation() == \
+            self.infos_montants[code_montant].montant
+
+    def test_tous_champ_true(self):
+        form_data = {nom_champ: 'true'
+                     for nom_champ in CODES_CHAMPS_MONTANTS.keys()}
+        expected_total = sum([self.infos_montants[code].montant
+                              for code in CODES_CHAMPS_MONTANTS.values()])
+        form = self.form(form_data)
+        assert form.calcul_total_programmation() == expected_total
+
