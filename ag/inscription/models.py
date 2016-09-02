@@ -148,6 +148,7 @@ CODES_CHAMPS_MONTANTS = {
 
 paypal_signal = Signal()
 
+
 class Inscription(RenseignementsPersonnels):
 
     DEPART_DE_CHOICES = (
@@ -266,13 +267,17 @@ class Inscription(RenseignementsPersonnels):
     # noinspection PyTypeChecker
     def get_liste_codes_frais(self):
         liste = ['frais_inscription']
-        if self.accompagnateur and self.prise_en_charge_hebergement:
-            liste.append('supplement_chambre_double')
+        if self.accompagnateur:
+            if self.prise_en_charge_hebergement:
+                liste.append('supplement_chambre_double')
         for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
             self.append_code_montant(liste, champ_membre)
             if self.accompagnateur:
                 self.append_code_montant(liste, champ_invite)
-
+        if self.forfait_invite_transfert:
+            liste.append(CODES_CHAMPS_MONTANTS['forfait_invite_transfert'])
+        if self.forfait_invite_dejeuners:
+            liste.append(CODES_CHAMPS_MONTANTS['forfait_invite_dejeuners'])
         return liste
 
     def get_facture(self):
@@ -291,6 +296,11 @@ class Inscription(RenseignementsPersonnels):
 
     def get_montant_a_payer(self):
         return self.get_montant_total() - self.paiement_paypal_total()
+
+    def get_total_programmation(self):
+        return self.get_total_categorie('insc') + \
+               self.get_total_categorie('acti') + \
+               self.get_total_categorie('invite')
 
     def get_total_categorie(self, cat):
         total = 0

@@ -15,7 +15,7 @@ from django.dispatch import Signal
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 from ag.inscription.models import (
     Inscription, get_infos_montants, Invitation, InvitationEnveloppe,
@@ -243,9 +243,17 @@ def confirmation(appel_etape_processus):
 
 # noinspection PyUnusedLocal
 def programmation(appel_etape_processus):
+        inscription = appel_etape_processus.inscription
+        total_programmation = inscription.get_total_programmation()
+        infos_montants = get_infos_montants()
+        montant_inscription = infos_montants['frais_inscription'].montant
         return AppelEtapeResult(
-            redirect=None, template_context=get_montants_context(),
-            form_kwargs={'infos_montants': get_infos_montants()})
+            redirect=None,
+            template_context={
+                'total_programmation': total_programmation,
+                'montant_frais_inscription': montant_inscription
+            },
+            form_kwargs={'infos_montants': infos_montants})
 
 
 ETAPES_INSCRIPTION = (
@@ -313,6 +321,16 @@ ETAPES_INSCRIPTION = (
         "func": confirmation,
     },
 )
+
+
+@require_GET
+def calcul_frais_programmation(request):
+    inscription = Inscription(accompagnateur=True)
+    form = ProgrammationForm(request.GET, instance=inscription,
+                             infos_montants=get_infos_montants())
+    form.is_valid()
+    total = form.instance.get_total_programmation()
+    return HttpResponse(str(int(total)))
 
 
 @require_POST

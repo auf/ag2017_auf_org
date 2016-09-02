@@ -801,10 +801,10 @@ class GestionTestCase(TestCase):
         i.accompagnateur_genre = 'M'
         i.accompagnateur_nom = u'Townshend'
         i.accompagnateur_prenom = u'Peter'
-        i.programmation_soiree_unesp = True
-        i.programmation_soiree_unesp_invite = True
-        i.programmation_soiree_interconsulaire = True
-        i.programmation_soiree_interconsulaire_invite = False
+        i.programmation_soiree_9_mai = True
+        i.programmation_soiree_9_mai_invite = True
+        i.programmation_soiree_10_mai = True
+        i.programmation_soiree_10_mai_invite_invite = False
         i.programmation_gala = False
         i.programmation_gala_invite = False
         i.prise_en_charge_hebergement = False

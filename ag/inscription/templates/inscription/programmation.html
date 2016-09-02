@@ -3,57 +3,24 @@
 
 {% block extrahead %}
 {{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}scripts/jquery.form.js"></script>
 <script type="text/javascript">
 
 $(function() {
 
-    var accompagnateur = {{ inscription.accompagnateur|lower }};
-
-    function calcul_frais_inscription() {
-        var frais = montants_data.frais_inscription.montant;
-        if (accompagnateur)
-            frais += montants_data.frais_inscription_invite.montant;
-        return frais;
+    function update_total(responseText) {
+      $("#total_frais_inscription").html(responseText);
     }
 
-    function itere_sur_controles(fn) {
-        // chaque type de montant est représenté par une propriété sur
-        // l'objet montants_data défini dans base.html et initialisé
-        // par JSON
-        for (var member in montants_data) {
-            if (!montants_data.hasOwnProperty(member)
-                    || typeof(montants_data[member]) === "function"
-                    || montants_data[member].nom_champ==undefined) continue;
-            var infos_montant = montants_data[member];
-            var controle = $("#id_" + infos_montant.nom_champ);
-            if (controle)
-                fn(controle, infos_montant);
-        }
-
+    function checkbox_changed() {
+      $('#form-programmation').ajaxSubmit({
+        url: '/inscription/calcul_frais_programmation/',
+        type: 'GET',
+        success: update_total
+      });
     }
 
-    function calculer_total() {
-        var total = calcul_frais_inscription();// + calcul_frais_hotel();
-        itere_sur_controles(function(controle, infos_montant) {
-            if (
-                typeof(infos_montant.valeur_champ) == "boolean"
-                && controle.is(":checked")
-            )
-                total += infos_montant.montant;
-        });
-        $("span#total_frais_inscriptions").html(total);
-    }
-
-    $("span#montant_frais_inscription").html(calcul_frais_inscription());
-    //$("span#montant_frais_hotel").html(calcul_frais_hotel());
-
-    calculer_total();
-
-    itere_sur_controles(function(controle, infos_montant) {
-        controle.change(function() {
-           calculer_total();
-        });
-    });
+    $('.calcul').find('input[type=checkbox]').on('change', checkbox_changed);
 
     function dependent_checkbox(master, slave) {
         master.change(function() {
@@ -75,12 +42,12 @@ $(function() {
     }
 
     dependent_checkbox(
-        $('#id_programmation_soiree_unesp'),
-        $('#id_programmation_soiree_unesp_invite')
+        $('#id_programmation_soiree_9_mai'),
+        $('#id_programmation_soiree_9_mai_invite')
     );
     dependent_checkbox(
-        $('#id_programmation_soiree_interconsulaire'),
-        $('#id_programmation_soiree_interconsulaire_invite')
+        $('#id_programmation_soiree_10_mai'),
+        $('#id_programmation_soiree_10_mai_invite')
     );
     dependent_checkbox(
         $('#id_programmation_gala'),
@@ -100,30 +67,31 @@ $(function() {
     {% endif %}
     {% endfor %}
 </ul>
-<form class="uniForm" method="post">
+
+<div class="message">
+  <p><strong>Les frais d'inscription ne s'appliquent qu'aux participants de
+    l'AG</strong></p>
+  <ul>
+    <li>Transferts aéroport ↔ hôtel (en fonction des vols groupés proposés
+      par AUF)</li>
+    <li>3 Déjeuners (10, 11 et 12 mai), 3 Dîners (9, 10 et 11 mai), Cocktail
+      dînatoire (12 mai), 6 pauses café (10, 11 et 12 mai)</li>
+    <li>Trousse du participant contenant tous les documents et accessoires de
+      l'AG</li>
+    <li>Connexion WIFI</li>
+  </ul>
+
+  <p><strong>Veuillez sélectionner les activités que vous souhaitez réserver
+    {% if inscription.accompagnateur %} pour vous et votre invité
+    {% endif %}.</strong></p>
+</div>
+
+<form id="form-programmation" class="uniForm" method="post">
   {% csrf_token %}
-
-  <div class="message">
-    <p><strong>Les frais d'inscription ne s'appliquent qu'aux participants de
-      l'AG</strong></p>
-    <ul>
-      <li>Transferts aéroport ↔ hôtel (en fonction des vols groupés proposés
-        par AUF)</li>
-      <li>3 Déjeuners (10, 11 et 12 mai), 3 Dîners (9, 10 et 11 mai), Cocktail
-        dînatoire (12 mai), 6 pauses café (10, 11 et 12 mai)</li>
-      <li>Trousse du participant contenant tous les documents et accessoires de
-        l'AG</li>
-      <li>Connexion WIFI</li>
-    </ul>
-
-    <p><strong>Veuillez sélectionner les activités que vous souhaitez réserver
-      {% if inscription.accompagnateur %} pour vous et votre invité
-      {% endif %}.</strong></p>
-  </div>
   <h3>Frais d'inscription</h3>
 
   <div class="ctrlHolder">
-    <p class="prix"><span id="montant_frais_inscription">0</span>&nbsp;€</p>
+    <p class="prix"><span id="montant_frais_inscription">{{ montant_frais_inscription }}</span>&nbsp;€</p>
 
     <div class="detail">(paiement obligatoire)</div>
   </div>
@@ -136,28 +104,42 @@ $(function() {
 <p class="detail">(Réservation requise)</p>
   <fieldset class="calcul">
 	<p></p>
-    {% checkbox form.programmation_soiree_unesp %}
-    {% if inscription.accompagnateur %}
-    {% checkbox form.programmation_soiree_unesp_invite %}
-    {% endif %}
+    {% checkbox form.programmation_soiree_9_mai %}
   </fieldset>
   <fieldset class="calcul">
     <p></p>
-    {% checkbox form.programmation_soiree_interconsulaire %}
-    {% if inscription.accompagnateur %}
-    {% checkbox form.programmation_soiree_interconsulaire_invite %}
-    {% endif %}
+    {% checkbox form.programmation_soiree_10_mai %}
   </fieldset>
   <fieldset class="calcul">
     <p></p>
     {% checkbox form.programmation_gala %}
-    {% if inscription.accompagnateur %}
-    {% checkbox form.programmation_gala_invite %}
-    {% endif %}
   </fieldset>
 
+    {% if inscription.accompagnateur %}
+
+      <p><strong>Forfaits à la carte pour votre accompagnateur
+        personnel</strong>
+        Les accompagnateurs personnels ne peuvent assister aux activités
+        associatives, mais peuvent vous accompagner pour certaines activités non
+        institutionnelles.<br/>
+        Les frais supplémentaires seront ajoutés au total de vos frais de
+        participation.</p>
+
+      <fieldset class="calcul">
+        <p></p>
+        {% checkbox form.programmation_soiree_9_mai_invite %}
+        {% checkbox form.programmation_soiree_10_mai_invite %}
+        {% checkbox form.programmation_gala_invite %}
+        {% checkbox form.forfait_invite_dejeuners %}
+        {% checkbox form.forfait_invite_transfert %}
+      </fieldset>
+    {% endif %}
+
+
   <h2>Total des frais de participation&nbsp;{% if inscription.accompagnateur %}(2 personnes){% else %}(1 personne){% endif %}:&nbsp;
-      <span class="total"><span id="total_frais_inscriptions">0</span>&nbsp;€</span></h2>
+      <span class="total"><span id="total_frais_inscription">
+        {{ total_programmation }}</span>&nbsp;€</span>
+  </h2>
    <!--  <div class="ctrlHolder">
     <p class="formHint"></p>
   <div class="readOnlyLabel">Ces frais doivent être payés en euros<em> le 15

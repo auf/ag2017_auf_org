@@ -19,6 +19,8 @@ urlpatterns = patterns(
     url(r'^inscriptions_terminees/$',
         TemplateView.as_view(template_name='inscription/terminees.html'),
         name='inscriptions_terminees'),
+    url(r'^calcul_frais_programmation/$', 'calcul_frais_programmation',
+        name='calcul_frais_programmation'),
     url(r'^(?P<url_title>[-\w]+)/$', 'processus_inscription',
         name='processus_inscription'),
 )

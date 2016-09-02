@@ -130,11 +130,11 @@ class ProgrammationForm(forms.ModelForm):
     def champs_montants(self):
         return (key for key in self.fields if key in CODES_CHAMPS_MONTANTS)
 
-    def clean_programmation_soiree_unesp_invite(self):
-        return self._clean_invite_field('programmation_soiree_unesp')
+    def clean_programmation_soiree_9_mai_invite(self):
+        return self._clean_invite_field('programmation_soiree_9_mai')
 
-    def clean_programmation_soiree_interconsulaire_invite(self):
-        return self._clean_invite_field('programmation_soiree_interconsulaire')
+    def clean_programmation_soiree_10_mai_invite(self):
+        return self._clean_invite_field('programmation_soiree_10_mai')
 
     def clean_programmation_gala_invite(self):
         return self._clean_invite_field(
@@ -147,15 +147,6 @@ class ProgrammationForm(forms.ModelForm):
 
     def require_fields(self):
         pass
-
-    def calcul_total_programmation(self):
-        self.is_valid()
-        total = 0
-        for nom_champ in self.champs_montants():
-            if self.cleaned_data[nom_champ]:
-                code_montant = CODES_CHAMPS_MONTANTS[nom_champ]
-                total += self.infos_montants[code_montant].montant
-        return total
 
 
 def transport_widgets():
