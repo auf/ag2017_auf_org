@@ -86,10 +86,6 @@ class EtapesProcessus(list):
                 return False
         return True
 
-    def redirect_etape_suivante(self, etape_courante):
-        etape_suivante = self.etape_suivante(etape_courante)
-        return redirect('processus_inscription', etape_suivante.url_title)
-
 
 def index(request):
     form = InscriptionForm(request.POST or None)
@@ -157,7 +153,8 @@ AppelEtapeProcessus = collections.namedtuple(
      'inscription'))
 
 AppelEtapeResult = collections.namedtuple(
-    'AppelEtapeResult', ('redirect', 'template_context', 'form_kwargs'))
+    'AppelEtapeResult', ('redirect', 'template_context', 'form_kwargs',
+                         'etape_suivante'))
 
 
 def redirect_etape(url_title):
@@ -165,8 +162,10 @@ def redirect_etape(url_title):
 
 
 def redirect_etape_suivante(appel_etape_processus):
-        return appel_etape_processus.etapes_processus\
-            .redirect_etape_suivante(appel_etape_processus.etape_courante)
+    etapes_processus = appel_etape_processus.etapes_processus
+    etape_courante = appel_etape_processus.etape_courante
+    etape_suivante = etapes_processus.etape_suivante(etape_courante)
+    return redirect('processus_inscription', etape_suivante.url_title)
 
 
 def processus_inscription(request, url_title=None):
@@ -188,7 +187,11 @@ def processus_inscription(request, url_title=None):
         etape_result = etape_courante.func(appel_etape_processus)
     else:
         etape_result = AppelEtapeResult(template_context=None, redirect=None,
-                                        form_kwargs=None)
+                                        form_kwargs=None, etape_suivante=None)
+
+    if etape_result.etape_suivante:
+        appel_etape_processus = appel_etape_processus._replace(
+            etape_suivante=etape_result.etape_suivante)
 
     if etape_result.redirect:
         return etape_result.redirect
@@ -221,12 +224,12 @@ def apercu(appel_etape_processus):
         else:
             redir = redirect_etape_suivante(appel_etape_processus)
         return AppelEtapeResult(redirect=redir, template_context=None,
-                                form_kwargs=None)
+                                form_kwargs=None, etape_suivante=None)
     else:
         context = get_paypal_context(appel_etape_processus.request,
                                      appel_etape_processus.inscription.id)
         return AppelEtapeResult(redirect=None, template_context=context,
-                                form_kwargs=None)
+                                form_kwargs=None, etape_suivante=None)
 
 
 def confirmation(appel_etape_processus):
@@ -238,7 +241,7 @@ def confirmation(appel_etape_processus):
                                  appel_etape_processus.inscription.id)
     context['inscriptions_terminees'] = inscriptions_terminees()
     return AppelEtapeResult(redirect=None, template_context=context,
-                            form_kwargs=None)
+                            form_kwargs=None, etape_suivante=None)
 
 
 # noinspection PyUnusedLocal
@@ -253,7 +256,8 @@ def programmation(appel_etape_processus):
                 'total_programmation': total_programmation,
                 'montant_frais_inscription': montant_inscription
             },
-            form_kwargs={'infos_montants': infos_montants})
+            form_kwargs={'infos_montants': infos_montants},
+            etape_suivante=None)
 
 
 ETAPES_INSCRIPTION = (
