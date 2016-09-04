@@ -358,6 +358,10 @@ class Inscription(RenseignementsPersonnels):
                 pour_mandate=False)
             return invitations
 
+    def prise_en_charge_possible(self):
+        return self.prise_en_charge_hebergement_possible() or \
+            self.prise_en_charge_transport_possible()
+
     def prise_en_charge_hebergement_possible(self):
         return (self.est_pour_mandate() and self.est_pour_sud() and
                 self.get_etablissement().statut in ("T", "A"))

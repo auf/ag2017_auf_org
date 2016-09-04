@@ -189,9 +189,8 @@ def processus_inscription(request, url_title=None):
         etape_result = AppelEtapeResult(template_context=None, redirect=None,
                                         form_kwargs=None, etape_suivante=None)
 
-    if etape_result.etape_suivante:
-        appel_etape_processus = appel_etape_processus._replace(
-            etape_suivante=etape_result.etape_suivante)
+    etape_suivante = etape_result.etape_suivante or \
+        etapes_processus.etape_suivante(etape_courante)
 
     if etape_result.redirect:
         return etape_result.redirect
@@ -211,7 +210,7 @@ def processus_inscription(request, url_title=None):
         form.require_fields()
         if request.method == "POST" and form.is_valid():
             form.save()
-            return redirect_etape_suivante(appel_etape_processus)
+            return redirect('processus_inscription', etape_suivante.url_title)
         context['form'] = form
     return render(request, 'inscription/' + etape_courante.template, context)
 
@@ -250,6 +249,11 @@ def programmation(appel_etape_processus):
         total_programmation = inscription.get_total_programmation()
         infos_montants = get_infos_montants()
         montant_inscription = infos_montants['frais_inscription'].montant
+        if not inscription.prise_en_charge_possible():
+            etape_suivante = appel_etape_processus.etapes_processus\
+                .etape_par_url('apercu')
+        else:
+            etape_suivante = None
         return AppelEtapeResult(
             redirect=None,
             template_context={
@@ -257,7 +261,7 @@ def programmation(appel_etape_processus):
                 'montant_frais_inscription': montant_inscription
             },
             form_kwargs={'infos_montants': infos_montants},
-            etape_suivante=None)
+            etape_suivante=etape_suivante)
 
 
 ETAPES_INSCRIPTION = (

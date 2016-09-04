@@ -111,7 +111,7 @@ class InscriptionTestMixin(object):
 
     def create_inscription(self, etapes_incluses, etablissement=None,
                            mandate=True):
-        if not etablissement:
+        if not etablissement:  # par défaut, établissement du sud
             etablissement = Etablissement.objects.get(id=self.etablissement_id)
         if not Invitation.objects.count():
             call_command('generer_invitations_mandates')
@@ -340,6 +340,10 @@ class TestsInscription(TestCase, InscriptionTestMixin):
             response,
             'id="id_programmation_soiree_9_mai_invite"')
         self.assertContains(response, 'id="id_programmation_gala_invite"')
+
+    def test_post_programmation_sud(self):
+        inscription = self.create_inscription(
+            ('participant', 'transport-hebergement'))
         response = self.client.post(url_etape(inscription, 'programmation'),
                                     data=to_form_data(
                                         self.INSCRIPTION_TEST_DATA[
@@ -348,6 +352,29 @@ class TestsInscription(TestCase, InscriptionTestMixin):
             response, reverse('processus_inscription',
                               kwargs={
                                   'url_title': 'transport-hebergement'}))
+        inscription = Inscription.objects.get(id=inscription.id)
+        self.assertEquals(inscription.programmation_soiree_9_mai, True)
+        self.assertEquals(inscription.programmation_soiree_9_mai_invite, False)
+        self.assertEquals(inscription.programmation_soiree_10_mai,
+                          True)
+        self.assertEquals(
+            inscription.programmation_soiree_10_mai_invite, False)
+
+    def test_post_programmation_nord_etape_suivante_apercu(self):
+        etablissement_nord = Etablissement.objects.get(
+            pk=self.etablissement_nord_id)
+        inscription = self.create_inscription(
+            ('participant', 'transport-hebergement'),
+            etablissement=etablissement_nord
+        )
+        response = self.client.post(url_etape(inscription, 'programmation'),
+                                    data=to_form_data(
+                                        self.INSCRIPTION_TEST_DATA[
+                                            'programmation']))
+        self.assertRedirects(
+            response, reverse('processus_inscription',
+                              kwargs={
+                                  'url_title': 'apercu'}))
         inscription = Inscription.objects.get(id=inscription.id)
         self.assertEquals(inscription.programmation_soiree_9_mai, True)
         self.assertEquals(inscription.programmation_soiree_9_mai_invite, False)
