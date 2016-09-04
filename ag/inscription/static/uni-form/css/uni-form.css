@@ -115,9 +115,9 @@
     .uniForm .inlineLabels .formHint{ clear: both; float: none; width: auto; margin-left: 34%; position: static; }
     
     /* Position the elements inside combo boxes (multiple inputs/selects/checkboxes/radio buttons per unit) */
-    .uniForm .inlineLabels ul, #holder_prise_en_charge_hebergement ul, #holder_prise_en_charge_transport ul{ float: left; width: 66%; }
-      .uniForm .inlineLabels ul li, #holder_prise_en_charge_hebergement ul li, #holder_prise_en_charge_transport ul li{ margin: .5em 0 !important; padding-left: 0px !important; background: none !important; }
-        .uniForm .inlineLabels ul li label, #holder_prise_en_charge_hebergement ul li label, #holder_prise_en_charge_transport ul li label{ float: none; display: block; width: 100%; }
+    .uniForm .inlineLabels ul, #holder_prise_en_charge_hebergement ul, #holder_prise_en_charge_transport ul, #holder_type_chambre_hotel ul { float: left; width: 66%; }
+      .uniForm .inlineLabels ul li, #holder_prise_en_charge_hebergement ul li, #holder_prise_en_charge_transport ul li, #holder_type_chambre_hotel ul li { margin: .5em 0 !important; padding-left: 0px !important; background: none !important; }
+        .uniForm .inlineLabels ul li label, #holder_prise_en_charge_hebergement ul li label, #holder_prise_en_charge_transport ul li label, #holder_type_chambre_hotel ul li label{ float: none; display: block; width: 100%; }
       /* Alternate layout */
       .uniForm .inlineLabels ul.alternate li{ margin-right: 3%; margin-top: .25em; }
           .uniForm .inlineLabels ul li label .textInput,

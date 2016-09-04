@@ -149,18 +149,6 @@ class ProgrammationForm(forms.ModelForm):
         pass
 
 
-def transport_widgets():
-    widgets = dict(
-        (f, forms.DateInput(attrs={'class': 'date'}))
-            for f in ('arrivee_date', 'depart_date')
-    )
-    widgets.update({
-        #'type_chambre_hotel': RadioSelect(),
-        'date_naissance': forms.DateInput(attrs={'size': 10})
-    })
-    return widgets
-
-
 def get_date_hotel_choices(depart_ou_arrivee):
     choices = [(u"", u"-----")]
     nombre_jours = (
@@ -214,38 +202,23 @@ class TransportHebergementForm(forms.ModelForm):
             ('False', "Je m'occupe moi-même de mon transport."),
         ))
     )
-    depart_de = forms.ChoiceField(
-        choices=Inscription.DEPART_DE_CHOICES, required=False,
-        widget=forms.RadioSelect
-    )
-    date_arrivee_hotel = forms.ChoiceField(label=u"Date d'arrivée à l'hôtel",
-        choices=get_date_hotel_choices('arrivee'), required=True)
-    date_depart_hotel = forms.ChoiceField(label=u"Date de départ de l'hôtel",
-        choices=get_date_hotel_choices('depart'), required=True)
-
-    date_naissance = forms.DateField(required=True)
 
     class Meta:
         model = Inscription
         fields = (
             'prise_en_charge_hebergement', 'prise_en_charge_transport',
-            'date_arrivee_hotel',
-            'date_depart_hotel', 'date_naissance', 'arrivee_date',
-            'arrivee_heure', 'arrivee_compagnie', 'arrivee_vol',
-            'depart_de', 'depart_date', 'depart_heure', 'depart_compagnie',
-            'depart_vol'
+            'type_chambre_hotel',
         )
-        widgets = transport_widgets()
+
+        widgets = {
+            'type_chambre_hotel': forms.RadioSelect
+        }
 
     def __init__(self, *args, **kwargs):
         super(TransportHebergementForm, self).__init__(*args, **kwargs)
-        #self.fields['type_chambre_hotel'].choices = get_type_chambre_choices()
+        self.fields['type_chambre_hotel'].empty_label = None
 
     def require_fields(self):
-        #self.fields['type_chambre_hotel'].required = False
-        self.fields['date_arrivee_hotel'].required = False
-        self.fields['date_depart_hotel'].required = False
-        self.fields['date_naissance'].required = False
         inscription = self.instance
         if inscription.prise_en_charge_hebergement_possible():
             field = self.fields['prise_en_charge_hebergement']

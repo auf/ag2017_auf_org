@@ -216,6 +216,12 @@ class Inscription(RenseignementsPersonnels):
     prise_en_charge_transport = models.NullBooleanField(
         "Je demande la prise en charge de mon transport."
     )
+
+    type_chambre_hotel = models.CharField(
+        max_length=1, null=True, blank=True,
+        choices=(('1', "chambre avec 1 lit simple"),
+                 ('2', "chambre double (supplément de 100€)"),))
+
     arrivee_date = models.DateField(
         "date d'arrivée à São Paulo", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
