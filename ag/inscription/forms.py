@@ -216,7 +216,9 @@ class TransportHebergementForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TransportHebergementForm, self).__init__(*args, **kwargs)
-        self.fields['type_chambre_hotel'].empty_label = None
+        # seul moyen pour supprimer choix vide
+        self.fields['type_chambre_hotel'].choices = \
+            self.fields['type_chambre_hotel'].choices[1:]
 
     def require_fields(self):
         inscription = self.instance
@@ -228,6 +230,10 @@ class TransportHebergementForm(forms.ModelForm):
             field = self.fields['prise_en_charge_transport']
             field.required = True
             field.widget.required = True
+
+        type_chambre = self.fields['type_chambre_hotel']
+        type_chambre.required = False
+        type_chambre.widget.required = True
 
     def clean_prise_en_charge_hebergement(self):
         return self._clean_prise_en_charge_field('hebergement')
@@ -242,20 +248,9 @@ class TransportHebergementForm(forms.ModelForm):
             raise forms.ValidationError('Ce champ est obligatoire')
         return value
 
-    def clean_date_depart_hotel(self):
-        return self._clean_date_hotel('depart')
-
-    def clean_date_arrivee_hotel(self):
-        return self._clean_date_hotel('arrivee')
-
-    def _clean_date_hotel(self, depart_ou_arrivee):
-        value = self.cleaned_data.get('date_' + depart_ou_arrivee + '_hotel')
-        value = None if value == u"" else value
-        return value
-
-    def clean_date_naissance(self):
-        required = self.cleaned_data.get('prise_en_charge_transport', False)
-        value = self.cleaned_data.get('date_naissance')
+    def clean_type_chambre_hotel(self):
+        required = self.cleaned_data.get('prise_en_charge_hebergement', False)
+        value = self.cleaned_data.get('type_chambre_hotel')
         if required and not value:
             raise forms.ValidationError('Ce champ est obligatoire')
         return value

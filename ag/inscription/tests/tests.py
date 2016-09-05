@@ -246,10 +246,8 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         self.assertNotEqual(
             find_input_by_id(tree, "id_prise_en_charge_hebergement_0"),
             None)
-        self.assertContains(response, u"pas prendre en charge l'hébergement")
         self.assertNotEqual(
             find_input_by_id(tree, "id_prise_en_charge_transport_0"), None)
-        self.assertContains(response, u"pas prendre en charge le transport")
         th_data = to_form_data(
             self.INSCRIPTION_TEST_DATA['transport-hebergement'])
         response = self.client.post(
