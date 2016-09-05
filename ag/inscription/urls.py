@@ -21,6 +21,7 @@ urlpatterns = patterns(
         name='inscriptions_terminees'),
     url(r'^calcul_frais_programmation/$', 'calcul_frais_programmation',
         name='calcul_frais_programmation'),
+    url(r'^dossier/$', 'dossier', name='dossier_inscription'),
     url(r'^(?P<url_title>[-\w]+)/$', 'processus_inscription',
         name='processus_inscription'),
 )

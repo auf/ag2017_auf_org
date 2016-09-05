@@ -176,8 +176,8 @@ def processus_inscription(request, url_title=None):
     if not inscription_id:
         return redirect('info_inscription')
     inscription = get_object_or_404(Inscription, id=inscription_id)
-    if inscription.fermee and url_title != 'confirmation':
-        return redirect_etape('confirmation')
+    if inscription.fermee:
+        return redirect('dossier_inscription')
 
     appel_etape_processus = AppelEtapeProcessus(
         etapes_processus=etapes_processus, etape_courante=etape_courante,
@@ -221,26 +221,19 @@ def apercu(appel_etape_processus):
         if 'modifier' in request.POST:
             redir = redirect_etape('participant')
         else:
-            redir = redirect_etape_suivante(appel_etape_processus)
+            inscription = appel_etape_processus.inscription
+            if not inscription.fermee:
+                inscription.fermer()
+                inscription_confirmee.send_robust(inscription)
+            redir = redirect('dossier_inscription')
         return AppelEtapeResult(redirect=redir, template_context=None,
                                 form_kwargs=None, etape_suivante=None)
     else:
         context = get_paypal_context(appel_etape_processus.request,
                                      appel_etape_processus.inscription.id)
+        context['montants'] = get_infos_montants()
         return AppelEtapeResult(redirect=None, template_context=context,
                                 form_kwargs=None, etape_suivante=None)
-
-
-def confirmation(appel_etape_processus):
-    inscription = appel_etape_processus.inscription
-    if not inscription.fermee:
-        inscription.fermer()
-        inscription_confirmee.send_robust(inscription)
-    context = get_paypal_context(appel_etape_processus.request,
-                                 appel_etape_processus.inscription.id)
-    context['inscriptions_terminees'] = inscriptions_terminees()
-    return AppelEtapeResult(redirect=None, template_context=context,
-                            form_kwargs=None, etape_suivante=None)
 
 
 # noinspection PyUnusedLocal
@@ -303,30 +296,12 @@ ETAPES_INSCRIPTION = (
     },
     {
         "n": 4,
-        "url_title": "paiement",
-        "label": u"Modalités",
-        "template": "paiement.html",
-        "form_class": PaiementForm,
-        "tab_visible": True,
-        "func": None,
-    },
-    {
-        "n": 5,
         "url_title": "apercu",
         "label": u"Aperçu",
         "template": "apercu.html",
         "form_class": None,
         "tab_visible": True,
         "func": apercu,
-    },
-    {
-        "n": 6,
-        "url_title": "confirmation",
-        "label": u"Confirmation",
-        "template": "confirmation.html",
-        "form_class": None,
-        "tab_visible": True,
-        "func": confirmation,
     },
 )
 
@@ -488,3 +463,7 @@ def paypal_cancel(request):
             'processus_inscription', args=['paiement']
         ) + "?paypal_cancel=1"
     )
+
+
+def dossier(request):
+    return HttpResponse("dossier")

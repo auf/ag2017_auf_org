@@ -86,27 +86,13 @@ class InscriptionTestMixin(object):
             'accompagnateur': False,
         },
         'transport-hebergement': {
-            u'arrivee_compagnie': u'Air Test',
-            u'arrivee_date': datetime.date(2013, 05, 06),
-            u'depart_heure': datetime.time(9, 30),
-            u'depart_vol': u'TST',
-            u'depart_compagnie': u'Air Test',
-            u'arrivee_heure': datetime.time(9, 30),
-            u'depart_date': datetime.date(2013, 05, 10),
-            u'arrivee_vol': u'arr',
             u'prise_en_charge_hebergement': False,
             u'prise_en_charge_transport': True,
-            u'date_arrivee_hotel': datetime.date(2013, 05, 06),
-            u'date_depart_hotel': datetime.date(2013, 05, 8),
-            u'date_naissance': datetime.date(1965, 03, 15),
         },
         'programmation': {
             u'programmation_soiree_9_mai': True,
             u'programmation_soiree_10_mai': True,
         },
-        'paiement': {
-            u'paiement': u'VB',
-        }
     }
 
     def create_inscription(self, etapes_incluses, etablissement=None,
@@ -254,7 +240,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
             url_etape(inscription, 'transport-hebergement'), th_data)
         self.assertRedirects(response,
                              reverse('processus_inscription',
-                                     kwargs={'url_title': 'paiement'}))
+                                     kwargs={'url_title': 'apercu'}))
 
     def test_prise_en_charge_associe_sud(self):
         # on propose la prise en charge Hébergement aux mandatés
@@ -279,7 +265,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
             url_etape(inscription, 'transport-hebergement'), th_data)
         self.assertRedirects(response,
                              reverse('processus_inscription',
-                                     kwargs={'url_title': 'paiement'}))
+                                     kwargs={'url_title': 'apercu'}))
 
     def test_transport_hebergement(self):
         inscription = self.create_inscription(('participant',))
@@ -299,7 +285,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
             url_etape(inscription, 'transport-hebergement'), th_data)
         self.assertRedirects(response,
                              reverse('processus_inscription',
-                                     kwargs={'url_title': 'paiement'}))
+                                     kwargs={'url_title': 'apercu'}))
         # on ne propose pas la prise en charge aux accompagnateurs du Sud
         inscription = self.create_inscription(('participant',),
                                               mandate=False)
@@ -384,36 +370,41 @@ class TestsInscription(TestCase, InscriptionTestMixin):
     def test_apercu_chambre_double(self):
         inscription = self.create_inscription(('participant',
                                                'transport-hebergement',
-                                               'programmation', 'paiement'))
+                                               'programmation', ))
         inscription.accompagnateur = True
         inscription.prise_en_charge_hebergement = True
+        inscription.type_chambre_hotel = '2'
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertContains(response, u"supplément pour invité")
+        self.assertContains(response, u"supplément chambre double")
 
-    def test_apercu(self):
+    def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',
                                                'transport-hebergement',
-                                               'programmation', 'paiement'))
+                                               'programmation', ))
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertNotContains(response, u"supplément pour invité")
-        self.assertContains(response,
-                            Activite.objects.get(code='soiree_9_mai').libelle)
-        self.assertNotContains(
-            response,
-            u"Rencontre avec les universités membres du 10 mai 2013")
+        self.assertNotContains(response, u"supplément")
+
+    def test_apercu_modifier_redirect_participant(self):
+        inscription = self.create_inscription(('participant',
+                                               'transport-hebergement',
+                                               'programmation', ))
         response = self.client.post(url_etape(inscription, 'apercu'),
                                     data={u'modifier': u'on'})
         self.assertRedirects(
             response,
             reverse('processus_inscription',
                     kwargs={'url_title': 'participant'}))
+
+    def test_apercu_confirmer_redirect_dossier(self):
+        inscription = self.create_inscription(('participant',
+                                               'transport-hebergement',
+                                               'programmation', ))
         response = self.client.post(url_etape(inscription, 'apercu'),
                                     data={u'confirmer': u'on'})
         self.assertRedirects(
             response,
-            reverse('processus_inscription',
-                    kwargs={'url_title': 'confirmation'}))
+            reverse('dossier_inscription'))
         inscription = Inscription.objects.get(id=inscription.id)
         self.assertTrue(inscription.fermee)
         self.assertTrue(inscription.prise_en_charge_transport)
@@ -422,15 +413,13 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(
             ('participant',
              'transport-hebergement',
-             'programmation', 'paiement'),
+             'programmation', ),
             etablissement=Etablissement.objects.get(
                 id=self.etablissement_nord_id))
         response = self.client.post(url_etape(inscription, 'apercu'),
                                     data={u'confirmer': u'on'})
         self.assertRedirects(
-            response,
-            reverse('processus_inscription',
-                    kwargs={'url_title': 'confirmation'}))
+            response, reverse('dossier_inscription'))
         inscription = Inscription.objects.get(id=inscription.id)
         self.assertTrue(inscription.fermee)
         self.assertFalse(inscription.prise_en_charge_hebergement)
@@ -522,9 +511,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         inscription.save()
         response = self.client.get(url_etape(inscription, 'accueil'))
         self.assertRedirects(
-            response,
-            reverse('processus_inscription',
-                    kwargs={'url_title': 'confirmation'}))
+            response, reverse('dossier_inscription'))
 
     def test_ajout_invitations(self):
         inscription = self.create_inscription([])
@@ -585,15 +572,7 @@ class FinInscriptionsTestCase(TestCase, InscriptionTestMixin):
         inscription.fermee = True
         inscription.save()
         response = self.client.get(url_etape(inscription, 'accueil'))
-        self.assertRedirects(response, url_etape(inscription, 'confirmation'))
-
-    def test_pas_d_invitations(self):
-        inscription = self.create_inscription(['participant'])
-        inscription.fermee = True
-        inscription.save()
-        response = self.client.get(url_etape(inscription, 'confirmation'))
-        self.assertNotContains(response, u'Invitations aux accompagnateurs')
-        self.assertNotContains(response, u'Invitez vos accompagnateurs')
+        self.assertRedirects(response, reverse('dossier_inscription'))
 
     def test_ajout_invitations_bloque(self):
         inscription = self.create_inscription(['participant'])
