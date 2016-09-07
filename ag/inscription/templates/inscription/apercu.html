@@ -49,7 +49,14 @@
       <input type="submit" class="secondaryAction" name="confirmer"
              value="Confirmer et envoyer">
     </form>
-    <form method="post" action="{{ paypal_url }}">
+
+    <form id="valider-payer-form" method="post" action="{% url "make_paypal_invoice" %}">
+      {% csrf_token %}
+      <input type="submit" class="secondaryAction" name="confirmer"
+             value="Valider et procéder au paiement">
+    </form>
+
+    <form id="paypal-form" method="post" action="{{ paypal_url }}">
       <input type="hidden" name="cmd" value="_xclick">
       <input type="hidden" name="business" value="{{ paypal_email_address }}">
       <input type="hidden" name="currency_code" value="EUR">
@@ -57,16 +64,37 @@
              value="Frais de participation à l'assemblée générale de l'AUF 2013">
       <input type="hidden" name="amount"
              value="{{ inscription.get_montant_a_payer }}">
-      <input type="hidden" name="invoice" value="{{ inscription.id }}">
+      <input type="hidden" name="invoice" value="">
       <input type="hidden" name="charset" value="utf-8">
       <input type="hidden" name="return" value="{{ paypal_return_url }}">
       <input type="hidden" name="rm" value="2">
       <input type="hidden" name="notify_url" value="{{ paypal_notify_url }}">
       <input type="hidden" name="cancel_return" value="{{ paypal_cancel_url }}">
-      <input type="submit" class="secondaryAction" name="confirmer"
-             value="Valider et procéder au paiement">
     </form>
   </div>
 </div>
+
+{% endblock %}
+{% block extra_js %}
+  {{ block.super }}
+  <script type="text/javascript">
+    $(function() {
+      $('#valider-payer-form').ajaxForm({
+        success: go_to_paypal
+      })
+    });
+
+  function go_to_paypal(responseText, statusText, xhr) {
+    if (xhr.status === 200) {
+      var form = $('#paypal-form');
+      form.find('[name="invoice"]').val(responseText);
+      form.submit();
+    } else {
+      window.location = '/inscription/'
+    }
+
+
+  }
+  </script>
 
 {% endblock %}

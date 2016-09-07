@@ -75,9 +75,8 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
     MIGRATION_MODULES = DisableMigrations()
 
 
-PAYPAL_EMAIL_ADDRESS = 'berang_1344607404_biz@auf.org'
+PAYPAL_EMAIL_ADDRESS = 'benselme-facilitator@gmail.com'
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
-PAYPAL_PDT_TOKEN = 'wYHr_XQJY0ShuRgxcunh7_MP99VLew-DYonAmJi8rGtNRTiUDotFfkgN_UC'
 
 SENDFILE_BACKEND="sendfile.backends.development"
 #LOGGING = {

@@ -9,21 +9,20 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import validate_email
-from django.db import transaction
-from django.db.utils import IntegrityError
 from django.dispatch import Signal
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
+import six
 
 from ag.inscription.models import (
     Inscription, get_infos_montants, Invitation, InvitationEnveloppe,
-    PaiementPaypal,
-    PDTInvalide)
+    PaypalResponse, validate_pdt, is_ipn_valid, PaypalInvoice)
 from ag.inscription.forms import (
     AccueilForm, RenseignementsPersonnelsForm, ProgrammationForm,
-    TransportHebergementForm, PaiementForm, InscriptionForm,
+    TransportHebergementForm, InscriptionForm,
     PaypalNotificationForm, PAYPAL_DATE_FORMATS
 )
 
@@ -118,21 +117,19 @@ def connexion_inscription(request, jeton):
     return redirect('processus_inscription', 'accueil')
 
 
-def get_paypal_context(request, inscription_id):
+def get_paypal_context(request):
+    return_url = getattr(
+        settings, 'PAYPAL_RETURN_TEST_URL',
+        request.build_absolute_uri(reverse('paypal_return')))
     return {
-        'paypal_cancel': request.GET.get('paypal_cancel', False),
-        'paypal_tx': request.GET.get('paypal_tx', None),
         'paypal_url': settings.PAYPAL_URL,
         'paypal_email_address': settings.PAYPAL_EMAIL_ADDRESS,
-        'paypal_return_url': request.build_absolute_uri(reverse(
-            'paypal_return', args=(inscription_id,)
-        )),
-        'paypal_notify_url': request.build_absolute_uri(
-            reverse('paypal_ipn')
-        ),
+        'paypal_return_url': return_url,
+        'paypal_notify_url':
+            getattr(settings, 'PAYPAL_NOTIFY_TEST_URL', None) or
+            request.build_absolute_uri(reverse('paypal_ipn')),
         'paypal_cancel_url': request.build_absolute_uri(
-            reverse('paypal_cancel')
-        ),
+            reverse('paypal_cancel')),
     }
 
 
@@ -229,8 +226,7 @@ def apercu(appel_etape_processus):
         return AppelEtapeResult(redirect=redir, template_context=None,
                                 form_kwargs=None, etape_suivante=None)
     else:
-        context = get_paypal_context(appel_etape_processus.request,
-                                     appel_etape_processus.inscription.id)
+        context = get_paypal_context(appel_etape_processus.request)
         context['montants'] = get_infos_montants()
         return AppelEtapeResult(redirect=None, template_context=context,
                                 form_kwargs=None, etape_suivante=None)
@@ -349,121 +345,86 @@ def ajout_invitations(request):
     )
 
 
-def save_paiement(paiement):
-    try:
-        paiement.save()
-        paiement.notifier()
-        transaction.commit()
-    except IntegrityError:
-        # il peut y avoir une "race condition" entre PDT et IPN et dans ce cas,
-        # il se pourrait que la contrainte d'unicité sur
-        # PaiementPaypal.numero_transaction soit violée. Si cela arrive on
-        # recharge l'objet
-        transaction.rollback()
-        paiement_existant = PaiementPaypal.objects.get(
-            numero_transaction=paiement.numero_transaction
-        )
-        if not paiement_existant.est_complet() and paiement.est_complet():
-            # si la validation du paiement a échoué précédemment,
-            # mais a réussi cette fois-ci, on enregistre la réussite
-            paiement.id = paiement_existant.id
-            paiement.save()
-            paiement.notifier()
-            transaction.commit()
-        else:
-            transaction.rollback()
+def get_inscription_by_invoice_uid(invoice_uid):
+    invoice = PaypalInvoice.objects.select_related('inscription')\
+        .get(invoice_uid=invoice_uid)
+    return invoice.inscription
 
 
-def paypal_return(request, id_):
-    inscription = get_object_or_404(Inscription, id=id_)
-    inscription.paiement = 'CB'
-    inscription.save()
-    numero_transaction = request.GET.get('tx', None)
-    try:
-        paiement = PaiementPaypal.objects.get(
-            numero_transaction=numero_transaction
-        )
-    except PaiementPaypal.DoesNotExist:
-        paiement = PaiementPaypal()
-        paiement.numero_transaction = numero_transaction
-    try:
-        with transaction.atomic():
-            if not paiement.pdt_valide:
-                d = paiement.verifier_pdt()
-                paiement.inscription = inscription
-                paiement.montant = d.get('mc_gross', None)
-                paiement.devise = d.get('mc_currency', None)
-                paiement.statut = d.get('payment_status', None)
-                paiement.raison_attente = d.get('pending_reason', None)
-                payment_date = d.get('payment_date', None)
-                if payment_date:
-                    for date_format in PAYPAL_DATE_FORMATS:
-                        try:
-                            paiement.date_heure = datetime.datetime(
-                                *time.strptime(payment_date, date_format)[:6]
-                            )
-                        except ValueError:
-                            continue
-                save_paiement(paiement)
-            else:
-                raise PDTInvalide()
-    except PDTInvalide:
-        pass
-    if paiement.numero_transaction:
-        return redirect(
-            reverse('processus_inscription', args=['confirmation']) +
-            '?paypal_tx=' + paiement.numero_transaction
-        )
+def paypal_return(request):
+    invoice_uid = request.GET.get('invoice', None)
+    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    paypal_response = PaypalResponse.objects.create(
+        invoice_uid=invoice_uid, inscription=inscription,
+        request_data=getattr(request, request.METHOD).urlencode())
+    validation_response = validate_pdt(invoice_uid)
+    paypal_response.validated = validation_response.valid
+    paypal_response.validation_response_data = validation_response.raw_response
+    paypal_response.save()
+    if paypal_response.validated:
+        d = validation_response.response_dict
+        dict_to_paypal_response(d, paypal_response)
+        paypal_response.save()
+    return redirect('dossier_inscription')
+
+
+def dict_to_paypal_response(paypal_dict, paypal_response):
+    paypal_response.montant = paypal_dict.get('mc_gross')
+    paypal_response.devise = paypal_dict.get('mc_currency')
+    paypal_response.statut = paypal_dict.get('payment_status')
+    paypal_response.raison_attente = paypal_dict.get('pending_reason')
+    paypal_response.date_heure = paypal_dict.get('payment_date')
+    payment_date = paypal_dict.get('payment_date')
+    if isinstance(payment_date, six.string_types):
+        for date_format in PAYPAL_DATE_FORMATS:
+            try:
+                paypal_response.date_heure = datetime.datetime(
+                    *time.strptime(payment_date, date_format)[:6]
+                )
+            except ValueError:
+                continue
     else:
-        return redirect('processus_inscription', 'paiement')
-
-
-def form_to_paiement(paypal_form, paiement_paypal):
-    paiement_paypal.montant = paypal_form.cleaned_data['mc_gross']
-    paiement_paypal.devise = paypal_form.cleaned_data['mc_currency']
-    paiement_paypal.statut = paypal_form.cleaned_data['payment_status']
-    paiement_paypal.raison_attente = paypal_form.cleaned_data['pending_reason']
-    paiement_paypal.date_heure = paypal_form.cleaned_data['payment_date']
+        paypal_response.date_heure = payment_date
 
 
 @csrf_exempt
 @require_POST
-# @commit_manually
 def paypal_ipn(request):
-    try:
-        assert request.method == 'POST'
-        form = PaypalNotificationForm(request.POST)
-        if form.is_valid():
-            numero_transaction = form.cleaned_data['txn_id']
-            try:
-                paiement = PaiementPaypal.objects.get(
-                    numero_transaction=numero_transaction
-                )
-            except PaiementPaypal.DoesNotExist:
-                paiement = PaiementPaypal()
-                paiement.numero_transaction = numero_transaction
-            paiement.ipn_post_data = request.raw_post_data
-            paiement.verifier_ipn(request)
-            id_inscription = form.cleaned_data['invoice']
-            inscription = Inscription.objects.get(id=id_inscription)
-            paiement.inscription = inscription
-            form_to_paiement(form, paiement)
-            save_paiement(paiement)
-        else:
-            transaction.rollback()
-        return HttpResponse("OK")
-    except:
-        transaction.rollback()
-        raise
+    form = PaypalNotificationForm(request.POST)
+    assert form.is_valid()
+    txn_id = form.cleaned_data['txn_id']
+    invoice_uid = form.cleaned_data['invoice']
+    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    paypal_response = PaypalResponse.objects.create(txn_id=txn_id,
+                                                    invoice_uid=invoice_uid,
+                                                    inscription=inscription)
+    paypal_response.request_data = request.body
+    valid, validation_response = is_ipn_valid(request)
+    dict_to_paypal_response(form.cleaned_data, paypal_response)
+    paypal_response.validated = valid
+    paypal_response.validation_response_data = validation_response
+    return HttpResponse("OK")
 
 
 def paypal_cancel(request):
-    return redirect(
-        reverse(
-            'processus_inscription', args=['paiement']
-        ) + "?paypal_cancel=1"
-    )
+    # inscription_id = request.session.get('inscription_id', None)
+    # inscription = Inscription.objects.get(id=inscription_id)
+    # inscription.paypal_cancelled = True
+    return redirect('dossier')
+
+
+@require_POST
+def make_paypal_invoice(request):
+    inscription_id = request.session.get('inscription_id', None)
+    if not inscription_id:
+        return HttpResponse(status=401)
+    inscription = Inscription.objects.get(id=inscription_id)
+    inscription.paiement = 'CB'
+    inscription.save()
+    invoice = PaypalInvoice.objects.create(inscription=inscription,
+                                           montant=inscription.get_total_du())
+    return HttpResponse(str(invoice.tx_id))
 
 
 def dossier(request):
-    return HttpResponse("dossier")
+    return render_to_response('dossier.html')

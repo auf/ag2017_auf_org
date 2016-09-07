@@ -1,15 +1,17 @@
 # encoding: utf-8
+import collections
 import datetime
 import urllib2
 from urllib import unquote_plus
+import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
+from django.db.models import Sum
 from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models.query_utils import Q
 from django.dispatch.dispatcher import Signal
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
@@ -252,6 +254,7 @@ class Inscription(RenseignementsPersonnels):
         u"Confirmée par le participant", default=False
     )
     date_fermeture = models.DateField(u"Confirmée le", null=True)
+#     paypal_cancel = models.NullBooleanField()
 
     @property
     def numero(self):
@@ -308,12 +311,19 @@ class Inscription(RenseignementsPersonnels):
                self.get_total_categorie('acti') + \
                self.get_total_categorie('invite')
 
+    def get_total_activites(self):
+        return self.get_total_categorie('acti') + \
+               self.get_total_categorie('invite')
+
     def get_total_categorie(self, cat):
         total = 0
         for ligne in self.get_facture():
             if ligne.infos_montant.categorie == cat:
                 total += ligne.total()
         return total
+
+    def get_total_du(self):
+        return self.get_montant_total() - self.paiement_paypal_total()
 
     def get_frais_inscription(self):
         return self.get_total_categorie('insc')
@@ -379,27 +389,16 @@ class Inscription(RenseignementsPersonnels):
         )
 
     def paiement_paypal_ok(self):
-        return self.paiementpaypal_set.filter(
-            Q(ipn_valide=True) | Q(pdt_valide=True)
-        ).count()
+        return PaypalResponse.objects.accepted(self).exists()
 
     def paiement_paypal_total(self):
-        paiements = self.paiementpaypal_set.filter(
-            Q(ipn_valide=True) | Q(pdt_valide=True)
-        )
-        return sum(
-            paiement.montant for paiement in paiements
-            if (paiement.montant and
-                paiement.statut in PaiementPaypal.STATUS_ACCEPTED)
-        )
+        return PaypalResponse.objects.accepted(self).aggregate(
+            total=Sum('montant'))['total'] or 0
 
     def numeros_confirmation_paypal(self):
         return u', '.join([
             paiement.numero_transaction
-            for paiement in self.paiementpaypal_set.all()
-            if (paiement.montant and
-                paiement.statut in PaiementPaypal.STATUS_ACCEPTED)
-        ])
+            for paiement in PaypalResponse.objects.accepted(self)])
 
     def statut_paypal_text(self):
         if self.paiement_paypal_ok():
@@ -421,63 +420,71 @@ class Inscription(RenseignementsPersonnels):
             + self.get_etablissement().nom + u')'
 
 
-class PDTInvalide(Exception):
-    pass
+class PaypalInvoice(models.Model):
+    inscription = models.ForeignKey(Inscription)
+    invoice_uid = models.UUIDField(default=uuid.uuid4, db_index=True)
+    montant = models.DecimalField(max_digits=6, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
-class PaiementPaypal(models.Model):
+class PaypalResponseManager(models.Manager):
+    def accepted(self, inscription):
+        return self.filter(inscription=inscription,
+                           statut__in=PaypalResponse.STATUS_ACCEPTED,
+                           montant__isnull=False)
+
+
+class PaypalResponse(models.Model):
     STATUS_ACCEPTED = ['Processed', 'Completed']
+
+    type_reponse = models.CharField(max_length=3, choices=(
+        ('IPN', u"Instant Payment Notification"),
+        ('PDT', u"Payment Data Transfer")
+    ))
+    inscription = models.ForeignKey(Inscription, null=True)
 
     date_heure = models.DateTimeField(
         verbose_name=u'Date et heure du paiement', null=True
     )
-    montant = models.FloatField(null=True)
+    montant = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     devise = models.CharField(max_length=32, null=True)
-    numero_transaction = models.CharField(
-        max_length=250, db_index=True, unique=True
-    )
+    invoice_uid = models.CharField(max_length=250, db_index=True)
+    txn_id = models.CharField(max_length=250, db_index=True)
     statut = models.CharField(max_length=64, null=True)
     raison_attente = models.CharField(max_length=128, null=True)
-    ipn_post_data = models.TextField(null=True)
-    pdt_reponse = models.TextField(null=True)
-    inscription = models.ForeignKey(Inscription, null=True)
-    ipn_valide = models.BooleanField(default=False)
-    pdt_valide = models.BooleanField(default=False)
+    request_data = models.TextField(null=True)
+    validation_response_data = models.TextField(null=True)
+    validated = models.BooleanField(default=False)
+    received_at = models.DateTimeField(auto_now_add=True)
 
-    def est_complet(self):
-        return self.est_valide() and self.statut in self.STATUS_ACCEPTED
+    objects = PaypalResponseManager()
 
-    def est_valide(self):
-        return self.ipn_valide or self.pdt_valide
+PDTResponse = collections.namedtuple('PDTResponse', ('valid', 'raw_response',
+                                                     'response_dict'))
 
-    def notifier(self):
-        if self.ipn_valide or self.pdt_valide:
-            paypal_signal.send_robust(self)
 
-    def verifier_pdt(self):
-        postback_dict = dict(
-            cmd="_notify-synch", at=settings.PAYPAL_PDT_TOKEN,
-            tx=self.numero_transaction
-        )
-        postback_params = urlencode(postback_dict)
-        reponse = urllib2.urlopen(settings.PAYPAL_URL, postback_params).read()
-        self.pdt_reponse = reponse
-        lignes = reponse.split('\n')
-        self.pdt_valide = unquote_plus(lignes[0]) == 'SUCCESS'
-        if not self.pdt_valide:
-            raise PDTInvalide
-        d = {}
-        del lignes[0]
-        for ligne in lignes:
-            ligne = unquote_plus(ligne)
-            if "=" in ligne:
-                key, value = ligne.split("=")
-                d[key] = value
-        return d
+def validate_pdt(tx_id):
+    postback_dict = {
+        'cmd': "_notify-synch",
+        'at': settings.PAYPAL_PDT_TOKEN,
+        'tx': tx_id,
+    }
+    postback_params = urlencode(postback_dict)
+    response = urllib2.urlopen(settings.PAYPAL_URL, postback_params).read()
+    lignes = response.split('\n')
+    valid = unquote_plus(lignes[0]) == 'SUCCESS'
+    d = {}
+    for ligne in lignes[1:]:
+        ligne = unquote_plus(ligne)
+        if "=" in ligne:
+            key, value = ligne.split("=")
+            d[key] = value
+    return PDTResponse(valid=valid, raw_response=response, response_dict=d)
 
-    def verifier_ipn(self, request):
-        query = getattr(request, request.method).urlencode()
-        reponse = urllib2.urlopen(
-            settings.PAYPAL_URL, "cmd=_notify-validate&%s" % query
-        ).read()
-        self.ipn_valide = reponse == 'VERIFIED'
+
+def is_ipn_valid(request):
+    query = getattr(request, request.method).urlencode()
+    reponse = urllib2.urlopen(
+        settings.PAYPAL_URL, "cmd=_notify-validate&%s" % query
+    ).read()
+    return reponse == 'VERIFIED', reponse
