@@ -403,6 +403,7 @@ def paypal_ipn(request):
     dict_to_paypal_response(form.cleaned_data, paypal_response)
     paypal_response.validated = valid
     paypal_response.validation_response_data = validation_response
+    paypal_response.save()
     return HttpResponse("OK")
 
 
