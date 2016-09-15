@@ -7,6 +7,7 @@ import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 from django.db.models import Sum
+import requests
 from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -439,7 +440,8 @@ class PaypalResponse(models.Model):
 
     type_reponse = models.CharField(max_length=3, choices=(
         ('IPN', u"Instant Payment Notification"),
-        ('PDT', u"Payment Data Transfer")
+        ('PDT', u"Payment Data Transfer"),
+        ('CAN', u"Cancelled"),
     ))
     inscription = models.ForeignKey(Inscription, null=True)
 
@@ -449,7 +451,7 @@ class PaypalResponse(models.Model):
     montant = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     devise = models.CharField(max_length=32, null=True)
     invoice_uid = models.CharField(max_length=250, db_index=True)
-    txn_id = models.CharField(max_length=250, db_index=True)
+    txn_id = models.CharField(max_length=250, db_index=True, null=True)
     statut = models.CharField(max_length=64, null=True)
     raison_attente = models.CharField(max_length=128, null=True)
     request_data = models.TextField(null=True)
@@ -483,8 +485,8 @@ def validate_pdt(tx_id):
 
 
 def is_ipn_valid(request):
-    query = getattr(request, request.method).urlencode()
-    reponse = urllib2.urlopen(
-        settings.PAYPAL_URL, "cmd=_notify-validate&%s" % query
-    ).read()
-    return reponse == 'VERIFIED', reponse
+    print("cmd=_notify-validate&" + request.body)
+    response = requests.post(
+        settings.PAYPAL_URL,
+        data="cmd=_notify-validate&" + request.body)
+    return response.text == 'VERIFIED', response.text

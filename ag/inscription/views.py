@@ -129,7 +129,7 @@ def get_paypal_context(request):
             getattr(settings, 'PAYPAL_NOTIFY_TEST_URL', None) or
             request.build_absolute_uri(reverse('paypal_ipn')),
         'paypal_cancel_url': request.build_absolute_uri(
-            reverse('paypal_cancel')),
+            reverse('paypal_cancel', args=('__invoice_uid__', ))),
     }
 
 
@@ -352,14 +352,19 @@ def get_inscription_by_invoice_uid(invoice_uid):
 
 
 def paypal_return(request):
-    invoice_uid = request.GET.get('invoice', None)
-    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    # tx=9TN773664V3684442&st=Pending&amt=570.00&cc=EUR&cm=&item_number=
+    tx = request.GET.get('tx')
     paypal_response = PaypalResponse.objects.create(
-        invoice_uid=invoice_uid, inscription=inscription,
-        request_data=getattr(request, request.METHOD).urlencode())
-    validation_response = validate_pdt(invoice_uid)
+        type_reponse='PDT', txn_id=tx,
+        request_data=getattr(request, request.method).urlencode())
+
+    validation_response = validate_pdt(tx)
+    invoice_uid = validation_response.response_dict.get('invoice', None)
+    inscription = get_inscription_by_invoice_uid(invoice_uid)
     paypal_response.validated = validation_response.valid
     paypal_response.validation_response_data = validation_response.raw_response
+    paypal_response.invoice_uid = invoice_uid
+    paypal_response.inscription = inscription
     paypal_response.save()
     if paypal_response.validated:
         d = validation_response.response_dict
@@ -395,9 +400,9 @@ def paypal_ipn(request):
     txn_id = form.cleaned_data['txn_id']
     invoice_uid = form.cleaned_data['invoice']
     inscription = get_inscription_by_invoice_uid(invoice_uid)
-    paypal_response = PaypalResponse.objects.create(txn_id=txn_id,
-                                                    invoice_uid=invoice_uid,
-                                                    inscription=inscription)
+    paypal_response = PaypalResponse.objects.create(
+        type_reponse='IPN',
+        txn_id=txn_id, invoice_uid=invoice_uid, inscription=inscription)
     paypal_response.request_data = request.body
     valid, validation_response = is_ipn_valid(request)
     dict_to_paypal_response(form.cleaned_data, paypal_response)
@@ -407,11 +412,13 @@ def paypal_ipn(request):
     return HttpResponse("OK")
 
 
-def paypal_cancel(request):
-    # inscription_id = request.session.get('inscription_id', None)
-    # inscription = Inscription.objects.get(id=inscription_id)
-    # inscription.paypal_cancelled = True
-    return redirect('dossier')
+def paypal_cancel(request, invoice_uid):
+    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    PaypalResponse.objects.create(
+        invoice_uid=invoice_uid, inscription=inscription,
+        type_reponse='CAN',
+    )
+    return redirect('dossier_inscription')
 
 
 @require_POST
@@ -424,8 +431,8 @@ def make_paypal_invoice(request):
     inscription.save()
     invoice = PaypalInvoice.objects.create(inscription=inscription,
                                            montant=inscription.get_total_du())
-    return HttpResponse(str(invoice.tx_id))
+    return HttpResponse(str(invoice.invoice_uid))
 
 
 def dossier(request):
-    return render_to_response('dossier.html')
+    return render_to_response('inscription/dossier.html')

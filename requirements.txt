@@ -14,3 +14,4 @@ django-sendfile==0.3.10
 python-memcached==1.48
 django-tinymce==2.3.0
 django-treebeard==4.0.1
+requests==2.11.1

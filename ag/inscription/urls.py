@@ -15,7 +15,7 @@ urlpatterns = patterns(
     url(r'^ajout_invitations/$', 'ajout_invitations', name='ajout_invitations'),
     url(r'^retour_paypal/$', 'paypal_return', name='paypal_return'),
     url(r'^notification_ipn_paypal/$', 'paypal_ipn', name='paypal_ipn'),
-    url(r'^annulation_paypal/$', 'paypal_cancel', name='paypal_cancel'),
+    url(r'^annulation_paypal/([-\w]+)$', 'paypal_cancel', name='paypal_cancel'),
     url(r'^inscriptions_terminees/$',
         TemplateView.as_view(template_name='inscription/terminees.html'),
         name='inscriptions_terminees'),
@@ -24,9 +24,6 @@ urlpatterns = patterns(
     url(r'^dossier/$', 'dossier', name='dossier_inscription'),
     url(r'^make_paypal_invoice/$', 'make_paypal_invoice',
         name='make_paypal_invoice'),
-    url(r'^test_ipn_form/$', TemplateView.as_view(
-        template_name='inscription/paypal_ipn_test_form.html'),
-        name='test_ipn_form'),
     url(r'^(?P<url_title>[-\w]+)/$', 'processus_inscription',
         name='processus_inscription'),
 )
