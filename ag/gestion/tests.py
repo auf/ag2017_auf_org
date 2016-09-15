@@ -828,13 +828,13 @@ class GestionTestCase(TestCase):
         self.assertEqual(p.pays, i.pays)
         self.assertEqual(
             ParticipationActivite.objects.filter(
-                participant=p, activite__code='unesp', avec_invites=True
+                participant=p, activite__code='soiree_9_mai', avec_invites=True
             ).count(),
             1
         )
         self.assertEqual(
             ParticipationActivite.objects.filter(
-                participant=p, activite__code='8_mai', avec_invites=False
+                participant=p, activite__code='soiree_10_mai', avec_invites=False
             ).count(),
             1
         )

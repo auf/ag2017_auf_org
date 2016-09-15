@@ -6,6 +6,7 @@ inscription_transferee = Signal()
 
 VILLE_AEROPORT = u'São Paulo'
 
+
 def statut_par_defaut(inscription):
     statut_etablissement = inscription.get_etablissement().statut
     if inscription.est_pour_mandate():
@@ -50,18 +51,18 @@ def transfere(inscription, statut, prise_en_charge_transport,
         invite.prenom = inscription.accompagnateur_prenom
         invite.participant = participant
         invite.save()
-    if inscription.programmation_soiree_unesp:
-        activite = Activite.objects.get(code="unesp")
-        participant.inscrire_a_activite(activite,
-            inscription.programmation_soiree_unesp_invite)
-    if inscription.programmation_soiree_interconsulaire:
-        activite = Activite.objects.get(code="8_mai")
-        participant.inscrire_a_activite(activite,
-            inscription.programmation_soiree_interconsulaire_invite)
+    if inscription.programmation_soiree_9_mai:
+        activite = Activite.objects.get(code="soiree_9_mai")
+        participant.inscrire_a_activite(
+            activite, inscription.programmation_soiree_9_mai_invite)
+    if inscription.programmation_soiree_10_mai:
+        activite = Activite.objects.get(code="soiree_10_mai")
+        participant.inscrire_a_activite(
+            activite, inscription.programmation_soiree_10_mai_invite)
     if inscription.programmation_gala:
         activite = Activite.objects.get(code="gala")
-        participant.inscrire_a_activite(activite,
-            inscription.programmation_gala_invite)
+        participant.inscrire_a_activite(
+            activite, inscription.programmation_gala_invite)
     if inscription.arrivee_date:
         participant.set_infos_arrivee(inscription.arrivee_date,
             inscription.arrivee_heure, inscription.arrivee_vol,
