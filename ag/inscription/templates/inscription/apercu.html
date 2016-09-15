@@ -88,7 +88,10 @@
     if (xhr.status === 200) {
       var form = $('#paypal-form');
       form.find('[name="invoice"]').val(responseText);
-      var cancel_url = form.find('[name="cancel_return"]').val();
+      var cancel_field = form.find('[name="cancel_return"]');
+      var cancel_url = cancel_field.val().replace('__invoice_uid__',
+          responseText);
+      cancel_field.val(cancel_url);
       form.submit();
     } else {
       window.location = '/inscription/'
