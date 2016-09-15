@@ -113,10 +113,8 @@ class ParticipantsQuerySet(QuerySet):
             )"""
         elif name == 'frais_inscription':
             montants = get_infos_montants()
-            return "(%s + %s * %s)" % (
+            return "(%s)" % (
                 montants['frais_inscription'].montant,
-                montants['frais_inscription_invite'].montant,
-                self.sql_expr('nombre_invites')
             )
         elif name == 'frais_inscription_facture':
             montants = get_infos_montants()

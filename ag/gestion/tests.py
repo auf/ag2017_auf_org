@@ -583,9 +583,7 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais') \
             .get(id=self.participant.id)
-        montant_attendu = (
-            infos_montant_par_code('frais_inscription').montant
-            + infos_montant_par_code('frais_inscription_invite').montant)
+        montant_attendu = infos_montant_par_code('frais_inscription').montant
         self.assertEquals(participant.total_frais, montant_attendu)
 
         activite = Activite.objects.get(code='gala')
