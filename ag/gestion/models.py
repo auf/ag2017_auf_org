@@ -13,13 +13,10 @@ from django.core.files.storage import FileSystemStorage
 from django.db import connection
 from django.db.models import Model, PROTECT
 from django.db.models.aggregates import Sum, Max, Min, Count
-from django.db.models.fields import (
+from django.db.models import (
     CharField, DateField, EmailField, TextField, FloatField, IntegerField,
-    BooleanField, TimeField, DateTimeField, NullBooleanField)
-from django.db.models.fields.files import FileField
-from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.db.models.manager import Manager
-from django.db.models.query_utils import Q
+    BooleanField, TimeField, DateTimeField, NullBooleanField,
+    ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
 from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
@@ -329,7 +326,7 @@ class Participant(RenseignementsPersonnels):
     )
 
     # référence à l'inscription effectuée par le web, si applicable
-    inscription = ForeignKey(Inscription, null=True)
+    inscription = OneToOneField(Inscription, null=True)
     # utiliser l'adresse GDE comme adresse du participant
     utiliser_adresse_gde = BooleanField(
         u"Utiliser adresse GDE pour la facturation", default=False)
