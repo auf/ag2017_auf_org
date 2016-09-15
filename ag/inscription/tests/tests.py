@@ -513,27 +513,27 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         self.assertRedirects(
             response, reverse('dossier_inscription'))
 
-    def test_ajout_invitations(self):
-        inscription = self.create_inscription([])
-        inscription.fermee = True
-        inscription.save()
-        response = self.client.get(url_etape(inscription, 'confirmation'))
-        self.assertContains(response, u'<textarea id="liste_adresses"')
-        nombre_invitations_avant = Invitation.objects.count()
-        adresse_test = 'adresse1@test.org'
-        response = self.client.post(
-            reverse('ajout_invitations'),
-            data={'liste_adresses': adresse_test + '\nadresse_invalide'})
-        nombre_invitations_apres = Invitation.objects.count()
-        # on vérifie qu'aucune invitation n'a été ajoutée pour l'adresse
-        # invalide
-        self.assertEqual(nombre_invitations_apres - nombre_invitations_avant, 1)
-        invitation_ajoutee = Invitation.objects.get(courriel=adresse_test)
-        self.assertEqual(invitation_ajoutee.etablissement.id,
-                         inscription.get_etablissement().id)
-        self.assertRedirects(response, 'inscription/confirmation/#invitation')
-        response = self.client.get(url_etape(inscription, 'confirmation'))
-        self.assertContains(response, adresse_test)
+    # def test_ajout_invitations(self):
+    #     inscription = self.create_inscription([])
+    #     inscription.fermee = True
+    #     inscription.save()
+    #     response = self.client.get(url_etape(inscription, 'confirmation'))
+    #     self.assertContains(response, u'<textarea id="liste_adresses"')
+    #     nombre_invitations_avant = Invitation.objects.count()
+    #     adresse_test = 'adresse1@test.org'
+    #     response = self.client.post(
+    #         reverse('ajout_invitations'),
+    #         data={'liste_adresses': adresse_test + '\nadresse_invalide'})
+    #     nombre_invitations_apres = Invitation.objects.count()
+    #     # on vérifie qu'aucune invitation n'a été ajoutée pour l'adresse
+    #     # invalide
+    #     self.assertEqual(nombre_invitations_apres - nombre_invitations_avant, 1)
+    #     invitation_ajoutee = Invitation.objects.get(courriel=adresse_test)
+    #     self.assertEqual(invitation_ajoutee.etablissement.id,
+    #                      inscription.get_etablissement().id)
+    #     self.assertRedirects(response, 'inscription/confirmation/#invitation')
+    #     response = self.client.get(url_etape(inscription, 'confirmation'))
+    #     self.assertContains(response, adresse_test)
 
     def test_facturation(self):
         inscription = self.create_inscription(['participant',
