@@ -2,6 +2,8 @@
 
 import factory
 import ag.reference.models as ref_models
+import ag.inscription.models as inscription_models
+import ag.gestion.models as gestion_models
 
 
 def find_input_by_id(tree, html_id):
@@ -37,3 +39,35 @@ class EtablissementFactory(factory.DjangoModelFactory):
     pays = factory.SubFactory(PaysFactory)
     region = factory.SubFactory(RegionFactory)
     qualite = "ESR"
+
+
+# noinspection PyUnresolvedReferences
+class StatutFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = gestion_models.StatutParticipant
+    ordre = factory.Sequence(lambda n: n)
+    code = factory.Sequence(lambda n: 'SP{0}'.format(n))
+    libelle = factory.LazyAttribute(lambda a: 'StatutParticipant ' + a.code)
+
+
+# noinspection PyUnresolvedReferences
+class InvitationFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = inscription_models.Invitation
+    etablissement = factory.SubFactory(EtablissementFactory)
+
+
+# noinspection PyUnresolvedReferences
+class InscriptionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = inscription_models.Inscription
+
+    invitation = factory.SubFactory(InvitationFactory)
+
+
+# noinspection PyUnresolvedReferences
+class ParticipantFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = gestion_models.Participant
+
+    statut = factory.SubFactory(StatutFactory)

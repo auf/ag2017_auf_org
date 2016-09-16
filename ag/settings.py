@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'ag.core',
     'ag.inscription',
     'ag.gestion',
+    'ag.dossier_inscription',
     'ag.outil',
     'ag.actualite',
     'ag.activites_scientifiques',
