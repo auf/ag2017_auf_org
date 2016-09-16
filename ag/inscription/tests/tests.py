@@ -4,16 +4,15 @@ import html5lib
 import datetime
 
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
-from ag.gestion.montants import InfosMontant
 from ag.reference.models import Etablissement, Pays
 
 from ag.core.test_utils import find_input_by_id
 import mock
-from ag.gestion.models import Participant, StatutParticipant, Activite
+from ag.gestion.models import Participant, StatutParticipant
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
-    TransportHebergementForm, ProgrammationForm
+    TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
-    infos_montant_par_code, InvitationEnveloppe, CODES_CHAMPS_MONTANTS
+    infos_montant_par_code, InvitationEnveloppe
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
 from django.conf import settings
@@ -527,7 +526,8 @@ class TestsInscription(TestCase, InscriptionTestMixin):
     #     nombre_invitations_apres = Invitation.objects.count()
     #     # on vérifie qu'aucune invitation n'a été ajoutée pour l'adresse
     #     # invalide
-    #     self.assertEqual(nombre_invitations_apres - nombre_invitations_avant, 1)
+    #     self.assertEqual(nombre_invitations_apres - nombre_invitations_avant,
+    # 1)
     #     invitation_ajoutee = Invitation.objects.get(courriel=adresse_test)
     #     self.assertEqual(invitation_ajoutee.etablissement.id,
     #                      inscription.get_etablissement().id)
