@@ -21,7 +21,6 @@ urlpatterns = patterns(
         name='inscriptions_terminees'),
     url(r'^calcul_frais_programmation/$', 'calcul_frais_programmation',
         name='calcul_frais_programmation'),
-    url(r'^dossier/$', 'dossier', name='dossier_inscription'),
     url(r'^make_paypal_invoice/$', 'make_paypal_invoice',
         name='make_paypal_invoice'),
     url(r'^(?P<url_title>[-\w]+)/$', 'processus_inscription',
