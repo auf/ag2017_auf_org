@@ -111,6 +111,7 @@ def connexion_inscription(request, jeton):
             inscription = Inscription(invitation=invitation)
             inscription.preremplir()
             inscription.save()
+            inscription.make_numero_dossier()
             request.session['inscription_id'] = inscription.id
         else:
             return redirect('inscriptions_terminees')

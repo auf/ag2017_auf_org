@@ -1,6 +1,8 @@
 # encoding: utf-8
 import collections
 import datetime
+import random
+import string
 import urllib2
 from urllib import unquote_plus
 import uuid
@@ -12,7 +14,7 @@ from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models, IntegrityError
 from django.dispatch.dispatcher import Signal
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
@@ -257,12 +259,27 @@ class Inscription(RenseignementsPersonnels):
     date_fermeture = models.DateField(u"Confirmée le", null=True)
 #     paypal_cancel = models.NullBooleanField()
 
+    numero_dossier = models.CharField(max_length=8, unique=True, null=True)
+
     @property
     def numero(self):
         return 'A%04d' % self.id
 
     def get_region(self):
         return self.invitation.get_region()
+
+    def make_numero_dossier(self):
+        retry = True
+        while retry:
+            num_dossier = ''.join(random.choice(string.ascii_uppercase +
+                                                string.digits)
+                                  for _ in range(8))
+            retry = False
+            try:
+                self.numero_dossier = num_dossier
+                self.save()
+            except IntegrityError:
+                retry = True
 
     CHAMPS_PROGRAMMATION = (
         (programmation_soiree_9_mai, programmation_soiree_9_mai_invite),

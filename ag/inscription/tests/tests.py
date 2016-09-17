@@ -503,6 +503,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
         self.assertEqual(inscription.code_postal,
                          invitation.etablissement.code_postal)
         self.assertEqual(inscription.pays, invitation.etablissement.pays.nom)
+        self.assertTrue(inscription.numero_dossier)
 
     def test_inscription_fermee(self):
         inscription = self.create_inscription([])
