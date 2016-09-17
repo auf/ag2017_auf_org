@@ -13,9 +13,6 @@ $(function(){
     $('form.uniForm').uniform();
     $.datepicker.setDefaults($.datepicker.regional['fr']);
 });
-{% if montants_json %}
-montants_data = JSON.parse('{{ montants_json|addslashes|safe }}');
-{%  endif %}
 </script>
 {% endblock %}
 
