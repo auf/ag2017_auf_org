@@ -10,11 +10,36 @@
   F:{{ inscription.telecopieur }}<br/>
 
   <h3>Adresse de facturation</h3>
-  {{ adresse.adresse }}<br/>
-  {{ adresse.ville }}<br/>
-  {{ adresse.code_postal }}<br/>
-  <a href="#">Modifier</a>
+  <div id="adresse-container">
+  {% include "dossier_inscription/includes/adresse.html" %}
+  </div>
+{% endblock %}
 
+{% block extra_js %}
+<script type="text/javascript">
+function init_dossier() {
+  $("#adresse-container").on('click', '#modifier-adresse' ,
+      click_modifier_adresse);
+  ajaxify_form_adresse();
+}
 
+function ajaxify_form_adresse() {
+    $('#form-adresse form').ajaxForm({
+      success: form_adresse_submit_success
+    });
+}
 
+function form_adresse_submit_success(responseText) {
+  $('#adresse-container').html(responseText);
+  ajaxify_form_adresse();
+}
+
+function click_modifier_adresse(e) {
+  e.preventDefault();
+  $('#adresse').hide();
+  $('#form-adresse').show();
+}
+
+$(init_dossier);
+</script>
 {% endblock %}

@@ -1,0 +1,14 @@
+  <div id="adresse"{% if form_adresse.errors %} style="display: none;"{% endif %}>
+    {{ adresse.adresse }}<br/>
+    {{ adresse.ville }}<br/>
+    {{ adresse.code_postal }}<br/>
+    {{ adresse.pays }}<br/>
+    <a id="modifier-adresse" href="#">Modifier</a>
+  </div>
+  <div id="form-adresse"{% if not form_adresse.errors %} style="display: none;"{% endif %}>
+    <form method="post" action="{% url "set_adresse" %}">
+      {% csrf_token %}
+      {{ form_adresse }}
+      <input type="submit" value="Enregister"/>
+    </form>
+  </div>
