@@ -4,7 +4,8 @@ import ag.inscription.models as models_inscription
 import ag.gestion.models as models_gestion
 
 
-Adresse = collections.namedtuple('Adresse', ('adresse', 'ville', 'code_postal'))
+Adresse = collections.namedtuple('Adresse', ('adresse', 'ville', 'code_postal',
+                                             'pays', ))
 
 
 class InscriptionFermee(models_inscription.Inscription):
@@ -19,7 +20,8 @@ class InscriptionFermee(models_inscription.Inscription):
 
     def get_adresse(self):
         source = self.get_participant_or_self()
-        return Adresse(source.adresse, source.ville, source.code_postal)
+        return Adresse(source.adresse, source.ville, source.code_postal,
+                       source.pays)
 
     def set_adresse(self, adresse):
         """Fixe l'adresse du participant si l'inscription a été validée, sinon
@@ -31,5 +33,4 @@ class InscriptionFermee(models_inscription.Inscription):
         dest.adresse = adresse.adresse
         dest.code_postal = adresse.code_postal
         dest.ville = adresse.ville
-
-
+        dest.pays = adresse.pays

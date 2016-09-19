@@ -5,5 +5,5 @@ from .views import dossier
 
 urlpatterns = patterns(
     'ag.dossier_inscription.views',
-    url(r'^dossier/$', dossier, name='dossier_inscription'),
+    url(r'^$', dossier, name='dossier_inscription'),
 )

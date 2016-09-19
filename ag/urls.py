@@ -9,6 +9,7 @@ urlpatterns = patterns(
     '',
     url(r'^contact/', 'ag.views.contact', name='contact'),
     url(r'^inscription/', include('ag.inscription.urls')),
+    url(r'^dossier_inscription/', include('ag.dossier_inscription.urls')),
     url(r'^gestion/', include('ag.gestion.urls')),
     url(r'^activites_scientifiques/',
         include('ag.activites_scientifiques.urls')),

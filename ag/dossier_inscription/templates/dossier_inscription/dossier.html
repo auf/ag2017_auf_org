@@ -1,0 +1,20 @@
+{% extends "dossier_inscription/base_dossier.html" %}
+
+{% block content %}
+<h3>Informations du participant</h3>
+  {{ inscription.get_genre_display }} {{ inscription.nom }}
+  {{ inscription.prenom }}<br/>
+  {{ inscription.poste }}<br/>
+  {{ inscription.courriel }}<br/>
+  T:{{ inscription.telephone }}<br/>
+  F:{{ inscription.telecopieur }}<br/>
+
+  <h3>Adresse de facturation</h3>
+  {{ adresse.adresse }}<br/>
+  {{ adresse.ville }}<br/>
+  {{ adresse.code_postal }}<br/>
+  <a href="#">Modifier</a>
+
+
+
+{% endblock %}

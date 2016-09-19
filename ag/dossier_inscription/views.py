@@ -12,4 +12,4 @@ def dossier(request):
         'inscription': inscription,
         'adresse': inscription.get_adresse(),
     }
-    return render('dossier_inscription/dossier.html', context)
+    return render(request, 'dossier_inscription/dossier.html', context)
