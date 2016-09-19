@@ -13,6 +13,13 @@
   <div id="adresse-container">
   {% include "dossier_inscription/includes/adresse.html" %}
   </div>
+
+  {% if inscription.accompagnateur %}
+    <h3>Accompagnateur personnel</h3>
+    {{ inscription.get_accompagnateur_genre_display }}
+    {{ inscription.accompagnateur_nom }},
+    {{ inscription.accompagnateur_prenom }}
+  {% endif %}
 {% endblock %}
 
 {% block extra_js %}
