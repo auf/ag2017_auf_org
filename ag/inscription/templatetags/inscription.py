@@ -26,8 +26,8 @@ def email_region(context, subject=u""):
     if subject:
         subject = u"?subject={}".format(subject)
     return mark_safe(
-        u'<a href="mailto:ag2017.{region}@auf.org{{subject}}">'
+        u'<a href="mailto:ag2017.{region}@auf.org{subject}">'
         u'ag2017.{region}@auf.org</a>'.format(
-            region=context["inscription"].get_region(),
+            region=context["inscription"].get_region().code,
             subject=subject)
     )

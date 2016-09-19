@@ -1,7 +1,7 @@
 {% extends "dossier_inscription/base_dossier.html" %}
-
+{% load inscription %}
 {% block content %}
-<h3>Informations du participant</h3>
+<h2>Informations du participant</h2>
   {{ inscription.get_genre_display }} {{ inscription.nom }}
   {{ inscription.prenom }}<br/>
   {{ inscription.poste }}<br/>
@@ -32,6 +32,11 @@
   <div id="adresse-container">
   {% include "dossier_inscription/includes/adresse.html" %}
   </div>
+
+<h2>Statut du dossier</h2>
+  Numéro de dossier: <strong>{{ inscription.numero_dossier }}</strong><br/>
+  Veuillez utiliser ce numéro de dossier dans toutes vos communications avec
+  votre représentant régional  {% email_region %}
 
 {% endblock %}
 
