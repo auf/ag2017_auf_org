@@ -9,17 +9,30 @@
   T:{{ inscription.telephone }}<br/>
   F:{{ inscription.telecopieur }}<br/>
 
-  <h3>Adresse de facturation</h3>
-  <div id="adresse-container">
-  {% include "dossier_inscription/includes/adresse.html" %}
-  </div>
-
   {% if inscription.accompagnateur %}
     <h3>Accompagnateur personnel</h3>
     {{ inscription.get_accompagnateur_genre_display }}
     {{ inscription.accompagnateur_nom }},
     {{ inscription.accompagnateur_prenom }}
   {% endif %}
+
+  <h3>Type d'inscription</h3>
+  <strong>
+  {% if inscription.est_pour_mandate %}
+  Représentant mandaté
+  {% else %}
+  Accompagnateur
+  {% endif %}</strong><br/>
+  {{ inscription.get_etablissement.nom }}<br/>
+  Membre {{ inscription.get_etablissement.get_statut_display }} du
+  {{ inscription.get_est_pour_sud_display }}
+
+
+  <h3>Adresse de facturation</h3>
+  <div id="adresse-container">
+  {% include "dossier_inscription/includes/adresse.html" %}
+  </div>
+
 {% endblock %}
 
 {% block extra_js %}

@@ -368,6 +368,9 @@ class Inscription(RenseignementsPersonnels):
     def est_pour_sud(self):
         return self.invitation.etablissement.pays.sud
 
+    def get_est_pour_sud_display(self):
+        return "sud" if self.est_pour_sud() else "nord"
+
     def get_jeton(self):
         return self.invitation.enveloppe.jeton
 
