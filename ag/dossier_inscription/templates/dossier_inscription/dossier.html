@@ -38,6 +38,13 @@
   Veuillez utiliser ce numéro de dossier dans toutes vos communications avec
   votre représentant régional  {% email_region %}
 
+  <h3>Suivi du dossier</h3>
+ {% checkbox suivi.inscription_recue %} Inscription reçue<br/>
+{% checkbox suivi.inscription_validee %} Inscription validée<br/>
+  {% checkbox suivi.participation_confirmee %} Participation confirmée<br/>
+  {% checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
+
+
 {% endblock %}
 
 {% block extra_js %}

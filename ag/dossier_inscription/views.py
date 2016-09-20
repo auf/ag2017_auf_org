@@ -14,6 +14,7 @@ def dossier(request):
     context = {
         'inscription': inscription,
         'adresse': adresse,
+        'suivi': inscription.get_suivi_dossier(),
         'form_adresse': forms.AdresseForm(initial=adresse._asdict())
     }
     return render(request, 'dossier_inscription/dossier.html', context)

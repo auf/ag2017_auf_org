@@ -31,3 +31,9 @@ def email_region(context, subject=u""):
             region=context["inscription"].get_region().code,
             subject=subject)
     )
+
+
+@register.simple_tag()
+def checkbox(checked):
+    s = u'&#x2611;' if checked else u'&#x2610;'
+    return mark_safe(s)
