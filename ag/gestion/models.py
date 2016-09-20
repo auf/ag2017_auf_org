@@ -301,6 +301,10 @@ class ParticipantsActifsManager(ParticipantsManager):
 nouveau_participant = Signal()
 
 
+EN_COURS = 'E'
+COMPLETE = 'C'
+
+
 class Participant(RenseignementsPersonnels):
     ETABLISSEMENT = "E"
     INSTANCE_AUF = "I"
@@ -389,7 +393,7 @@ class Participant(RenseignementsPersonnels):
                                               default=False)
     statut_dossier_transport = CharField(
         u"Statut dossier", max_length=1,
-        choices=(('E', u"En cours"), ('C', u"Complété")), blank=True
+        choices=((EN_COURS, u"En cours"), (COMPLETE, u"Complété")), blank=True
     )
     modalite_retrait_billet = CharField(
         u"Modalité de retrait du billet",
