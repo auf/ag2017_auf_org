@@ -2,21 +2,24 @@
 {% load inscription %}
 {% block content %}
 <h2>Informations du participant</h2>
+  <p>
   {{ inscription.get_genre_display }} {{ inscription.nom }}
   {{ inscription.prenom }}<br/>
   {{ inscription.poste }}<br/>
   {{ inscription.courriel }}<br/>
   T:{{ inscription.telephone }}<br/>
   F:{{ inscription.telecopieur }}<br/>
-
+</p>
   {% if inscription.accompagnateur %}
     <h3>Accompagnateur personnel</h3>
+    <p>
     {{ inscription.get_accompagnateur_genre_display }}
     {{ inscription.accompagnateur_nom }},
-    {{ inscription.accompagnateur_prenom }}
+    {{ inscription.accompagnateur_prenom }}</p>
   {% endif %}
 
   <h3>Type d'inscription</h3>
+  <p>
   <strong>
   {% if inscription.est_pour_mandate %}
   Représentant mandaté
@@ -27,22 +30,64 @@
   Membre {{ inscription.get_etablissement.get_statut_display }} du
   {{ inscription.get_est_pour_sud_display }}
 
-
+</p>
   <h3>Adresse de facturation</h3>
   <div id="adresse-container">
   {% include "dossier_inscription/includes/adresse.html" %}
   </div>
 
 <h2>Statut du dossier</h2>
+  <p>
   Numéro de dossier: <strong>{{ inscription.numero_dossier }}</strong><br/>
   Veuillez utiliser ce numéro de dossier dans toutes vos communications avec
   votre représentant régional  {% email_region %}
-
+</p>
   <h3>Suivi du dossier</h3>
+  <p>
  {% checkbox suivi.inscription_recue %} Inscription reçue<br/>
 {% checkbox suivi.inscription_validee %} Inscription validée<br/>
   {% checkbox suivi.participation_confirmee %} Participation confirmée<br/>
   {% checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
+</p>
+
+<h2>État de compte</h2>
+{% if inscription.etablissement_delinquant %}
+  <p class="avertissement">
+    D'après les informations en notre possession, votre établissement n'est pas
+    à jour de sa cotisation à l'AUF. Votre inscription ne sera validée qu'après
+    règlement de l'année ou des années de cotisation impayées. Pour nous
+    contacter à ce sujet, merci d'écrire à {% email_region %} en rappelant votre
+    nom, numéro de dossier, ainsi que celui de votre établissement.
+  </p>
+{% endif %}
+
+{% ifequal solde 0 %}
+  <p>
+Vous avez acquitté tous vos frais de participation. Merci.
+Votre participation est confirmée! Félicitations!
+  {% ifequal inscription.paiement "CB" %}
+    <br/>Votre numéro de confirmation: {{ inscription.numeros_confirmation_paypal }}
+  {% endifequal %}
+  </p>
+{% else %}
+  <div class="avertissement">
+  <p>
+  <strong>Il vous reste un solde à payer de : {{ solde }}€</strong></p>
+  <p>
+  Les frais de participation à l'assemblée générale doivent être payés en euros
+  avant le 1er mars 2013.
+  Toute inscription dont le paiement complet n'est pas effectué avant cette date
+  ne sera pas validée.</p>
+  <p>
+  <em>Si vous ayez déjà envoyé votre paiement, il se peut qu'il soit toujours en
+  traitement de notre part. Dans ce cas, ignorez ce message.Tout paiement en
+  trop sera remboursé au compte
+  de la transaction.</em></p>
+</div>
+
+  <h3>Veuillez choisir un moyen de paiement</h3>
+{% endifequal %}
+
 
 
 {% endblock %}
