@@ -51,18 +51,18 @@ fieldset {border-top: 1px solid #efefef !important;}
 margin: 10px;
 }
 
-#contents #etapes {
+.contents #etapes {
 	width: 940px;
 }
 
-#contents #etapes li {
+.contents #etapes li {
 	display: inline-block;
 	margin-right: 8px;
 	padding-left: 30px;
 	background: url(img/separ2.png) left no-repeat;
 }
 
-#contents .etape_courante {
+.contents .etape_courante {
 	font-weight: bold;
 	color: #00334D !important;
 }
