@@ -391,19 +391,19 @@ a:hover>span.selectOption{
 	margin-bottom: 20px;
 }
 
-#contents{
+.contents{
 	width: 980px;
 	overflow: hidden;
 	margin: 0 auto;
 }
 
-#contents ul {
+.contents ul {
   margin: 0px 0 18px 4px;
 	font: 13px/18px Tahoma;
 	color: #2F2F2F;
 }
 
-#contents ul li {
+.contents ul li {
     background: url("img/puce.png") no-repeat scroll left center transparent;
     line-height: 16px;
     margin-bottom: 14px;
