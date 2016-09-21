@@ -18,7 +18,7 @@ from ag.tests import create_fixtures
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core import mail
-from django.test import TestCase
+import django.test
 from django.core.management import call_command
 
 ETAPES_INSCRIPTION_TEST = (
@@ -170,7 +170,7 @@ class EtapesProcessusTestCase(unittest.TestCase):
 
 # noinspection PyUnresolvedReferences
 @mock.patch('ag.inscription.views.inscriptions_terminees', lambda: False)
-class TestsInscription(TestCase, InscriptionTestMixin):
+class TestsInscription(django.test.TestCase, InscriptionTestMixin):
     fixtures = ['test_data.json']
 
     def setUp(self):
@@ -545,7 +545,7 @@ class TestsInscription(TestCase, InscriptionTestMixin):
 
 
 @mock.patch('ag.inscription.views.inscriptions_terminees', lambda: True)
-class FinInscriptionsTestCase(TestCase, InscriptionTestMixin):
+class FinInscriptionsTestCase(django.test.TestCase, InscriptionTestMixin):
     fixtures = ['test_data.json']
 
     def setUp(self):
