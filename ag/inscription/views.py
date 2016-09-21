@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import validate_email
+from django.db import transaction
 from django.dispatch import Signal
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -349,7 +350,7 @@ def ajout_invitations(request):
 def get_inscription_by_invoice_uid(invoice_uid):
     invoice = PaypalInvoice.objects.select_related('inscription')\
         .get(invoice_uid=invoice_uid)
-    return invoice.inscription
+    return invoice.inscription, invoice.invoice_uid
 
 
 def paypal_return(request):
@@ -360,8 +361,8 @@ def paypal_return(request):
         request_data=getattr(request, request.method).urlencode())
 
     validation_response = validate_pdt(tx)
-    invoice_uid = validation_response.response_dict.get('invoice', None)
-    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    invoice_uid_str = validation_response.response_dict.get('invoice', None)
+    inscription, invoice_uid = get_inscription_by_invoice_uid(invoice_uid_str)
     paypal_response.validated = validation_response.valid
     paypal_response.validation_response_data = validation_response.raw_response
     paypal_response.invoice_uid = invoice_uid
@@ -394,19 +395,20 @@ def dict_to_paypal_response(paypal_dict, paypal_response):
 
 
 @csrf_exempt
-@require_POST
+@transaction.non_atomic_requests
 def paypal_ipn(request):
     form = PaypalNotificationForm(request.POST)
-    assert form.is_valid()
+    assert form.is_valid(), form.errors
     txn_id = form.cleaned_data['txn_id']
-    invoice_uid = form.cleaned_data['invoice']
-    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    invoice_uid_str = form.cleaned_data['invoice']
+    inscription, invoice_uid = get_inscription_by_invoice_uid(invoice_uid_str)
     paypal_response = PaypalResponse.objects.create(
         type_reponse='IPN',
         txn_id=txn_id, invoice_uid=invoice_uid, inscription=inscription)
     paypal_response.request_data = request.body
-    valid, validation_response = is_ipn_valid(request)
     dict_to_paypal_response(form.cleaned_data, paypal_response)
+    paypal_response.save()
+    valid, validation_response = is_ipn_valid(request)
     paypal_response.validated = valid
     paypal_response.validation_response_data = validation_response
     paypal_response.save()
@@ -414,7 +416,7 @@ def paypal_ipn(request):
 
 
 def paypal_cancel(request, invoice_uid):
-    inscription = get_inscription_by_invoice_uid(invoice_uid)
+    inscription, invoice_uid = get_inscription_by_invoice_uid(invoice_uid)
     PaypalResponse.objects.create(
         invoice_uid=invoice_uid, inscription=inscription,
         type_reponse='CAN',

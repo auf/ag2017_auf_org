@@ -1,25 +1,30 @@
 # -*- encoding: utf-8 -*-
+import collections
 import unittest
 import html5lib
 import datetime
 
+import django.test
+import django.http
+import django.utils.http
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.core import mail
+from django.core.management import call_command
+
+
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
 from ag.reference.models import Etablissement, Pays
-
-from ag.core.test_utils import find_input_by_id
+from ag.inscription.views import paypal_ipn
+from ag.core.test_utils import find_input_by_id, InscriptionFactory
 import mock
 from ag.gestion.models import Participant, StatutParticipant
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
-    infos_montant_par_code, InvitationEnveloppe
+    infos_montant_par_code, InvitationEnveloppe, PaypalInvoice, PaypalResponse
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
-from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.core import mail
-import django.test
-from django.core.management import call_command
 
 ETAPES_INSCRIPTION_TEST = (
     {
@@ -648,3 +653,58 @@ class PreremplirTest(unittest.TestCase):
         assert i.code_postal == e.code_postal
         assert i.telephone == e.telephone
         assert i.courriel == i.invitation.courriel
+
+
+class PaypalCancelTests(django.test.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(PaypalCancelTests, cls).setUpClass()
+        inscription = InscriptionFactory()
+        cls.invoice = PaypalInvoice.objects.create(inscription=inscription,
+                                                   montant=100)
+        
+    def setUp(self):
+        url = reverse('paypal_cancel', args=(str(self.invoice.invoice_uid),))
+        self.response = self.client.get(url)
+
+    def test_status_code_redirect(self):
+        assert self.response.status_code == 302
+
+    def test_cancel_in_database(self):
+        responses = PaypalResponse.objects.filter(
+            type_reponse="CAN", invoice_uid=self.invoice.invoice_uid)
+        assert responses.count() == 1
+
+
+FakeRequest = collections.namedtuple('FakeRequest', ('body', 'POST', ))
+
+
+@mock.patch('ag.inscription.models.is_ipn_valid', lambda: (True, 'val_resp'))
+class PaypalIPNTests(django.test.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(PaypalIPNTests, cls).setUpClass()
+        inscription = InscriptionFactory()
+        cls.invoice = PaypalInvoice.objects.create(inscription=inscription,
+                                                   montant=100)
+
+    def setUp(self):
+        body = django.utils.http.urlencode({
+            "mc_gross": "150.0",
+            "mc_currency": "EUR",
+            "invoice": str(self.invoice.invoice_uid),
+            "payment_date": "12:13:14 Oct. 10, 2016 PST",
+            "payment_status": "ACCEPTED",
+            "pending_reason": "",
+            "txn_id": "the_txn_id",
+        })
+        # on ne peut pas utiliser client.post ici car la propriété
+        # request.body n'est alors pas accessible dans la vue
+        self.response = paypal_ipn(
+            FakeRequest(body=body, POST=django.http.QueryDict(body)))
+
+    def test_paypal_response_created_in_db(self):
+        assert PaypalResponse.objects.filter(
+            type_reponse='IPN',
+            invoice_uid=self.invoice.invoice_uid).count() == 1
+
