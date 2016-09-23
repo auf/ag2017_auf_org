@@ -413,12 +413,20 @@ class Inscription(RenseignementsPersonnels):
         return PaypalResponse.objects.accepted(self).exists()
 
     def paiement_paypal_total(self):
-        return PaypalResponse.objects.accepted(self).aggregate(
-            total=Sum('montant'))['total'] or 0
+        reponses_valides = PaypalResponse.objects.accepted(self)
+        total = 0
+        if reponses_valides:
+            encountered_txns = set()
+            for reponse in reponses_valides:
+                # il peut y en avoir plusieurs (PDT/IPN)
+                if reponse.txn_id not in encountered_txns:
+                    total += reponse.montant
+                    encountered_txns.add(reponse.txn_id)
+        return total
 
     def numeros_confirmation_paypal(self):
         return u', '.join([
-            paiement.numero_transaction
+            paiement.txn_id
             for paiement in PaypalResponse.objects.accepted(self)])
 
     def statut_paypal_text(self):
@@ -452,7 +460,8 @@ class PaypalResponseManager(models.Manager):
     def accepted(self, inscription):
         return self.filter(inscription=inscription,
                            statut__in=PaypalResponse.STATUS_ACCEPTED,
-                           montant__isnull=False)
+                           montant__isnull=False,
+                           validated=True)
 
 
 class PaypalResponse(models.Model):

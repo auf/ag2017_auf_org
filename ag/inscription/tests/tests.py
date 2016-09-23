@@ -721,3 +721,34 @@ class PaypalIPNTests(django.test.TestCase):
         assert PaypalResponse.objects.filter(
             type_reponse='IPN',
             invoice_uid=self.invoice.invoice_uid)[0].validated
+
+
+class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
+    def setUp(self):
+        super(InscriptionFonctionsPaypalTestCase, self).setUpClass()
+        i = self.i = InscriptionFactory()
+        invoice = PaypalInvoice.objects.create(inscription=i, montant=150)
+        PaypalResponse.objects.create(inscription=i, type_reponse="IPN",
+                                      montant=150, statut="Completed",
+                                      invoice_uid=invoice.invoice_uid,
+                                      validated=True)
+        PaypalResponse.objects.create(inscription=i, statut="Completed",
+                                      type_reponse="PDT", montant=150,
+                                      invoice_uid=invoice.invoice_uid,
+                                      validated=True)
+
+    def test_total_compte_une_fois(self):
+        # Il peut y avoir plusieurs confirmations pour la même transaction
+        # (IPN/PDT), mais quand on fait le total on ne doit compter qu'une fois
+        assert self.i.paiement_paypal_total() == 150
+
+    def test_paiement_paypal_ok(self):
+        assert self.i.paiement_paypal_ok()
+
+    def test_paiement_paypal_not_ok(self):
+        PaypalResponse.objects.update(validated=False)
+        assert not self.i.paiement_paypal_ok()
+
+    def test_total_0_if_not_validated(self):
+        PaypalResponse.objects.update(validated=False)
+        assert self.i.paiement_paypal_total() == 0
