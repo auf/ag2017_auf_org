@@ -505,7 +505,6 @@ def validate_pdt(tx_id):
 
 
 def is_ipn_valid(request):
-    print("cmd=_notify-validate&" + request.body)
     response = requests.post(
         settings.PAYPAL_URL,
         data="cmd=_notify-validate&" + request.body)
