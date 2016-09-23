@@ -470,7 +470,7 @@ class PaypalResponse(models.Model):
     )
     montant = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     devise = models.CharField(max_length=32, null=True)
-    invoice_uid = models.UUIDField(db_index=True)
+    invoice_uid = models.UUIDField(db_index=True, null=True)
     txn_id = models.CharField(max_length=250, db_index=True, null=True)
     statut = models.CharField(max_length=64, null=True)
     raison_attente = models.CharField(max_length=128, null=True)
