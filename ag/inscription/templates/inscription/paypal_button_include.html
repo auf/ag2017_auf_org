@@ -1,0 +1,5 @@
+<form class="valider-payer-form" method="post" action="{% url "make_paypal_invoice" %}">
+  {% csrf_token %}
+  <input type="submit" class="secondaryAction" name="confirmer"
+         value="Valider et procéder au paiement">
+</form>

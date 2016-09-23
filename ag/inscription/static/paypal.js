@@ -2,7 +2,7 @@
  * Created by benselme on 23/09/16.
  */
 $(function () {
-    $('#valider-payer-form').ajaxForm({
+    $('.valider-payer-form').ajaxForm({
         success: go_to_paypal
     })
 });
