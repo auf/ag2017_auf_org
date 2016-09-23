@@ -679,7 +679,7 @@ class PaypalCancelTests(django.test.TestCase):
 FakeRequest = collections.namedtuple('FakeRequest', ('body', 'POST', ))
 
 
-@mock.patch('ag.inscription.models.is_ipn_valid', lambda: (True, 'val_resp'))
+@mock.patch('ag.inscription.views.is_ipn_valid', lambda x: (True, 'val_resp'))
 class PaypalIPNTests(django.test.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -687,24 +687,37 @@ class PaypalIPNTests(django.test.TestCase):
         inscription = InscriptionFactory()
         cls.invoice = PaypalInvoice.objects.create(inscription=inscription,
                                                    montant=100)
-
-    def setUp(self):
         body = django.utils.http.urlencode({
             "mc_gross": "150.0",
             "mc_currency": "EUR",
-            "invoice": str(self.invoice.invoice_uid),
+            "invoice": str(cls.invoice.invoice_uid),
             "payment_date": "12:13:14 Oct. 10, 2016 PST",
             "payment_status": "ACCEPTED",
             "pending_reason": "",
             "txn_id": "the_txn_id",
         })
-        # on ne peut pas utiliser client.post ici car la propriété
-        # request.body n'est alors pas accessible dans la vue
-        self.response = paypal_ipn(
-            FakeRequest(body=body, POST=django.http.QueryDict(body)))
+        patcher = mock.patch('ag.inscription.views.is_ipn_valid')
+        fn_mock = patcher.start()
+        try:
+            fn_mock.return_value = (True, 'val_resp')
+            # on ne peut pas utiliser client.post ici car la propriété
+            # request.body n'est alors pas accessible dans la vue
+            cls.response = paypal_ipn(
+                FakeRequest(body=body, POST=django.http.QueryDict(body)))
+        finally:
+            patcher.stop()
 
     def test_paypal_response_created_in_db(self):
         assert PaypalResponse.objects.filter(
             type_reponse='IPN',
             invoice_uid=self.invoice.invoice_uid).count() == 1
 
+    def test_paypal_response_txn_id_in_db(self):
+        assert PaypalResponse.objects.filter(
+            type_reponse='IPN',
+            invoice_uid=self.invoice.invoice_uid)[0].txn_id == "the_txn_id"
+
+    def test_paypal_validated_in_db(self):
+        assert PaypalResponse.objects.filter(
+            type_reponse='IPN',
+            invoice_uid=self.invoice.invoice_uid)[0].validated

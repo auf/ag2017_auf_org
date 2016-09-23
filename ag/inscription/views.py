@@ -398,17 +398,19 @@ def dict_to_paypal_response(paypal_dict, paypal_response):
 @transaction.non_atomic_requests
 def paypal_ipn(request):
     form = PaypalNotificationForm(request.POST)
-    assert form.is_valid(), form.errors
-    txn_id = form.cleaned_data['txn_id']
-    invoice_uid_str = form.cleaned_data['invoice']
-    inscription, invoice_uid = get_inscription_by_invoice_uid(invoice_uid_str)
     paypal_response = PaypalResponse.objects.create(
-        type_reponse='IPN',
-        txn_id=txn_id, invoice_uid=invoice_uid, inscription=inscription)
-    paypal_response.request_data = request.body
-    dict_to_paypal_response(form.cleaned_data, paypal_response)
+        type_reponse='IPN', request_data=request.body)
+    if form.is_valid():
+        txn_id = form.cleaned_data['txn_id']
+        invoice_uid_str = form.cleaned_data['invoice']
+        inscription, inv_uid = get_inscription_by_invoice_uid(invoice_uid_str)
+        paypal_response.txn_id = txn_id
+        paypal_response.invoice_uid = inv_uid
+        paypal_response.inscription = inscription
+        dict_to_paypal_response(form.cleaned_data, paypal_response)
     paypal_response.save()
     valid, validation_response = is_ipn_valid(request)
+    print valid
     paypal_response.validated = valid
     paypal_response.validation_response_data = validation_response
     paypal_response.save()
