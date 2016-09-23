@@ -34,6 +34,6 @@ def email_region(context, subject=u""):
 
 
 @register.simple_tag()
-def checkbox(checked):
+def unicode_checkbox(checked):
     s = u'&#x2611;' if checked else u'&#x2610;'
     return mark_safe(s)
