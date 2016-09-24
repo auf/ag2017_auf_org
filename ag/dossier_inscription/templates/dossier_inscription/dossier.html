@@ -44,10 +44,10 @@
 </p>
   <h3>Suivi du dossier</h3>
   <p>
- {% checkbox suivi.inscription_recue %} Inscription reçue<br/>
-{% checkbox suivi.inscription_validee %} Inscription validée<br/>
-  {% checkbox suivi.participation_confirmee %} Participation confirmée<br/>
-  {% checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
+ {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
+{% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
+  {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
+  {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
 </p>
 
 <h2>État de compte</h2>
@@ -64,9 +64,14 @@
 {% ifequal solde 0 %}
   <p>
 Vous avez acquitté tous vos frais de participation. Merci.
-Votre participation est confirmée! Félicitations!
   {% ifequal inscription.paiement "CB" %}
-    <br/>Votre numéro de confirmation: {{ inscription.numeros_confirmation_paypal }}
+    <strong>Votre paiement a été effectué avec succès.</strong><br/>
+    Un accusé de réception électronique vous sera transmis par courriel dans les
+    plus brefs délais. Une facture sera émise lorsque votre participation sera
+    confirmée après vérification des informations fournies dans le
+    formulaire.<br/>
+    Votre numéro de confirmation Paypal:
+    {{ inscription.numeros_confirmation_paypal }}
   {% endifequal %}
   </p>
 {% else %}
@@ -86,10 +91,93 @@ Votre participation est confirmée! Félicitations!
 </div>
 
   <h3>Veuillez choisir un moyen de paiement</h3>
+  <div id="tabs-paiement">
+  <ul>
+    <li><a href="#tab-cb"><span>Carte Bancaire</span></a></li>
+    <li><a href="#tab-vb"><span>Virement bancaire</span></a></li>
+    <li><a href="#tab-ce"><span>Chèque en Euros</span></a></li>
+    <li><a href="#tab-dl"><span>Devise local</span></a></li>
+  </ul>
+  <div id="tab-cb">
+    {% if inscription.is_paiement_paypal_cancelled %}
+      <p class="avertissement">
+      Votre paiement en ligne n'a pas été complété!<br/>
+      Aucun montant n'a été débité de votre compte.<br/>
+      Recommencez ou choisissez une autre option de paiement.<br/>
+      Si vous éprouvez des difficultés, n'hésitez pas à nous contacter à
+      l'adresse suivante : {% email_region %}
+    {% include "inscription/paypal_button_include.html" with button_label="Paypal" %}
+      </p>
+
+    {% else %}
+    En choisissant cette option, vous serez redirigé sur la solution sécurisée
+    de paiement en ligne PayPal au compte de l'AUF.<br/>
+    Une fois votre paiement accepté par Paypal, veuillez cliquer sur le lien
+    "Retour à AG2017" pour finaliser la transaction et obtenir votre n° de
+    confirmation de paiement.
+    {% include "inscription/paypal_button_include.html" with button_label="Paypal" %}
+    {% endif %}
+  </div>
+  <div id="tab-vb">
+    Veuillez effectuer le virement bancaire aux coordonnées ci-dessous:<br/>
+    IMPORTANT: Indiquer le numéro de dossier dans le libellé de la
+    transaction.<br/>
+    À défaut, nous ne pourrons pas rapprocher votre paiement à votre dossier de
+    participation à l'assemblée générale.<br/>
+    <table>
+      <tr>
+        <td>Relevé d'identité bancaire</td>
+        <td>{{ info_virement.releve }}</td>
+      </tr>
+      <tr>
+        <td>Code banque</td>
+        <td>{{ info_virement.code_banque }}</td>
+      </tr>
+      <tr>
+        <td>Code guichet</td>
+        <td>{{ info_virement.code_guichet }}</td>
+      </tr>
+      <tr>
+        <td>Numéro de compte</td>
+        <td>{{ info_virement.num_compte }}</td>
+      </tr>
+      <tr>
+        <td>Clé RIB</td>
+        <td>{{ info_virement.cle_rib }}</td>
+      </tr>
+      <tr>
+        <td>Identifiant international</td>
+        <td>{{ info_virement.id_international }}</td>
+      </tr>
+      <tr>
+        <td>IBAN</td>
+        <td>{{ info_virement.iban }}</td>
+      </tr>
+      <tr>
+        <td>Code BIC</td>
+        <td>{{ info_virement.bic}}</td>
+      </tr>
+      <tr>
+        <td>Domiciliation</td>
+        <td>{{ info_virement.domiciliation }}</td>
+      </tr>
+      <tr>
+        <td>Titulaire</td>
+        <td>{{ info_virement.titulaire }}</td>
+      </tr>
+    </table>
+
+
+  </div>
+  <div id="tab-ce"></div>
+  <div id="tab-dl"></div>
+  </div>
+
+
 {% endifequal %}
 
 
-
+{% include "inscription/paypal_include.html" %}
 {% endblock %}
 
 {% block extra_js %}
@@ -117,6 +205,10 @@ function click_modifier_adresse(e) {
   $('#form-adresse').show();
 }
 
+$("#tabs-paiement").tabs();
 $(init_dossier);
 </script>
+<script type="text/javascript" src="{{ STATIC_URL }}paypal.js"></script>
+
+
 {% endblock %}

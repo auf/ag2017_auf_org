@@ -8,7 +8,7 @@ from urllib import unquote_plus
 import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
-from django.db.models import Sum
+from django.db.models import Sum, Q
 import requests
 from ag.reference.models import Etablissement
 from django.conf import settings
@@ -408,6 +408,11 @@ class Inscription(RenseignementsPersonnels):
             self.est_pour_mandate() and self.est_pour_sud() and
             self.get_etablissement().statut == "T"
         )
+
+    def is_paiement_paypal_cancelled(self):
+        return (not self.paiement_paypal_ok() and
+                PaypalResponse.objects.filter(inscription=self,
+                                              type_reponse='CAN').exists())
 
     def paiement_paypal_ok(self):
         return PaypalResponse.objects.accepted(self).exists()
