@@ -904,3 +904,7 @@ select {
     color: green;
     font-size: large;
 }
+
+input.invite-widget {
+    width: 90%;
+}

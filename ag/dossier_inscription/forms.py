@@ -9,3 +9,16 @@ class AdresseForm(forms.Form):
     ville = forms.CharField(max_length=100, required=True)
     code_postal = forms.CharField(max_length=100, required=True)
     pays = forms.CharField(max_length=100, required=True)
+
+
+class InviteForm(forms.Form):
+    nom = forms.CharField(max_length=100)
+    prenom = forms.CharField(label=u"prénom", max_length=100)
+    courriel = forms.EmailField()
+
+    def __init__(self, *args, **kwargs):
+        super(InviteForm, self).__init__(*args, **kwargs)
+        for field in self:
+            field.field.widget.attrs['class'] = 'invite-widget'
+
+InvitesFormSet = forms.formset_factory(InviteForm, extra=2)

@@ -18,6 +18,7 @@ def dossier(request):
         return redirect('connexion_inscription')
     inscription = InscriptionFermee.objects.get(id=inscription_id)
     adresse = inscription.get_adresse()
+    invites_formset = forms.InvitesFormSet()
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
@@ -25,7 +26,11 @@ def dossier(request):
         'suivi': inscription.get_suivi_dossier(),
         'solde': inscription.get_total_du(),
         'form_adresse': forms.AdresseForm(initial=adresse._asdict()),
-        'info_virement': INFOS_VIREMENT[inscription.get_region().code]
+        'info_virement': INFOS_VIREMENT.get(inscription.get_region().code),
+        'region': inscription.get_region(),
+        'invitations_accompagnateurs':
+            inscription.get_invitations_accompagnateurs(),
+        'invites_formset': invites_formset,
     }
     context.update(inscription_views.get_paypal_context(request))
     return render(request, 'dossier_inscription/dossier.html', context)

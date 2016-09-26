@@ -169,13 +169,89 @@ Vous avez acquitté tous vos frais de participation. Merci.
 
 
   </div>
-  <div id="tab-ce"></div>
-  <div id="tab-dl"></div>
+  <div id="tab-ce">
+    <p>Produire le chèque à l'ordre de : Agence universitaire de la
+      Francophonie</p>
+
+    <p>
+      Transmettre votre chèque par courrier avec votre dossier d'inscription
+      imprimé.<br/>
+      Adresse postale pour la région {{ region.nom }} :<br/>
+            {{ region.adresse }}
+    </p>
   </div>
+  <div id="tab-dl">
+    <strong>Paiement en devises locales</strong><br/>
+    <p>Le paiement en devises locales (espèces, chèque, virement), peut
+      s'effectuer
+      dans toutes les implantations de l’Agence universitaire de la
+      Francophonie.
+      Rendez-vous dans une de nos implantation avec votre dossier d'inscription
+      imprimé et une preuve d'identité.
+    </p>
+    Parcourir les Implantations de la région {{ region.nom }}
+    https://www.auf.org/implantations/?region={{ region.id }}
 
-
+  </div>
+  </div>
+  <br/>
+  <div class="avertissement">
+    <strong>Le paiement en ligne par carte bancaire au terme de l'inscription
+      est à privilégier. </strong>
+    À l'exception du paiement en ligne, veuillez vous assurer d'obtenir votre
+    preuve de paiement (copie d’ordre de virement bancaire, reçu de paiement
+    dans une implantation AUF, etc.).<br/>
+    <br/>
+    Toute preuve de paiement doit mentionner le :<br/>
+    <ul>
+      <li><strong>numéro de confirmation d'inscription</strong></li>
+      <li><strong>le nom de la personne inscrite</strong></li>
+      <li><strong>le nom de son établissement.</strong></li>
+    </ul>
+  À défaut, nous ne pourrons pas valider votre paiement et votre participation à
+  l'assemblée générale ne sera pas tenue en compte.
+  </div>
 {% endifequal %}
+{% if inscription.est_pour_mandate %}
+  <h2>Accompagnateurs institutionels</h2>
+  <strong>Invitations aux accompagnateurs</strong><br/>
+  <p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur
+  de votre établissement en indiquant leur Nom, Prénom et Adresse électronique.
+  Revenez en tout temps pour envoyer d'autres invitations et suivre le statut de
+  vos invitations.</p>
+  {% if invitations_accompagnateurs %}
+    <h3>Invitations envoyées:</h3>
+    <ul>
+    {% for invitation in invitations_accompagnateurs %}
+      <li>{{ invitation.nom }}, {{ invitation.prenom }},
+        {{ invitation.courriel }} STATUT??
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  <h3>Formulaire d'invitation</h3>
+  Saisissez un invité par ligne
+  <form id="invitations">
+  {{ invites_formset.management_form }}
+  {{ formset.non_form_errors.as_ul }}
+  <table>
+    <thead>
+    <tr><th>Nom</th><th>Prénom</th><th>Courriel</th></tr>
+    </thead>
+    <tbody>
+    {% for form in invites_formset %}
+    <tr>
+    <td>{{ form.nom }}</td>
+    <td>{{ form.prenom }}</td>
+    <td>{{ form.courriel }}</td>
+    </tr>
+    {% endfor %}
 
+    </tbody>
+  </table>
+  </form>
+
+{% endif %}
 
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
