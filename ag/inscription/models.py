@@ -105,6 +105,9 @@ class Invitation(models.Model):
     pour_mandate = models.BooleanField(default=False)
     courriel = models.EmailField(null=True)  # si non spécifié par établissement
     jeton = models.CharField(max_length=TAILLE_JETON, default=generer_jeton)
+    # optionel, utilisé pour les invités (non mandatés)
+    nom = models.CharField(max_length=100, null=True)
+    prenom = models.CharField(max_length=100, null=True)
 
     def get_region(self):
         return self.etablissement.region
@@ -387,6 +390,9 @@ class Inscription(RenseignementsPersonnels):
             self.prenom = etablissement.responsable_prenom
             self.genre = etablissement.responsable_genre
             self.poste = etablissement.responsable_fonction
+        else:
+            self.nom = self.invitation.nom
+            self.prenom = self.invitation.prenom
 
     def get_invitations_accompagnateurs(self):
         if self.est_pour_mandate():

@@ -613,7 +613,7 @@ def test_inscription_terminee():
 
 
 class PreremplirTest(unittest.TestCase):
-    def get_inscription(self, pour_mandate):
+    def get_inscription(self, pour_mandate, nom=None, prenom=None):
         p = Pays(nom=u"pppp")
         etablissement = Etablissement(
             nom=u"eeee", adresse=u"adr", ville=u"laville",
@@ -623,15 +623,17 @@ class PreremplirTest(unittest.TestCase):
             responsable_genre=u"F")
         invitation = Invitation(pour_mandate=pour_mandate,
                                 etablissement=etablissement,
-                                courriel=u"invitation@courriel.com")
+                                courriel=u"invitation@courriel.com",
+                                nom=nom, prenom=prenom)
         inscription = Inscription(invitation=invitation)
         inscription.preremplir()
         return inscription
 
     def test_pas_pour_mandate_renseignements_personnels_non_remplis(self):
-        i = self.get_inscription(pour_mandate=False)
-        assert not i.nom
-        assert not i.prenom
+        i = self.get_inscription(pour_mandate=False, nom="nom_invite",
+                                 prenom="prenom_invite")
+        assert i.nom == "nom_invite"
+        assert i.prenom == "prenom_invite"
         assert not i.poste
         assert not i.genre
 
@@ -662,7 +664,7 @@ class PaypalCancelTests(django.test.TestCase):
         inscription = InscriptionFactory()
         cls.invoice = PaypalInvoice.objects.create(inscription=inscription,
                                                    montant=100)
-        
+
     def setUp(self):
         url = reverse('paypal_cancel', args=(str(self.invoice.invoice_uid),))
         self.response = self.client.get(url)
