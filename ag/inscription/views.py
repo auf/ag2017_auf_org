@@ -410,7 +410,6 @@ def paypal_ipn(request):
         dict_to_paypal_response(form.cleaned_data, paypal_response)
     paypal_response.save()
     valid, validation_response = is_ipn_valid(request)
-    print valid
     paypal_response.validated = valid
     paypal_response.validation_response_data = validation_response
     paypal_response.save()
