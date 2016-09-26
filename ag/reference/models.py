@@ -21,6 +21,7 @@ class Pays(models.Model):
 class Region(models.Model):
     code = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255)
+    adresse = models.TextField(null=True)
 
     def __unicode__(self):
         return self.nom
