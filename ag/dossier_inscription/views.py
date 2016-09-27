@@ -92,6 +92,23 @@ def envoyer_invitations(inscription, formset):
             return False
 
 
+@require_POST
+def reseautage_on_off(request):
+    inscription_id = request.session.get('inscription_id', None)
+    if not inscription_id:
+        return redirect('connexion_inscription')
+    inscription = InscriptionFermee.objects.get(id=inscription_id)
+    print(request.POST)
+    if request.POST.get('accepte_reseautage'):
+        print('reseautage!')
+        inscription.reseautage = True
+        inscription.save()
+    if request.POST.get('refuse_reseautage'):
+        inscription.reseautage = False
+        inscription.save()
+    return redirect(reverse('dossier_inscription') + '#reseautage')
+
+
 INFOS_VIREMENT = {
     "AP": InfoVirement(
         nom_region="Asie Pacifique",

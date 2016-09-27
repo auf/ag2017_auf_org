@@ -256,6 +256,29 @@ Vous avez acquitté tous vos frais de participation. Merci.
   </form>
   {% endif %}
 {% endif %}
+  <a id="reseautage"></a>
+  <h2>Rencontres réseautage</h2>
+  <p> L'assemblée générale vous offre la possibilité de programmer des
+    rencontres
+    avec les représentants de établissements participants à l'AG. Nous pouvons
+    vous assister dans l'organisation de ces rencontres.
+  </p>
+  {% if not inscription.reseautage %}
+    <p> Pour ce faire, vous devez accepter de divulguer votre adresse courriel
+      aux       autres participants (seulement pour ceux qui ont aussi accepté).
+    </p>
+    <form method="post" action="{% url "reseautage_on_off" %}">
+      {% csrf_token %}
+      <input name="accepte_reseautage" type="submit"
+             value="J'accepte de partager mon adresse courriel"/>
+    </form>
+  {% else %}
+    <form method="post" action="{% url "reseautage_on_off" %}">
+      {% csrf_token %}
+      <input name="refuse_reseautage" type="submit"
+             value="Je ne veux plus partager mon adresse courriel"/>
+    </form>
+  {% endif %}
 
 {% include "inscription/paypal_include.html" %}
 {% endblock %}

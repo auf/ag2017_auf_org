@@ -263,6 +263,7 @@ class Inscription(RenseignementsPersonnels):
 #     paypal_cancel = models.NullBooleanField()
 
     numero_dossier = models.CharField(max_length=8, unique=True, null=True)
+    reseautage = models.BooleanField(default=False)
 
     @property
     def numero(self):
