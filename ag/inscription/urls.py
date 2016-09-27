@@ -12,7 +12,6 @@ urlpatterns = patterns(
         name='conditions_generales'),
     url(r'^connexion/(\w+)$', 'connexion_inscription',
         name='connexion_inscription'),
-    url(r'^ajout_invitations/$', 'ajout_invitations', name='ajout_invitations'),
     url(r'^retour_paypal/$', 'paypal_return', name='paypal_return'),
     url(r'^notification_ipn_paypal/$', 'paypal_ipn', name='paypal_ipn'),
     url(r'^annulation_paypal/([-\w]+)$', 'paypal_cancel', name='paypal_cancel'),

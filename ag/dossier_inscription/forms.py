@@ -12,9 +12,9 @@ class AdresseForm(forms.Form):
 
 
 class InviteForm(forms.Form):
-    nom = forms.CharField(max_length=100)
-    prenom = forms.CharField(label=u"prénom", max_length=100)
-    courriel = forms.EmailField()
+    nom = forms.CharField(max_length=100, required=True)
+    prenom = forms.CharField(label=u"prénom", max_length=100, required=True)
+    courriel = forms.EmailField(required=True)
 
     def __init__(self, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)

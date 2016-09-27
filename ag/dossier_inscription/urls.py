@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 from django.conf.urls import patterns, url
-from .views import dossier, set_adresse
+from .views import dossier, set_adresse, envoyer_invitations
 
 urlpatterns = patterns(
     'ag.dossier_inscription.views',

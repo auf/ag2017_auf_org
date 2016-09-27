@@ -1,8 +1,11 @@
 # -*- encoding: utf-8 -*-
 import collections
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from ag.inscription.models import Invitation, InvitationEnveloppe
 import ag.inscription.views as inscription_views
+import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
 from ag.dossier_inscription.models import InscriptionFermee, Adresse
 
@@ -18,7 +21,15 @@ def dossier(request):
         return redirect('connexion_inscription')
     inscription = InscriptionFermee.objects.get(id=inscription_id)
     adresse = inscription.get_adresse()
-    invites_formset = forms.InvitesFormSet()
+    if request.method == 'POST':
+        invites_formset = forms.InvitesFormSet(request.POST)
+        if envoyer_invitations(inscription, invites_formset):
+            # si pas d'erreur on présente des formulaires vides pour
+            # autres invités
+            invites_formset = forms.InvitesFormSet()
+    else:
+        invites_formset = forms.InvitesFormSet()
+
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
@@ -31,6 +42,7 @@ def dossier(request):
         'invitations_accompagnateurs':
             inscription.get_invitations_accompagnateurs(),
         'invites_formset': invites_formset,
+        'inscriptions_terminees': inscription_views.inscriptions_terminees(),
     }
     context.update(inscription_views.get_paypal_context(request))
     return render(request, 'dossier_inscription/dossier.html', context)
@@ -49,6 +61,35 @@ def set_adresse(request):
     return render(request, 'dossier_inscription/includes/adresse.html',
                   {'adresse': inscription.get_adresse(),
                    'form_adresse': form_adresse})
+
+
+def envoyer_invitations(inscription, formset):
+    if (inscription.fermee and inscription.est_pour_mandate() and
+            not inscription_views.inscriptions_terminees()):
+        if formset.is_valid():
+            modele_courriel = mailing.ModeleCourriel.objects.get(code='acc')
+            for form in formset:
+                if not form.cleaned_data:
+                    continue
+                nom = form.cleaned_data['nom']
+                prenom = form.cleaned_data['prenom']
+                adresse = form.cleaned_data['courriel']
+                if not Invitation.objects.filter(courriel=adresse).count():
+                    enveloppe = mailing.Enveloppe(modele=modele_courriel)
+                    enveloppe.save()
+                    invitation = Invitation(
+                        courriel=adresse, pour_mandate=False,
+                        etablissement=inscription.get_etablissement(),
+                        nom=nom, prenom=prenom
+                    )
+                    invitation.save()
+                    invitation_enveloppe = InvitationEnveloppe(
+                        invitation=invitation, enveloppe=enveloppe
+                    )
+                    invitation_enveloppe.save()
+            return True
+        else:
+            return False
 
 
 INFOS_VIREMENT = {

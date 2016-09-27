@@ -314,39 +314,6 @@ def calcul_frais_programmation(request):
     return HttpResponse(str(int(total)))
 
 
-@require_POST
-def ajout_invitations(request):
-    inscription_id = request.session.get('inscription_id', None)
-    if not inscription_id:
-        return redirect('connexion_inscription')
-    inscription = Inscription.objects.get(id=inscription_id)
-    if (inscription.fermee and inscription.est_pour_mandate() and
-            not inscriptions_terminees()):
-        liste_adresses_text = request.POST['liste_adresses']
-        liste_adresses = liste_adresses_text.splitlines()
-        modele_courriel = ModeleCourriel.objects.get(code='acc')
-        for adresse in liste_adresses:
-            try:
-                validate_email(adresse)
-                if not Invitation.objects.filter(courriel=adresse).count():
-                    enveloppe = Enveloppe(modele=modele_courriel)
-                    enveloppe.save()
-                    invitation = Invitation(
-                        courriel=adresse, pour_mandate=False,
-                        etablissement=inscription.get_etablissement()
-                    )
-                    invitation.save()
-                    invitation_enveloppe = InvitationEnveloppe(
-                        invitation=invitation, enveloppe=enveloppe
-                    )
-                    invitation_enveloppe.save()
-            except ValidationError:
-                pass
-    return redirect(
-        reverse('processus_inscription', args=['confirmation']) + '#invitation'
-    )
-
-
 def get_inscription_by_invoice_uid(invoice_uid):
     invoice = PaypalInvoice.objects.select_related('inscription')\
         .get(invoice_uid=invoice_uid)

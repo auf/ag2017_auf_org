@@ -213,6 +213,7 @@ Vous avez acquitté tous vos frais de participation. Merci.
   </div>
 {% endifequal %}
 {% if inscription.est_pour_mandate %}
+  <a id="invitations"></a>
   <h2>Accompagnateurs institutionels</h2>
   <strong>Invitations aux accompagnateurs</strong><br/>
   <p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur
@@ -229,11 +230,13 @@ Vous avez acquitté tous vos frais de participation. Merci.
     {% endfor %}
     </ul>
   {% endif %}
+  {% if not inscriptions_terminees %}
   <h3>Formulaire d'invitation</h3>
   Saisissez un invité par ligne
-  <form id="invitations">
+  <form id="invitations" method="post" action="{% url "dossier_inscription" %}#invitations">
   {{ invites_formset.management_form }}
   {{ formset.non_form_errors.as_ul }}
+  {% csrf_token %}
   <table>
     <thead>
     <tr><th>Nom</th><th>Prénom</th><th>Courriel</th></tr>
@@ -241,27 +244,37 @@ Vous avez acquitté tous vos frais de participation. Merci.
     <tbody>
     {% for form in invites_formset %}
     <tr>
-    <td>{{ form.nom }}</td>
-    <td>{{ form.prenom }}</td>
-    <td>{{ form.courriel }}</td>
+    <td>{{ form.nom }}{{ form.nom.errors }} </td>
+    <td>{{ form.prenom }}{{ form.prenom.errors }}</td>
+    <td>{{ form.courriel }}{{ form.courriel.errors }}</td>
     </tr>
     {% endfor %}
 
     </tbody>
   </table>
+  <input type="submit" value="Envoyer les invitations"/>
   </form>
-
+  {% endif %}
 {% endif %}
 
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
 
 {% block extra_js %}
+<script type="text/javascript"
+        src="{{ STATIC_URL }}scripts/jquery.formset.min.js"></script>
 <script type="text/javascript">
 function init_dossier() {
   $("#adresse-container").on('click', '#modifier-adresse' ,
       click_modifier_adresse);
   ajaxify_form_adresse();
+
+  $(function() {
+      $('#invitations tr').formset({
+          addText:'Ajouter un invité',
+          deleteText: ''
+      });
+  });
 }
 
 function ajaxify_form_adresse() {
