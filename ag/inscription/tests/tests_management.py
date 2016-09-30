@@ -16,6 +16,7 @@ def test_invitation_enveloppe_creee():
     etablissement = EtablissementFactory()
     creer_invitation_enveloppe_mandate(modele, etablissement)
     assert InvitationEnveloppe.objects.filter(
+        invitation__courriel=etablissement.responsable_courriel,
         invitation__etablissement=etablissement,
         invitation__pour_mandate=True,
         enveloppe__modele=modele).count() == 1

@@ -908,3 +908,13 @@ select {
 input.invite-widget {
     width: 90%;
 }
+
+#filtre-reseautage table {
+    background-color: transparent;
+    width: auto;
+}
+
+#filtre-reseautage table td {
+    border:None;
+    padding: 0;
+}

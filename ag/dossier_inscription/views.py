@@ -3,11 +3,12 @@ import collections
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
-from ag.inscription.models import Invitation, InvitationEnveloppe
+from ag.inscription.models import Invitation, InvitationEnveloppe, Inscription
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
 from ag.dossier_inscription.models import InscriptionFermee, Adresse
+from ag.reference.models import Region, Pays
 
 InfoVirement = collections.namedtuple(
     'InfoVirement', ('nom_region', 'releve', 'code_banque', 'code_guichet',
@@ -30,6 +31,7 @@ def dossier(request):
     else:
         invites_formset = forms.InvitesFormSet()
 
+
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
@@ -44,6 +46,44 @@ def dossier(request):
         'invites_formset': invites_formset,
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
     }
+
+    if inscription.reseautage:
+        liste_reseautage = Inscription.objects\
+            .filter(reseautage=True, fermee=True)\
+            .exclude(pk=inscription.id)\
+            .select_related('invitation', 'invitation__etablissement',
+                            'invitation__etablissement__region',
+                            'invitation__etablissement__pays')\
+            .order_by('nom', 'prenom')
+        region = request.GET.get('region')
+        pays = request.GET.get('pays') if region else None
+        if region:
+            liste_reseautage = liste_reseautage.filter(
+                invitation__etablissement__region__id=region)
+        if pays:
+            liste_reseautage = liste_reseautage.filter(
+                invitation__etablissement__pays__id=pays)
+        regions_inscriptions = Inscription.objects\
+            .filter(reseautage=True)\
+            .values_list('invitation__etablissement__region', flat=True)\
+            .distinct()
+        regions = [(r.id, r.nom) for r in
+                   Region.objects.filter(id__in=regions_inscriptions)]
+        pays_inscriptions = Inscription.objects\
+            .filter(invitation__etablissement__region=region,
+                    reseautage=True)\
+            .values_list('invitation__etablissement__pays', flat=True)\
+            .distinct() if region else []
+        payss = [(p.id, p.nom) for p in
+                 Pays.objects.filter(id__in=pays_inscriptions)]
+        form_filtre_reseautage = forms.FiltreReseautageForm(
+            [(None, 'Toutes')] + regions,
+            [(None, 'Tous')] + payss, initial={'region': region,
+                                               'pays': pays})
+
+        context['liste_reseautage'] = list(liste_reseautage)
+        context['form_filtre_reseautage'] = form_filtre_reseautage
+
     context.update(inscription_views.get_paypal_context(request))
     return render(request, 'dossier_inscription/dossier.html', context)
 

@@ -22,3 +22,13 @@ class InviteForm(forms.Form):
             field.field.widget.attrs['class'] = 'invite-widget'
 
 InvitesFormSet = forms.formset_factory(InviteForm, extra=2)
+
+
+class FiltreReseautageForm(forms.Form):
+    region = forms.ChoiceField(label=u"Région", required=False)
+    pays = forms.ChoiceField(required=False)
+
+    def __init__(self, regions, pays, *args, **kwargs):
+        super(FiltreReseautageForm, self).__init__(*args, **kwargs)
+        self.fields['region'].choices = regions
+        self.fields['pays'].choices = pays

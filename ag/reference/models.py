@@ -27,7 +27,7 @@ class Region(models.Model):
         return self.nom
 
     def __repr__(self):
-        return u"<Région: {}>".format(self.nom)
+        return "<Région: {}>".format(self.id)
 
 
 class Etablissement(models.Model):
