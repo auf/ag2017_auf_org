@@ -253,7 +253,8 @@ Vous avez acquitté tous vos frais de participation. Merci.
 
     </tbody>
   </table>
-  <input type="submit" value="Envoyer les invitations"/>
+  <button name="submit-invites-formset" type="submit">
+    Envoyer les invitations</button>
   </form>
   {% endif %}
 {% endif %}
@@ -343,6 +344,47 @@ Vous avez acquitté tous vos frais de participation. Merci.
 {#    Votre badge vous sera remis à l'accueil de l'assemblée générale.#}
 
 
+  {% if not inscription.prise_en_charge_transport %}
+    <br/>
+    <a id="plan-vol"></a>
+    <h2>Renseignements sur mon plan de vol</h2>
+    <p> La saisie facultative de ces informations permettra à l'AUF de planifier
+      les navettes d'accueil et les départ à l'aéroport de Marrakech.(sous
+      réserve de disponibilité)</p>
+    <form id="plan-vol-dossier" method="POST"
+          action="{% url "dossier_inscription" %}#plan-vol">
+      {% csrf_token %}
+      <table>
+        <tr>
+          <td>Date d'arrivée</td>
+          <td>{{ plan_vol_form.arrivee_date }}
+          {{ plan_vol_form.arrivee_date.errors }}</td>
+          <td>Date de départ</td>
+          <td>{{ plan_vol_form.depart_date }}
+          {{ plan_vol_form.depart_date.errors }}</td>
+        </tr>
+        <tr>
+          <td>Heurre d'arrivée</td>
+          <td>{{ plan_vol_form.arrivee_heure }}
+          {{ plan_vol_form.arrivee_heure.errors }}</td>
+          <td>Heure de départ</td>
+          <td>{{ plan_vol_form.depart_heure }}
+          {{ plan_vol_form.depart_heure.errors }}</td>
+        </tr>
+        <tr>
+          <td>Compagnie/N<sup>o</sup> de vol</td>
+          <td>{{ plan_vol_form.arrivee_vol }}
+          {{ plan_vol_form.arrivee_vol.errors }}</td>
+          <td>Compagnie/N<sup>o</sup> de vol</td>
+          <td>{{ plan_vol_form.depart_vol }}
+          {{ plan_vol_form.depart_vol.errors }}</td>
+        </tr>
+      </table>
+  <button name="submit-plan-vol-form" type="submit">
+    Enregistrer</button>
+    </form>
+  {% endif %}
+
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
 
@@ -361,6 +403,8 @@ function init_dossier() {
           addText:'Ajouter un invité',
           deleteText: ''
       });
+      $('#id_arrivee_date').datepicker();
+      $('#id_depart_date').datepicker();
   });
 }
 

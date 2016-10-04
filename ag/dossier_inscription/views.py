@@ -17,13 +17,8 @@ InfoVirement = collections.namedtuple(
                      'bic', 'domiciliation', 'titulaire'))
 
 
-def dossier(request):
-    inscription_id = request.session.get('inscription_id', None)
-    if not inscription_id:
-        return redirect('connexion_inscription')
-    inscription = InscriptionFermee.objects.get(id=inscription_id)
-    adresse = inscription.get_adresse()
-    if request.method == 'POST':
+def handle_invites_formset(request, inscription):
+    if request.method == 'POST' and 'submit-invites-formset' in request.POST:
         invites_formset = forms.InvitesFormSet(request.POST)
         if envoyer_invitations(inscription, invites_formset):
             # si pas d'erreur on présente des formulaires vides pour
@@ -31,6 +26,25 @@ def dossier(request):
             invites_formset = forms.InvitesFormSet()
     else:
         invites_formset = forms.InvitesFormSet()
+    return invites_formset
+
+
+def handle_plan_vol_form(request, inscription):
+    if request.method == 'POST' and 'submit-plan-vol-form' in request.POST:
+        form = forms.PlanVolForm(request.POST, instance=inscription)
+        if form.is_valid():
+            form.save()
+    else:
+        form = forms.PlanVolForm(instance=inscription)
+    return form
+
+
+def dossier(request):
+    inscription_id = request.session.get('inscription_id', None)
+    if not inscription_id:
+        return redirect('connexion_inscription')
+    inscription = InscriptionFermee.objects.get(id=inscription_id)
+    adresse = inscription.get_adresse()
 
 
     # noinspection PyProtectedMember
@@ -44,10 +58,11 @@ def dossier(request):
         'region': inscription.get_region(),
         'invitations_accompagnateurs':
             inscription.get_invitations_accompagnateurs(),
-        'invites_formset': invites_formset,
+        'invites_formset': handle_invites_formset(request, inscription),
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
         'avant_15_decembre': (datetime.datetime.today() <
                               datetime.datetime(2016, 12, 15)),
+        'plan_vol_form': handle_plan_vol_form(request, inscription)
     }
 
     if inscription.reseautage:

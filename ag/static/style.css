@@ -943,3 +943,12 @@ input.invite-widget {
     padding: 5px;
     border: 1px solid lightgray;
 }
+
+#plan-vol-dossier td {
+    width: 25%;
+    vertical-align: middle;
+}
+
+#plan-vol-dossier input[type="text"] {
+    width: 90%;
+}

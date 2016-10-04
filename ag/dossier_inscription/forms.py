@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 from django import forms
+import ag.inscription.models
 
 
 class AdresseForm(forms.Form):
@@ -32,3 +33,10 @@ class FiltreReseautageForm(forms.Form):
         super(FiltreReseautageForm, self).__init__(*args, **kwargs)
         self.fields['region'].choices = regions
         self.fields['pays'].choices = pays
+
+
+class PlanVolForm(forms.ModelForm):
+    class Meta:
+        model = ag.inscription.models.Inscription
+        fields = ('depart_date', 'depart_heure', 'depart_vol',
+                  'arrivee_date', 'arrivee_heure', 'arrivee_vol')
