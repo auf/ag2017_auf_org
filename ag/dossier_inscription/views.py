@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 import collections
+import datetime
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
@@ -45,6 +46,8 @@ def dossier(request):
             inscription.get_invitations_accompagnateurs(),
         'invites_formset': invites_formset,
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
+        'avant_15_decembre': (datetime.datetime.today() <
+                              datetime.datetime(2016, 12, 15)),
     }
 
     if inscription.reseautage:

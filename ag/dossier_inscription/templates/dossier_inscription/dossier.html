@@ -291,6 +291,57 @@ Vous avez acquitté tous vos frais de participation. Merci.
 
 
   {% endif %}
+  <br/>
+  <h2>Activités</h2>
+
+  {% unicode_checkbox inscription.programmation_soiree_9_mai %}
+  Dîner du 9 mai<br/>
+  {% unicode_checkbox inscription.programmation_soiree_10_mai %}
+  Dîner du 10 mai<br/>
+  {% unicode_checkbox inscription.programmation_gala %}
+  Dîner de gala du 11 mai<br/>
+  {% if inscription.accompagnateur %}
+    <h3>Forfaits sélectionnés pour votre accompagnateur personnel</h3>
+    {% unicode_checkbox inscription.programmation_soiree_9_mai_invite %}
+    Dîner du 9 mai<br/>
+    {% unicode_checkbox inscription.programmation_soiree_10_mai_invite %}
+    Dîner du 10 mai<br/>
+    {% unicode_checkbox inscription.programmation_gala_invite %}
+    Dîner de gala du 11 mai<br/>
+    {% unicode_checkbox inscription.forfait_invite_dejeuners %}
+    Forfait 3 Déjeuners (9,10 et 11)<br/>
+    {% unicode_checkbox inscription.forfait_invite_transfert %}
+    2 transferts aéroport et hôtel<br/>
+  {% endif %}
+
+  <br/>
+  <h2>Informations de voyage</h2>
+  {% if inscription.prise_en_charge_hebergement %}
+  <h3>Hébergement</h3>
+  <p>
+    L'AUF a obtenu des tarifs négociés à l’hôtel Mogador, qui héberge le centre
+    des congrès ou se déroule l'AG. Obtenez ce tarif en spécifiant le code
+    promotionnel <strong>AG2017AUF</strong> lors de votre réservation.
+    La réservation de chambre peut être effectuée sur le site Internet sécurisé
+    de la centrale de réservations l'adresse suivante : 
+    <a href="https://almax.compassreservations.com/compass/external/index.cfm?Meeting_ID=58&Meeting_ID_code=529894856&code=AUF2013">
+    https://almax.compassreservations.com/compass/external/index.cfm?Meeting_ID=58&Meeting_ID_code=529894856&code=AUF2013
+    </a>
+  </p>
+  {% if avant_15_decembre %}
+    <p class="avertissement">
+      Bénéficiez d'une réduction supplémentaire en réservant avant le 15
+      décembre.
+    </p>
+  {% endif %}
+  {% endif %}
+  {#    {% ifequal inscription.type_chambre_hotel "2" %}#}
+{#      {% unicode_checkbox True %}#}
+{#      Chambre double<br/>#}
+{#    {% endifequal %}#}
+{#    Présentez-vous au comptoir de l’hôtel avec votre badge.#}
+{#    Votre badge vous sera remis à l'accueil de l'assemblée générale.#}
+
 
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
