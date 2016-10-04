@@ -912,9 +912,34 @@ input.invite-widget {
 #filtre-reseautage table {
     background-color: transparent;
     width: auto;
+    margin-bottom: 6px;
 }
 
 #filtre-reseautage table td {
     border:None;
     padding: 0;
+}
+
+.table-reseautage {
+    margin-bottom: 6px;
+    width: 60%;
+}
+
+.table-reseautage td {
+    border:None;
+    padding: 0;
+}
+
+.table-reseautage tr td:first-of-type {
+    width: 60%;
+}
+
+#participants-reseautage {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+#participants-reseautage-wrapper {
+    padding: 5px;
+    border: 1px solid lightgray;
 }

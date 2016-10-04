@@ -1,5 +1,5 @@
 <div>
-  <form id="filtre-reseautage">
+  <form id="filtre-reseautage" action="{% url "dossier_inscription" %}#reseautage">
     <table>
       <tr>
         <td>Région</td>
@@ -13,21 +13,27 @@
   </form>
 </div>
 
+<div id="participants-reseautage-wrapper">
+<div id="participants-reseautage">
 {% for inscription in liste_reseautage %}
-<div>
-  <strong>{{ inscription.nom }}, {{ inscription.prenom }}</strong>
-  {% if inscription.est_pour_mandate %}
-    Représentant mandaté
-  {% else %}
-    Accompagnateur
-  {% endif %}
-  <br/>
-  <a href="mailto:{{ inscription.invitation.courriel }}">
-    {{ inscription.invitation.get_adresse }}
-  </a>
-  <br/>
-  {{ inscription.get_etablissement.nom }}<br/>
-  {{ inscription.get_etablissement.pays.nom }}
-  {{ inscription.get_etablissement.region.nom }}
-</div>
+  <table class="table-reseautage">
+    <tr>
+      <td><strong>{{ inscription.nom }}, {{ inscription.prenom }}</strong></td>
+      <td>{% if inscription.est_pour_mandate %}
+        Représentant mandaté
+      {% else %}
+        Accompagnateur
+      {% endif %}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><a href="mailto:{{ inscription.invitation.get_adresse }}">
+        {{ inscription.invitation.get_adresse }}</a></td>
+    </tr>
+    <tr>
+      <td>{{ inscription.get_etablissement.pays.nom }}</td>
+      <td>{{ inscription.get_etablissement.region.nom }}</td>
+    </tr>
+  </table>
 {% endfor %}
+</div>
+</div>
