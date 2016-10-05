@@ -34,6 +34,9 @@ def handle_plan_vol_form(request, inscription):
         form = forms.PlanVolForm(request.POST, instance=inscription)
         if form.is_valid():
             form.save()
+            participant = inscription.get_participant()
+            if participant:
+                participant.set_infos_depart_arrivee(inscription)
     else:
         form = forms.PlanVolForm(instance=inscription)
     return form
