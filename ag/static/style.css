@@ -112,11 +112,17 @@ div.selectBox{
 div.selectBox2{
 	position:relative;
 	display:inline-block;
+	cursor:default;
+	text-align:left;
+	line-height:26px;
+	background: #FFF;
 	color: #474747;
+	font-size: 0.84em;
 	text-shadow: none;
 	float:right;
 	top: 10px;
 	right: 20px;
+	height: 22px;
 }
 
 span.selected{
@@ -309,10 +315,10 @@ a:hover>span.selectOption{
 }
 
 #footer{
-	background-image: url("img/bgmenu.png");
+	background-color: #A90f30;
     height: 42px;
-    width: 940px;
-	margin: 20px auto;
+    width: 100%;
+	margin: 0px auto;
 	padding: 0 20px;
 }
 
@@ -331,6 +337,7 @@ a:hover>span.selectOption{
 #footer a {
     color: #FFFFFF;
 	text-decoration: none;
+	margin: 0 5px;
 }
 
 #corp{

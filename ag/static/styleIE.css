@@ -301,9 +301,9 @@ a:hover>span.selectOption{
 }
 
 #footer{
-	background-image: url("img/bgmenu.png");
+	background-color: #A90f30;
     height: 42px;
-    width: 940px;
+    width: 100%;
 	margin: 20px auto;
 	padding: 0 20px;
 }
