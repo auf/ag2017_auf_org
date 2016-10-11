@@ -49,7 +49,6 @@ def dossier(request):
     inscription = InscriptionFermee.objects.get(id=inscription_id)
     adresse = inscription.get_adresse()
 
-
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
