@@ -96,7 +96,7 @@ Vous avez acquitté tous vos frais de participation. Merci.
     <li><a href="#tab-cb"><span>Carte Bancaire</span></a></li>
     <li><a href="#tab-vb"><span>Virement bancaire</span></a></li>
     <li><a href="#tab-ce"><span>Chèque en Euros</span></a></li>
-    <li><a href="#tab-dl"><span>Devise local</span></a></li>
+    <li><a href="#tab-dl"><span>Devise locale</span></a></li>
   </ul>
   <div id="tab-cb">
     {% if inscription.is_paiement_paypal_cancelled %}
@@ -189,8 +189,12 @@ Vous avez acquitté tous vos frais de participation. Merci.
       Rendez-vous dans une de nos implantation avec votre dossier d'inscription
       imprimé et une preuve d'identité.
     </p>
-    Parcourir les Implantations de la région {{ region.nom }}
-    https://www.auf.org/implantations/?region={{ region.id }}
+
+    <p>
+      <a href="https://www.auf.org/implantations/?region={{ region.id }}"
+          target="_blank">
+        Parcourir les Implantations de la région {{ region.nom }}</a></p>
+
 
   </div>
   </div>
@@ -364,7 +368,7 @@ Vous avez acquitté tous vos frais de participation. Merci.
           {{ plan_vol_form.depart_date.errors }}</td>
         </tr>
         <tr>
-          <td>Heurre d'arrivée</td>
+          <td>Heure d'arrivée</td>
           <td>{{ plan_vol_form.arrivee_heure }}
           {{ plan_vol_form.arrivee_heure.errors }}</td>
           <td>Heure de départ</td>
