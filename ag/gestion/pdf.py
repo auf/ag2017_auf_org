@@ -119,10 +119,6 @@ def generer_factures(output_file, participants):
                     if participant.etablissement else u""
                 ],
                 [u"# Imputation", u"70810." + participant.imputation],
-                [
-                    u"Total payé",
-                    number_format(participant.accompte, 2) + u" €"
-                ]
             ],
             colWidths=(4 * cm, 4 * cm),
             style=TableStyle([
@@ -140,8 +136,8 @@ def generer_factures(output_file, participants):
             [
                 [u"Détails"],
                 [
-                    u"Frais de participation à la 16e assemblée générale - "
-                    u"São Paulo (Brésil) - 7 au 10 mai 2013"
+                    u"Frais de participation à la 17e assemblée générale - "
+                    u"Marrakech (Maroc) - 9 au 11 mai 2017"
                 ],
                 [
                     u"- Frais d'inscription",
@@ -149,7 +145,7 @@ def generer_factures(output_file, participants):
                     u" €"
                 ],
                 [
-                    u"- Frais d'excursion",
+                    u"- Forfaits supplémentaires",
                     number_format(participant.frais_activites_facture, 2) +
                     u" €"
                 ],
@@ -165,7 +161,7 @@ def generer_factures(output_file, participants):
             [
                 [
                     u"",
-                    u"Total payé: " +
+                    u"Montant total: " +
                     number_format(participant.total_facture, 2) + u" €"
                 ],
             ],
