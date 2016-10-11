@@ -14,16 +14,13 @@ from reportlab.lib.styles import StyleSheet1, ParagraphStyle
 from reportlab.lib.units import cm
 
 from ag.gestion import APP_ROOT
-from ag.gestion.models import (
-    BUREAU_REGION, COMPTOIR_COMPAGNIE,
-    COURRIER_POSTAL,
-    BUREAU_REGION_TRAIN)
 
 
 PAGESIZE = letter
 
 
-def generer_factures(file, participants):
+# noinspection PyTypeChecker
+def generer_factures(output_file, participants):
 
     # Dimensions
     page_width, page_height = PAGESIZE
@@ -42,7 +39,7 @@ def generer_factures(file, participants):
     )
     styles.add_style('petit', fontSize=8)
 
-    canvas = Canvas(file, pagesize=PAGESIZE)
+    canvas = Canvas(output_file, pagesize=PAGESIZE)
     for participant in participants:
 
         # Préparation de certaines chaînes
@@ -51,7 +48,8 @@ def generer_factures(file, participants):
             participant.nom
         ))
         numero_facture = u"000A09-%02d" % participant.numero_facture
-        date_facturation = date_format(participant.date_facturation, 'SHORT_DATE_FORMAT')
+        date_facturation = date_format(participant.date_facturation,
+                                       'SHORT_DATE_FORMAT')
         adresse = participant.get_adresse_facturation()
 
         # Logos
@@ -192,10 +190,10 @@ def generer_factures(file, participants):
         canvas.showPage()
 
     canvas.save()
-    return file
+    return output_file
 
 
-def generer_itineraires(file, participants):
+def generer_itineraires(output_file, participants):
 
     # Dimensions
     page_width, page_height = PAGESIZE
@@ -212,7 +210,7 @@ def generer_itineraires(file, participants):
     styles.add_style('sous-titre', fontName='Helvetica-Bold', fontSize=11)
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     styles.add_style('section', fontName='Helvetica-Bold', fontSize=10)
-    styles.add_style('itineraire-header', fontName='Helvetica-Bold', fontSize=7 )
+    styles.add_style('itineraire-header', fontName='Helvetica-Bold', fontSize=7)
     styles.add_style('itineraire', fontSize=8)
     styles.add_style('bullet', bulletIndent=18, fontSize=8)
     styles.add_style(
@@ -221,7 +219,7 @@ def generer_itineraires(file, participants):
         fontSize=11
     )
 
-    canvas = Canvas(file, pagesize=PAGESIZE)
+    canvas = Canvas(output_file, pagesize=PAGESIZE)
     for participant in participants:
 
         # Préparation
@@ -231,7 +229,7 @@ def generer_itineraires(file, participants):
             participant.get_genre_display(), participant.prenom,
             participant.nom
         ))
- 				# Logos
+        # Logos
         logo_height = 52
         logo_width = 130 * logo_height / 91
         canvas.drawImage(
@@ -266,7 +264,8 @@ def generer_itineraires(file, participants):
 
         # Titre
         contenu.append(Paragraph(
-            u"Paris, le " + date_format(date.today(), 'SHORT_DATE_FORMAT'), styles['right-aligned']
+            u"Paris, le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
+            styles['right-aligned']
         ))
 
         contenu.append(Paragraph(u"ITINÉRAIRE DE VOYAGE", styles['titre']))
@@ -283,7 +282,8 @@ def generer_itineraires(file, participants):
                 [u"Téléphone :", participant.telephone],
                 [u"Télécopieur :", participant.telecopieur],
                 [u"Courriel :", participant.courriel],
-                [u"Bureau régional AUF :", participant.get_nom_bureau_regional()],
+                [u"Bureau régional AUF :",
+                 participant.get_nom_bureau_regional()],
             ],
             colWidths=(4 * cm, 14.5 * cm),
             style=TableStyle([
@@ -313,17 +313,17 @@ def generer_itineraires(file, participants):
                     Paragraph(s, styles['itineraire'])
                     for s in [
                         date_format(vol.date_depart, 'SHORT_DATE_FORMAT')
-                            if vol.date_depart else u'',
+                        if vol.date_depart else u'',
                         vol.ville_depart,
                         vol.ville_arrivee,
                         vol.compagnie,
                         vol.numero_vol,
                         time_format(vol.heure_depart, 'H:i')
-                            if vol.heure_depart else u'',
+                        if vol.heure_depart else u'',
                         time_format(vol.heure_arrivee, 'H:i')
-                            if vol.heure_arrivee else u'',
+                        if vol.heure_arrivee else u'',
                         date_format(vol.date_arrivee, 'SHORT_DATE_FORMAT')
-                            if vol.date_arrivee else u'',
+                        if vol.date_arrivee else u'',
                     ]
                 ]
                 for vol in vols
@@ -336,14 +336,15 @@ def generer_itineraires(file, participants):
                 ('BOX', (0, 0), (-1, -1), 0.5, black),
                 ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
                 ('VALIGN', (0, 1), (-1, -1), 'TOP'),
-								('ALIGN', (1, 2), (1, -1), 'RIGHT'),
+                ('ALIGN', (1, 2), (1, -1), 'RIGHT'),
             ])
 
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
         # Retrait du billet
-        contenu.append(Paragraph(u"Retrait des titres de transport:", styles['section']))
+        contenu.append(Paragraph(u"Retrait des titres de transport:",
+                                 styles['section']))
 
         contenu.append(Paragraph(
             participant.get_modalite_retrait_billet_display(),
@@ -351,7 +352,7 @@ def generer_itineraires(file, participants):
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
-				# Documents requis
+        # Documents requis
         contenu.append(Paragraph(u"Documents requis :", styles['section']))
 
         contenu.append(Paragraph(
@@ -368,7 +369,7 @@ def generer_itineraires(file, participants):
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
- 				# Remarques
+        # Remarques
         if participant.remarques_transport:
             contenu.append(Paragraph(u"Remarques :", styles['section']))
             
@@ -381,11 +382,12 @@ def generer_itineraires(file, participants):
         if participant.frais_autres:
             contenu.append(Paragraph(u"Prise en charge de votre séjour dans la "
                                      u"(les) ville(s) de transit :",
-                styles['section']))
+                                     styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table([
                     [u"Montant:", u"%.2d €" % participant.frais_autres],
-                    [u"Versement:", participant.get_modalite_versement_frais_sejour_display()],
+                    [u"Versement:",
+                     participant.get_modalite_versement_frais_sejour_display()],
                 ],
                 colWidths=(
                     2 * cm, 8 * cm,
@@ -393,9 +395,9 @@ def generer_itineraires(file, participants):
                 style=TableStyle([
                     ('BOX', (0, 0), (-1, -1), 0.5, black),
                     ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
-										('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
+                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
                     ('VALIGN', (0, 1), (-1, -1), 'TOP'),
-                    ]),
+                ]),
                 hAlign='LEFT',))
 
             contenu.append(Spacer(0, 0.5 * cm))
@@ -405,15 +407,19 @@ def generer_itineraires(file, participants):
             contenu.append(Paragraph(u"Hôtel réservé:", styles['section']))
 
             contenu.append(Paragraph(participant.hotel.libelle, styles['bold']))
-            contenu.append(Paragraph(participant.hotel.adresse, styles['normal']))
+            contenu.append(Paragraph(participant.hotel.adresse,
+                                     styles['normal']))
             contenu.append(Paragraph("du {0} au {1}".format(
-                date_format(participant.date_arrivee_hotel, 'SHORT_DATE_FORMAT'),
-                date_format(participant.date_depart_hotel, 'SHORT_DATE_FORMAT'))
-                , styles['bold']))
+                date_format(participant.date_arrivee_hotel,
+                            'SHORT_DATE_FORMAT'),
+                date_format(participant.date_depart_hotel,
+                            'SHORT_DATE_FORMAT')),
+                styles['bold']))
 
         contenu.append(Paragraph(
             u"Attention ! Veuillez tenir compte de l'heure du vol de départ de "
-            u"Sao paulo dans la sélection d'une excursion libre (le cas échéant).",
+            u"Sao paulo dans la sélection d'une excursion libre (le cas "
+            u"échéant).",
             styles['itineraire-header']
         ))
         
@@ -424,14 +430,13 @@ def generer_itineraires(file, participants):
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
-
         # Instructions
         contenu.append(Paragraph(u"IMPORTANT", styles['important']))
         contenu.append(Spacer(0, 0.25 * cm))
         contenu.append(Paragraph(
             u"Document signé avec la mention "
-            u"« bon pour accord », à retourner impérativement dans les 48 heures "
-            u"suivant la réception",
+            u"« bon pour accord », à retourner impérativement dans les 48 "
+            u"heures suivant la réception",
             styles['bold']
         ))
         contenu.append(Spacer(0, 0.75 * cm))
@@ -459,7 +464,7 @@ def generer_itineraires(file, participants):
         canvas.showPage()
 
     canvas.save()
-    return file
+    return output_file
 
 
 class StyleSheet(StyleSheet1):
