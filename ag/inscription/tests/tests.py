@@ -694,7 +694,6 @@ class PaypalIPNTests(django.test.TestCase):
 
 class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
     def setUp(self):
-        super(InscriptionFonctionsPaypalTestCase, self).setUpClass()
         i = self.i = InscriptionFactory()
         invoice = PaypalInvoice.objects.create(inscription=i, montant=150)
         PaypalResponse.objects.create(inscription=i, type_reponse="IPN",

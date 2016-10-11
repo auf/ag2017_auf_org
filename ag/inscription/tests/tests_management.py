@@ -10,21 +10,21 @@ from ag.inscription.models import InvitationEnveloppe
 from ag.tests import make_modele_courriel_mandate, create_fixtures
 
 
-@pytest.mark.django_db
-def test_invitation_enveloppe_creee():
-    modele = make_modele_courriel_mandate()
-    etablissement = EtablissementFactory()
-    creer_invitation_enveloppe_mandate(modele, etablissement)
-    assert InvitationEnveloppe.objects.filter(
-        invitation__courriel=etablissement.responsable_courriel,
-        invitation__etablissement=etablissement,
-        invitation__pour_mandate=True,
-        enveloppe__modele=modele).count() == 1
+class EnveloppeCreeTestCase(django.test.TestCase):
+    def test_invitation_enveloppe_creee(self):
+        modele = make_modele_courriel_mandate()
+        etablissement = EtablissementFactory()
+        creer_invitation_enveloppe_mandate(modele, etablissement)
+        assert InvitationEnveloppe.objects.filter(
+            invitation__etablissement=etablissement,
+            invitation__pour_mandate=True,
+            enveloppe__modele=modele).count() == 1
 
 
 class EtablissementsSansInvitationTestCase(django.test.TestCase):
     @classmethod
     def setUpTestData(cls):
+        super(EtablissementsSansInvitationTestCase, cls).setUpTestData()
         modele = make_modele_courriel_mandate()
         cls.etablissement_avec_invitation = EtablissementFactory(
             membre=True, responsable_courriel='a@b.com')
