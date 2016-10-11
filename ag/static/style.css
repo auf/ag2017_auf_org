@@ -812,7 +812,7 @@ textarea {
     text-align: center;
 }
 
-.readOnlyLabel, .bouton_sub {
+.readOnlyLabel {
     font-weight: bold;
     text-decoration: none;
     color: #7E0321;
