@@ -5,7 +5,7 @@
   <meta name="description" content="Ag 2013" />
   <meta name="author" content="AUF" />
   <meta name="google-translate-customization" content="348cc25c484ffe60-c257e7d0f621ac72-gc4a750e733277c46-20"></meta>
-  <title>AG 2013</title>
+  <title>Assemblée générale 2017</title>
   <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}favicon.ico">
   <link href="{{ STATIC_URL }}style.css?v=1" rel="stylesheet" type="text/css" media="screen" />
   <link href="{{ STATIC_URL }}style_print.css?v=1" rel="stylesheet" type="text/css" media="print" />
@@ -31,41 +31,42 @@
 
 	<!-- PARTIE LOGO ET TEXTE-->
 	<div id="baseline">
+	     <div id="baseline-center">
         
         	<div id="logoligne">
                 <div id="logo">
-                    <img src="{{ STATIC_URL }}img/logo.jpg">
+                   <a href="/" id=""> <img src="{{ STATIC_URL }}img/logo.jpg"></a>
                	</div>
-                <div id="ligne">
-                    <span>16</span><sup>&#7497;</sup><h4>assemblée générale</h4>
-                    <h2>São Paulo, Brésil</h2>
-                    <h3>7- 10 Mai 2013</h3>
-                </div>
+               	<nav id="top2">
+
+		    <ul>
+		       <!-- <li><a href="/" id=""><img src="{{ STATIC_URL }}img/accueil.png"></a></li>-->
+		        {% show_menu 0 1 100 100 %}
+		    </ul>
+		    
+				{% block langue %}
+	    		{% endblock %}
+		    <div style="clear: both;"></div>
+		    
+	      	</nav>
      		</div>
-            
+          </div>    
     </div>
  
     <!-- PARTIE MENU ET DIAPORAMA-->
+
+<!-- menu -->
+
+   <div id="top2-header">
     <header id="top">
     	
-		<!-- menu -->
-    	<nav id="top2">
-            <ul>
-                <li><a href="/" id=""><img src="{{ STATIC_URL }}img/accueil.png"></a></li>
-                {% show_menu 0 1 100 100 %}
-            </ul>
-            
-			{% block langue %}
-    		{% endblock %}
-            <div style="clear: both;"></div>
-            
-      	</nav>
+		
         
         {% block diapo %}
     	{% endblock %}
  
 	 </header>
-     
+     </div>
     
     <!-- PARTIE CENTRALE -->
     <div class="contents">
@@ -104,7 +105,14 @@
                     {% endif %}
                 </div>    
                  
-                <div class="box">
+               
+            </div>
+		{% endblock %}        
+	</div>
+
+
+ <div class="partenaire-frame">
+ <div class="partenaire">
                     <h2>Partenaires</h2>
                     {% if  partenaire_list %}
                         {% for item in partenaire_list %}
