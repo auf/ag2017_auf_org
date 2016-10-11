@@ -452,7 +452,7 @@ def facture_pdf(request, id_participant):
     except Participant.DoesNotExist:
         raise Http404
     filename = u'Facture - %s %s.pdf' % (participant.prenom, participant.nom)
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
                                       urllib.quote(filename.encode('utf-8'))
     return pdf.generer_factures(response, [participant])
@@ -464,7 +464,7 @@ def itineraire_pdf(request, id_participant):
     filename = u'Itinéraire - %s %s.pdf' % (
         participant.prenom, participant.nom
     )
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
                                       urllib.quote(filename.encode('utf-8'))
     return pdf.generer_itineraires(response, [participant])
