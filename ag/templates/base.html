@@ -1,4 +1,4 @@
-{% load cms_tags sekizai_tags menu_tags%}
+{% load cms_tags sekizai_tags menu_tags %}
 <!DOCTYPE HTML>
 <head>
   <meta charset="utf-8" />
@@ -35,12 +35,14 @@
         
         	<div id="logoligne">
                 <div id="logo">
-                   <a href="/" id=""> <img src="{{ STATIC_URL }}img/logo.jpg"></a>
-               	</div>
+                  <a href="{% url "accueil" %}">
+                    <img src="{{ STATIC_URL }}img/logo.jpg"
+                         alt="Logo AUF"></a>
+                </div>
                	<nav id="top2">
 
 		    <ul>
-		       <!-- <li><a href="/" id=""><img src="{{ STATIC_URL }}img/accueil.png"></a></li>-->
+		       <!-- <li><a href="{% url "accueil" %}"><img src="{{ STATIC_URL }}img/accueil.png"></a></li>-->
 		        {% show_menu 0 1 100 100 %}
 		    </ul>
 		    
@@ -101,7 +103,7 @@
                             <div class="video">{{ item.video|safe }}</div>
                         {% endfor %}
                     {% else %}
-                        <div class="video"><iframe frameborder="0" width="280" height="161" src="http://www.dailymotion.com/embed/video/xmklf5?logo=0&hideInfos=1"></iframe></div>
+                        <div class="video"><iframe width="280" height="161" src="http://www.dailymotion.com/embed/video/xmklf5?logo=0&hideInfos=1"></iframe></div>
                     {% endif %}
                 </div>    
                  
@@ -134,8 +136,8 @@
 
 <span style="float:right;">
 
-<a href="https://twitter.com/auf_org" target="_blank"><img src="https://www.auf.org/media/adminfiles/Twitter.png" alt="Twitter" border="0" /></a> 
-              <a href="https://www.facebook.com/aufinternational" target="_blank"><img src="https://www.auf.org/media/adminfiles/Facebook.png" alt="Facebook" border="0" /></a>
+<a href="https://twitter.com/auf_org" target="_blank"><img src="https://www.auf.org/media/adminfiles/Twitter.png" alt="Twitter" /></a>
+              <a href="https://www.facebook.com/aufinternational" target="_blank"><img src="https://www.auf.org/media/adminfiles/Facebook.png" alt="Facebook" /></a>
 </span>
 </p>
 
