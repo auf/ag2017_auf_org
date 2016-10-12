@@ -38,6 +38,7 @@ def generer_factures(output_file, participants):
         'destinataire', fontName='Helvetica-Bold', alignment=TA_CENTER
     )
     styles.add_style('petit', fontSize=8)
+    styles.add_style('droite', alignment=TA_RIGHT)
 
     canvas = Canvas(output_file, pagesize=PAGESIZE)
     for participant in participants:
@@ -131,7 +132,7 @@ def generer_factures(output_file, participants):
 
         # Détails
         x = margin_left
-        y -= 6 * cm
+        y -= 4 * cm
         t = Table(
             [
                 [u"Détails"],
@@ -141,28 +142,24 @@ def generer_factures(output_file, participants):
                 ],
                 [
                     u"- Frais d'inscription",
-                    number_format(participant.frais_inscription_facture, 2) +
-                    u" €"
+                    montant_str(participant.frais_inscription_facture)
                 ],
                 [
                     u"- Forfaits supplémentaires",
-                    number_format(participant.frais_activites_facture, 2) +
-                    u" €"
+                    montant_str(participant.frais_activites_facture)
                 ],
             ] +
             (
                 [[
                     u"- Frais de supplément chambre double",
-                    number_format(participant.frais_hebergement_facture, 2) +
-                    u" €"
+                    montant_str(participant.frais_hebergement_facture)
                 ]]
                 if participant.frais_hebergement_facture else []
             ) +
             [
                 [
                     u"",
-                    u"Montant total: " +
-                    number_format(participant.total_facture, 2) + u" €"
+                    u"Montant total: " + montant_str(participant.total_facture)
                 ],
             ],
             colWidths=(12 * cm, frame_width - 12 * cm),
@@ -182,11 +179,55 @@ def generer_factures(output_file, participants):
         w, h = t.wrap(frame_width, 10 * cm)
         t.drawOn(canvas, x, y - h)
 
+        t = Table(
+            [
+                [u"Paiements reçus"],
+                [u"25/12/2016", u"Virement bancaire", u"BAO",
+                 u"5KP05198LR130290D", u"100,00 €"],
+                [u"25/12/2016", u"Virement bancaire", u"BAO",
+                 u"5KP05198LR130290D", u"100,00 €"],
+                [u"25/12/2016", u"Virement bancaire", u"BAO",
+                 u"5KP05198LR130290D", u"100,00 €"],
+                [u"", u"", u"", u"", u"Total payé: 100,00 €"]
+            ],
+            colWidths=(2 * cm, 5 * cm, 2 * cm, 5 * cm, frame_width - 14 * cm),
+            style=TableStyle([
+                ('SPAN', (0, 0), (1, 0)),
+                ('BOX', (0, 0), (-1, -1), 0.5, black),
+                ('LINEBELOW', (0, 0), (-1, 0), 0.5, black),
+                # ('BOTTOMPADDING', (0, 0), (-1, 0), 0.5 * cm),
+                ('BOTTOMPADDING', (0, -2), (-1, -2), 0.5 * cm),
+                ('ALIGN', (-1, 1), (-1, -1), 'RIGHT'),
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                ('FONT', (0, 0), (-1, 0), 'Helvetica', 12),
+                ('BACKGROUND', (-1, -1), (-1, -1), lightgrey),
+            ]))
+        x = margin_left
+        y -= h + 0.75 * cm
+        w, h = t.wrap(frame_width, 10 * cm)
+        t.drawOn(canvas, x, y - h)
+
+        y -= h + 0.75 * cm
+        if participant.get_verse_en_trop():
+            solde_text = u"Versé en trop: " + montant_str(
+                participant.get_verse_en_trop())
+        else:
+            solde_text = u"Solde à payer: " + montant_str(
+                participant.get_solde_a_payer())
+        p = Paragraph(solde_text,
+                      styles['droite'])
+        _, h = p.wrap(frame_width, 2 * cm)
+        p.drawOn(canvas, x, y)
+
         # Rendu
         canvas.showPage()
 
     canvas.save()
     return output_file
+
+
+def montant_str(montant):
+    return u"{} €".format(number_format(montant, 2))
 
 
 def generer_itineraires(output_file, participants):

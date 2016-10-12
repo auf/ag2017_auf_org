@@ -792,6 +792,12 @@ class Participant(RenseignementsPersonnels):
     def get_region_vote_string(self):
         return REGIONS_VOTANTS_DICT[self.region_vote]
 
+    def get_verse_en_trop(self):
+        return -min(self.total_facture - self.accompte, 0)
+
+    def get_solde_a_payer(self):
+        return max(self.total_facture - self.accompte, 0)
+
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:
     #         infos_arrivee = self.get_infos_arrivee()
