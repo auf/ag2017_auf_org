@@ -20,9 +20,10 @@
         {% if  slider_list %}
                 {% for item in slider_list %}
                     	<div class="image">
-                            <img src="{{ MEDIA_URL }}{{ item.image }}" height="278">
-                            <div class="note"><a  href="{{ item.lien }}">{{ item.titre|safe }}</a></div>
-                		</div>
+                            <a  href="{{ item.lien }}"><img src="{{ MEDIA_URL }}{{ item.image }}" height="278" ></a>
+                          <!--<div class="note"> <a  href="{{ item.lien }}">{{ item.titre|safe }}</a></div>-->
+                	</div>
+
                 {% endfor %}
         {% else %}
                 <p>Pas de slider</p>

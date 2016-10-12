@@ -139,7 +139,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme_advanced_toolbar_location' : 'top',
 }
 
-DATE_FERMETURE_INSCRIPTIONS = datetime.date(2017, 3, 22)
+DATE_FERMETURE_INSCRIPTIONS = datetime.date(2018, 3, 22)
 
 TEMPLATES = [
     {
