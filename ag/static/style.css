@@ -634,7 +634,7 @@ table.atelier {
 
 #corp .atelier td {
     border: 0 solid #555555;
-    valign: top;
+    vertical-align: top;
     padding: 0 10px 20px 0;
 }
 
@@ -684,11 +684,9 @@ p {
 #top2 ul li ul li {
      float: none;
     background: none;
-padding: 0;
-padding: 10px;
-line-height: 0;
-height: 20px;
-
+    padding: 10px;
+    line-height: 0;
+    height: 20px;
 }
 
 #top2 ul li ul li a {
@@ -874,7 +872,6 @@ input[type=submit],
     margin: 10px 0 2px 0;
     cursor: pointer;
     background: none;
-    border: none;
     color: #363636;
     font-size: 14px;
     padding: 6px 8px;
