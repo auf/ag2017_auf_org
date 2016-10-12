@@ -11,7 +11,6 @@ from ag.gestion.montants import infos_montant_par_code
 from django.db import connection
 from django.db.models import Q, Count
 from django.utils.datastructures import SortedDict
-from django.utils.formats import number_format
 
 Element = namedtuple('DonneeEtat', ['titre', 'elements'])
 
@@ -26,7 +25,8 @@ def get_donnees_etat_participants():
                       'statut__ordre', 'nom', 'prenom')
         return recursive_group_by(
             list(participants),
-            keys=[lambda p:p.etablissement.pays, lambda p: p.etablissement,
+            keys=[lambda p:p.etablissement.pays,
+                  lambda p: p.etablissement,
                   lambda p:p.statut],
             titles=[lambda p: p.nom, lambda e: e.nom, lambda s: s.libelle])
 

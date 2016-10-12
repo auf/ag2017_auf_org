@@ -71,9 +71,9 @@ def transfert_handler(sender, **kwargs):
 @receiver(paypal_signal)
 def paypal_handler(sender, **kwargs):
     body = u"Un paiement paypal a été effectué pour l'inscription"\
-           u" numéro " + sender.inscription.numero + u" au nom de "\
-                                                     u" " + sender.get_nom_prenom() +\
-           u" de l'établissement " + sender.inscription.get_etablissement().nom
+           u" numéro {} au nom de {} de l'établissement {}".format(
+               sender.inscription.numero, sender.get_nom_prenom(),
+               sender.inscription.get_etablissement().nom)
     if sender.montant and sender.devise:
         body += u" Montant: " + sender.montant + sender.devise
     if sender.statut:

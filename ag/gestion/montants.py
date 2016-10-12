@@ -3,75 +3,57 @@
 from django.core.cache import cache
 
 MONTANTS_DATA = {
-    'frais_inscription' :
-            {
-            'label' : u'Frais d\'inscription',
-            'montant' : 330,
-            'categorie' : 'insc',
-            },
-    'frais_inscription_invite' :
-            {
-            'label' : u"Frais d\'inscription (invité)",
-            'montant' : 0,
-            'nom_champ' : 'accompagnateur',
-            'valeur_champ' : True,
-            'categorie' : 'insc',
-            },
-    'supplement_chambre_double' :
-            {
-            'label' : u"Supplément chambre double",
-            'montant': 200,
-            'categorie' : 'hebe',
-            },
-    'sortie_unesp_membre' :
-            {
-            'label' : u"Soirée organisée par l'UNESP (membre)",
-            #'montant': 0, vient de la table activités
-            'nom_champ' : 'programmation_soiree_unesp',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'sortie_unesp_invite' :
-            {
-            'label' : u"Soirée organisée par l'UNESP (accompagnateur)",
-            #'montant': 0, vient de la table activités
-            'nom_champ' : 'programmation_soiree_unesp_invite',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'sortie_8_mai_membre' :
-            {
-            'label' : u"Soirée interconsulaire (membre)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_soiree_interconsulaire',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'sortie_8_mai_invite' :
-            {
-            'label' : u"Soirée interconsulaire (invité)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_soiree_interconsulaire_invite',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'gala_membre' :
-            {
-            'label' : u"Soirée de gala de clôture (membre)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_gala',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    'gala_invite' :
-            {
-            'label' : u"Soirée de gala de clôture (accompagnateur)",
-            #'montant': 0,vient de la table activités
-            'nom_champ' : 'programmation_gala_invite',
-            'valeur_champ' : True,
-            'categorie' : 'acti',
-            },
-    }
+    'frais_inscription':
+        {
+            'montant': 330,
+            'categorie': 'insc',
+        },
+    'supplement_chambre_double':
+        {
+            'montant': 100,
+            'categorie': 'hebe',
+        },
+    'soiree_9_mai_membre':
+        {
+            # 'montant': 0, vient de la table activités
+            'categorie': 'acti',
+        },
+    'soiree_9_mai_invite':
+        {
+            # 'montant': 0, vient de la table activités
+            'categorie': 'acti',
+        },
+    'soiree_10_mai_membre':
+        {
+            # 'montant': 0,vient de la table activités
+            'categorie': 'acti',
+        },
+    'soiree_10_mai_invite':
+        {
+            # 'montant': 0,vient de la table activités
+            'categorie': 'acti',
+        },
+    'gala_membre':
+        {
+            # 'montant': 0,vient de la table activités
+            'categorie': 'acti',
+        },
+    'gala_invite':
+        {
+            # 'montant': 0,vient de la table activités
+            'categorie': 'acti',
+        },
+    'forfait_invite_dejeuners':
+        {
+             'montant': 30,
+             'categorie': 'invite'
+        },
+    'forfait_invite_transfert':
+        {
+             'montant': 30,
+             'categorie': 'invite'
+        },
+}
 
 
 class InfosMontant(object):
@@ -85,21 +67,31 @@ class InfosMontant(object):
             return u'Inclus'
 
 
-def init_montants():
-    montants = {}
-    for code, infos_montants_data in MONTANTS_DATA.iteritems():
-        montants[code] = InfosMontant(infos_montants_data)
+def get_montants_activite_from_db():
     from ag.gestion.models import Activite
-    def get_montant_activite_from_db(code):
-        activite = Activite.objects.get(code=code)
-        return activite.prix, activite.prix_invite
-    montants['sortie_unesp_membre'].montant, montants['sortie_unesp_invite'].montant \
-        = get_montant_activite_from_db('unesp')
-    montants['sortie_8_mai_membre'].montant, montants['sortie_8_mai_invite'].montant\
-        = get_montant_activite_from_db('8_mai')
-    montants['gala_membre'].montant, montants['gala_invite'].montant\
-        = get_montant_activite_from_db('gala')
-    return montants
+    activites = Activite.objects.all()
+    return {activite.code: (activite.prix, activite.prix_invite)
+            for activite in activites}
+
+
+CODES_MONTANTS_ACTIVITES = (
+    ('soiree_9_mai', ('soiree_9_mai_membre', 'soiree_9_mai_invite')),
+    ('soiree_10_mai', ('soiree_10_mai_membre', 'soiree_10_mai_invite')),
+    ('gala', ('gala_membre', 'gala_invite')),
+)
+
+
+def init_montants():
+    infos_montants = {}
+    for code, infos_montants_data in MONTANTS_DATA.iteritems():
+        infos_montants[code] = InfosMontant(infos_montants_data)
+    montants_activites = get_montants_activite_from_db()
+    for codes in CODES_MONTANTS_ACTIVITES:
+        code_activite, (code_montant_membre, code_montant_invite) = codes
+        montant_membre, montant_invite = montants_activites[code_activite]
+        infos_montants[code_montant_membre].montant = int(montant_membre)
+        infos_montants[code_montant_invite].montant = int(montant_invite)
+    return infos_montants
 
 
 def infos_montant_par_nom_champ(nom_champ):
@@ -120,6 +112,3 @@ def get_infos_montants():
         cache.set('montants_inscription_ag', montants)
 
     return montants
-
-
-

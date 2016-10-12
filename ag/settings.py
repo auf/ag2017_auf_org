@@ -2,9 +2,6 @@
 import os
 import socket
 import datetime
-from django.utils.translation import gettext_lazy as _
-from django.conf.global_settings import \
-        TEMPLATE_CONTEXT_PROCESSORS as DEFAULT_TEMPLATE_CONTEXT_PROCESSORS
 
 # Rapports d'erreurs
 SERVER_EMAIL = 'ne-pas-repondre@auf.org'
@@ -15,13 +12,20 @@ MANAGERS = ADMINS
 
 TIME_ZONE = 'America/Montreal'
 
-LANGUAGE_CODE = 'fr-ca'
+LANGUAGE_CODE = 'fr'
 gettext = lambda x: x
-CMS_LANGUAGES = (
-    ('fr', gettext('French')),
-)
 
 SITE_ID = 1
+
+CMS_LANGUAGES = {
+    1: [
+        {
+            'code': 'fr',
+            'name': gettext('French'),
+        }
+    ]
+}
+
 DEFAULT_LANGUAGE = 1
 
 DATE_INPUT_FORMATS = ('%d/%m/%Y', '%Y-%m-%d')
@@ -42,50 +46,31 @@ STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, 'static'),)
 ROOT_URLCONF = 'ag.urls'
 
 INSTALLED_APPS = (
-    'filebrowser',
     'django.contrib.sites',
-    'ag.core',
-    'ag.inscription',
-    'ag.gestion',
-    'ag.outil',
-    'ag.actualite',
-    'ag.activites_scientifiques',
-    'auf.django.auth',
-    'auf.django.references',
-    'auf.django.permissions',
-    'auf.django.mailing',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'auf.django.permissions',
+    'auf.django.mailing',
+    'ag.reference',
+    'ag.core',
+    'ag.inscription',
+    'ag.gestion',
+    'ag.dossier_inscription',
+    'ag.outil',
+    'ag.actualite',
+    'ag.activites_scientifiques',
     'raven.contrib.django',
-    'south',
     'crispy_forms',
     'sekizai',
+    'treebeard',
     'cms',
-    'cms.plugins.text',
     'menus',
-    'mptt',
     'tinymce',
-    'auf.django.pong',
     )
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'cms.context_processors.media',
-    'sekizai.context_processors.sekizai',
-    'ag.outil.context_processors.list_Video',
-    'ag.outil.context_processors.list_Video2',
-    'ag.outil.context_processors.list_mot1',
-    'ag.outil.context_processors.list_mot2',
-    'ag.outil.context_processors.list_partenaire',
-    'ag.outil.context_processors.list_slider',
-    'ag.outil.context_processors.list_actu',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -96,18 +81,12 @@ MIDDLEWARE_CLASSES = (
     'auf.django.piwik.middleware.TrackMiddleware',
     'auf.django.permissions.PermissionDeniedMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',    
+    'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',    
     'cms.middleware.toolbar.ToolbarMiddleware',      
     'django.middleware.cache.FetchFromCacheMiddleware',
     )
 
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), "templates"),
-)
-
-gettext = lambda s: s
 
 CMS_TEMPLATES = (
     ('accueil.html', gettext(u'Page Accueil')),
@@ -122,8 +101,6 @@ CMS_TEMPLATES = (
 )
 
 
-SOUTH_TESTS_MIGRATE = False
-
 ADMIN_TOOLS_INDEX_DASHBOARD = 'project.dashboard.CustomIndexDashboard'
 
 MAILING_MODELE_PARAMS_ENVELOPPE = 'inscription.InvitationEnveloppe'
@@ -131,7 +108,6 @@ MAILING_TEMPORISATION = 2
 
 AUTH_PROFILE_MODULE = 'core.UserProfile'
 AUTHENTICATION_BACKENDS = (
-    'auf.django.auth.backends.CascadeBackend',
     'django.contrib.auth.backends.ModelBackend',
     'auf.django.permissions.AuthenticationBackend',
     )
@@ -139,8 +115,6 @@ LOGIN_URL = '/connexion/'
 LOGIN_REDIRECT_URL = '/gestion/'
 
 CRISPY_TEMPLATE_PACK = 'uni_form'
-
-SITE_ID = 1
 
 PATH_FICHIERS_PARTICIPANTS = os.path.join(SITE_ROOT, 'medias_participants')
 GESTION_AG_SENDER = 'ressources-informatiques@auf.org'
@@ -166,3 +140,26 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 DATE_FERMETURE_INSCRIPTIONS = datetime.date(2018, 3, 22)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            'ag/templates'
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'sekizai.context_processors.sekizai',
+            ],
+        },
+    },
+]

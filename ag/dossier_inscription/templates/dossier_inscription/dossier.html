@@ -1,0 +1,442 @@
+{% extends "dossier_inscription/base_dossier.html" %}
+{% load inscription %}
+{% block content %}
+<h2>Informations du participant</h2>
+  <p>
+  {{ inscription.get_genre_display }} {{ inscription.nom }}
+  {{ inscription.prenom }}<br/>
+  {{ inscription.poste }}<br/>
+  {{ inscription.courriel }}<br/>
+  T:{{ inscription.telephone }}<br/>
+  F:{{ inscription.telecopieur }}<br/>
+</p>
+  {% if inscription.accompagnateur %}
+    <h3>Accompagnateur personnel</h3>
+    <p>
+    {{ inscription.get_accompagnateur_genre_display }}
+    {{ inscription.accompagnateur_nom }},
+    {{ inscription.accompagnateur_prenom }}</p>
+  {% endif %}
+
+  <h3>Type d'inscription</h3>
+  <p>
+  <strong>
+  {% if inscription.est_pour_mandate %}
+  Représentant mandaté
+  {% else %}
+  Accompagnateur
+  {% endif %}</strong><br/>
+  {{ inscription.get_etablissement.nom }}<br/>
+  Membre {{ inscription.get_etablissement.get_statut_display }} du
+  {{ inscription.get_est_pour_sud_display }}
+
+</p>
+  <h3>Adresse de facturation</h3>
+  <div id="adresse-container">
+  {% include "dossier_inscription/includes/adresse.html" %}
+  </div>
+
+<h2>Statut du dossier</h2>
+  <p>
+  Numéro de dossier: <strong>{{ inscription.numero_dossier }}</strong><br/>
+  Veuillez utiliser ce numéro de dossier dans toutes vos communications avec
+  votre représentant régional  {% email_region %}
+</p>
+  <h3>Suivi du dossier</h3>
+  <p>
+ {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
+{% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
+  {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
+  {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
+</p>
+
+<h2>État de compte</h2>
+{% if inscription.etablissement_delinquant %}
+  <p class="avertissement">
+    D'après les informations en notre possession, votre établissement n'est pas
+    à jour de sa cotisation à l'AUF. Votre inscription ne sera validée qu'après
+    règlement de l'année ou des années de cotisation impayées. Pour nous
+    contacter à ce sujet, merci d'écrire à {% email_region %} en rappelant votre
+    nom, numéro de dossier, ainsi que celui de votre établissement.
+  </p>
+{% endif %}
+
+{% ifequal solde 0 %}
+  <p>
+Vous avez acquitté tous vos frais de participation. Merci.
+  {% ifequal inscription.paiement "CB" %}
+    <strong>Votre paiement a été effectué avec succès.</strong><br/>
+    Un accusé de réception électronique vous sera transmis par courriel dans les
+    plus brefs délais. Une facture sera émise lorsque votre participation sera
+    confirmée après vérification des informations fournies dans le
+    formulaire.<br/>
+    Votre numéro de confirmation Paypal:
+    {{ inscription.numeros_confirmation_paypal }}
+  {% endifequal %}
+  </p>
+{% else %}
+  <div class="avertissement">
+  <p>
+  <strong>Il vous reste un solde à payer de : {{ solde }}€</strong></p>
+  <p>
+  Les frais de participation à l'assemblée générale doivent être payés en euros
+  avant le 1er mars 2013.
+  Toute inscription dont le paiement complet n'est pas effectué avant cette date
+  ne sera pas validée.</p>
+  <p>
+  <em>Si vous ayez déjà envoyé votre paiement, il se peut qu'il soit toujours en
+  traitement de notre part. Dans ce cas, ignorez ce message.Tout paiement en
+  trop sera remboursé au compte
+  de la transaction.</em></p>
+</div>
+
+  <h3>Veuillez choisir un moyen de paiement</h3>
+  <div id="tabs-paiement">
+  <ul>
+    <li><a href="#tab-cb"><span>Carte Bancaire</span></a></li>
+    <li><a href="#tab-vb"><span>Virement bancaire</span></a></li>
+    <li><a href="#tab-ce"><span>Chèque en Euros</span></a></li>
+    <li><a href="#tab-dl"><span>Devise locale</span></a></li>
+  </ul>
+  <div id="tab-cb">
+    {% if inscription.is_paiement_paypal_cancelled %}
+      <p class="avertissement">
+      Votre paiement en ligne n'a pas été complété!<br/>
+      Aucun montant n'a été débité de votre compte.<br/>
+      Recommencez ou choisissez une autre option de paiement.<br/>
+      Si vous éprouvez des difficultés, n'hésitez pas à nous contacter à
+      l'adresse suivante : {% email_region %}
+    {% include "inscription/paypal_button_include.html" with button_label="Paypal" %}
+      </p>
+
+    {% else %}
+    En choisissant cette option, vous serez redirigé sur la solution sécurisée
+    de paiement en ligne PayPal au compte de l'AUF.<br/>
+    Une fois votre paiement accepté par Paypal, veuillez cliquer sur le lien
+    "Retour à AG2017" pour finaliser la transaction et obtenir votre n° de
+    confirmation de paiement.
+    {% include "inscription/paypal_button_include.html" with button_label="Paypal" %}
+    {% endif %}
+  </div>
+  <div id="tab-vb">
+    Veuillez effectuer le virement bancaire aux coordonnées ci-dessous:<br/>
+    IMPORTANT: Indiquer le numéro de dossier dans le libellé de la
+    transaction.<br/>
+    À défaut, nous ne pourrons pas rapprocher votre paiement à votre dossier de
+    participation à l'assemblée générale.<br/>
+    <table>
+      <tr>
+        <td>Relevé d'identité bancaire</td>
+        <td>{{ info_virement.releve }}</td>
+      </tr>
+      <tr>
+        <td>Code banque</td>
+        <td>{{ info_virement.code_banque }}</td>
+      </tr>
+      <tr>
+        <td>Code guichet</td>
+        <td>{{ info_virement.code_guichet }}</td>
+      </tr>
+      <tr>
+        <td>Numéro de compte</td>
+        <td>{{ info_virement.num_compte }}</td>
+      </tr>
+      <tr>
+        <td>Clé RIB</td>
+        <td>{{ info_virement.cle_rib }}</td>
+      </tr>
+      <tr>
+        <td>Identifiant international</td>
+        <td>{{ info_virement.id_international }}</td>
+      </tr>
+      <tr>
+        <td>IBAN</td>
+        <td>{{ info_virement.iban }}</td>
+      </tr>
+      <tr>
+        <td>Code BIC</td>
+        <td>{{ info_virement.bic}}</td>
+      </tr>
+      <tr>
+        <td>Domiciliation</td>
+        <td>{{ info_virement.domiciliation }}</td>
+      </tr>
+      <tr>
+        <td>Titulaire</td>
+        <td>{{ info_virement.titulaire }}</td>
+      </tr>
+    </table>
+
+
+  </div>
+  <div id="tab-ce">
+    <p>Produire le chèque à l'ordre de : Agence universitaire de la
+      Francophonie</p>
+
+    <p>
+      Transmettre votre chèque par courrier avec votre dossier d'inscription
+      imprimé.<br/>
+      Adresse postale pour la région {{ region.nom }} :<br/>
+            {{ region.adresse }}
+    </p>
+  </div>
+  <div id="tab-dl">
+    <strong>Paiement en devises locales</strong><br/>
+    <p>Le paiement en devises locales (espèces, chèque, virement), peut
+      s'effectuer
+      dans toutes les implantations de l’Agence universitaire de la
+      Francophonie.
+      Rendez-vous dans une de nos implantation avec votre dossier d'inscription
+      imprimé et une preuve d'identité.
+    </p>
+
+    <p>
+      <a href="https://www.auf.org/implantations/?region={{ region.id }}"
+          target="_blank">
+        Parcourir les Implantations de la région {{ region.nom }}</a></p>
+
+
+  </div>
+  </div>
+  <br/>
+  <div class="avertissement">
+    <strong>Le paiement en ligne par carte bancaire au terme de l'inscription
+      est à privilégier. </strong>
+    À l'exception du paiement en ligne, veuillez vous assurer d'obtenir votre
+    preuve de paiement (copie d’ordre de virement bancaire, reçu de paiement
+    dans une implantation AUF, etc.).<br/>
+    <br/>
+    Toute preuve de paiement doit mentionner le :<br/>
+    <ul>
+      <li><strong>numéro de confirmation d'inscription</strong></li>
+      <li><strong>le nom de la personne inscrite</strong></li>
+      <li><strong>le nom de son établissement.</strong></li>
+    </ul>
+  À défaut, nous ne pourrons pas valider votre paiement et votre participation à
+  l'assemblée générale ne sera pas tenue en compte.
+  </div>
+  <br/>
+{% endifequal %}
+{% if inscription.est_pour_mandate %}
+  <a id="invitations"></a>
+  <h2>Accompagnateurs institutionels</h2>
+  <strong>Invitations aux accompagnateurs</strong><br/>
+  <p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur
+  de votre établissement en indiquant leur Nom, Prénom et Adresse électronique.
+  Revenez en tout temps pour envoyer d'autres invitations et suivre le statut de
+  vos invitations.</p>
+  {% if invitations_accompagnateurs %}
+    <h3>Invitations envoyées:</h3>
+    <ul>
+    {% for invitation in invitations_accompagnateurs %}
+      <li>{{ invitation.nom }}, {{ invitation.prenom }},
+        {{ invitation.courriel }} STATUT??
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  {% if not inscriptions_terminees %}
+  <h3>Formulaire d'invitation</h3>
+  Saisissez un invité par ligne
+  <form id="invitations" method="post" action="{% url "dossier_inscription" %}#invitations">
+  {{ invites_formset.management_form }}
+  {{ formset.non_form_errors.as_ul }}
+  {% csrf_token %}
+  <table>
+    <thead>
+    <tr><th>Nom</th><th>Prénom</th><th>Courriel</th></tr>
+    </thead>
+    <tbody>
+    {% for form in invites_formset %}
+    <tr>
+    <td>{{ form.nom }}{{ form.nom.errors }} </td>
+    <td>{{ form.prenom }}{{ form.prenom.errors }}</td>
+    <td>{{ form.courriel }}{{ form.courriel.errors }}</td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+  </table>
+  <button class="bouton_sub" name="submit-invites-formset" type="submit">
+    Envoyer les invitations</button>
+  </form>
+  {% endif %}
+{% endif %}
+  <br/>
+  <a id="reseautage"></a>
+  <h2>Rencontres réseautage</h2>
+  <p> L'assemblée générale vous offre la possibilité de programmer des
+    rencontres
+    avec les représentants de établissements participants à l'AG. Nous pouvons
+    vous assister dans l'organisation de ces rencontres.
+  </p>
+  {% if not inscription.reseautage %}
+    <p> Pour ce faire, vous devez accepter de divulguer votre adresse courriel
+      aux       autres participants (seulement pour ceux qui ont aussi accepté).
+    </p>
+    <form method="post" action="{% url "reseautage_on_off" %}">
+      {% csrf_token %}
+      <input name="accepte_reseautage" type="submit"
+             value="J'accepte de partager mon adresse courriel"/>
+    </form>
+  {% else %}
+    <form method="post" action="{% url "reseautage_on_off" %}">
+      {% csrf_token %}
+      <input name="refuse_reseautage" type="submit"
+             value="Je ne veux plus partager mon adresse courriel"/>
+    </form>
+
+    <h3>Parcourez la liste des participants</h3>
+    <p><em>Notez-bien que n'apparaissent dans la liste que les participants
+      confirmés, revenez plus tard pour un plus grand choix.</em></p>
+
+    <div class="liste-reseautage">
+      {% include "dossier_inscription/includes/liste_reseautage.html" %}
+    </div>
+
+
+  {% endif %}
+  <br/>
+  <h2>Activités</h2>
+
+  {% unicode_checkbox inscription.programmation_soiree_9_mai %}
+  Dîner du 9 mai<br/>
+  {% unicode_checkbox inscription.programmation_soiree_10_mai %}
+  Dîner du 10 mai<br/>
+  {% unicode_checkbox inscription.programmation_gala %}
+  Dîner de gala du 11 mai<br/>
+  {% if inscription.accompagnateur %}
+    <h3>Forfaits sélectionnés pour votre accompagnateur personnel</h3>
+    {% unicode_checkbox inscription.programmation_soiree_9_mai_invite %}
+    Dîner du 9 mai<br/>
+    {% unicode_checkbox inscription.programmation_soiree_10_mai_invite %}
+    Dîner du 10 mai<br/>
+    {% unicode_checkbox inscription.programmation_gala_invite %}
+    Dîner de gala du 11 mai<br/>
+    {% unicode_checkbox inscription.forfait_invite_dejeuners %}
+    Forfait 3 Déjeuners (9,10 et 11)<br/>
+    {% unicode_checkbox inscription.forfait_invite_transfert %}
+    2 transferts aéroport et hôtel<br/>
+  {% endif %}
+
+  <br/>
+  <h2>Informations de voyage</h2>
+  {% if inscription.prise_en_charge_hebergement %}
+  <h3>Hébergement</h3>
+  <p>
+    L'AUF a obtenu des tarifs négociés à l’hôtel Mogador, qui héberge le centre
+    des congrès ou se déroule l'AG. Obtenez ce tarif en spécifiant le code
+    promotionnel <strong>AG2017AUF</strong> lors de votre réservation.
+    La réservation de chambre peut être effectuée sur le site Internet sécurisé
+    de la centrale de réservations l'adresse suivante : 
+    <a href="https://almax.compassreservations.com/compass/external/index.cfm?Meeting_ID=58&Meeting_ID_code=529894856&code=AUF2013">
+    https://almax.compassreservations.com/compass/external/index.cfm?Meeting_ID=58&Meeting_ID_code=529894856&code=AUF2013
+    </a>
+  </p>
+  {% if avant_15_decembre %}
+    <p class="avertissement">
+      Bénéficiez d'une réduction supplémentaire en réservant avant le 15
+      décembre.
+    </p>
+  {% endif %}
+  {% endif %}
+  {#    {% ifequal inscription.type_chambre_hotel "2" %}#}
+{#      {% unicode_checkbox True %}#}
+{#      Chambre double<br/>#}
+{#    {% endifequal %}#}
+{#    Présentez-vous au comptoir de l’hôtel avec votre badge.#}
+{#    Votre badge vous sera remis à l'accueil de l'assemblée générale.#}
+
+
+  {% if not inscription.prise_en_charge_transport %}
+    <br/>
+    <a id="plan-vol"></a>
+    <h2>Renseignements sur mon plan de vol</h2>
+    <p> La saisie facultative de ces informations permettra à l'AUF de planifier
+      les navettes d'accueil et les départ à l'aéroport de Marrakech.(sous
+      réserve de disponibilité)</p>
+    <form id="plan-vol-dossier" method="POST"
+          action="{% url "dossier_inscription" %}#plan-vol">
+      {% csrf_token %}
+      <table>
+        <tr>
+          <td>Date d'arrivée</td>
+          <td>{{ plan_vol_form.arrivee_date }}
+          {{ plan_vol_form.arrivee_date.errors }}</td>
+          <td>Date de départ</td>
+          <td>{{ plan_vol_form.depart_date }}
+          {{ plan_vol_form.depart_date.errors }}</td>
+        </tr>
+        <tr>
+          <td>Heure d'arrivée</td>
+          <td>{{ plan_vol_form.arrivee_heure }}
+          {{ plan_vol_form.arrivee_heure.errors }}</td>
+          <td>Heure de départ</td>
+          <td>{{ plan_vol_form.depart_heure }}
+          {{ plan_vol_form.depart_heure.errors }}</td>
+        </tr>
+        <tr>
+          <td>Compagnie/N<sup>o</sup> de vol</td>
+          <td>{{ plan_vol_form.arrivee_vol }}
+          {{ plan_vol_form.arrivee_vol.errors }}</td>
+          <td>Compagnie/N<sup>o</sup> de vol</td>
+          <td>{{ plan_vol_form.depart_vol }}
+          {{ plan_vol_form.depart_vol.errors }}</td>
+        </tr>
+      </table>
+  <button class="bouton_sub" name="submit-plan-vol-form" type="submit">
+    Enregistrer</button>
+    </form>
+  {% endif %}
+
+{% include "inscription/paypal_include.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript"
+        src="{{ STATIC_URL }}scripts/jquery.formset.min.js"></script>
+<script type="text/javascript">
+function init_dossier() {
+  $("#adresse-container").on('click', '#modifier-adresse' ,
+      click_modifier_adresse);
+  $(".liste-reseautage").on('change', 'select', filtre_reseautage_change);
+  ajaxify_form_adresse();
+
+  $(function() {
+      $('#invitations tr').formset({
+          addText:'Ajouter un invité',
+          deleteText: ''
+      });
+      $('#id_arrivee_date').datepicker();
+      $('#id_depart_date').datepicker();
+  });
+}
+
+function filtre_reseautage_change() {
+  $('#filtre-reseautage').submit();
+}
+
+function ajaxify_form_adresse() {
+    $('#form-adresse form').ajaxForm({
+      success: form_adresse_submit_success
+    });
+}
+
+function form_adresse_submit_success(responseText) {
+  $('#adresse-container').html(responseText);
+  ajaxify_form_adresse();
+}
+
+function click_modifier_adresse(e) {
+  e.preventDefault();
+  $('#adresse').hide();
+  $('#form-adresse').show();
+}
+
+$("#tabs-paiement").tabs();
+$(init_dossier);
+</script>
+<script type="text/javascript" src="{{ STATIC_URL }}paypal.js"></script>
+
+
+{% endblock %}

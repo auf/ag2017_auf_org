@@ -319,36 +319,6 @@
     },
 
     {
-        "pk": 1, 
-        "model": "gestion.activite", 
-        "fields": {
-            "prix_invite": 30.0,
-            "prix": 0.0, 
-            "code": "unesp", 
-            "libelle": "Soir\u00e9e UNESP le 7 mai 2013"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "gestion.activite", 
-        "fields": {
-            "prix_invite": 30.0,
-            "prix": 0.0, 
-            "code": "8_mai", 
-            "libelle": "Soir\u00e9e interconsulaire le 8 mai 2013"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "gestion.activite", 
-        "fields": {
-            "prix_invite": 50.0,
-            "prix": 0.0, 
-            "code": "gala",
-            "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 9 mai 2013"
-        }
-    }, 
-    {
         "pk":1,
         "model":"gestion.typefrais",
         "fields":{

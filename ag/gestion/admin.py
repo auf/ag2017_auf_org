@@ -64,10 +64,10 @@ class InscriptionAdmin(ModelAdmin):
             'depart_heure', 'depart_compagnie', 'depart_vol',
         )}),
         (u"Programmation", {'fields': (
-            'programmation_soiree_unesp',
-            'programmation_soiree_unesp_invite',
-            'programmation_soiree_interconsulaire',
-            'programmation_soiree_interconsulaire_invite',
+            'programmation_soiree_9_mai',
+            'programmation_soiree_9_mai_invite',
+            'programmation_soiree_10_mai',
+            'programmation_soiree_10_mai_invite',
             'programmation_gala', 'programmation_gala_invite',
         )}),
         (u"Modalités", {'fields': ('paiement',)}),
@@ -90,7 +90,7 @@ class InscriptionAdmin(ModelAdmin):
     get_date_fermeture.short_description = u'Confirmation'
 
     def get_nom_region(self, obj):
-        return obj.get_etablissement().pays.region.nom
+        return obj.get_etablissement().region.nom
     get_nom_region.short_description = u'Région'
 
     def get_nom_prenom(self, obj):
@@ -149,7 +149,7 @@ class InvitationAdmin(ModelAdmin):
         'jeton',
         'enveloppe_id',
         'modele_id',
-        'nord_sud',
+        'sud',
         'statut',
     )
 

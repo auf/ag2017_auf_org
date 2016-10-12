@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import re
-from auf.django.references.models import Etablissement, Region
+from ag.reference.models import Etablissement, Region
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Div, MultiField, HTML, Submit
 from crispy_forms.layout import Field as crispy_Field
@@ -135,6 +135,9 @@ def require_field(form, cleaned_data, field_name, shown_on_field=None):
 
 
 class GestionModelForm(ModelForm):
+    class Meta:
+        exclude = ()
+
     def get_participant(self):
         return self.instance
 
@@ -711,6 +714,7 @@ class ArriveeDepartForm(GestionForm):
 class InviteForm(ModelForm):
     class Meta:
         model = Invite
+        fields = ('genre', 'nom', 'prenom')
 
     def __init__(self, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
@@ -850,6 +854,7 @@ VolGroupeFormSet = inlineformset_factory(VolGroupe, InfosVol, VolForm,
 class VolGroupeForm(ModelForm):
     class Meta:
         model = VolGroupe
+        fields = ('nom', 'nombre_de_sieges')
 
     def __init__(self, *args, **kwargs):
         super(VolGroupeForm, self).__init__(*args, **kwargs)

@@ -1,634 +1,280 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import migrations, models
+import auf.django.permissions
+import django.core.files.storage
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'TypeInstitutionSupplementaire'
-        db.create_table('gestion_typeinstitutionsupplementaire', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('ordre', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('gestion', ['TypeInstitutionSupplementaire'])
+    dependencies = [
+    ]
 
-        # Adding model 'StatutParticipant'
-        db.create_table('gestion_statutparticipant', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('ordre', self.gf('django.db.models.fields.IntegerField')()),
-            ('droit_de_vote', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('gestion', ['StatutParticipant'])
-
-        # Adding model 'PointDeSuivi'
-        db.create_table('gestion_pointdesuivi', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('ordre', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('gestion', ['PointDeSuivi'])
-
-        # Adding model 'Hotel'
-        db.create_table('gestion_hotel', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('adresse', self.gf('django.db.models.fields.TextField')()),
-            ('telephone', self.gf('django.db.models.fields.CharField')(max_length=32, blank=True)),
-            ('courriel', self.gf('django.db.models.fields.EmailField')(max_length=75, blank=True)),
-        ))
-        db.send_create_signal('gestion', ['Hotel'])
-
-        # Adding model 'Chambre'
-        db.create_table('gestion_chambre', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('hotel', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Hotel'])),
-            ('type_chambre', self.gf('django.db.models.fields.CharField')(max_length=1)),
-            ('places', self.gf('django.db.models.fields.IntegerField')()),
-            ('nb_total', self.gf('django.db.models.fields.IntegerField')(null=True)),
-            ('prix', self.gf('django.db.models.fields.FloatField')()),
-        ))
-        db.send_create_signal('gestion', ['Chambre'])
-
-        # Adding unique constraint on 'Chambre', fields ['hotel', 'type_chambre']
-        db.create_unique('gestion_chambre', ['hotel_id', 'type_chambre'])
-
-        # Adding model 'TypeFrais'
-        db.create_table('gestion_typefrais', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-        ))
-        db.send_create_signal('gestion', ['TypeFrais'])
-
-        # Adding model 'Activite'
-        db.create_table('gestion_activite', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('prix', self.gf('django.db.models.fields.FloatField')()),
-            ('prix_invite', self.gf('django.db.models.fields.FloatField')()),
-        ))
-        db.send_create_signal('gestion', ['Activite'])
-
-        # Adding model 'Probleme'
-        db.create_table('gestion_probleme', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('libelle', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('severite', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('gestion', ['Probleme'])
-
-        # Adding model 'ParticipationActivite'
-        db.create_table('gestion_participationactivite', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('activite', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Activite'])),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Participant'])),
-            ('avec_invites', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('gestion', ['ParticipationActivite'])
-
-        # Adding unique constraint on 'ParticipationActivite', fields ['activite', 'participant']
-        db.create_unique('gestion_participationactivite', ['activite_id', 'participant_id'])
-
-        # Adding model 'Participant'
-        db.create_table('gestion_participant', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('genre', self.gf('django.db.models.fields.CharField')(max_length=1, blank=True)),
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('prenom', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('nationalite', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('date_naissance', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('poste', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('courriel', self.gf('django.db.models.fields.EmailField')(max_length=75, blank=True)),
-            ('adresse', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('ville', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('pays', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('code_postal', self.gf('django.db.models.fields.CharField')(max_length=20, blank=True)),
-            ('telephone', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
-            ('telecopieur', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
-            ('date_arrivee_hotel', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('date_depart_hotel', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('paiement', self.gf('django.db.models.fields.CharField')(max_length=2, blank=True)),
-            ('inscription', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['inscription.Inscription'], null=True)),
-            ('utiliser_adresse_gde', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('statut', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.StatutParticipant'])),
-            ('notes_statut', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('desactive', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('type_institution', self.gf('django.db.models.fields.CharField')(max_length=1)),
-            ('instance_auf', self.gf('django.db.models.fields.CharField')(max_length=1)),
-            ('type_autre_institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.TypeInstitutionSupplementaire'], null=True)),
-            ('nom_autre_institution', self.gf('django.db.models.fields.CharField')(max_length=64, null=True)),
-            ('etablissement', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['references.Etablissement'], null=True)),
-            ('accompte', self.gf('django.db.models.fields.FloatField')(default=0, blank=True)),
-            ('numero_facture', self.gf('django.db.models.fields.IntegerField')(null=True)),
-            ('date_facturation', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('facturation_validee', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('notes_facturation', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('prise_en_charge_inscription', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('prise_en_charge_transport', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('prise_en_charge_sejour', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('prise_en_charge_activites', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('mode_paiement', self.gf('django.db.models.fields.CharField')(max_length=2, blank=True)),
-            ('imputation', self.gf('django.db.models.fields.CharField')(max_length=32, blank=True)),
-            ('modalite_versement_frais_sejour', self.gf('django.db.models.fields.CharField')(max_length=1, blank=True)),
-            ('transport_organise_par_auf', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('statut_dossier_transport', self.gf('django.db.models.fields.CharField')(max_length=1, blank=True)),
-            ('modalite_retrait_billet', self.gf('django.db.models.fields.CharField')(max_length=1, blank=True)),
-            ('numero_dossier_transport', self.gf('django.db.models.fields.CharField')(max_length=32, blank=True)),
-            ('notes_transport', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('remarques_transport', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('reservation_hotel_par_auf', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('notes_hebergement', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('hotel', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Hotel'], null=True)),
-        ))
-        db.send_create_signal('gestion', ['Participant'])
-
-        # Adding M2M table for field suivi on 'Participant'
-        db.create_table('gestion_participant_suivi', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('participant', models.ForeignKey(orm['gestion.participant'], null=False)),
-            ('pointdesuivi', models.ForeignKey(orm['gestion.pointdesuivi'], null=False))
-        ))
-        db.create_unique('gestion_participant_suivi', ['participant_id', 'pointdesuivi_id'])
-
-        # Adding M2M table for field problemes on 'Participant'
-        db.create_table('gestion_participant_problemes', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('participant', models.ForeignKey(orm['gestion.participant'], null=False)),
-            ('probleme', models.ForeignKey(orm['gestion.probleme'], null=False))
-        ))
-        db.create_unique('gestion_participant_problemes', ['participant_id', 'probleme_id'])
-
-        # Adding model 'Invite'
-        db.create_table('gestion_invite', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('genre', self.gf('django.db.models.fields.CharField')(max_length=1)),
-            ('nom', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('prenom', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Participant'])),
-        ))
-        db.send_create_signal('gestion', ['Invite'])
-
-        # Adding model 'ReservationChambre'
-        db.create_table('gestion_reservationchambre', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Participant'])),
-            ('type_chambre', self.gf('django.db.models.fields.CharField')(max_length=1)),
-            ('nombre', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('gestion', ['ReservationChambre'])
-
-        # Adding unique constraint on 'ReservationChambre', fields ['participant', 'type_chambre']
-        db.create_unique('gestion_reservationchambre', ['participant_id', 'type_chambre'])
-
-        # Adding model 'InfosVol'
-        db.create_table('gestion_infosvol', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Participant'])),
-            ('ville_depart', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            ('date_depart', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('heure_depart', self.gf('django.db.models.fields.TimeField')(null=True)),
-            ('ville_arrivee', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            ('date_arrivee', self.gf('django.db.models.fields.DateField')(null=True)),
-            ('heure_arrivee', self.gf('django.db.models.fields.TimeField')(null=True)),
-            ('numero_vol', self.gf('django.db.models.fields.CharField')(max_length=16, blank=True)),
-            ('compagnie', self.gf('django.db.models.fields.CharField')(max_length=64, blank=True)),
-            ('prix', self.gf('django.db.models.fields.FloatField')(null=True)),
-            ('type_infos', self.gf('django.db.models.fields.IntegerField')(default=2)),
-        ))
-        db.send_create_signal('gestion', ['InfosVol'])
-
-        # Adding model 'Frais'
-        db.create_table('gestion_frais', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Participant'])),
-            ('type_frais', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.TypeFrais'])),
-            ('montant', self.gf('django.db.models.fields.FloatField')()),
-        ))
-        db.send_create_signal('gestion', ['Frais'])
-
-        # Adding model 'Fichier'
-        db.create_table('gestion_fichier', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gestion.Participant'])),
-            ('fichier', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('cree_le', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('gestion', ['Fichier'])
-
-    def backwards(self, orm):
-        # Removing unique constraint on 'ReservationChambre', fields ['participant', 'type_chambre']
-        db.delete_unique('gestion_reservationchambre', ['participant_id', 'type_chambre'])
-
-        # Removing unique constraint on 'ParticipationActivite', fields ['activite', 'participant']
-        db.delete_unique('gestion_participationactivite', ['activite_id', 'participant_id'])
-
-        # Removing unique constraint on 'Chambre', fields ['hotel', 'type_chambre']
-        db.delete_unique('gestion_chambre', ['hotel_id', 'type_chambre'])
-
-        # Deleting model 'TypeInstitutionSupplementaire'
-        db.delete_table('gestion_typeinstitutionsupplementaire')
-
-        # Deleting model 'StatutParticipant'
-        db.delete_table('gestion_statutparticipant')
-
-        # Deleting model 'PointDeSuivi'
-        db.delete_table('gestion_pointdesuivi')
-
-        # Deleting model 'Hotel'
-        db.delete_table('gestion_hotel')
-
-        # Deleting model 'Chambre'
-        db.delete_table('gestion_chambre')
-
-        # Deleting model 'TypeFrais'
-        db.delete_table('gestion_typefrais')
-
-        # Deleting model 'Activite'
-        db.delete_table('gestion_activite')
-
-        # Deleting model 'Probleme'
-        db.delete_table('gestion_probleme')
-
-        # Deleting model 'ParticipationActivite'
-        db.delete_table('gestion_participationactivite')
-
-        # Deleting model 'Participant'
-        db.delete_table('gestion_participant')
-
-        # Removing M2M table for field suivi on 'Participant'
-        db.delete_table('gestion_participant_suivi')
-
-        # Removing M2M table for field problemes on 'Participant'
-        db.delete_table('gestion_participant_problemes')
-
-        # Deleting model 'Invite'
-        db.delete_table('gestion_invite')
-
-        # Deleting model 'ReservationChambre'
-        db.delete_table('gestion_reservationchambre')
-
-        # Deleting model 'InfosVol'
-        db.delete_table('gestion_infosvol')
-
-        # Deleting model 'Frais'
-        db.delete_table('gestion_frais')
-
-        # Deleting model 'Fichier'
-        db.delete_table('gestion_fichier')
-
-    models = {
-        'gestion.activite': {
-            'Meta': {'object_name': 'Activite'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'prix': ('django.db.models.fields.FloatField', [], {}),
-            'prix_invite': ('django.db.models.fields.FloatField', [], {})
-        },
-        'gestion.chambre': {
-            'Meta': {'unique_together': "(('hotel', 'type_chambre'),)", 'object_name': 'Chambre'},
-            'hotel': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Hotel']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nb_total': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
-            'places': ('django.db.models.fields.IntegerField', [], {}),
-            'prix': ('django.db.models.fields.FloatField', [], {}),
-            'type_chambre': ('django.db.models.fields.CharField', [], {'max_length': '1'})
-        },
-        'gestion.fichier': {
-            'Meta': {'object_name': 'Fichier'},
-            'cree_le': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'fichier': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'participant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Participant']"})
-        },
-        'gestion.frais': {
-            'Meta': {'object_name': 'Frais'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'montant': ('django.db.models.fields.FloatField', [], {}),
-            'participant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Participant']"}),
-            'type_frais': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.TypeFrais']"})
-        },
-        'gestion.hotel': {
-            'Meta': {'object_name': 'Hotel'},
-            'adresse': ('django.db.models.fields.TextField', [], {}),
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'})
-        },
-        'gestion.infosvol': {
-            'Meta': {'ordering': "['date_depart', 'heure_depart']", 'object_name': 'InfosVol'},
-            'compagnie': ('django.db.models.fields.CharField', [], {'max_length': '64', 'blank': 'True'}),
-            'date_arrivee': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'date_depart': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'heure_arrivee': ('django.db.models.fields.TimeField', [], {'null': 'True'}),
-            'heure_depart': ('django.db.models.fields.TimeField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'numero_vol': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'participant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Participant']"}),
-            'prix': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
-            'type_infos': ('django.db.models.fields.IntegerField', [], {'default': '2'}),
-            'ville_arrivee': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'ville_depart': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'})
-        },
-        'gestion.invite': {
-            'Meta': {'object_name': 'Invite'},
-            'genre': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'participant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Participant']"}),
-            'prenom': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'gestion.participant': {
-            'Meta': {'object_name': 'Participant'},
-            'accompte': ('django.db.models.fields.FloatField', [], {'default': '0', 'blank': 'True'}),
-            'activites': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['gestion.Activite']", 'through': "orm['gestion.ParticipationActivite']", 'symmetrical': 'False'}),
-            'adresse': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'code_postal': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'date_arrivee_hotel': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_depart_hotel': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_facturation': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_naissance': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'desactive': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Etablissement']", 'null': 'True'}),
-            'facturation_validee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'genre': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'hotel': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Hotel']", 'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'imputation': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
-            'inscription': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['inscription.Inscription']", 'null': 'True'}),
-            'instance_auf': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
-            'modalite_retrait_billet': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'modalite_versement_frais_sejour': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'mode_paiement': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
-            'nationalite': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'nom_autre_institution': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
-            'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'notes_facturation': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'notes_hebergement': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'notes_statut': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'notes_transport': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'numero_dossier_transport': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
-            'numero_facture': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
-            'paiement': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
-            'pays': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'poste': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'prenom': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'prise_en_charge_activites': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'prise_en_charge_inscription': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'prise_en_charge_sejour': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'prise_en_charge_transport': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'problemes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['gestion.Probleme']", 'symmetrical': 'False'}),
-            'remarques_transport': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'reservation_hotel_par_auf': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'statut': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.StatutParticipant']"}),
-            'statut_dossier_transport': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'suivi': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['gestion.PointDeSuivi']", 'symmetrical': 'False'}),
-            'telecopieur': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'transport_organise_par_auf': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'type_autre_institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.TypeInstitutionSupplementaire']", 'null': 'True'}),
-            'type_institution': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
-            'utiliser_adresse_gde': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'ville': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
-        },
-        'gestion.participationactivite': {
-            'Meta': {'unique_together': "(('activite', 'participant'),)", 'object_name': 'ParticipationActivite'},
-            'activite': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Activite']"}),
-            'avec_invites': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'participant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Participant']"})
-        },
-        'gestion.pointdesuivi': {
-            'Meta': {'ordering': "['ordre']", 'object_name': 'PointDeSuivi'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'ordre': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'gestion.probleme': {
-            'Meta': {'object_name': 'Probleme'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'severite': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'gestion.reservationchambre': {
-            'Meta': {'unique_together': "(('participant', 'type_chambre'),)", 'object_name': 'ReservationChambre'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nombre': ('django.db.models.fields.IntegerField', [], {}),
-            'participant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gestion.Participant']"}),
-            'type_chambre': ('django.db.models.fields.CharField', [], {'max_length': '1'})
-        },
-        'gestion.statutparticipant': {
-            'Meta': {'ordering': "['ordre']", 'object_name': 'StatutParticipant'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'droit_de_vote': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'ordre': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'gestion.typefrais': {
-            'Meta': {'object_name': 'TypeFrais'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'})
-        },
-        'gestion.typeinstitutionsupplementaire': {
-            'Meta': {'ordering': "['ordre']", 'object_name': 'TypeInstitutionSupplementaire'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libelle': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'ordre': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'inscription.inscription': {
-            'Meta': {'object_name': 'Inscription'},
-            'accompagnateur': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'accompagnateur_genre': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'accompagnateur_nom': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'accompagnateur_prenom': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'adresse': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'arrivee_compagnie': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'arrivee_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'arrivee_heure': ('django.db.models.fields.TimeField', [], {'null': 'True', 'blank': 'True'}),
-            'arrivee_vol': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'code_postal': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
-            'conditions_acceptees': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'date_arrivee_hotel': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_depart_hotel': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_fermeture': ('django.db.models.fields.DateField', [], {'null': 'True'}),
-            'date_naissance': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'demande_chambre': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'depart_compagnie': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'depart_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'depart_de': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
-            'depart_heure': ('django.db.models.fields.TimeField', [], {'null': 'True', 'blank': 'True'}),
-            'depart_vol': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'fermee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'genre': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'identite_confirmee': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'invitation': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['inscription.Invitation']", 'unique': 'True'}),
-            'nationalite': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'numero': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
-            'paiement': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
-            'pays': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'poste': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'prenom': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'prise_en_charge_hebergement': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
-            'prise_en_charge_transport': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
-            'programmation_gala': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'programmation_gala_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'programmation_soiree_interconsulaire': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'programmation_soiree_interconsulaire_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'programmation_soiree_unesp': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'programmation_soiree_unesp_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'telecopieur': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'type_chambre_hotel': ('django.db.models.fields.CharField', [], {'default': "'S'", 'max_length': '1'}),
-            'ville': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
-        },
-        'inscription.invitation': {
-            'Meta': {'object_name': 'Invitation'},
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True'}),
-            'etablissement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Etablissement']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'jeton': ('django.db.models.fields.CharField', [], {'default': "'dLIXhCPZIEc1SBJtEBkbLdUL5Q8iKj0U'", 'max_length': '32'}),
-            'pour_mandate': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
-        },
-        'references.bureau': {
-            'Meta': {'ordering': "['nom']", 'object_name': 'Bureau', 'db_table': "u'ref_bureau'", 'managed': 'False'},
-            'actif': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'implantation': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Implantation']", 'db_column': "'implantation'"}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'nom_court': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'nom_long': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Region']", 'db_column': "'region'"})
-        },
-        'references.etablissement': {
-            'Meta': {'ordering': "['pays__nom', 'nom']", 'object_name': 'Etablissement', 'db_table': "u'ref_etablissement'", 'managed': 'False'},
-            'actif': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'adresse': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'cedex': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
-            'code_postal': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
-            'commentaire': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'date_modification': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'historique': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'implantation': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'db_column': "'implantation'", 'to': "orm['references.Implantation']"}),
-            'membre': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'membre_adhesion_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'pays': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to_field': "'code'", 'db_column': "'pays'", 'to': "orm['references.Pays']"}),
-            'province': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'qualite': ('django.db.models.fields.CharField', [], {'max_length': '3', 'null': 'True', 'blank': 'True'}),
-            'region': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'db_column': "'region'", 'to': "orm['references.Region']"}),
-            'responsable_courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'responsable_fonction': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'responsable_genre': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
-            'responsable_nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'responsable_prenom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'sigle': ('django.db.models.fields.CharField', [], {'max_length': '16', 'blank': 'True'}),
-            'statut': ('django.db.models.fields.CharField', [], {'max_length': '1', 'null': 'True', 'blank': 'True'}),
-            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'blank': 'True'}),
-            'ville': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
-        },
-        'references.implantation': {
-            'Meta': {'ordering': "['nom']", 'object_name': 'Implantation', 'db_table': "u'ref_implantation'", 'managed': 'False'},
-            'actif': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'adresse_physique_bureau': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'adresse_physique_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'adresse_physique_code_postal_avant_ville': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
-            'adresse_physique_no': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'adresse_physique_pays': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'impl_adresse_physique'", 'to_field': "'code'", 'db_column': "'adresse_physique_pays'", 'to': "orm['references.Pays']"}),
-            'adresse_physique_precision': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'adresse_physique_precision_avant': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'adresse_physique_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'adresse_physique_rue': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'adresse_physique_ville': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'adresse_postale_boite_postale': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_bureau': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_code_postal': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_code_postal_avant_ville': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
-            'adresse_postale_no': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_pays': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'impl_adresse_postale'", 'to_field': "'code'", 'db_column': "'adresse_postale_pays'", 'to': "orm['references.Pays']"}),
-            'adresse_postale_precision': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_precision_avant': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_region': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_rue': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'adresse_postale_ville': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'bureau_rattachement': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Implantation']", 'db_column': "'bureau_rattachement'"}),
-            'code_meteo': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'commentaire': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'courriel': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'courriel_interne': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'date_extension': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_fermeture': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_inauguration': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'date_ouverture': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'fax': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'fax_interne': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'fuseau_horaire': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'hebergement_convention': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
-            'hebergement_convention_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'hebergement_etablissement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modif_date': ('django.db.models.fields.DateField', [], {}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'nom_court': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'nom_long': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Region']", 'db_column': "'region'"}),
-            'remarque': ('django.db.models.fields.TextField', [], {}),
-            'responsable_implantation': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'statut': ('django.db.models.fields.IntegerField', [], {}),
-            'telephone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'telephone_interne': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'blank': 'True'})
-        },
-        'references.pays': {
-            'Meta': {'ordering': "['nom']", 'object_name': 'Pays', 'db_table': "u'ref_pays'", 'managed': 'False'},
-            'actif': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '2'}),
-            'code_bureau': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Bureau']", 'to_field': "'code'", 'null': 'True', 'db_column': "'code_bureau'", 'blank': 'True'}),
-            'code_iso3': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '3'}),
-            'developpement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'monnaie': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'nord_sud': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['references.Region']", 'db_column': "'region'"})
-        },
-        'references.region': {
-            'Meta': {'ordering': "['nom']", 'object_name': 'Region', 'db_table': "u'ref_region'", 'managed': 'False'},
-            'actif': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'implantation_bureau': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'gere_region'", 'null': 'True', 'db_column': "'implantation_bureau'", 'to': "orm['references.Implantation']"}),
-            'nom': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'})
-        }
-    }
-
-    complete_apps = ['gestion']
+    operations = [
+        migrations.CreateModel(
+            name='Invitation',
+            fields=[
+                ('etablissement_nom', models.CharField(max_length=765)),
+                ('etablissement_id', models.IntegerField(serialize=False, primary_key=True)),
+                ('etablissement_region_id', models.IntegerField(null=True, blank=True)),
+                ('jeton', models.CharField(max_length=96)),
+                ('enveloppe_id', models.IntegerField()),
+                ('modele_id', models.IntegerField()),
+                ('sud', models.BooleanField()),
+                ('statut', models.CharField(max_length=3, blank=True)),
+            ],
+            options={
+                'verbose_name': 'Invitation',
+                'db_table': 'invitations',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='Activite',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('prix', models.FloatField()),
+                ('prix_invite', models.FloatField(verbose_name='Prix pour les invit\xe9s')),
+            ],
+            options={
+                'verbose_name': 'Activit\xe9',
+            },
+        ),
+        migrations.CreateModel(
+            name='ActiviteScientifique',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('max_participants', models.IntegerField(default=999, verbose_name='Nb de places')),
+            ],
+            options={
+                'ordering': ['libelle'],
+                'verbose_name': 'activit\xe9 scientifique',
+                'verbose_name_plural': 'activit\xe9s scientifiques',
+            },
+        ),
+        migrations.CreateModel(
+            name='AGRole',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type_role', models.CharField(max_length=1, verbose_name='Type', choices=[(b'C', 'Comptable'), (b'I', 'SAI'), (b'L', 'Lecteur'), (b'A', 'Admin'), (b'S', 'S\xe9jour')])),
+            ],
+            options={
+                'verbose_name': 'R\xf4le utilisateur',
+                'verbose_name_plural': 'R\xf4les des utilisateurs',
+            },
+            bases=(models.Model, auf.django.permissions.Role),
+        ),
+        migrations.CreateModel(
+            name='Chambre',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type_chambre', models.CharField(max_length=1, verbose_name='Type de chambre', choices=[(b'S', 'Chambre simple'), (b'D', 'Chambre double'), (b'1', 'Chambre simple sup\xe9rieure'), (b'2', 'Chambre double sup\xe9rieure'), (b'L', 'Chambre Luxo (simple)'), (b'A', 'Chambre anti-allerg\xe9nique')])),
+                ('places', models.IntegerField()),
+                ('nb_total', models.IntegerField(null=True)),
+                ('prix', models.FloatField()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Fichier',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('fichier', models.FileField(storage=django.core.files.storage.FileSystemStorage(location=b'/media/benselme/data/dev/projects/auf/ag2017_auf_org/medias_participants'), upload_to=b'.')),
+                ('cree_le', models.DateTimeField(auto_now_add=True, verbose_name='cr\xe9\xe9 le ')),
+                ('efface_le', models.DateTimeField(null=True, verbose_name='effac\xe9 le ')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Frais',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('quantite', models.IntegerField(default=1, verbose_name='quantit\xe9')),
+                ('montant', models.FloatField()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Hotel',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('adresse', models.TextField()),
+                ('telephone', models.CharField(max_length=32, blank=True)),
+                ('courriel', models.EmailField(max_length=254, blank=True)),
+                ('cacher_dans_tableau_de_bord', models.BooleanField(default=False, verbose_name='Ne pas montrer dans le tableau de bord')),
+            ],
+            options={
+                'verbose_name': 'H\xf4tel',
+                'verbose_name_plural': 'H\xf4tels',
+            },
+        ),
+        migrations.CreateModel(
+            name='InfosVol',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('ville_depart', models.CharField(max_length=128, verbose_name='Ville de d\xe9part', blank=True)),
+                ('date_depart', models.DateField(null=True, verbose_name='Date de d\xe9part', blank=True)),
+                ('heure_depart', models.TimeField(null=True, verbose_name='Heure de d\xe9part', blank=True)),
+                ('ville_arrivee', models.CharField(max_length=128, verbose_name="Ville d'arriv\xe9e", blank=True)),
+                ('date_arrivee', models.DateField(null=True, verbose_name="Date d'arriv\xe9e", blank=True)),
+                ('heure_arrivee', models.TimeField(null=True, verbose_name="Heure d'arriv\xe9e", blank=True)),
+                ('numero_vol', models.CharField(max_length=16, verbose_name='N\xb0 vol', blank=True)),
+                ('compagnie', models.CharField(max_length=64, blank=True)),
+                ('prix', models.FloatField(null=True, blank=True)),
+                ('type_infos', models.IntegerField(default=2, choices=[(0, 'Arriv\xe9e seulement'), (1, 'D\xe9part seulement'), (2, "Vol organis\xe9 par l'AUF"), (3, 'Vol group\xe9')])),
+            ],
+            options={
+                'ordering': ['date_depart', 'heure_depart'],
+            },
+        ),
+        migrations.CreateModel(
+            name='Invite',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('genre', models.CharField(max_length=1, choices=[(b'M', b'M.'), (b'F', b'Mme')])),
+                ('nom', models.CharField(max_length=100, verbose_name=b'nom')),
+                ('prenom', models.CharField(max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Participant',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('genre', models.CharField(blank=True, max_length=1, verbose_name=b'civilit\xc3\xa9', choices=[(b'M', b'M.'), (b'F', b'Mme')])),
+                ('nom', models.CharField(help_text='tel que sur le passeport', max_length=100, verbose_name=b'nom')),
+                ('prenom', models.CharField(help_text='tel que sur le passeport', max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
+                ('nationalite', models.CharField(max_length=100, verbose_name=b'nationalit\xc3\xa9', blank=True)),
+                ('date_naissance', models.DateField(help_text='format: jj/mm/aaaa', null=True, verbose_name=b'   Date de naissance', blank=True)),
+                ('poste', models.CharField(max_length=100, verbose_name=b'poste occup\xc3\xa9', blank=True)),
+                ('courriel', models.EmailField(max_length=254, blank=True)),
+                ('adresse', models.TextField(help_text="Ceci est l'adresse de votre \xe9tablissement. Modifiez ces donn\xe9es pour changer l'adresse de facturation.", verbose_name=b'Adresse de facturation', blank=True)),
+                ('ville', models.CharField(max_length=100, blank=True)),
+                ('pays', models.CharField(max_length=100, blank=True)),
+                ('code_postal', models.CharField(max_length=20, blank=True)),
+                ('telephone', models.CharField(max_length=50, verbose_name=b't\xc3\xa9l\xc3\xa9phone', blank=True)),
+                ('telecopieur', models.CharField(max_length=50, verbose_name=b't\xc3\xa9l\xc3\xa9copieur', blank=True)),
+                ('date_arrivee_hotel', models.DateField(null=True, verbose_name="Date d'arriv\xe9e", blank=True)),
+                ('date_depart_hotel', models.DateField(null=True, verbose_name='Date de d\xe9part', blank=True)),
+                ('paiement', models.CharField(blank=True, max_length=2, verbose_name=b'modalit\xc3\xa9s de paiement', choices=[(b'CB', b'Carte bancaire'), (b'VB', b'Virement bancaire'), (b'CE', b'Ch\xc3\xa8que en euros'), (b'DL', b'Devises locales')])),
+                ('utiliser_adresse_gde', models.BooleanField(default=False, verbose_name='Utiliser adresse GDE pour la facturation')),
+                ('notes', models.TextField(blank=True)),
+                ('notes_statut', models.TextField(blank=True)),
+                ('desactive', models.BooleanField(default=False, verbose_name='D\xe9sactiv\xe9')),
+                ('type_institution', models.CharField(max_length=1, verbose_name="Type de l'institution repr\xe9sent\xe9e", choices=[(b'E', '\xc9tablissement'), (b'I', "Instance de l'AUF"), (b'A', 'Autre')])),
+                ('instance_auf', models.CharField(max_length=1, verbose_name="Instance de l'AUF", choices=[(b'A', "Conseil d'administration"), (b'S', 'Conseil scientifique'), (b'C', 'Conseil associatif')])),
+                ('nom_autre_institution', models.CharField(max_length=64, null=True, verbose_name="Nom de l'institution")),
+                ('accompte', models.FloatField(default=0, verbose_name='paiement (\u20ac)', blank=True)),
+                ('montant_accompte_devise_locale', models.FloatField(default=0, null=True, verbose_name='paiement en devises locales', blank=True)),
+                ('accompte_devise_locale', models.CharField(max_length=3, null=True, verbose_name='devise paiement', blank=True)),
+                ('numero_facture', models.IntegerField(null=True, verbose_name='Num\xe9ro de facture')),
+                ('date_facturation', models.DateField(null=True, verbose_name='Date de facturation', blank=True)),
+                ('facturation_validee', models.BooleanField(default=False, verbose_name='Facturation valid\xe9e')),
+                ('notes_facturation', models.TextField(blank=True)),
+                ('prise_en_charge_inscription', models.BooleanField(default=False, verbose_name="Prise en charge frais d'inscription")),
+                ('prise_en_charge_transport', models.NullBooleanField(verbose_name='Prise en charge transport')),
+                ('prise_en_charge_sejour', models.NullBooleanField(verbose_name='Prise en charge s\xe9jour')),
+                ('prise_en_charge_activites', models.BooleanField(default=False, verbose_name='Prise en charge activit\xe9s')),
+                ('facturation_supplement_chambre_double', models.BooleanField(default=False, verbose_name='Facturer un suppl\xe9ment pour une chambre double')),
+                ('imputation', models.CharField(blank=True, max_length=32, choices=[(b'90002AG201', b'90002AG201'), (b'90002AG202', b'90002AG202'), (b'90002AG203', b'90002AG203')])),
+                ('modalite_versement_frais_sejour', models.CharField(blank=True, max_length=1, verbose_name='Modalit\xe9 de versement', choices=[(b'A', '\xc0 votre arriv\xe9e \xe0 Sao paulo'), (b'I', 'Par le bureau r\xe9gional')])),
+                ('transport_organise_par_auf', models.BooleanField(default=False, verbose_name="Transport organis\xe9 par l'AUF")),
+                ('statut_dossier_transport', models.CharField(blank=True, max_length=1, verbose_name='Statut dossier', choices=[(b'E', 'En cours'), (b'C', 'Compl\xe9t\xe9')])),
+                ('modalite_retrait_billet', models.CharField(blank=True, max_length=1, verbose_name='Modalit\xe9 de retrait du billet', choices=[('0', 'Vos billets vous seront transmis par votre bureau r\xe9gional'), ('1', 'Vos billets seront disponibles au comptoir de la compagnie a\xe9rienne'), ('3', "Vos bilets de train et d'avion vous seront transmis par votre bureau r\xe9gional"), ('4', "Vos bilets de train et d'avion seront disponibles aux comptoirs de la compagnie a\xe9rienne et de la SNCF")])),
+                ('numero_dossier_transport', models.CharField(max_length=32, verbose_name='num\xe9ro de dossier', blank=True)),
+                ('notes_transport', models.TextField(verbose_name='Notes', blank=True)),
+                ('remarques_transport', models.TextField(verbose_name='Remarques reprises sur itin\xe9raire', blank=True)),
+                ('reservation_hotel_par_auf', models.BooleanField(default=False, verbose_name="r\xe9servation d'un h\xf4tel")),
+                ('notes_hebergement', models.TextField(verbose_name='notes h\xe9bergement', blank=True)),
+                ('commentaires', models.TextField(null=True, blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='ParticipationActivite',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('avec_invites', models.BooleanField(default=False)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PointDeSuivi',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('ordre', models.IntegerField()),
+            ],
+            options={
+                'ordering': ['ordre'],
+                'verbose_name': 'Point de suivi participant',
+                'verbose_name_plural': 'Points de suivi participants',
+            },
+        ),
+        migrations.CreateModel(
+            name='ReservationChambre',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type_chambre', models.CharField(max_length=1, choices=[(b'S', 'Chambre simple'), (b'D', 'Chambre double'), (b'1', 'Chambre simple sup\xe9rieure'), (b'2', 'Chambre double sup\xe9rieure'), (b'L', 'Chambre Luxo (simple)'), (b'A', 'Chambre anti-allerg\xe9nique')])),
+                ('nombre', models.IntegerField()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='StatutParticipant',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('ordre', models.IntegerField()),
+                ('droit_de_vote', models.BooleanField(default=False)),
+            ],
+            options={
+                'ordering': ['ordre'],
+                'verbose_name': 'Statut participant',
+                'verbose_name_plural': 'Statuts participants',
+            },
+        ),
+        migrations.CreateModel(
+            name='TypeFrais',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+            ],
+            options={
+                'ordering': ['libelle'],
+                'verbose_name': 'Type de frais',
+                'verbose_name_plural': 'Types de frais',
+            },
+        ),
+        migrations.CreateModel(
+            name='TypeInstitutionSupplementaire',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('ordre', models.IntegerField()),
+            ],
+            options={
+                'ordering': ['ordre'],
+                'verbose_name': "Type d'institution suppl\xe9mentaire",
+                'verbose_name_plural': "Types d'institutions suppl\xe9mentaires",
+            },
+        ),
+        migrations.CreateModel(
+            name='VolGroupe',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nom', models.CharField(max_length=256)),
+                ('nombre_de_sieges', models.IntegerField(null=True, blank=True)),
+            ],
+            options={
+                'ordering': ['nom'],
+            },
+        ),
+    ]

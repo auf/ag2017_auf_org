@@ -5,7 +5,7 @@ import os
 import unicodedata
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 
-from auf.django.references.models import Etablissement, Region, Pays
+from ag.reference.models import Etablissement, Region, Pays
 from auf.django.permissions import Role
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -13,13 +13,10 @@ from django.core.files.storage import FileSystemStorage
 from django.db import connection
 from django.db.models import Model, PROTECT
 from django.db.models.aggregates import Sum, Max, Min, Count
-from django.db.models.fields import (
+from django.db.models import (
     CharField, DateField, EmailField, TextField, FloatField, IntegerField,
-    BooleanField, TimeField, DateTimeField, NullBooleanField)
-from django.db.models.fields.files import FileField
-from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.db.models.manager import Manager
-from django.db.models.query_utils import Q
+    BooleanField, TimeField, DateTimeField, NullBooleanField,
+    ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
 from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
@@ -40,7 +37,7 @@ class StatutParticipant(core.TableReferenceOrdonnee):
         verbose_name = u"Statut participant"
         verbose_name_plural = u"Statuts participants"
         ordering = ['ordre']
-    droit_de_vote = BooleanField()
+    droit_de_vote = BooleanField(default=False)
 
     def __unicode__(self):
         libelle = self.libelle
@@ -51,7 +48,7 @@ class StatutParticipant(core.TableReferenceOrdonnee):
 
 class PointDeSuiviManager(Manager):
     def avec_nombre_participants(self):
-        queryset = self.get_query_set().filter(
+        queryset = self.get_queryset().filter(
             Q(participant__desactive=False) |
             Q(participant__isnull=True))
         queryset = queryset.annotate(
@@ -176,7 +173,7 @@ class TypeFrais(core.TableReference):
 
 class ActiviteManager(Manager):
     def with_stats(self):
-        qs = self.get_query_set()
+        qs = self.get_queryset()
         BASE_QUERY = """
             (SELECT count(*) FROM gestion_participationactivite gp
             INNER JOIN gestion_participant p on p.id = gp.participant_id
@@ -266,7 +263,7 @@ class ActiviteScientifique(core.TableReference):
 class ParticipationActivite(Model):
     activite = ForeignKey(Activite)
     participant = ForeignKey('Participant')
-    avec_invites = BooleanField()
+    avec_invites = BooleanField(default=False)
 
     class Meta:
         unique_together = ('activite', 'participant')
@@ -274,34 +271,38 @@ class ParticipationActivite(Model):
 
 class ParticipantsManager(Manager):
 
-    def get_query_set(self):
+    def get_queryset(self):
         return ParticipantsQuerySet(self.model)
 
     def actifs(self, **kwargs):
-        return self.get_query_set().actifs(**kwargs)
+        return self.get_queryset().actifs(**kwargs)
 
     def sql_expr(self, *args, **kwargs):
-        return self.get_query_set().sql_expr(*args, **kwargs)
+        return self.get_queryset().sql_expr(*args, **kwargs)
 
     def sql_filter(self, *args, **kwargs):
-        return self.get_query_set().sql_filter(*args, **kwargs)
+        return self.get_queryset().sql_filter(*args, **kwargs)
 
     def sql_extra_fields(self, *args, **kwargs):
-        return self.get_query_set().sql_extra_fields(*args, **kwargs)
+        return self.get_queryset().sql_extra_fields(*args, **kwargs)
 
     def avec_region_vote(self):
-        return self.get_query_set().avec_region_vote()
+        return self.get_queryset().avec_region_vote()
 
     def filter_region_vote(self, code_region_vote):
-        return self.get_query_set().filter_region_vote(code_region_vote)
+        return self.get_queryset().filter_region_vote(code_region_vote)
 
 
 class ParticipantsActifsManager(ParticipantsManager):
 
-    def get_query_set(self):
-        return super(ParticipantsActifsManager, self).get_query_set().actifs()
+    def get_queryset(self):
+        return super(ParticipantsActifsManager, self).get_queryset().actifs()
 
 nouveau_participant = Signal()
+
+
+EN_COURS = 'E'
+COMPLETE = 'C'
 
 
 class Participant(RenseignementsPersonnels):
@@ -329,7 +330,7 @@ class Participant(RenseignementsPersonnels):
     )
 
     # référence à l'inscription effectuée par le web, si applicable
-    inscription = ForeignKey(Inscription, null=True)
+    inscription = OneToOneField(Inscription, null=True)
     # utiliser l'adresse GDE comme adresse du participant
     utiliser_adresse_gde = BooleanField(
         u"Utiliser adresse GDE pour la facturation", default=False)
@@ -351,10 +352,12 @@ class Participant(RenseignementsPersonnels):
     nom_autre_institution = CharField(
         u"Nom de l'institution", max_length=64, null=True)
     pays_autre_institution = ForeignKey(Pays, verbose_name=u"Pays", null=True,
-                                        blank=True)
+                                        blank=True, db_constraint=False)
     etablissement = ForeignKey(
-        Etablissement, null=True, verbose_name=u"Établissement")
-    region = ForeignKey(Region, verbose_name=u"Région", null=True)
+        Etablissement, null=True, verbose_name=u"Établissement",
+        db_constraint=False)
+    region = ForeignKey(Region, verbose_name=u"Région", null=True,
+                        db_constraint=False)
     # facturation
     accompte = FloatField(u'paiement (€)', default=0, blank=True)
     montant_accompte_devise_locale = FloatField(u'paiement en devises locales',
@@ -390,7 +393,7 @@ class Participant(RenseignementsPersonnels):
                                               default=False)
     statut_dossier_transport = CharField(
         u"Statut dossier", max_length=1,
-        choices=(('E', u"En cours"), ('C', u"Complété")), blank=True
+        choices=((EN_COURS, u"En cours"), (COMPLETE, u"Complété")), blank=True
     )
     modalite_retrait_billet = CharField(
         u"Modalité de retrait du billet",
@@ -544,9 +547,9 @@ class Participant(RenseignementsPersonnels):
         elif self.type_institution == 'A':
             type_autre_institution = self.type_autre_institution.libelle
             if self.nom_autre_institution:
-                return ''.join([type_autre_institution,
-                                u', ',
-                                self.nom_autre_institution])
+                return u''.join([type_autre_institution,
+                                 u', ',
+                                 self.nom_autre_institution])
             else:
                 return type_autre_institution
 
@@ -626,6 +629,18 @@ class Participant(RenseignementsPersonnels):
         infos.numero_vol = numero_vol
         infos.compagnie = compagnie
         infos.save()
+
+    def set_infos_depart_arrivee(self, inscription):
+        if inscription.arrivee_date:
+            self.set_infos_arrivee(inscription.arrivee_date,
+                                   inscription.arrivee_heure,
+                                   inscription.arrivee_vol,
+                                   inscription.arrivee_compagnie, u"")
+        if inscription.depart_date:
+            self.set_infos_depart(inscription.depart_date,
+                                  inscription.depart_heure,
+                                  inscription.depart_vol,
+                                  inscription.depart_compagnie, u"")
 
     def set_infos_depart(self, date, heure, numero_vol, compagnie,
                          ville):
@@ -766,16 +781,22 @@ class Participant(RenseignementsPersonnels):
     def get_paiement_string(self):
         display = self.get_paiement_display()
         if self.accompte:
-            display += u', paiement : ' + str(self.accompte) + u'€'
+            display += u', paiement : ' + unicode(self.accompte) + u'€'
         if self.paiement == 'CB' and self.inscription:
             display += self.inscription.statut_paypal_text()
         return display
 
     def get_etablissement_sud(self):
-        return self.etablissement and self.etablissement.pays.nord_sud == "Sud"
+        return self.etablissement and self.etablissement.pays.sud
 
     def get_region_vote_string(self):
         return REGIONS_VOTANTS_DICT[self.region_vote]
+
+    def get_verse_en_trop(self):
+        return -min(self.total_facture - self.accompte, 0)
+
+    def get_solde_a_payer(self):
+        return max(self.total_facture - self.accompte, 0)
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:
@@ -824,8 +845,8 @@ class ReservationChambre(Model):
 
 
 class VolGroupeManager(Manager):
-    def get_query_set(self):
-        return super(VolGroupeManager, self).get_query_set()\
+    def get_queryset(self):
+        return super(VolGroupeManager, self).get_queryset()\
             .extra(select={'nb_participants': """
                 (SELECT count(*) from gestion_participant
                  WHERE gestion_participant.vol_groupe_id =
@@ -1089,7 +1110,8 @@ class AGRole(Model, Role):
         (ROLE_SEJOUR, u'Séjour')
     )
     user = ForeignKey(User, verbose_name=u'utilisateur', related_name='roles')
-    region = ForeignKey(Region, verbose_name=u'Région', null=True, blank=True)
+    region = ForeignKey(Region, verbose_name=u'Région', null=True, blank=True,
+                        db_constraint=False)
     type_role = CharField(u'Type', max_length=1, choices=TYPES_ROLES)
 
     class Meta:
@@ -1102,10 +1124,17 @@ class AGRole(Model, Role):
             s += u' ' + self.region.nom
         return s
 
-    def has_perm(self, perm):
-        return (self.type_role == ROLE_ADMIN
-                or perm == PERM_LECTURE
-                or (perm, self.type_role) in ALLOWED)
+    def has_perm(self, perm, obj=None):
+        allowed = (self.type_role == ROLE_ADMIN or
+                   perm == PERM_LECTURE or
+                   (perm, self.type_role) in ALLOWED)
+        if allowed and obj and isinstance(obj, Participant):
+            allowed = (allowed and
+                       ((obj.type_institution == Participant.ETABLISSEMENT and
+                         obj.etablissement.region == self.region) or
+                        obj.region == self.region)
+                       )
+        return allowed
 
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
@@ -1139,7 +1168,7 @@ class Invitation(Model):
     jeton = CharField(max_length=96)
     enveloppe_id = IntegerField()
     modele_id = IntegerField()
-    nord_sud = CharField(max_length=765, blank=True)
+    sud = BooleanField()
     statut = CharField(max_length=3, blank=True)
 
     class Meta:

@@ -1,10 +1,10 @@
 <div id="act_sci_participant"></div>
-<div id="bouton_deconnexion"><a href="{% url act_sci_logout %}">Déconnexion</a></div>
+<div id="bouton_deconnexion"><a href="{% url "act_sci_logout" %}">Déconnexion</a></div>
 <h2>{{ participant.get_nom_prenom }}</h2>
 {{ adresse_courriel }}
 Veuillez sélectionner une activité pour réserver votre place
 {#% now "jS F Y H:i:s" %#}
-<form id="pick_act_sci_form" method="post" action="{% url act_sci_pick %}">
+<form id="pick_act_sci_form" method="post" action="{% url "act_sci_pick" %}">
     {% csrf_token %}
     <ul>
     {% for activite in activites %}
@@ -28,7 +28,7 @@ Veuillez sélectionner une activité pour réserver votre place
 </form>
 {% if just_saved %}<div id="just_saved">Changement enregistré !</div>{% endif %}
 {% if participant.activite_scientifique %}
-<div id="bouton_retirer"><a href="{% url act_sci_clear %}"><img src="/static/img/retirer_gris.png" width="14px">Annuler ma participation</a></div>
+<div id="bouton_retirer"><a href="{% url "act_sci_clear" %}"><img src="/static/img/retirer_gris.png" width="14px">Annuler ma participation</a></div>
 {% endif %}
 <script type="text/javascript">
     $(function() {

@@ -16,8 +16,8 @@
 {% endblock %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
-        <a href="{% url participants %}">Participants</a> &rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
+        <a href="{% url "participants" %}">Participants</a> &rsaquo;
         {{ participant.nom }}, {{ participant.prenom }}
     </div>
 {% endblock breadcrumbs %}
@@ -40,7 +40,7 @@
     <h2>Renseignements Personnels</h2>
     <div class="actions">
     {% ifhasperm perms_dict.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS participant %}
-    <a href="{% url renseignements_personnels participant.id %}" class="changelink">Modifier</a>
+    <a href="{% url "renseignements_personnels" participant.id %}" class="changelink">Modifier</a>
     {% endifhasperm %}
     </div>
     <table cellspacing="0"><tbody>
@@ -91,7 +91,7 @@
         <h2>Invités</h2>
         <div class="actions">
         {% ifhasperm perms_dict.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS participant %}
-        <a href="{% url invites participant.id %}" class="changelink">Modifier</a>
+        <a href="{% url "invites" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
 				<table cellspacing="0">
@@ -115,7 +115,7 @@
         <h2 class="vert">Séjour</h2>
         <div class="actions">
         {% ifhasperm perms_dict.PERM_MODIF_SEJOUR participant %}
-        <a href="{% url sejour participant.id %}" class="changelink">Modifier</a>
+        <a href="{% url "sejour" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
         <table cellspacing="0">
@@ -184,10 +184,10 @@
         <h2 class="vert">Transport</h2>
         <div class="actions">
         {% if participant.transport_organise_par_auf %}
-        <a href="{% url itineraire_pdf participant.id %}" class="printlink">Imprimer</a>
+        <a href="{% url "itineraire_pdf" participant.id %}" class="printlink">Imprimer</a>
         {% endif %}
         {% ifhasperm perms_dict.PERM_MODIF_SEJOUR participant %}
-        <a href="{% url transport participant.id %}" class="changelink">Modifier</a>
+        <a href="{% url "transport" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
         <table cellspacing="0"><tbody>
@@ -235,7 +235,7 @@
         <h2 class="vert">Notes de frais</h2>
         <div class="actions">
             {% ifhasperm perms_dict.PERM_MODIF_NOTES_DE_FRAIS participant %}
-                <a href="{% url notes_de_frais participant.id %}" class="changelink">Modifier</a>
+                <a href="{% url "notes_de_frais" participant.id %}" class="changelink">Modifier</a>
             {% endifhasperm %}
         </div>
         <table cellspacing="0"><tbody>
@@ -266,10 +266,10 @@
         <h2 class="rouge">Facturation</h2>
         <div class="actions">
         {% if participant.numero_facture %}
-            <a href="{% url facture_pdf participant.id %}" class="printlink">Imprimer</a>
+            <a href="{% url "facture_pdf" participant.id %}" class="printlink">Imprimer</a>
         {% endif %}
         {% ifhasperm perms_dict.PERM_MODIF_FACTURATION participant %}
-        <a href="{% url facturation participant.id %}" class="changelink">Modifier</a>
+        <a href="{% url "facturation" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
         <table>
@@ -376,7 +376,7 @@
         <h2>Fichiers</h2>
         <div class="actions">
         {% ifhasperm perms_dict.PERM_MODIF_FICHIERS participant %}
-        <a href="{% url fichiers participant.id %}" class="changelink">Modifier</a>
+        <a href="{% url "fichiers" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
         <table cellspacing="0">
@@ -424,7 +424,7 @@
                 <h2>Suivi</h2>
                 <div class="actions">
                     {% ifhasperm perms_dict.PERM_MODIF_SUIVI participant %}
-                        <a href="{% url suivi participant.id %}" class="changelink">Modifier</a>
+                        <a href="{% url "suivi" participant.id %}" class="changelink">Modifier</a>
                     {% endifhasperm %}
                 </div>
                 {% if participant.suivi.count %}
@@ -442,7 +442,7 @@
                 <h2>Commentaires</h2>
                 <div class="actions">
                     {% ifhasperm perms_dict.PERM_MODIF_SUIVI participant %}
-                        <a href="{% url suivi participant.id %}" class="changelink">Modifier</a>
+                        <a href="{% url "suivi" participant.id %}" class="changelink">Modifier</a>
                     {% endifhasperm %}
                 </div>
                 {% if participant.commentaires %}
@@ -466,7 +466,7 @@
     </div>
     <div class="clear"></div>
     <div style="display: none;">
-    <form id="supprimer" method="post" action="{% url supprimer_participant %}">
+    <form id="supprimer" method="post" action="{% url "supprimer_participant" %}">
         {% csrf_token %}
         <input type="hidden" name="id" id="id_suppression_participant"/>
     </form>

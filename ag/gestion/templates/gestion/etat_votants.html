@@ -7,8 +7,8 @@
 {% endblock %}
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-    <a href="{% url tableau_de_bord %}">Accueil</a>&rsaquo;
-    <a href="{% url etats_listes %}">États et listes</a>&rsaquo;
+    <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
+    <a href="{% url "etats_listes" %}">États et listes</a>&rsaquo;
     Liste des membres votants
 </div>
 {% endblock %}
@@ -16,7 +16,7 @@
 <h2>Membres votants</h2>
 <div id="utils">
 <p>Rapport généré le :  {{ maintenant|date:"D, d-m-Y à H:s" }}</p>
-<p><a href="{% url votants_csv %}">Télécharger la liste en format CSV</a></p>
+<p><a href="{% url "votants_csv" %}">Télécharger la liste en format CSV</a></p>
 </div>
 <div id="countT"><button id="hideT">Masquer</button><div id="monDivT"></div></div>
 <div id="countA"><button id="hideA">Masquer</button><div id="monDivA"></div></div>
@@ -59,7 +59,7 @@ $(document).ready(function(){
 {% for participant in votants %}
 <tr class="{% ifequal participant.etablissement.statut "T" %}ligne-titulaire{% else %}ligne-associe{% endifequal %}">
   <td>{{ participant.get_genre_display }}</td>
-  <td><a href="{% url fiche_participant participant.id %}">
+  <td><a href="{% url "fiche_participant" participant.id %}">
     {{ participant.nom|upper }}</a></td>
   <td>{{ participant.prenom }}</td>
   <td>{{ participant.courriel }}</td>

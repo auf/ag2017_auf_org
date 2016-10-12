@@ -9,8 +9,8 @@
 {% endblock %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
-				<a href="{% url etats_listes %}">États et listes</a> &rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
+				<a href="{% url "etats_listes" %}">États et listes</a> &rsaquo;
         Participation aux soirées
     </div>
 {% endblock breadcrumbs %}
@@ -46,7 +46,7 @@ $(function() {
             <ul>
             {% for participant, invites in participants.items %}
                 <li class="niveau3">
-                <a href="{% url fiche_participant participant.id %}">
+                <a href="{% url "fiche_participant" participant.id %}">
                 {{ participant.get_nom_complet }}</a>
                 {% if invites %}
                 <ul>

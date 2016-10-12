@@ -5,7 +5,7 @@ from django import forms
 from django.forms.widgets import RadioSelect
 from django.utils.safestring import mark_safe
 
-from ag.inscription.models import Inscription
+from ag.inscription.models import Inscription, CODES_CHAMPS_MONTANTS
 from ag.gestion.montants import (
     infos_montant_par_nom_champ, infos_montant_par_code
 )
@@ -14,6 +14,7 @@ from ag.gestion.montants import (
 class InscriptionForm(forms.ModelForm):
     class Meta:
         model = Inscription
+        exclude = ()
 
 
 class AccueilForm(forms.ModelForm):
@@ -23,13 +24,14 @@ class AccueilForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AccueilForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.est_pour_mandate():
+        assert self.instance is not None
+        if self.instance.est_pour_mandate():
             label = (
                 u"J'atteste être le représentant dûment délégué par "
                 u"la plus haute autorité de mon établissement pour "
                 u"participer à la 16e assemblée générale de l'AUF."
             )
-        elif self.instance and not self.instance.est_pour_mandate():
+        else:
             representants = Inscription.objects.filter(
                 invitation__pour_mandate=True,
                 invitation__etablissement=self.instance.get_etablissement()
@@ -66,15 +68,14 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
     class Meta:
         model = Inscription
         fields = (
-            'genre', 'nom', 'prenom', 'nationalite',
-            'poste', 'courriel', 'adresse', 'ville', 'pays',
-            'code_postal', 'telephone', 'telecopieur', 'accompagnateur',
+            'genre', 'nom', 'prenom', 'poste', 'courriel', 'adresse', 'ville',
+            'pays', 'code_postal', 'telephone', 'telecopieur', 'accompagnateur',
             'accompagnateur_genre', 'accompagnateur_nom',
             'accompagnateur_prenom'
         )
         widgets = dict(
             (f, forms.TextInput(attrs={'size': 40}))
-            for f in ('nom', 'prenom', 'nationalite', 'poste', 'courriel',
+            for f in ('nom', 'prenom', 'poste', 'courriel',
                       'ville', 'pays', 'accompagnateur_nom',
                       'accompagnateur_prenom')
         )
@@ -110,28 +111,30 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
 class ProgrammationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        infos_montants = kwargs.pop('infos_montants')
         super(ProgrammationForm, self).__init__(*args, **kwargs)
-        for key in self.fields:
-            field = self.fields[key]
-            infos_montant = infos_montant_par_nom_champ(key)
-            if infos_montant:
-                field.help_text = infos_montant.affiche
+        for key in self.champs_montants():
+                infos_montant = infos_montants[CODES_CHAMPS_MONTANTS[key]]
+                self.fields[key].help_text = infos_montant.affiche
+        self.infos_montants = infos_montants
 
     class Meta:
         model = Inscription
         fields = (
-            'programmation_soiree_unesp', 'programmation_soiree_unesp_invite',
-            'programmation_soiree_interconsulaire',
-            'programmation_soiree_interconsulaire_invite',
-            'programmation_gala',
-            'programmation_gala_invite'
+            'programmation_soiree_9_mai', 'programmation_soiree_9_mai_invite',
+            'programmation_soiree_10_mai', 'programmation_soiree_10_mai_invite',
+            'programmation_gala', 'programmation_gala_invite',
+            'forfait_invite_dejeuners', 'forfait_invite_transfert',
         )
 
-    def clean_programmation_soiree_unesp_invite(self):
-        return self._clean_invite_field('programmation_soiree_unesp')
+    def champs_montants(self):
+        return (key for key in self.fields if key in CODES_CHAMPS_MONTANTS)
 
-    def clean_programmation_soiree_interconsulaire_invite(self):
-        return self._clean_invite_field('programmation_soiree_interconsulaire')
+    def clean_programmation_soiree_9_mai_invite(self):
+        return self._clean_invite_field('programmation_soiree_9_mai')
+
+    def clean_programmation_soiree_10_mai_invite(self):
+        return self._clean_invite_field('programmation_soiree_10_mai')
 
     def clean_programmation_gala_invite(self):
         return self._clean_invite_field(
@@ -144,18 +147,6 @@ class ProgrammationForm(forms.ModelForm):
 
     def require_fields(self):
         pass
-
-
-def transport_widgets():
-    widgets = dict(
-        (f, forms.DateInput(attrs={'class': 'date'}))
-            for f in ('arrivee_date', 'depart_date')
-    )
-    widgets.update({
-        #'type_chambre_hotel': RadioSelect(),
-        'date_naissance': forms.DateInput(attrs={'size': 10})
-    })
-    return widgets
 
 
 def get_date_hotel_choices(depart_ou_arrivee):
@@ -211,38 +202,25 @@ class TransportHebergementForm(forms.ModelForm):
             ('False', "Je m'occupe moi-même de mon transport."),
         ))
     )
-    depart_de = forms.ChoiceField(
-        choices=Inscription.DEPART_DE_CHOICES, required=False,
-        widget=forms.RadioSelect
-    )
-    date_arrivee_hotel = forms.ChoiceField(label=u"Date d'arrivée à l'hôtel",
-        choices=get_date_hotel_choices('arrivee'), required=True)
-    date_depart_hotel = forms.ChoiceField(label=u"Date de départ de l'hôtel",
-        choices=get_date_hotel_choices('depart'), required=True)
-
-    date_naissance = forms.DateField(required=True)
 
     class Meta:
         model = Inscription
         fields = (
             'prise_en_charge_hebergement', 'prise_en_charge_transport',
-            'date_arrivee_hotel',
-            'date_depart_hotel', 'date_naissance', 'arrivee_date',
-            'arrivee_heure', 'arrivee_compagnie', 'arrivee_vol',
-            'depart_de', 'depart_date', 'depart_heure', 'depart_compagnie',
-            'depart_vol'
+            'type_chambre_hotel',
         )
-        widgets = transport_widgets()
+
+        widgets = {
+            'type_chambre_hotel': forms.RadioSelect
+        }
 
     def __init__(self, *args, **kwargs):
         super(TransportHebergementForm, self).__init__(*args, **kwargs)
-        #self.fields['type_chambre_hotel'].choices = get_type_chambre_choices()
+        # seul moyen pour supprimer choix vide
+        self.fields['type_chambre_hotel'].choices = \
+            self.fields['type_chambre_hotel'].choices[1:]
 
     def require_fields(self):
-        #self.fields['type_chambre_hotel'].required = False
-        self.fields['date_arrivee_hotel'].required = False
-        self.fields['date_depart_hotel'].required = False
-        self.fields['date_naissance'].required = False
         inscription = self.instance
         if inscription.prise_en_charge_hebergement_possible():
             field = self.fields['prise_en_charge_hebergement']
@@ -252,6 +230,10 @@ class TransportHebergementForm(forms.ModelForm):
             field = self.fields['prise_en_charge_transport']
             field.required = True
             field.widget.required = True
+
+        type_chambre = self.fields['type_chambre_hotel']
+        type_chambre.required = False
+        type_chambre.widget.required = True
 
     def clean_prise_en_charge_hebergement(self):
         return self._clean_prise_en_charge_field('hebergement')
@@ -266,20 +248,9 @@ class TransportHebergementForm(forms.ModelForm):
             raise forms.ValidationError('Ce champ est obligatoire')
         return value
 
-    def clean_date_depart_hotel(self):
-        return self._clean_date_hotel('depart')
-
-    def clean_date_arrivee_hotel(self):
-        return self._clean_date_hotel('arrivee')
-
-    def _clean_date_hotel(self, depart_ou_arrivee):
-        value = self.cleaned_data.get('date_' + depart_ou_arrivee + '_hotel')
-        value = None if value == u"" else value
-        return value
-
-    def clean_date_naissance(self):
-        required = self.cleaned_data.get('prise_en_charge_transport', False)
-        value = self.cleaned_data.get('date_naissance')
+    def clean_type_chambre_hotel(self):
+        required = self.cleaned_data.get('prise_en_charge_hebergement', False)
+        value = self.cleaned_data.get('type_chambre_hotel')
         if required and not value:
             raise forms.ValidationError('Ce champ est obligatoire')
         return value

@@ -1,117 +1,116 @@
 # -*- encoding: utf-8 -*-
 import StringIO
 import csv
-import datetime
-from ag.gestion.consts import *
+from django.core.management import call_command
 from ag.gestion.donnees_etats import *
 from ag.gestion.models import *
 from ag.gestion.tests import CODE_HOTEL
 from ag.inscription.models import Invitation, Inscription
 from ag.tests import create_fixtures, creer_participant
-from auf.django.references.models import Pays, Etablissement, Region
+from ag.reference.models import Pays, Etablissement, Region
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils import formats
 
 
+# noinspection PyUnresolvedReferences
 class EtatParticipantsTestCase(TestCase):
-    fixtures = ['test_data.json', ]
-
-    def setUp(self):
-        create_fixtures(self)
-        self.membre_nord = creer_participant(
+    @classmethod
+    def setUpTestData(cls):
+        call_command('loaddata', 'test_data.json')
+        create_fixtures(cls)
+        cls.membre_nord = creer_participant(
             nom=u'DUNORD', prenom=u'Haggar',
             type_institution=Participant.ETABLISSEMENT,
-            etablissement_id=self.etablissement_nord_id,
+            etablissement_id=cls.etablissement_nord_id,
             code_statut='repr_tit')
-        self.membre_sud = creer_participant(
+        cls.membre_sud = creer_participant(
             nom=u'LESUD', prenom=u'Ganoub',
             type_institution=Participant.ETABLISSEMENT,
-            etablissement_id=self.etablissement_id,
+            etablissement_id=cls.etablissement_id,
             code_statut='repr_tit')
-        self.observateur1 = creer_participant(
+        cls.observateur1 = creer_participant(
             nom=u'OFTHESKIES', prenom=u'Watcher',
             type_institution=Participant.AUTRE_INSTITUTION,
             nom_autre_institution=u'OIF',
             code_type_autre_institution=u'repr_pol',
             code_statut='obs',
-            region=self.region)
-        self.observateur2 = creer_participant(
+            region=cls.region)
+        cls.observateur2 = creer_participant(
             nom=u'BLEU', prenom=u'Casque',
             type_institution=Participant.AUTRE_INSTITUTION,
             nom_autre_institution=u'ONU',
             code_type_autre_institution=u'repr_pol',
             code_statut='obs',
-            region=self.region)
-        self.observateur3 = creer_participant(
+            region=cls.region)
+        cls.observateur3 = creer_participant(
             nom=u'MOON', prenom=u'Ban Ki',
             type_institution=Participant.AUTRE_INSTITUTION,
             nom_autre_institution=u'ONU',
             code_type_autre_institution=u'repr_pol',
             code_statut='obs',
-            region=self.region)
-        self.observateur4_desactive = creer_participant(
+            region=cls.region)
+        cls.observateur4_desactive = creer_participant(
             nom=u'BOUTROS GHALI', prenom=u'BOUTROS',
             type_institution=Participant.AUTRE_INSTITUTION,
             nom_autre_institution=u'ONU',
             code_type_autre_institution=u'repr_pol',
             code_statut='obs',
             desactive=True,
-            region=self.region)
-        self.instance_admin1 = creer_participant(
+            region=cls.region)
+        cls.instance_admin1 = creer_participant(
             nom=u'PRESIDENT', prenom=u'Francis',
             type_institution=Participant.INSTANCE_AUF,
             instance_auf="A",
             code_statut='memb_inst',
-            region=self.region)
-        self.instance_admin2 = creer_participant(
+            region=cls.region)
+        cls.instance_admin2 = creer_participant(
             nom=u'SECRETAIRE', prenom=u'Albert',
             type_institution=Participant.INSTANCE_AUF,
             instance_auf="A",
             code_statut='memb_inst',
-            region=self.region)
-        self.instance_scient1 = creer_participant(
+            region=cls.region)
+        cls.instance_scient1 = creer_participant(
             nom=u'REEVES', prenom=u'Hubert',
             type_institution=Participant.INSTANCE_AUF,
             instance_auf="S",
             code_statut='memb_inst',
-            region=self.region)
-        self.personnel_auf1 = creer_participant(
+            region=cls.region)
+        cls.personnel_auf1 = creer_participant(
             nom=u"PELLETIER", prenom=u'Marie-Claude',
             type_institution=Participant.AUTRE_INSTITUTION,
             code_type_autre_institution=u'pers_auf',
             code_statut=u'pers_auf',
             nom_autre_institution=u'Bureau des Amériques',
-            region=self.region
+            region=cls.region
         )
-        self.personnel_auf2 = creer_participant(
+        cls.personnel_auf2 = creer_participant(
             nom=u"BRUNEAU", prenom=u'Victor',
             type_institution=Participant.AUTRE_INSTITUTION,
             code_type_autre_institution=u'pers_auf',
             code_statut=u'pers_auf',
             nom_autre_institution=u'Bureau des Amériques',
-            region=self.region
+            region=cls.region
         )
-        self.participant_autre1 = creer_participant(
+        cls.participant_autre1 = creer_participant(
             nom=u"JENSEN", prenom=u'Tomas',
             type_institution=Participant.AUTRE_INSTITUTION,
             code_type_autre_institution=u'repr_press',
             code_statut=u'accomp',
             nom_autre_institution=u'Le Devoir',
-            region=self.region
+            region=cls.region
         )
-        self.participant_autre2 = creer_participant(
+        cls.participant_autre2 = creer_participant(
             nom=u"FABREG", prenom=u'Doriane',
             type_institution=Participant.AUTRE_INSTITUTION,
             code_type_autre_institution=u'repr_press',
             code_statut=u'accomp',
             nom_autre_institution=u'La Presse',
-            region=self.region
+            region=cls.region
         )
-        self.donnees = get_donnees_etat_participants()
+        cls.donnees = get_donnees_etat_participants()
 
-    def tearDown(self):
-        pass
+    def setUp(self):
+        self.client.login(username='john', password='johnpassword')
 
     def test_donnees_premier_niveau(self):
         donnees = self.donnees
@@ -123,12 +122,17 @@ class EtatParticipantsTestCase(TestCase):
                           u'Personnel AUF',
                           u'Autre', ])
 
-    def test_donnees_etablissement(self):
+    def test_donnees_etablissement_premier_niveau_pays_tries(self):
         elements = self.donnees[0].elements
         self.assertEqual(len(elements), 2)
-        self.assertEqual(elements[0].titre, Pays.objects.get(code='TS').nom)
-        self.assertEqual(elements[1].titre, Pays.objects.get(code='NN').nom)
-        elements_pays_sud = elements[0].elements
+        noms_pays = [pays.nom for pays in Pays.objects.order_by('nom').all()]
+        titres = [e.titre for e in elements]
+        assert titres == noms_pays
+
+    def test_donnees_etablissement_etablissement_statut(self):
+        elements = self.donnees[0].elements
+        elements_sud = [e for e in elements if e.titre == self.pays_sud.nom]
+        elements_pays_sud = elements_sud[0].elements
         etablissement_sud = Etablissement.objects.get(id=self.etablissement_id)
         self.assertEqual(elements_pays_sud[0].titre, etablissement_sud.nom)
         statut_repr_tit = StatutParticipant.objects.get(code='repr_tit')
@@ -241,10 +245,11 @@ NO_VOL_DEPART_AG_1500 = u'GH098'
 
 
 class EtatsVolsTestCase(TestCase):
-    fixtures = ['test_data.json']
 
-    def setUp(self):
-        create_fixtures(self, True)
+    @classmethod
+    def setUpTestData(cls):
+        call_command('loaddata', 'test_data.json')
+        create_fixtures(cls)
         vol_groupe1 = VolGroupe.objects.create(nom='volgroupe1')
         InfosVol.objects.create(
             ville_depart=VILLE_PARIS, date_depart=DATE_DEPART_ORIGINE,
@@ -277,44 +282,44 @@ class EtatsVolsTestCase(TestCase):
             heure_arrivee=HEURE_ARRIVEE_ORIGINE_0900,
             vol_groupe=vol_groupe2,  compagnie=COMPAGNIE,
             type_infos=VOL_GROUPE)
-        self.vol_groupe1, self.vol_groupe2 = vol_groupe1, vol_groupe2
-        self.participant1 = creer_participant(
+        cls.vol_groupe1, cls.vol_groupe2 = vol_groupe1, vol_groupe2
+        cls.participant1 = creer_participant(
             'UN', 'a', genre='M', transport_organise_par_auf=True)
-        self.participant1.prise_en_charge_transport = True
-        self.participant1.prise_en_charge_sejour = True
-        self.participant1.vol_groupe = vol_groupe1
-        self.participant1.save()
-        self.participant2 = creer_participant(
+        cls.participant1.prise_en_charge_transport = True
+        cls.participant1.prise_en_charge_sejour = True
+        cls.participant1.vol_groupe = vol_groupe1
+        cls.participant1.save()
+        cls.participant2 = creer_participant(
             'DEUX', 'b', genre='F', transport_organise_par_auf=True)
-        self.participant2.vol_groupe = vol_groupe2
-        self.participant2.save()
-        self.participant3 = creer_participant(
+        cls.participant2.vol_groupe = vol_groupe2
+        cls.participant2.save()
+        cls.participant3 = creer_participant(
             'TROIS', 'c', genre='M', transport_organise_par_auf=True)
-        self.participant3.vol_groupe = vol_groupe2
-        self.participant3.save()
-        self.participant4 = creer_participant(
+        cls.participant3.vol_groupe = vol_groupe2
+        cls.participant3.save()
+        cls.participant4 = creer_participant(
             'QUATRE', 'd', genre='F', transport_organise_par_auf=True)
-        self.participant4.vol_groupe = vol_groupe2
-        self.participant4.save()
+        cls.participant4.vol_groupe = vol_groupe2
+        cls.participant4.save()
         # arrive dans le même avion que vol groupé 1, mais ne fait
         # pas partie de vol groupé 1
-        self.participant5 = creer_participant(
+        cls.participant5 = creer_participant(
             'CINQ', 'e', genre='M', transport_organise_par_auf=False)
-        self.participant5.set_infos_arrivee(DATE_ARRIVEE_AG,
+        cls.participant5.set_infos_arrivee(DATE_ARRIVEE_AG,
                                             HEURE_ARRIVEE_AG_1200,
                                             NO_VOL_ARRIVEE_AG_1200,
                                             COMPAGNIE,
                                             VILLE_SAO_PAULO)
-        self.participant6 = creer_participant(
+        cls.participant6 = creer_participant(
             'SIX', 'f', genre='F', transport_organise_par_auf=True)
-        self.participant6.vol_groupe = vol_groupe2
-        self.participant6.desactive = True
-        self.participant6.save()
+        cls.participant6.vol_groupe = vol_groupe2
+        cls.participant6.desactive = True
+        cls.participant6.save()
         # SEPT a des infos de vol non organise et des infos de vol
         # organise mais son transport est organise.
-        self.participant7 = creer_participant(
+        cls.participant7 = creer_participant(
             'SEPT', 'g', genre='M', transport_organise_par_auf=True)
-        self.participant7.set_infos_arrivee(DATE_ARRIVEE_AG,
+        cls.participant7.set_infos_arrivee(DATE_ARRIVEE_AG,
                                             HEURE_ARRIVEE_AG_1200,
                                             NO_VOL_ARRIVEE_AG_1200,
                                             COMPAGNIE,
@@ -325,12 +330,15 @@ class EtatsVolsTestCase(TestCase):
             ville_arrivee=VILLE_SAO_PAULO,
             date_arrivee=DATE_ARRIVEE_AG,
             heure_arrivee=HEURE_ARRIVEE_AG_1300,
-            participant=self.participant7, type_infos=VOL_ORGANISE,
+            participant=cls.participant7, type_infos=VOL_ORGANISE,
             numero_vol=NO_VOL_ARRIVEE_AG_1300, compagnie=COMPAGNIE)
-        Invite.objects.create(participant=self.participant5,
+        Invite.objects.create(participant=cls.participant5,
                               genre='M',
                               nom='INVITE_DU_5',
                               prenom='edouard')
+
+    def setUp(self):
+        self.client.login(username='john', password='johnpassword')
 
     def tearDown(self):
         self.client.logout()
@@ -424,43 +432,47 @@ class EtatsVolsTestCase(TestCase):
 
 
 class EtatParticipantsActivitesTestCase(TestCase):
-    fixtures = ['test_data.json']
 
-    def setUp(self):
-        create_fixtures(self, True)
+    @classmethod
+    def setUpTestData(cls):
+        call_command('loaddata', 'test_data.json')
+        create_fixtures(cls)
         hotel = Hotel.objects.get(code=CODE_HOTEL)
         activite1, activite2 = Activite.objects.all()[:2]
-        self.participant1 = creer_participant('premier', 'alain')
-        self.participant1.genre = 'M'
-        self.participant1.hotel = hotel
-        self.participant1.inscrire_a_activite(activite1, avec_invites=True)
-        self.participant1.inscrire_a_activite(activite2, avec_invites=False)
-        self.participant1.save()
-        self.participant1.invite_set.add(Invite.objects.create(
+        cls.participant1 = creer_participant('premier', 'alain')
+        cls.participant1.genre = 'M'
+        cls.participant1.hotel = hotel
+        cls.participant1.inscrire_a_activite(activite1, avec_invites=True)
+        cls.participant1.inscrire_a_activite(activite2, avec_invites=False)
+        cls.participant1.save()
+        cls.participant1.invite_set.add(Invite.objects.create(
             genre='F', nom='premier', prenom='invite',
-            participant=self.participant1))
-        self.participant2 = creer_participant('deuxième', 'thérèse')
-        self.participant2.genre = 'F'
-        self.participant2.hotel = hotel
-        self.participant2.inscrire_a_activite(activite2, avec_invites=True)
-        self.participant2.save()
-        self.participant2.invite_set.add(Invite.objects.create(
+            participant=cls.participant1))
+        cls.participant2 = creer_participant('deuxième', 'thérèse')
+        cls.participant2.genre = 'F'
+        cls.participant2.hotel = hotel
+        cls.participant2.inscrire_a_activite(activite2, avec_invites=True)
+        cls.participant2.save()
+        cls.participant2.invite_set.add(Invite.objects.create(
             genre='F', nom='deux1', prenom='invite',
-            participant=self.participant2))
-        self.participant2.invite_set.add(Invite.objects.create(
+            participant=cls.participant2))
+        cls.participant2.invite_set.add(Invite.objects.create(
             genre='F', nom='deux2', prenom='invite',
-            participant=self.participant2))
-        self.participant3 = creer_participant('desactivée', 'josette')
-        self.participant3.desactive = True
-        self.participant3.genre = 'F'
-        self.participant3.hotel = hotel
-        self.participant3.inscrire_a_activite(activite2, avec_invites=True)
-        self.participant3.save()
-        self.participant4 = creer_participant(u"pas d'hôtel", 'alain')
-        self.participant4.desactive = True
-        self.participant4.genre = 'M'
-        self.participant4.inscrire_a_activite(activite2, avec_invites=True)
-        self.participant4.save()
+            participant=cls.participant2))
+        cls.participant3 = creer_participant('desactivée', 'josette')
+        cls.participant3.desactive = True
+        cls.participant3.genre = 'F'
+        cls.participant3.hotel = hotel
+        cls.participant3.inscrire_a_activite(activite2, avec_invites=True)
+        cls.participant3.save()
+        cls.participant4 = creer_participant(u"pas d'hôtel", 'alain')
+        cls.participant4.desactive = True
+        cls.participant4.genre = 'M'
+        cls.participant4.inscrire_a_activite(activite2, avec_invites=True)
+        cls.participant4.save()
+
+    def setUp(self):
+        self.client.login(username='john', password='johnpassword')
 
     def tearDown(self):
         self.client.logout()
@@ -515,34 +527,38 @@ class EtatParticipantsActivitesTestCase(TestCase):
 
 
 class VoteTestCase(TestCase):
-    fixtures = ['test_data.json']
 
     def setUp(self):
-        create_fixtures(self)
-        self.participant = creer_participant()
+        self.client.login(username='john', password='johnpassword')
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command('loaddata', 'test_data.json')
+        create_fixtures(cls)
+        cls.participant = creer_participant()
         region_MO = Region.objects.create(code=u'MO',
                                           nom=u'Moyen-Orient')
         region_EO = Region.objects.create(code=u'EO',
                                           nom=u"Europe de l'Ouest")
         pays_fr = Pays.objects.create(
-            nom=u"France", code=u"FR", region=region_EO, code_iso3=u'FR')
+            nom=u"France", code=u"FR", sud=False)
         pays_de = Pays.objects.create(
-            nom=u"Allemagne", code=u"DE", region=region_EO, code_iso3=u'DE')
+            nom=u"Allemagne", code=u"DE", sud=False)
         pays_eg = Pays.objects.create(
-            nom=u"Égypte", code=u"EG", region=region_MO, code_iso3=u'EG')
+            nom=u"Égypte", code=u"EG", sud=True)
         etablissement_MO = Etablissement.objects.create(
             nom=u'etab_mo', pays=pays_eg, region=region_MO, statut=u'A',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         etablissement_FR = Etablissement.objects.create(
             nom=u'etab_fr', pays=pays_fr, region=region_EO, statut=u'T',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         etablissement_DE = Etablissement.objects.create(
             nom=u'etab_de', pays=pays_de, region=region_EO, statut=u'T',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         etablissement_DOM_TOM = Etablissement.objects.create(
             id=EXCEPTIONS_DOM_TOM[0],
             nom=u'etab_dom_tom', pays=pays_fr, region=region_MO, statut=u'T',
-            qualite=u'ESR')
+            qualite=u'ESR', membre=True)
         statuts = dict((statut.code, statut)
                        for statut in StatutParticipant.objects.all())
 
@@ -560,12 +576,12 @@ class VoteTestCase(TestCase):
             participant.save()
             return participant
 
-        self.participant_MO = creer_participant_vote(etablissement_MO)
-        self.participant_FR = creer_participant_vote(etablissement_FR)
-        self.participant_FR_sans_vote = creer_participant_vote(
+        cls.participant_MO = creer_participant_vote(etablissement_MO)
+        cls.participant_FR = creer_participant_vote(etablissement_FR)
+        cls.participant_FR_sans_vote = creer_participant_vote(
             etablissement_FR, pour_mandate=False, code_statut='accomp')
-        self.participant_DE = creer_participant_vote(etablissement_DE)
-        self.participant_DOM_TOM = creer_participant_vote(etablissement_DOM_TOM)
+        cls.participant_DE = creer_participant_vote(etablissement_DE)
+        cls.participant_DOM_TOM = creer_participant_vote(etablissement_DOM_TOM)
         participant_sans_invitation = Participant()
         participant_sans_invitation.nom = u"Sans-invit"
         participant_sans_invitation.prenom = u"Annie"
@@ -576,7 +592,7 @@ class VoteTestCase(TestCase):
         participant_desactive = creer_participant_vote(etablissement_DE)
         participant_desactive.desactive = True
         participant_desactive.save()
-        self.participant_DE_sans_invitation = participant_sans_invitation
+        cls.participant_DE_sans_invitation = participant_sans_invitation
 
     def tearDown(self):
         self.client.logout()
@@ -657,7 +673,8 @@ class VoteTestCase(TestCase):
 
 class ExportParticipantsTestCase(TestCase):
     def setUp(self):
-        create_fixtures(self, True)
+        create_fixtures(self)
+        self.client.login(username='john', password='johnpassword')
 
     def tearDown(self):
         self.client.logout()

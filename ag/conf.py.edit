@@ -3,6 +3,7 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        'ATOMIC_REQUESTS': True,
         'NAME': 'ag',
         'USER': '',
         'PASSWORD': '',

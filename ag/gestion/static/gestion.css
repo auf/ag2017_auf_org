@@ -1,0 +1,378 @@
+#changelist-filter {
+    top: 260px;
+}
+
+h1 {
+    font-size: 18px;
+    color: #666;
+    padding: 0 0 10px 0;
+    margin: 0 0 .2em 0;
+}
+
+label {
+    font-weight: normal !important;
+    color: #666;
+    font-size: 12px;
+}
+
+
+table {
+    border-collapse: collapse;
+    border-color: #ccc;
+    width: 100%;
+}
+
+.row1 td[src^="Carte"] {
+    background: red;
+}
+
+input[type=text] { width:400px; }
+.aligned label { width: 150px; }
+
+.colM {
+    position: relative;
+    top: 5px;
+}
+
+.module {
+    position: relative;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
+    background: white;
+}
+
+.module td {
+    font-size: 14px;
+        color: #191919;
+        line-height: 16px;
+}
+
+.module .tag {
+    font-size: 12px;
+        color: #4c4c4c;
+        width: 150px;
+        padding-left: 10px;
+        text-align: left;
+}
+
+.warningnote {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 2px solid #fcda5f;
+    background: #ffc url(img/icon_warning.png) 5px .3em no-repeat;
+}
+
+div.breadcrumbs {
+    padding: 2px 8px 3px 20px;
+}
+
+.actions {
+    position: absolute;
+    top: 110px;
+    right: 350px;
+    height: 30px;
+}
+
+.module .actions {
+    position: absolute;
+    top: 25px;
+    right: 10px;
+    height: 30px;
+}
+
+.printlink {
+    background: url(img/icon_print.gif) 0 .2em no-repeat;
+    padding: 5px 5px 5px 20px;
+}
+
+.sendlink {
+    background: url(img/icon_send.png) 0 .2em no-repeat;
+    padding: 5px 5px 5px 20px;
+    margin-left: 10px;
+}
+
+
+.colM .object-tools {
+    top: -35px;
+}
+
+/* FLOATING STATUS */
+
+#f-status {
+        margin: 0;
+        position: absolute;
+        top: 92px;
+        left: auto;
+        width: 300px;
+        right: 20px;
+}
+
+#f-status h1 {
+        font-size: 16px;
+        margin: 0;
+                display: block;
+                white-space: normal;
+}
+
+#f-status #resume {
+        font-size: 12px;
+        background: #dbdbdb;
+        padding: 10px;
+        margin: 0 0 10px 0;
+}
+
+#f-status #resume td {
+        font-size: 12px;
+        color: #4C4C4C;
+        border-top: 1px solid white;
+}
+
+#f-status .module h2 {
+        margin: 0;
+        padding: 2px 5px 3px 5px;
+        font-size: 11px;
+        text-align: left;
+        font-weight: bold;
+        background: #006787;
+        color: white;
+}
+
+#colonne {
+    padding-right: 330px;
+}
+
+#suivi {}
+#suivi .actions, #commentaires .actions {top:20px;}
+#suivi p, #commentaires p#vide {margin-top: 10px;}
+#suivi ul, #commentaires p { margin: 20px 0 20px 0;}
+#suivi ul li { list-style-type: none; padding: 10px 0 0 0;}
+#suivi ul li:before {content: '✓'; color: green; font-size: 18px;}
+#suivi .changelink, #commentaires .changelink {
+    position: absolute;
+    right: 10px;
+    padding: 0 0 0 15px;
+    background: url(admin/img/icon_changelink.gif) 0 1px no-repeat;
+    margin: 8px 0;
+}
+
+#table-facturation {
+        margin: 0;
+        font-size: 11px;
+        text-align: right;
+        border-collapse: separate;
+        border-spacing: 2px;
+}
+
+#table-facturation th {
+        text-align: right;
+        border: 1px #FFF;
+        width: 20%;
+}
+
+#itineraire, .th1 {
+    background: white;
+    border: solid #999 1px;
+}
+
+#itineraire, .th2 {
+    border: solid #999 1px;
+    background: #E1E1E1;
+}
+
+#branding h1 {
+    padding: 0 20px;
+    font-size: 18px;
+    margin: 8px 0;
+    font-weight: normal;
+    color: #f4f379;
+}
+
+
+#col1 { width:50%; float:left; }
+#col2 { width:45%; float:right; }
+#col2 .form-row, #col1 .form-row { width:94%; padding: 5px 20px 5px 10px; }
+#col2 .help, #col1 .help { padding-left: 0; margin-left: 0; }
+#col2 label, #col1 label { width:100%; margin: 5px 10px 0 0; }
+#col2 input, #col1 input { width:100%; margin: 5px 10px 10px 0; }
+#col2 select, #col1 select { width:100%; margin: 5px 10px 10px 0; }
+#col2 #id_desactive { width: auto; margin: 0 0 0 90px; top: -15px; position: relative; }
+#rp_identification { width:100%; }
+#rp_coordonees {  }
+#rp_dossier {  }
+#rp_statut {  }
+#rp_institution {  }
+
+table.frais {
+    width: 200px;
+}
+
+table.frais input {
+    width:40px;
+}
+
+div.frais-montant {
+    width:100px;
+    text-align: right;
+}
+
+.module h2.vert {
+    background: #42c76d;
+}
+
+.module h2.rouge {
+    background: #c7202f;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+}
+
+input.to-uppercase {
+    text-transform: uppercase;
+}
+
+/* listes */
+
+#utils {
+  float: right;
+}
+
+.niveau1, .niveau2 {
+    list-style: none;
+  display: block;
+}
+
+#Lparticipants h3, #Lateliers h3, #Lsoiree h3, #Lactivite h3 {
+    border-bottom: 1px solid #888;
+}
+
+#Lparticipants .niveau2 p {
+  font-size: 12px;
+  margin: .8em 0 .3em 0;
+  color: #666;
+  font-weight: bold;
+}
+
+#Lparticipants .niveau4 {
+    list-style: none;
+}
+
+#Lparticipants td {
+    width: 50%;
+}
+
+#Lparticipants .niveau3 {
+  font-size: 13px;
+}
+
+#Lautres .niveau3 {
+  font-size: 13px;
+}
+
+#Lautres .niveau4 {
+    list-style: none;
+}
+
+#Lautres p {
+  font-size: 12px;
+  margin: 0 0 0 0;
+  color: #666;
+  font-weight: bold;
+}
+
+#Lautres table {
+  margin: 0 0 0 35px;
+  width: 98%;
+}
+
+#Lautres td {
+    width: 50%;
+}
+
+.liste_odd {}
+.liste_even {
+  background-color: #DDEEFF;
+}
+
+
+/* votants */
+
+.barre {
+  text-decoration: line-through;
+}
+
+#countT button.selected, #countA button.selected {
+  font-weight: bold;
+  background-color: #888;
+}
+#monDivT, #monDivA, #monDivD {
+  display: inline;
+}
+
+/* vols*/
+
+#masques {
+float: right;
+}
+
+#listevols th {
+font-weight: normal;
+}
+
+#listevols tr.ligne-date {
+background-color: #ccc !important;
+}
+
+#listevols th.ligne-date {
+background-color: #ccc !important;
+font-weight: bold;
+border-top: 2px solid #777;
+font-size: 14px;
+padding: 5px 0 5px 0;
+}
+
+#listevols tr.vers {
+background-color: #DDEEFF;
+}
+#listevols thead {
+margin-top: 10px;
+}
+
+#filtre_ville {
+background-color: #DDEEFF;
+padding: 20px;
+width: 570px;
+margin-bottom: 20px;
+}
+
+/* ---end media screen--- */
+
+@media print {
+
+#header {display: none;}
+#user-tools {display: none;}
+.breadcrumbs {display: none;}
+.actions {display: none;}
+.changelink {display: none;}
+button {display: none;}
+#content { width: 950px; }
+thead {display: table-header-group;}
+tr { page-break-inside: avoid; }
+
+.niveau2 { page-break-inside: avoid; }
+#Lautres { page-break-before: always; }
+#monDivA, #monDivD {padding: 10px 160px 0 0; line-height: 30px;}
+#utils a {display: none;}
+
+#listevols table { width: 950px; }
+ul { margin-top: 0 !important;}
+p, li { font-size: 12px !important; line-height: 12px !important;}
+.module th, .module td {font-size: 10px; line-height: 12px; }
+.tag, label { font-size: 10px !important;}
+#f-status { display: none;}
+#colonne { padding-right: 0; position: absolute; top: 0; width: 95%; }
+}
+
+

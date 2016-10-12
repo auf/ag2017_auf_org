@@ -14,16 +14,13 @@ from reportlab.lib.styles import StyleSheet1, ParagraphStyle
 from reportlab.lib.units import cm
 
 from ag.gestion import APP_ROOT
-from ag.gestion.models import (
-    BUREAU_REGION, COMPTOIR_COMPAGNIE,
-    COURRIER_POSTAL,
-    BUREAU_REGION_TRAIN)
 
 
 PAGESIZE = letter
 
 
-def generer_factures(file, participants):
+# noinspection PyTypeChecker
+def generer_factures(output_file, participants):
 
     # Dimensions
     page_width, page_height = PAGESIZE
@@ -41,8 +38,9 @@ def generer_factures(file, participants):
         'destinataire', fontName='Helvetica-Bold', alignment=TA_CENTER
     )
     styles.add_style('petit', fontSize=8)
+    styles.add_style('droite', alignment=TA_RIGHT)
 
-    canvas = Canvas(file, pagesize=PAGESIZE)
+    canvas = Canvas(output_file, pagesize=PAGESIZE)
     for participant in participants:
 
         # Préparation de certaines chaînes
@@ -51,7 +49,8 @@ def generer_factures(file, participants):
             participant.nom
         ))
         numero_facture = u"000A09-%02d" % participant.numero_facture
-        date_facturation = date_format(participant.date_facturation, 'SHORT_DATE_FORMAT')
+        date_facturation = date_format(participant.date_facturation,
+                                       'SHORT_DATE_FORMAT')
         adresse = participant.get_adresse_facturation()
 
         # Logos
@@ -121,10 +120,6 @@ def generer_factures(file, participants):
                     if participant.etablissement else u""
                 ],
                 [u"# Imputation", u"70810." + participant.imputation],
-                [
-                    u"Total payé",
-                    number_format(participant.accompte, 2) + u" €"
-                ]
             ],
             colWidths=(4 * cm, 4 * cm),
             style=TableStyle([
@@ -137,38 +132,34 @@ def generer_factures(file, participants):
 
         # Détails
         x = margin_left
-        y -= 6 * cm
+        y -= 4 * cm
         t = Table(
             [
                 [u"Détails"],
                 [
-                    u"Frais de participation à la 16e assemblée générale - "
-                    u"São Paulo (Brésil) - 7 au 10 mai 2013"
+                    u"Frais de participation à la 17e assemblée générale - "
+                    u"Marrakech (Maroc) - 9 au 11 mai 2017"
                 ],
                 [
                     u"- Frais d'inscription",
-                    number_format(participant.frais_inscription_facture, 2) +
-                    u" €"
+                    montant_str(participant.frais_inscription_facture)
                 ],
                 [
-                    u"- Frais d'excursion",
-                    number_format(participant.frais_activites_facture, 2) +
-                    u" €"
+                    u"- Forfaits supplémentaires",
+                    montant_str(participant.frais_activites_facture)
                 ],
             ] +
             (
                 [[
                     u"- Frais de supplément chambre double",
-                    number_format(participant.frais_hebergement_facture, 2) +
-                    u" €"
+                    montant_str(participant.frais_hebergement_facture)
                 ]]
                 if participant.frais_hebergement_facture else []
             ) +
             [
                 [
                     u"",
-                    u"Total payé: " +
-                    number_format(participant.total_facture, 2) + u" €"
+                    u"Montant total: " + montant_str(participant.total_facture)
                 ],
             ],
             colWidths=(12 * cm, frame_width - 12 * cm),
@@ -188,14 +179,67 @@ def generer_factures(file, participants):
         w, h = t.wrap(frame_width, 10 * cm)
         t.drawOn(canvas, x, y - h)
 
+        t = Table(
+            [
+                [u"Paiements reçus"],
+                [u"25/12/2016", u"Virement bancaire", u"BAO",
+                 u"5KP05198LR130290D", u"100,00 €"],
+                [u"25/12/2016", u"Virement bancaire", u"BAO",
+                 u"5KP05198LR130290D", u"100,00 €"],
+                [u"25/12/2016", u"Virement bancaire", u"BAO",
+                 u"5KP05198LR130290D", u"100,00 €"],
+                [u"", u"", u"", u"", u"Total payé: 100,00 €"]
+            ],
+            colWidths=(2 * cm, 5 * cm, 2 * cm, 5 * cm, frame_width - 14 * cm),
+            style=TableStyle([
+                ('SPAN', (0, 0), (1, 0)),
+                ('BOX', (0, 0), (-1, -1), 0.5, black),
+                ('LINEBELOW', (0, 0), (-1, 0), 0.5, black),
+                # ('BOTTOMPADDING', (0, 0), (-1, 0), 0.5 * cm),
+                ('BOTTOMPADDING', (0, -2), (-1, -2), 0.5 * cm),
+                ('ALIGN', (-1, 1), (-1, -1), 'RIGHT'),
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                ('FONT', (0, 0), (-1, 0), 'Helvetica', 12),
+                ('BACKGROUND', (-1, -1), (-1, -1), lightgrey),
+            ]))
+        x = margin_left
+        y -= h + 0.75 * cm
+        w, h = t.wrap(frame_width, 10 * cm)
+        t.drawOn(canvas, x, y - h)
+
+        y -= h + 0.75 * cm
+        if participant.get_verse_en_trop():
+            solde_text = u"Versé en trop: " + montant_str(
+                participant.get_verse_en_trop())
+        else:
+            solde_text = u"Solde à payer: " + montant_str(
+                participant.get_solde_a_payer())
+        p = Paragraph(solde_text,
+                      styles['droite'])
+        _, h = p.wrap(frame_width, 2 * cm)
+        p.drawOn(canvas, x, y)
+        if participant.get_verse_en_trop():
+            y -= h + 0.5 * cm
+            p = Paragraph(
+                u"""Votre remboursement s’effectuera automatiquement dans les
+                prochains 30 jours utilisant la même méthode et versé même
+                compte du paiement initial.
+                """, styles['petit'])
+            _, h = p.wrap(frame_width, 2 * cm)
+            p.drawOn(canvas, x, y)
+
         # Rendu
         canvas.showPage()
 
     canvas.save()
-    return file
+    return output_file
 
 
-def generer_itineraires(file, participants):
+def montant_str(montant):
+    return u"{} €".format(number_format(montant, 2))
+
+
+def generer_itineraires(output_file, participants):
 
     # Dimensions
     page_width, page_height = PAGESIZE
@@ -212,7 +256,7 @@ def generer_itineraires(file, participants):
     styles.add_style('sous-titre', fontName='Helvetica-Bold', fontSize=11)
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     styles.add_style('section', fontName='Helvetica-Bold', fontSize=10)
-    styles.add_style('itineraire-header', fontName='Helvetica-Bold', fontSize=7 )
+    styles.add_style('itineraire-header', fontName='Helvetica-Bold', fontSize=7)
     styles.add_style('itineraire', fontSize=8)
     styles.add_style('bullet', bulletIndent=18, fontSize=8)
     styles.add_style(
@@ -221,7 +265,7 @@ def generer_itineraires(file, participants):
         fontSize=11
     )
 
-    canvas = Canvas(file, pagesize=PAGESIZE)
+    canvas = Canvas(output_file, pagesize=PAGESIZE)
     for participant in participants:
 
         # Préparation
@@ -231,7 +275,7 @@ def generer_itineraires(file, participants):
             participant.get_genre_display(), participant.prenom,
             participant.nom
         ))
- 				# Logos
+        # Logos
         logo_height = 52
         logo_width = 130 * logo_height / 91
         canvas.drawImage(
@@ -266,7 +310,8 @@ def generer_itineraires(file, participants):
 
         # Titre
         contenu.append(Paragraph(
-            u"Paris, le " + date_format(date.today(), 'SHORT_DATE_FORMAT'), styles['right-aligned']
+            u"Paris, le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
+            styles['right-aligned']
         ))
 
         contenu.append(Paragraph(u"ITINÉRAIRE DE VOYAGE", styles['titre']))
@@ -283,7 +328,8 @@ def generer_itineraires(file, participants):
                 [u"Téléphone :", participant.telephone],
                 [u"Télécopieur :", participant.telecopieur],
                 [u"Courriel :", participant.courriel],
-                [u"Bureau régional AUF :", participant.get_nom_bureau_regional()],
+                [u"Bureau régional AUF :",
+                 participant.get_nom_bureau_regional()],
             ],
             colWidths=(4 * cm, 14.5 * cm),
             style=TableStyle([
@@ -313,17 +359,17 @@ def generer_itineraires(file, participants):
                     Paragraph(s, styles['itineraire'])
                     for s in [
                         date_format(vol.date_depart, 'SHORT_DATE_FORMAT')
-                            if vol.date_depart else u'',
+                        if vol.date_depart else u'',
                         vol.ville_depart,
                         vol.ville_arrivee,
                         vol.compagnie,
                         vol.numero_vol,
                         time_format(vol.heure_depart, 'H:i')
-                            if vol.heure_depart else u'',
+                        if vol.heure_depart else u'',
                         time_format(vol.heure_arrivee, 'H:i')
-                            if vol.heure_arrivee else u'',
+                        if vol.heure_arrivee else u'',
                         date_format(vol.date_arrivee, 'SHORT_DATE_FORMAT')
-                            if vol.date_arrivee else u'',
+                        if vol.date_arrivee else u'',
                     ]
                 ]
                 for vol in vols
@@ -336,14 +382,15 @@ def generer_itineraires(file, participants):
                 ('BOX', (0, 0), (-1, -1), 0.5, black),
                 ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
                 ('VALIGN', (0, 1), (-1, -1), 'TOP'),
-								('ALIGN', (1, 2), (1, -1), 'RIGHT'),
+                ('ALIGN', (1, 2), (1, -1), 'RIGHT'),
             ])
 
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
         # Retrait du billet
-        contenu.append(Paragraph(u"Retrait des titres de transport:", styles['section']))
+        contenu.append(Paragraph(u"Retrait des titres de transport:",
+                                 styles['section']))
 
         contenu.append(Paragraph(
             participant.get_modalite_retrait_billet_display(),
@@ -351,7 +398,7 @@ def generer_itineraires(file, participants):
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
-				# Documents requis
+        # Documents requis
         contenu.append(Paragraph(u"Documents requis :", styles['section']))
 
         contenu.append(Paragraph(
@@ -368,7 +415,7 @@ def generer_itineraires(file, participants):
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
- 				# Remarques
+        # Remarques
         if participant.remarques_transport:
             contenu.append(Paragraph(u"Remarques :", styles['section']))
             
@@ -381,11 +428,12 @@ def generer_itineraires(file, participants):
         if participant.frais_autres:
             contenu.append(Paragraph(u"Prise en charge de votre séjour dans la "
                                      u"(les) ville(s) de transit :",
-                styles['section']))
+                                     styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table([
                     [u"Montant:", u"%.2d €" % participant.frais_autres],
-                    [u"Versement:", participant.get_modalite_versement_frais_sejour_display()],
+                    [u"Versement:",
+                     participant.get_modalite_versement_frais_sejour_display()],
                 ],
                 colWidths=(
                     2 * cm, 8 * cm,
@@ -393,9 +441,9 @@ def generer_itineraires(file, participants):
                 style=TableStyle([
                     ('BOX', (0, 0), (-1, -1), 0.5, black),
                     ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
-										('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
+                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
                     ('VALIGN', (0, 1), (-1, -1), 'TOP'),
-                    ]),
+                ]),
                 hAlign='LEFT',))
 
             contenu.append(Spacer(0, 0.5 * cm))
@@ -405,15 +453,19 @@ def generer_itineraires(file, participants):
             contenu.append(Paragraph(u"Hôtel réservé:", styles['section']))
 
             contenu.append(Paragraph(participant.hotel.libelle, styles['bold']))
-            contenu.append(Paragraph(participant.hotel.adresse, styles['normal']))
+            contenu.append(Paragraph(participant.hotel.adresse,
+                                     styles['normal']))
             contenu.append(Paragraph("du {0} au {1}".format(
-                date_format(participant.date_arrivee_hotel, 'SHORT_DATE_FORMAT'),
-                date_format(participant.date_depart_hotel, 'SHORT_DATE_FORMAT'))
-                , styles['bold']))
+                date_format(participant.date_arrivee_hotel,
+                            'SHORT_DATE_FORMAT'),
+                date_format(participant.date_depart_hotel,
+                            'SHORT_DATE_FORMAT')),
+                styles['bold']))
 
         contenu.append(Paragraph(
             u"Attention ! Veuillez tenir compte de l'heure du vol de départ de "
-            u"Sao paulo dans la sélection d'une excursion libre (le cas échéant).",
+            u"Sao paulo dans la sélection d'une excursion libre (le cas "
+            u"échéant).",
             styles['itineraire-header']
         ))
         
@@ -424,14 +476,13 @@ def generer_itineraires(file, participants):
         ))
         contenu.append(Spacer(0, 0.5 * cm))
 
-
         # Instructions
         contenu.append(Paragraph(u"IMPORTANT", styles['important']))
         contenu.append(Spacer(0, 0.25 * cm))
         contenu.append(Paragraph(
             u"Document signé avec la mention "
-            u"« bon pour accord », à retourner impérativement dans les 48 heures "
-            u"suivant la réception",
+            u"« bon pour accord », à retourner impérativement dans les 48 "
+            u"heures suivant la réception",
             styles['bold']
         ))
         contenu.append(Spacer(0, 0.75 * cm))
@@ -459,7 +510,7 @@ def generer_itineraires(file, participants):
         canvas.showPage()
 
     canvas.save()
-    return file
+    return output_file
 
 
 class StyleSheet(StyleSheet1):

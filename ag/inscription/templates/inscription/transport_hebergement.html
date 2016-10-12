@@ -34,7 +34,7 @@ $(function() {
 
     dependent_control(
             $('#id_prise_en_charge_hebergement_0'),
-            $('p#avertissement_hebergement_accompagnateur')
+            $('#hebergement_accompagnateur')
     );
     dependent_control(
             $('#id_prise_en_charge_transport_0'),
@@ -66,13 +66,13 @@ $(function() {
         );
         update_dependent_control(
                 $('#id_prise_en_charge_transport_0'),
-                $('p#avertissement_transport_accompagnateur')
+                $('#avertissement_transport_accompagnateur')
         );
     });
     $('#id_prise_en_charge_hebergement_1').change(function() {
         update_dependent_control(
                 $('#id_prise_en_charge_hebergement_0'),
-                $('p#avertissement_hebergement_accompagnateur')
+                $('#hebergement_accompagnateur')
         );
     });
 });
@@ -98,44 +98,30 @@ $(function() {
 
     <!-- Bloc Prise en charge -->
 {% if inscription.prise_en_charge_hebergement_possible %}
-    <div>
-      <h2>Prise en charge des frais d'hébergement</h2>
-        		<p>La prise en charge des frais d'hébergement est réservée exclusivement au
-            représentant mandaté d'un établissement membre titulaire ou associé du Sud qui en fait
-            la demande.</p> 
-						<p>L'AUF se réserve le droit d'accepter ou de refuser une demande
-            de prise en charge. Si elle est acceptée, l'AUF fixe les modalités de séjour
-            du participant. En tout état de cause, la prise en charge ne peut excéder
-            les nuits des 6, 7, 8 et 9 mai 2013.</p>
-            <fieldset>
-                {% field form.prise_en_charge_hebergement %}
-            </fieldset>
-        {% if inscription.accompagnateur %}
-						<p id="avertissement_hebergement_accompagnateur" class="avertissement">
-            Attention : L'AUF ne pourra pas prendre en charge l'hébergement de votre 
-						invité, un supplément de 200€ sera facturé pour la réservation d'une chambre 
-						double.</p>{% endif %}
-    </div>
-{% else %}
-    <!-- Section hébergement si pas de prise en charge possible -->
-  <h2>Hébergement</h2>
+  <div>
+    <h2>Prise en charge des frais d'hébergement</h2>
 
-<!-- Bloc détails hotels -->
-  <p>L'AUF a obtenu des tarifs négociés dans trois hôtels du groupe Golden Tulip.
-      En raison des tarifs pratiqués à São Paulo et de la forte affluence que
-      connaît la ville, l'AUF vous recommande fortement d'effectuer vos
-      réservations dans un de ces trois hôtels. Par ailleurs, les transports
-      depuis et vers le lieu des travaux de l'assemblée générale seront
-      organisés depuis ces trois hôtels.</p>
-  <p>La réservation de chambre peut être effectuée sur le site Internet sécurisé
-      de la centrale de réservations, à l'adresse suivante : <br />
-      <a href="https://almax.compassreservations.com/compass/external/index.cfm?Meeting_ID=58&Meeting_ID_code=529894856&code=AUF2013">
-          https://almax.compassreservations.com/compass/external/index.cfm?Meeting_ID=58&Meeting_ID_code=529894856&code=AUF2013</a>
-  </p>
- {% endif %}
-<!-- Section transport -->
-  <h2>Transport</h2>
+    <p>La prise en charge des frais d'hébergement est réservée exclusivement
+      au représentant mandaté d'un établissement membre titulaire ou associé du
+      Sud qui en fait la demande.</p>
+
+    <p>L'AUF se réserve le droit d'accepter ou de refuser une demande
+      de prise en charge. Si elle est acceptée, l'AUF fixe les modalités de
+      séjour
+      du participant.</p>
+    <fieldset>
+      {% field form.prise_en_charge_hebergement %}
+    </fieldset>
+    {% if inscription.accompagnateur %}
+      <div id="hebergement_accompagnateur">
+      {% field form.type_chambre_hotel %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+  <!-- Section transport -->
 {% if inscription.prise_en_charge_transport_possible %}
+  <h2>Transport</h2>
 	<h3>Prise en charge des frais de transport</h3>
   <p>La prise en charge des frais de transport international et des frais de
       séjour est réservée exclusivement au représentant mandaté d'un établissement
@@ -145,38 +131,14 @@ $(function() {
 
   <fieldset>
     {% field form.prise_en_charge_transport %}
-    {% if inscription.accompagnateur %}<p id="avertissement_transport_accompagnateur" class="avertissement">
+    {% if inscription.accompagnateur %}
+      <p id="avertissement_transport_accompagnateur" class="avertissement">
         Attention : L'AUF ne pourra pas prendre en charge le transport de votre invité,
         il lui appartient d'effectuer la réservation de son titre de transport.</p>
     {% endif %}
-    <div id="bloc_date_naissance">
-        <fieldset class="inlineLabels">
-            {% field form.date_naissance %}
-        </fieldset>
-    </div>
   </fieldset>
 {% endif %}
 
-<div id="bloc_arrivee_depart">
-  <h3>Renseignements sur mon arrivée à São Paulo</h3>
- <p>* La saisie facultative de ces informations permettra à l'AUF (sous réserve de disponibilité) de planifier
-     les accueils et les départs à São Paulo.</p>
-  <fieldset class="inlineLabels">
-    {% field form.arrivee_date %}
-    {% field form.arrivee_heure %}
-    {% field form.arrivee_compagnie %}
-    {% field form.arrivee_vol %}
-  </fieldset>
-
-  <h3>Renseignements sur mon départ</h3>
-
-  <fieldset class="inlineLabels">
-    {% field form.depart_date %}
-    {% field form.depart_heure %}
-    {% field form.depart_compagnie %}
-    {% field form.depart_vol %}
-  </fieldset>
-</div>
   <div class="buttonHolder">
     <input type="submit" value="Sauvegarder et continuer" class="secondaryAction" />
   </div>

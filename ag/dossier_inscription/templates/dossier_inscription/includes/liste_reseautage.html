@@ -1,0 +1,39 @@
+<div>
+  <form id="filtre-reseautage" action="{% url "dossier_inscription" %}#reseautage">
+    <table>
+      <tr>
+        <td>Région</td>
+        <td>Pays</td>
+      </tr>
+      <tr>
+        <td>{{ form_filtre_reseautage.region }}</td>
+        <td>{{ form_filtre_reseautage.pays }}</td>
+      </tr>
+    </table>
+  </form>
+</div>
+
+<div id="participants-reseautage-wrapper">
+<div id="participants-reseautage">
+{% for inscription in liste_reseautage %}
+  <table class="table-reseautage">
+    <tr>
+      <td><strong>{{ inscription.nom }}, {{ inscription.prenom }}</strong></td>
+      <td>{% if inscription.est_pour_mandate %}
+        Représentant mandaté
+      {% else %}
+        Accompagnateur
+      {% endif %}</td>
+    </tr>
+    <tr>
+      <td colspan="2"><a href="mailto:{{ inscription.invitation.get_adresse }}">
+        {{ inscription.invitation.get_adresse }}</a></td>
+    </tr>
+    <tr>
+      <td>{{ inscription.get_etablissement.pays.nom }}</td>
+      <td>{{ inscription.get_etablissement.region.nom }}</td>
+    </tr>
+  </table>
+{% endfor %}
+</div>
+</div>

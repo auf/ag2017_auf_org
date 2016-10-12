@@ -13,7 +13,7 @@
                 {% for fichier in fichiers %}
                 <tr>
                     <td {% if fichier.efface_le %}class="strikethrough"{% endif %}>
-                        <a href="{% url media_participant nom_fichier=fichier.filename %}">
+                        <a href="{% url "media_participant" nom_fichier=fichier.filename %}">
                             {{ fichier.filename }}</a>
                     </td>
                     <td>{{ fichier.cree_le }}</td>

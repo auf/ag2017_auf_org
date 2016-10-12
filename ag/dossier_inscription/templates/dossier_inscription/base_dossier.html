@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block extrahead %}
+<link rel="stylesheet" type="text/css"
+      href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/pepper-grinder/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}uni-form/css/uni-form.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}uni-form/css/default.uni-form.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}inscription.css">
+<script type="text/javascript" src="{{ STATIC_URL }}uni-form/js/uni-form.jquery.min.js"></script>
+<script>
+$(function(){
+    $('form.uniForm').uniform();
+    $.datepicker.setDefaults($.datepicker.regional['fr']);
+});
+</script>
+{% endblock %}
+
+{% block subtitle %}Dossier Inscription{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block sidebar %} {% endblock %}
+{% block footer %}
+  	<!-- PARTIE FOOTER-->
+        <footer id="footer">
+            <p> © AUF 2012 Tous droits réservés <span><a href="#">Plan du site</a> - <a href="http://www.auf.org" target="_blank">Visiter le site institutionnel de l'AUF</a> - <a href="#">Mentions légales</a> - <a href="#" >Contact</a></span></p>
+        </footer>
+{% endblock %}

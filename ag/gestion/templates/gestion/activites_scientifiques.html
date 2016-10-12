@@ -2,8 +2,8 @@
 {% block title %}Ateliers scientifiques - AG2013{% endblock %}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
-        <a href="{% url etats_listes %}">États et listes</a> &rsaquo;
+        <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
+        <a href="{% url "etats_listes" %}">États et listes</a> &rsaquo;
         Ateliers scientifiques
     </div>
 {% endblock breadcrumbs %}
@@ -18,7 +18,7 @@
 <li class="niveau1"><h3>{{ atelier.id }} {{ atelier.titre }}</h3> ( {{ atelier.elements.count }} ) participants inscrits
     <ul>
         {% for participant in atelier.elements %}
-            <li class="niveau3"><a href="{% url fiche_participant participant.id %}">
+            <li class="niveau3"><a href="{% url "fiche_participant" participant.id %}">
                 {{ participant.get_nom_prenom }}</a></li>
         {% endfor %}
     </ul>

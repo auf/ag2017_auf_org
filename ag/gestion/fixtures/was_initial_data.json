@@ -324,8 +324,8 @@
         "fields": {
             "prix_invite": 30.0,
             "prix": 0.0, 
-            "code": "unesp", 
-            "libelle": "Soir\u00e9e UNESP le 7 mai 2013"
+            "code": "soiree_9_mai",
+            "libelle": "Soir\u00e9e du 9 mai"
         }
     }, 
     {
@@ -334,8 +334,8 @@
         "fields": {
             "prix_invite": 30.0,
             "prix": 0.0, 
-            "code": "8_mai", 
-            "libelle": "Soir\u00e9e interconsulaire le 8 mai 2013"
+            "code": "soiree_10_mai",
+            "libelle": "Soir\u00e9e du 10 mai"
         }
     }, 
     {
@@ -345,7 +345,7 @@
             "prix_invite": 50.0,
             "prix": 0.0, 
             "code": "gala",
-            "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 9 mai 2013"
+            "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 11 mai 2013"
         }
     }, 
     {
@@ -378,6 +378,16 @@
         "fields":{
             "code":"autres",
             "libelle":"Autres frais"
+        }
+    },
+    {
+        "pk": 1,
+        "model":"mailing.modelecourriel",
+        "fields": {
+            "code":"mand",
+            "sujet":"pourmandate",
+            "corps":"invitation pour mandate",
+            "html": false
         }
     }
 ]

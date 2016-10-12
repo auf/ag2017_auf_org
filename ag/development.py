@@ -3,12 +3,16 @@ import sys
 
 from ag.settings import *  # NOQA
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
-INSTALLED_APPS += ('django_nose',)
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+if os.environ.get('DJDT', '0') == '1':
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS += ('debug_toolbar',)
+
 
 #Décommentez ces lignes pour activer la debugtoolbar
+
+
 # INTERNAL_IPS = ('127.0.0.1',)
 # INSTALLED_APPS += ('debug_toolbar',)
 #
@@ -21,7 +25,8 @@ AUTH_PASSWORD_REQUIRED = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 AG_INSCRIPTION_SENDER = 'beranger.enselme@auf.org'
 
-if 'test' in sys.argv or 'bin/test' in sys.argv:
+if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
+                'py.test' in sys.argv[0]:
     AUF_REFERENCES_MANAGED = True
     DATABASES = {
         'default': {
@@ -37,10 +42,41 @@ if 'test' in sys.argv or 'bin/test' in sys.argv:
     }
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     MAILING_TEMPORISATION = 0
+    LOGGING = {
+        'version': 1,
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': '/tmp/codesy-debug.log',
+            },
+        },
+        'loggers': {
+            'django.db.backends.schema': {
+                'handlers': ['file'],
+                'propagate': True,
+                'level': 'INFO',
+            },
+            '': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+            }
+        }
+    }
 
-PAYPAL_EMAIL_ADDRESS = 'berang_1344607404_biz@auf.org'
+    class DisableMigrations(object):
+
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return "notmigrations"
+
+    MIGRATION_MODULES = DisableMigrations()
+
+
+PAYPAL_EMAIL_ADDRESS = 'benselme-facilitator@gmail.com'
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
-PAYPAL_PDT_TOKEN = 'wYHr_XQJY0ShuRgxcunh7_MP99VLew-DYonAmJi8rGtNRTiUDotFfkgN_UC'
 
 SENDFILE_BACKEND="sendfile.backends.development"
 #LOGGING = {

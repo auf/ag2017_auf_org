@@ -3,13 +3,13 @@
 {% block title %}Liste participants - AG2013{% endblock %}
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-  <a href="{% url tableau_de_bord %}">Accueil</a> &rsaquo;
+  <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
   Participants
 </div>
 {% endblock breadcrumbs %}
 {% block content %}
 <ul class="object-tools">
-  <li><a href="{% url ajout_participant %}" class="addlink"
+  <li><a href="{% url "ajout_participant" %}" class="addlink"
     >Ajouter un participant</a></li>
 </ul>
 {% crispy form %}
@@ -42,7 +42,7 @@
   {% for participant in participants %}
   <tr>
     <td>
-      <a href="{% url fiche_participant participant.id %}">
+      <a href="{% url "fiche_participant" participant.id %}">
         {{ participant.get_nom_prenom }}</a>
     </td>
     <td>{{ participant.nom_institution }}</td>
