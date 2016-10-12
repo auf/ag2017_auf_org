@@ -73,7 +73,7 @@ font-weight: normal;
     height: 42px;
     text-transform: uppercase;
 
-    padding: 0px 30px 0px 0px;
+    padding: 0 30px 0 0;
 
 }
 
@@ -167,8 +167,8 @@ div.selectOptions {
     padding: 4px;
     display: none;
     z-index: 999;
-    -webkit-border-radius: 0px 0px 2px 2px;
-    border-radius: 0px 0px 2px 2px;
+    -webkit-border-radius: 0 0 2px 2px;
+    border-radius: 0 0 2px 2px;
 }
 
 div.selectOptions a {
@@ -195,11 +195,10 @@ a:hover > span.selectOption {
 }
 
 /*BASELINE*/
+/*noinspection CssUnknownTarget*/
 #baseline {
-
     width: 100%;
     margin: 0 auto;
-
     background: url(img/img-header.jpg) white no-repeat top left;
     background-size: 100%;
 }
@@ -242,19 +241,19 @@ width: 300px;
 }
 
 #logo img {
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 #ligne {
     float: left;
-    margin: 31px 0px 0px 0px;
+    margin: 31px 0 0 0;
     text-shadow: 1px 1px 1px #002232;
     filter: dropshadow(color=#002232, offx=1, offy=1);
     color: #FFF;
 }
 
 #ligne sup {
-    margin: 0px 6px 0px 1px;
+    margin: 0 6px 0 1px;
     display: inline-block;
     position: absolute;
     font-size: 30px;
@@ -264,10 +263,10 @@ width: 300px;
     font: bold 42px "Open Sans",sans-serif;
     color: #FFFFFF;
     letter-spacing: 1px;
-    margin: 0px 0px 0px 14px;
+    margin: 0 0 0 14px;
     display: inline-block;
     background: none;
-    padding: 0px;
+    padding: 0;
 }
 
 #ligne span {
@@ -279,7 +278,7 @@ width: 300px;
     text-decoration: none;
     font: bold 30px "Open Sans",sans-serif;
     color: #FFFFFF;
-    margin: 0px 0px 5px 0px;
+    margin: 0 0 5px 0;
     /*padding-top: 2px;*/
 }
 
@@ -296,9 +295,9 @@ width: 300px;
     text-decoration: none;
     font: bold 18px "Open Sans",sans-serif;
     color: #FFFFFF;
-    margin: 0px;
+    margin: 0;
     border: none;
-    padding: 0px;
+    padding: 0;
 }
 
 #diapo {
@@ -344,7 +343,7 @@ width: 300px;
     background-color: #A90f30;
     height: 42px;
     width: 100%;
-    margin: 0px auto;
+    margin: 0 auto;
     padding: 0 20px;
 }
 
@@ -393,11 +392,10 @@ width: 300px;
 }
 
 .partenaire-frame {
-    padding: 20px 20px 0px 20px;
-    background-color: #f8f8f8;
+    padding: 20px 20px 0 20px;
     margin-top: 20px;
     overflow: hidden;
-background-color: white;
+    background-color: white;
 }
 
 
@@ -407,11 +405,10 @@ margin: auto;
 }
 
 .box {
-    padding: 20px 20px 0px 20px;
-    background-color: #f8f8f8;
+    padding: 20px 20px 0 20px;
     margin-top: 20px;
     overflow: hidden;
-background-color: white;
+    background-color: white;
 }
 
 
@@ -435,7 +432,7 @@ float: left;
 }
 
 .comman img {
-    padding: 20px 40px 20px 0px;
+    padding: 20px 40px 20px 0;
     max-width: 200px;
     height: auto;
 
@@ -449,7 +446,7 @@ float: left;
 }
 
 .contents ul {
-  margin: 0px 0 18px 4px;
+  margin: 0 0 18px 4px;
     font: 13px/18px "Open Sans",sans-serif;
     color: #2F2F2F;
 }
@@ -465,9 +462,9 @@ float: left;
       margin: 0 0 22px 0;
 }
 
+/*noinspection CssUnknownTarget*/
 #smenu ul li {
-    background-image: url("/static/img/gauche.png"),url("img/fond2.jpg");
-    background-repeat: no-repeat,repeat;
+    background: url("/static/img/gauche.png"), url("img/fond2.jpg") no-repeat, repeat;
     background-position-x: 10px;
     background-position-y: 50%;
     border: 1px solid #CCCCCC;
@@ -478,6 +475,7 @@ float: left;
     color: #444;
 }
 
+/*noinspection CssUnknownTarget*/
 #smenu .selected {
     background-image: url("/static/img/gauche_0.png"),url("img/fond2.jpg");
     color: #000;
@@ -490,8 +488,8 @@ float: left;
 }
 
 #pick_act_sci_form {
-    margin: 15px 0px 0px 0px;
-    padding-left: 0px;
+    margin: 15px 0 0 0;
+    padding-left: 0;
 }
 
 #pick_act_sci_form input[type="radio"] {
@@ -499,21 +497,21 @@ float: left;
 }
 
 #act_sci_participant ul {
-    margin: 10px 0px 0px 0px;
+    margin: 10px 0 0 0;
     padding: 0 0 0 0;
 }
 
 #act_sci_participant ul li {
     list-style-type: none;
     background: none;
-    margin: 10px 0px 0px 0px;
+    margin: 10px 0 0 0;
     padding: 0 0 0 0;
 }
 
 #act_sci ul li {
     list-style-type: none;
     background: none;
-    margin: 10px 0px 0px 0px;
+    margin: 10px 0 0 0;
     padding: 0 0 0 0;
 }
 
@@ -533,8 +531,8 @@ float: left;
 
 #bouton_retirer {
     border-top: 1px solid grey;
-    margin: 10px 0px 0px 0px;
-    padding: 10px 0px 0px 0px;
+    margin: 10px 0 0 0;
+    padding: 10px 0 0 0;
 }
 
 #bouton_deconnexion a, #bouton_retirer a {
@@ -560,7 +558,7 @@ float: left;
     border: 1px solid #d9d9d9;
     background-color: #fff;
     text-align: center;
-    margin: 4px 18px 6px 0px;
+    margin: 4px 18px 6px 0;
     font-size: 0.88em;
     width: 280px;
 }
@@ -571,7 +569,7 @@ float: left;
     border: 1px solid #555;
     background-color: #fff;
     text-align: center;
-    margin: 4px 0px 6px 18px;
+    margin: 4px 0 6px 18px;
     font-size: 0.88em;
     width: 280px;
 }
@@ -580,7 +578,7 @@ float: left;
     padding: 5px 5px 10px 5px;
     border: 1px solid #555;
     background-color: #fff;
-    margin: 12px 0px 6px 0px;
+    margin: 12px 0 6px 0;
     font-size: 0.88em;
     text-align: center;
 }
@@ -602,7 +600,7 @@ float: left;
 
 table {
     background-color: #FFFFFF;
-    border: 0px solid #555555;
+    border: 0 solid #555555;
     border-collapse: collapse;
     margin: 6px 0 30px;
     width: 100%;
@@ -630,12 +628,12 @@ padding-left: 7px;
 }
 
 table.atelier {
-    border: 0px solid #FFFFFF;
+    border: 0 solid #FFFFFF;
     margin: 0 0 0 0;
 }
 
 #corp .atelier td {
-    border: 0px solid #555555;
+    border: 0 solid #555555;
     valign: top;
     padding: 0 10px 20px 0;
 }
@@ -650,7 +648,8 @@ table.atelier {
 }
 
 #corp h3 {
-    font: bold 13px ;
+    font-weight: bold;
+    font-size: 13px;
     color: #333;
     padding-bottom: 3px;
     margin-bottom: 16px;
@@ -685,9 +684,9 @@ p {
 #top2 ul li ul li {
      float: none;
     background: none;
-padding: 0px;
+padding: 0;
 padding: 10px;
-line-height: 0px;
+line-height: 0;
 height: 20px;
 
 }
@@ -695,9 +694,9 @@ height: 20px;
 #top2 ul li ul li a {
      text-align: left;
     text-transform: none;
-    font-weight: 110;
-line-height: 0px;
-color: white;
+    font-weight: 100;
+    line-height: 0;
+    color: white;
 }
 
 #top2 ul li ul li a:hover {
@@ -707,7 +706,7 @@ color: white;
     -ms-transition: color 1s ease;
     -o-transition: color 1s ease;
     transition: color 1s ease;
-line-height: 0px;
+line-height: 0;
 }
 
 #top2 li:hover > ul {
@@ -765,7 +764,7 @@ background-color: #A90F30;
 .reponse {
     background: #fafafa;
     border: 1px solid #CCCCCC;
-    padding: 22px 22px 0px 22px;
+    padding: 22px 22px 0 22px;
     display: none;
     margin-bottom: 12px;
 }
@@ -773,13 +772,13 @@ background-color: #A90F30;
 .reponse2 {
     background: #fafafa;
     border: 1px solid #CCCCCC;
-    padding: 22px 22px 0px 22px;
+    padding: 22px 22px 0 22px;
     margin-bottom: 12px;
 }
 
 .bio {
     float: left;
-    margin: 0px 16px 6px 0px;
+    margin: 0 16px 6px 0;
     padding: 7px;
     border: 1px solid #CCCCCC;
 }
@@ -788,8 +787,8 @@ background-color: #A90F30;
 
 /* liste in form */
 #content .ctrlHolder ul li {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     background: none;
 }
 
@@ -807,7 +806,7 @@ background-color: #A90F30;
     font-style: italic;
     font-size: 0.90em;
     color: #880424;
-    margin: 0px 0px 0px 4px;
+    margin: 0 0 0 4px;
 }
 
 .prix {
@@ -818,7 +817,7 @@ background-color: #A90F30;
 /*Les input */
 input[type="checkbox"], input[type="radio"] {
     vertical-align: top;
-    margin: 0px 10px 4px 0px;
+    margin: 0 10px 4px 0;
 }
 
 input:required, textarea:required {
@@ -872,7 +871,7 @@ textarea {
 
 input[type=submit],
 .bouton_sub {
-    margin: 10px 0px 2px 0px;
+    margin: 10px 0 2px 0;
     cursor: pointer;
     background: none;
     border: none;
@@ -880,7 +879,7 @@ input[type=submit],
     font-size: 14px;
     padding: 6px 8px;
     border: 1px solid #aaa;
-    text-shadow: 0px 1px 1px #E8E8E8;
+    text-shadow: 0 1px 1px #E8E8E8;
     background: rgb(247, 247, 247);
     background: linear-gradient(top, rgba(247, 247, 247, 1) 1%, rgba(242, 242, 242, 1) 100%);
     transition: all 0.2s linear;
@@ -900,8 +899,8 @@ input[type=submit]:hover,
     color: #003550;
     border-color: #CECECE;
     background: linear-gradient(top, rgba(244, 244, 244, 1) 0%, rgba(242, 242, 242, 1) 100%);
-    box-shadow: 0px 1px 1px #FFF inset,
-    0 0 0px 5px #E0E0E0;
+    box-shadow: 0 1px 1px #FFF inset,
+    0 0 0 5px #E0E0E0;
 }
 
 input[type=submit]:active,
@@ -910,8 +909,8 @@ input[type=submit]:focus, {
     top: 1px;
     color: #515151;
     background: linear-gradient(top, rgba(234, 234, 234, 1) 0%, rgba(242, 242, 242, 1) 100%);
-    box-shadow: 0px -1px 1px #FFF inset,
-    0 0 0px 5px #E0E0E0;
+    box-shadow: 0 -1px 1px #FFF inset,
+    0 0 0 5px #E0E0E0;
 }
 
 label {
