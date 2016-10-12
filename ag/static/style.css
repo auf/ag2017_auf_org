@@ -333,6 +333,12 @@ width: 300px;
     filter: dropshadow(color=#ffffff, offx=1, offy=1);
 }
 
+#footer-wrap {
+    background-color: #A90F30;
+    height: 42px;
+    width: 100%;
+    padding: 30px 0 80px 0;
+}
 
 #footer {
     background-color: #A90f30;
