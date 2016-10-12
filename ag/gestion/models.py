@@ -547,9 +547,9 @@ class Participant(RenseignementsPersonnels):
         elif self.type_institution == 'A':
             type_autre_institution = self.type_autre_institution.libelle
             if self.nom_autre_institution:
-                return ''.join([type_autre_institution,
-                                u', ',
-                                self.nom_autre_institution])
+                return u''.join([type_autre_institution,
+                                 u', ',
+                                 self.nom_autre_institution])
             else:
                 return type_autre_institution
 
@@ -781,7 +781,7 @@ class Participant(RenseignementsPersonnels):
     def get_paiement_string(self):
         display = self.get_paiement_display()
         if self.accompte:
-            display += u', paiement : ' + str(self.accompte) + u'€'
+            display += u', paiement : ' + unicode(self.accompte) + u'€'
         if self.paiement == 'CB' and self.inscription:
             display += self.inscription.statut_paypal_text()
         return display
@@ -791,6 +791,12 @@ class Participant(RenseignementsPersonnels):
 
     def get_region_vote_string(self):
         return REGIONS_VOTANTS_DICT[self.region_vote]
+
+    def get_verse_en_trop(self):
+        return -min(self.total_facture - self.accompte, 0)
+
+    def get_solde_a_payer(self):
+        return max(self.total_facture - self.accompte, 0)
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:

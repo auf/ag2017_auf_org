@@ -39,15 +39,15 @@ class RenseignementsPersonnels(models.Model):
         abstract = True
 
     GENRE_CHOICES = (
-        ('M', 'M.'),
-        ('F', 'Mme'),
+        ('M', u'M.'),
+        ('F', u'Mme'),
         )
 
     PAIEMENT_CHOICES = (
-        ('CB', 'Carte bancaire'),
-        ('VB', 'Virement bancaire'),
-        ('CE', 'Chèque en euros'),
-        ('DL', 'Devises locales'),
+        ('CB', u'Carte bancaire'),
+        ('VB', u'Virement bancaire'),
+        ('CE', u'Chèque en euros'),
+        ('DL', u'Devises locales'),
         )
 
     genre = models.CharField(

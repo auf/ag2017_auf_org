@@ -935,6 +935,20 @@ class GestionTestCase(TestCase):
                              if avec_invites else 0)
             avec_invites = not avec_invites
 
+    def test_verse_en_trop(self):
+        p = Participant(accompte=100)
+        p.total_facture = 50
+        assert p.get_verse_en_trop() == 50
+        p.total_facture = 150
+        assert p.get_verse_en_trop() == 0
+
+    def test_solde_a_payer(self):
+        p = Participant(accompte=100)
+        p.total_facture = 50
+        assert p.get_solde_a_payer() == 0
+        p.total_facture = 150
+        assert p.get_solde_a_payer() == 50
+
     def test_problemes_solde(self):
         def get_participant():
             return Participant.actifs \
