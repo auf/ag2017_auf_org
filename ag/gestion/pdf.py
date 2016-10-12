@@ -218,6 +218,15 @@ def generer_factures(output_file, participants):
                       styles['droite'])
         _, h = p.wrap(frame_width, 2 * cm)
         p.drawOn(canvas, x, y)
+        if participant.get_verse_en_trop():
+            y -= h + 0.5 * cm
+            p = Paragraph(
+                u"""Votre remboursement s’effectuera automatiquement dans les
+                prochains 30 jours utilisant la même méthode et versé même
+                compte du paiement initial.
+                """, styles['petit'])
+            _, h = p.wrap(frame_width, 2 * cm)
+            p.drawOn(canvas, x, y)
 
         # Rendu
         canvas.showPage()
