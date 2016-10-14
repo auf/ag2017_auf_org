@@ -526,7 +526,7 @@ class SuiviForm(GestionModelForm):
 # décimal dans les champs de formulaire
 class CurrencyInput(forms.TextInput):
     def render(self, name, value, attrs=None):
-        if value != '':
+        if value != '' and value is not None:
             try:
                 value = formats.number_format(value, 2)
             except (TypeError, ValueError):
