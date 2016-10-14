@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from ag.gestion import transfert_inscription
-#noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
 from ag.inscription.models import Inscription, Invitation
@@ -37,6 +37,7 @@ VOL_TEST_DATA = {
 }
 
 
+# noinspection PyUnresolvedReferences
 class GestionTestCase(TestCase):
     fixtures = ['test_data.json']
 
@@ -479,7 +480,7 @@ class GestionTestCase(TestCase):
             u'invite_set-0-prenom': u'prenom_invite',
             u'invite_set-0-DELETE': u'',
             u'invite_set-0-participant': unicode(participant.id),
-            #u'invite_set-0-id': u'None',
+            # u'invite_set-0-id': u'None',
         }
         response = self.client.post(reverse('invites', args=[participant.id]),
                                     data=data)
@@ -835,7 +836,8 @@ class GestionTestCase(TestCase):
         )
         self.assertEqual(
             ParticipationActivite.objects.filter(
-                participant=p, activite__code='soiree_10_mai', avec_invites=False
+                participant=p, activite__code='soiree_10_mai',
+                avec_invites=False
             ).count(),
             1
         )
@@ -935,6 +937,7 @@ class GestionTestCase(TestCase):
                              if avec_invites else 0)
             avec_invites = not avec_invites
 
+    # noinspection PyMethodMayBeStatic
     def test_verse_en_trop(self):
         p = Participant(accompte=100)
         p.total_facture = 50
@@ -942,6 +945,7 @@ class GestionTestCase(TestCase):
         p.total_facture = 150
         assert p.get_verse_en_trop() == 0
 
+    # noinspection PyMethodMayBeStatic
     def test_solde_a_payer(self):
         p = Participant(accompte=100)
         p.total_facture = 50
@@ -1202,8 +1206,8 @@ class TableauDeBordTestCase(TestCase):
         return self.client.get(reverse('tableau_de_bord'))
 
     def test_points_de_suivis(self):
-        def check_link(response, point_de_suivi, nombre):
-            self.assertContains(response,
+        def check_link(resp, point_de_suivi, nombre):
+            self.assertContains(resp,
                                 u'href="%s?suivi=%s">%s'
                                 % (reverse('participants'), point_de_suivi.id,
                                    nombre))
@@ -1376,6 +1380,7 @@ class PermissionsGestionTestCase(TestCase):
                       self.user_comptable],
                      [self.user_lecteur, self.user_sans_role])
 
+    # noinspection PyPep8Naming
     def test_permission_region(self):
         region_MO = Region()
         region_MO.code = u'MO'
@@ -1506,8 +1511,3 @@ class TestsVolsGroupes(TestCase):
         del data[u'vols-0-prix']
         response = self.client.post(reverse('ajouter_vol_groupe'), data=data)
         self.assertRedirects(response, reverse('liste_vols_groupes'))
-
-
-
-
-
