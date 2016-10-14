@@ -116,7 +116,9 @@ def generer_factures(output_file, participants):
                 [u"# Facture", numero_facture],
                 [
                     u"# Dossier",
-                    u"CGRM%d" % participant.etablissement.id
+                    u"{}-CGRM{}".format(
+                        participant.inscription.numero_dossier,
+                        participant.etablissement.id)
                     if participant.etablissement else u""
                 ],
                 [u"# Imputation", u"70810." + participant.imputation],
