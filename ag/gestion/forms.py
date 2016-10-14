@@ -603,8 +603,10 @@ class TransportFormTop(GestionModelForm):
                   'numero_dossier_transport', 'modalite_retrait_billet',
                   'vol_groupe')
 
-    choices = ((False, u"par le participant lui-même"), (True, u"par l'AUF"))
-    transport_organise_par_auf = ChoiceField(
+    choices = ((False, u"par le participant lui-même"),
+               (True, u"par l'AUF"))
+    transport_organise_par_auf = TypedChoiceField(
+        coerce=lambda x: x == 'True',
         label=u"Transport organisé", choices=choices,
         widget=RadioSelect, required=True)
     vol_groupe = ModelChoiceField(VolGroupe.objects.all(), empty_label=u"Non",
