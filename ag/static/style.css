@@ -340,11 +340,8 @@ width: 300px;
 }
 
 #footer {
-    background-color: #A90f30;
-    height: 42px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 20px;
+    width: 950px;
+    margin: auto;
 }
 
 #footer p {
