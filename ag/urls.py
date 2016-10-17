@@ -25,8 +25,9 @@ urlpatterns += patterns('',
     (r'^tinymce/', include('tinymce.urls')),
 )
 
-urlpatterns += patterns('ag.views',
-    (r'^$', 'accueil'),
+urlpatterns += patterns(
+    'ag.views',
+    url(r'^$', 'accueil', name='accueil'),
     (r'^actualites/(?P<slug>[-\w]+)/$', 'actualite_detail'),
 )
 

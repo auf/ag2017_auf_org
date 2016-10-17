@@ -14,6 +14,10 @@ def find_input_by_name(tree, html_name):
         return tree.find("//input[@name='{0}']".format(html_name))
 
 
+def find_checked_input_by_name(tree, html_name):
+    return tree.find("//input[@name='{0}'][@checked='checked']".format(html_name))
+
+
 # noinspection PyUnresolvedReferences
 class PaysFactory(factory.DjangoModelFactory):
     class Meta:

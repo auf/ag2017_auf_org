@@ -18,6 +18,7 @@
 {% block nav-global %}
     {% if user.is_active and user.is_staff %}
         {% if not is_popup %}
+            <div class="clear"></div>
             {% include "menu.html" %}
         {% endif %}
     {% endif %}

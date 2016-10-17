@@ -56,7 +56,7 @@ class RechercheParticipantForm(Form):
                     widget=TextInput(attrs={'size': 80}))
     etablissement = IntegerField(label=u'Établissement',
                                  widget=HiddenInput(attrs={
-                                 'id': 'recherche_etablissement_id'}),
+                                    'id': 'recherche_etablissement_id'}),
                                  required=False)
     etablissement_nom = CharField(
         label=u'Établissement',
@@ -127,6 +127,7 @@ def require_field(form, cleaned_data, field_name, shown_on_field=None):
         if cleaned_data[field_name] in validators.EMPTY_VALUES:
             shown_on_field = field_name \
                 if not shown_on_field else shown_on_field
+            # noinspection PyProtectedMember
             form._errors.setdefault(shown_on_field, form.error_class())\
                 .append(Field.default_error_messages['required'])
             del cleaned_data[shown_on_field]
@@ -250,7 +251,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
                 lambda x: x != type_institution, champs_selon_type.iterkeys()
             ):
                 for champ in champs_selon_type[key]:
-                    if (not champ in champs_obligatoires
+                    if (champ not in champs_obligatoires
                             and champ in cleaned_data):
                         del cleaned_data[champ]
         return cleaned_data
@@ -401,7 +402,7 @@ class SejourForm(GestionForm):
             )
             for chambre_field_name in chambre_field_names
         ]
-        hotel_fields += ['notes_hebergement',]
+        hotel_fields += ['notes_hebergement']
         # on crée deux champs pour chaque activité (participant + invités)
         activite_field_containers = []
         activite_field_names = {}
@@ -443,7 +444,6 @@ class SejourForm(GestionForm):
                 'activite_scientifique'
             )
         )
-        #self.set_hotel_fields_required(True)
 
     def is_valid(self):
         self.set_hotel_fields_required(False)
@@ -461,7 +461,6 @@ class SejourForm(GestionForm):
             self.cleaned_data['activite_scientifique']
         participant.reservation_hotel_par_auf = \
             self.cleaned_data['reservation_par_auf']
-        #if participant.reservation_hotel_par_auf: cf. bug #6019
         participant.hotel = self.cleaned_data['hotel']
         participant.date_arrivee_hotel = self.cleaned_data['date_arrivee']
         participant.date_depart_hotel = self.cleaned_data['date_depart']
@@ -526,7 +525,7 @@ class SuiviForm(GestionModelForm):
 # décimal dans les champs de formulaire
 class CurrencyInput(forms.TextInput):
     def render(self, name, value, attrs=None):
-        if value != '':
+        if value != '' and value is not None:
             try:
                 value = formats.number_format(value, 2)
             except (TypeError, ValueError):
@@ -603,8 +602,10 @@ class TransportFormTop(GestionModelForm):
                   'numero_dossier_transport', 'modalite_retrait_billet',
                   'vol_groupe')
 
-    choices = ((False, u"par le participant lui-même"), (True, u"par l'AUF"))
-    transport_organise_par_auf = ChoiceField(
+    choices = ((False, u"par le participant lui-même"),
+               (True, u"par l'AUF"))
+    transport_organise_par_auf = TypedChoiceField(
+        coerce=lambda x: x == 'True',
         label=u"Transport organisé", choices=choices,
         widget=RadioSelect, required=True)
     vol_groupe = ModelChoiceField(VolGroupe.objects.all(), empty_label=u"Non",
@@ -617,10 +618,11 @@ class TransportFormTop(GestionModelForm):
             Fieldset(
                 u'Organisation',
                 'transport_organise_par_auf', Div(
-                HTML('{% include "gestion/nombre_invites.html" %}'),
-                crispy_Field('statut_dossier_transport', css_class='required'),
-                'numero_dossier_transport', 'modalite_retrait_billet',
-                'vol_groupe', css_class='organise_par_auf'),
+                    HTML('{% include "gestion/nombre_invites.html" %}'),
+                    crispy_Field('statut_dossier_transport',
+                                 css_class='required'),
+                    'numero_dossier_transport', 'modalite_retrait_billet',
+                    'vol_groupe', css_class='organise_par_auf'),
             ),
         )
         self.helper.form_tag = False
