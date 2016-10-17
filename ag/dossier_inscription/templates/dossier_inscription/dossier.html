@@ -177,7 +177,7 @@ Vous avez acquitté tous vos frais de participation. Merci.
       Transmettre votre chèque par courrier avec votre dossier d'inscription
       imprimé.<br/>
       Adresse postale pour la région {{ region.nom }} :<br/>
-            {{ region.adresse }}
+            {% include "dossier_inscription/includes/adresse_region_cheque.html" with code_region=region.code%}
     </p>
   </div>
   <div id="tab-dl">
