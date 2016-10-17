@@ -26,6 +26,9 @@
       {% endif %}</td>
     </tr>
     <tr>
+      <td colspan="2">{{ inscription.get_etablissement.nom }}</td>
+    </tr>
+    <tr>
       <td colspan="2"><a href="mailto:{{ inscription.invitation.get_adresse }}">
         {{ inscription.invitation.get_adresse }}</a></td>
     </tr>
