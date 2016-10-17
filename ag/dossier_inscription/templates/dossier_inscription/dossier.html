@@ -409,6 +409,7 @@ function init_dossier() {
       });
       $('#id_arrivee_date').datepicker();
       $('#id_depart_date').datepicker();
+      $('#annuler-changement-adresse').click(annuler_changement_adresse)
   });
 }
 
@@ -431,6 +432,12 @@ function click_modifier_adresse(e) {
   e.preventDefault();
   $('#adresse').hide();
   $('#form-adresse').show();
+}
+
+function annuler_changement_adresse(e) {
+    e.preventDefault();
+  $('#adresse').show();
+  $('#form-adresse').hide();
 }
 
 $("#tabs-paiement").tabs();
