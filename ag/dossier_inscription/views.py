@@ -85,6 +85,9 @@ def dossier(request):
     if not inscription_id:
         return redirect('connexion_inscription')
     inscription = InscriptionFermee.objects.get(id=inscription_id)
+    if not inscription.fermee:
+        return redirect(reverse('connexion_inscription'))
+
     adresse = inscription.get_adresse()
 
     # noinspection PyProtectedMember
