@@ -23,13 +23,13 @@
       <div id="branding">
         <h1 id="site-name">Gestion des participants</h1>
       </div>
-      <div class="clear"></div>
       <div id="user-tools">
         Bienvenue,
         <strong>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</strong>.
         <a href="{% url "changement_mot_de_passe" %}">Modifier votre mot de passe</a> /
         <a href="{% url "logout" %}">Déconnexion</a>
       </div>
+      <div class="clear"></div>
       {% include "menu.html" %}
     </div>
 
