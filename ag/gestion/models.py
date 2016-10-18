@@ -798,6 +798,9 @@ class Participant(RenseignementsPersonnels):
     def get_solde_a_payer(self):
         return max(self.total_facture - self.accompte, 0)
 
+    def a_televerse_passeport(self):
+        return self.fichier_set.filter(type_fichier=1).exists()
+
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:
     #         infos_arrivee = self.get_infos_arrivee()
@@ -941,9 +944,18 @@ class Frais(Model):
 FILE_STORAGE = FileSystemStorage(location=settings.PATH_FICHIERS_PARTICIPANTS)
 
 
+def get_participant_file_path(fichier, filename):
+    return os.path.join(str(fichier.participant.id), filename)
+
+
 class Fichier(Model):
     participant = ForeignKey(Participant)
-    fichier = FileField(upload_to=".", storage=FILE_STORAGE)
+    fichier = FileField(upload_to=get_participant_file_path,
+                        storage=FILE_STORAGE)
+    type_fichier = IntegerField(default=0, choices=(
+        (0, u"Autres"),
+        (1, u"Passeport")
+    ))
     cree_le = DateTimeField(u"créé le ", auto_now_add=True)
     cree_par = ForeignKey(User, on_delete=PROTECT, null=True, related_name='+')
     efface_le = DateTimeField(u"effacé le ", null=True)

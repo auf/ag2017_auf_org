@@ -91,7 +91,7 @@ class RenseignementsPersonnels(models.Model):
 
     # Options de paiement
     paiement = models.CharField(
-        'modalités de paiement', max_length=2, choices=PAIEMENT_CHOICES,
+        u"modalités de paiement", max_length=2, choices=PAIEMENT_CHOICES,
         blank=True
     )
 
