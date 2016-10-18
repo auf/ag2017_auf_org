@@ -59,3 +59,7 @@ class InscriptionFermee(models_inscription.Inscription):
             inscription_validee=participant is not None,
             participation_confirmee=self.is_participation_confirmee(),
             plan_de_vol_complete=self.is_plan_de_vol_complete())
+
+    def a_televerse_passeport(self):
+        participant = self.get_participant()
+        return participant.a_televerse_passeport()

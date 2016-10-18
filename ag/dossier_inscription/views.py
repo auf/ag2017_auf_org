@@ -4,6 +4,8 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from ag.gestion import models as gestion_models
+from ag.gestion import forms as gestion_forms
 from ag.inscription.models import Invitation, InvitationEnveloppe, Inscription
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
@@ -89,10 +91,12 @@ def dossier(request):
         return redirect(reverse('connexion_inscription'))
 
     adresse = inscription.get_adresse()
+    participant = inscription.get_participant()
 
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
+        'participant': participant,
         'adresse': adresse,
         'suivi': inscription.get_suivi_dossier(),
         'solde': inscription.get_total_du(),
@@ -105,8 +109,13 @@ def dossier(request):
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
         'avant_15_decembre': (datetime.datetime.today() <
                               datetime.datetime(2016, 12, 15)),
-        'plan_vol_form': handle_plan_vol_form(request, inscription)
+        'plan_vol_form': handle_plan_vol_form(request, inscription),
+
     }
+
+    if participant:
+        context['passeport_form'] = forms.AjoutPasseportForm(
+            instance=participant)
 
     if inscription.reseautage:
         form_filtre_reseautage, liste_reseautage = handle_reseautage(
@@ -116,6 +125,21 @@ def dossier(request):
 
     context.update(inscription_views.get_paypal_context(request))
     return render(request, 'dossier_inscription/dossier.html', context)
+
+
+@require_POST
+def upload_passeport(request):
+    inscription = InscriptionFermee.objects.get(
+        id=request.session.get('inscription_id', None))
+    if not inscription.a_televerse_passeport():
+        fichier = gestion_models.Fichier(
+            participant=inscription.get_participant(),
+            cree_par=request.user)
+        form = forms.AjoutPasseportForm(
+            request.POST, request.FILES, instance=fichier)
+        if form.is_valid():
+            form.save()
+    return redirect(reverse('dossier_inscription') + '#passeport')
 
 
 @require_POST

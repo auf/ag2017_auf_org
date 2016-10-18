@@ -389,6 +389,20 @@ Vous avez acquitté tous vos frais de participation. Merci.
     </form>
   {% endif %}
 
+  {% if participant %}
+    <a id="passeport"></a>
+    <h2>Passeport</h2>
+    {% if inscription.a_televerse_passeport %}
+      <p>Passeport envoyé !</p>
+    {% else %}
+      <form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
+        {% csrf_token %}
+        {{ passeport_form }}
+        <input type="submit" value="Envoyer"/>
+      </form>
+    {% endif %}
+  {% endif %}
+
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
 
