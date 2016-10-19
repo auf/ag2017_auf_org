@@ -78,9 +78,9 @@ def create_fixtures(test_case):
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
-    for code_activite, (_, _) in montants.CODES_MONTANTS_ACTIVITES:
+    for code_activite, _ in montants.CODES_MONTANTS_ACTIVITES:
         Activite.objects.create(code=code_activite, libelle=code_activite,
-                                prix=0, prix_invite=30)
+                                prix_invite=30)
 
 
 def make_modele_courriel_mandate():

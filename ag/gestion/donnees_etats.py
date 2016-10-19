@@ -386,7 +386,7 @@ PaiementParticipant = namedtuple('PaiementParticipant', (
     'P_telephone', 'P_telecopieur', 'P_statut', 'E_cgrm', 'E_nom',
     'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I', 'f_fact_I', 'f_PEC_T',
     'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S', 'f_AUF_S', 'f_total_S',
-    'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 'f_fact_A', 'f_valide',
+    'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 'f_valide',
     'f_mode', 'f_accompte', 'f_solde', 'n_R', 'n_N', 'n_T', 'n_A', 'n_total',
     'n_mode', 'n_statut',))
 
@@ -409,7 +409,7 @@ def get_donnees_paiements(actifs_seulement):
         'delinquant', 'frais_inscription', 'frais_inscription_facture',
         'frais_transport', 'frais_transport_facture', 'frais_hebergement',
         'frais_hebergement_facture', 'frais_activites',
-        'frais_activites_facture', 'frais_autres', 'total_frais',
+        'frais_autres', 'total_frais',
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
                         'etablissement__region', 'region', 'statut',
@@ -459,7 +459,6 @@ def get_donnees_paiements(actifs_seulement):
                 if p.facturation_supplement_chambre_double else 0),
             f_PEC_A=bool_ON(p.prise_en_charge_activites),
             f_total_A=format_money(p.frais_activites),
-            f_fact_A=format_money(p.frais_activites_facture),
             f_valide=bool_ON(p.facturation_validee),
             f_mode=p.get_paiement_display(),
             f_accompte=format_money(p.accompte),

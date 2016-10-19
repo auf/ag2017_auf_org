@@ -598,7 +598,6 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        montant_attendu += activite.prix
         self.assertEquals(participant.total_frais, montant_attendu)
         self.assertEquals(participant.total_facture, montant_attendu)
 
@@ -938,7 +937,7 @@ class GestionTestCase(TestCase):
                 .get(id=self.participant.id)
             self.assertTrue(p.get_participation_activite(activite))
             self.assertEqual(p.frais_activites - frais_activites,
-                             activite.prix + activite.prix_invite
+                             activite.prix_invite
                              if avec_invites else 0)
             avec_invites = not avec_invites
 

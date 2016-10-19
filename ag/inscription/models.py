@@ -165,11 +165,8 @@ class InvitationEnveloppe(models.Model):
 
 # À certains champs correspondent des montants (ex:
 CODES_CHAMPS_MONTANTS = {
-    'programmation_soiree_9_mai': 'soiree_9_mai_membre',
     'programmation_soiree_9_mai_invite': 'soiree_9_mai_invite',
-    'programmation_soiree_10_mai': 'soiree_10_mai_membre',
     'programmation_soiree_10_mai_invite': 'soiree_10_mai_invite',
-    'programmation_gala': 'gala_membre',
     'programmation_gala_invite': 'gala_invite',
     'forfait_invite_dejeuners': 'forfait_invite_dejeuners',
     'forfait_invite_transfert': 'forfait_invite_transfert',
@@ -319,7 +316,6 @@ class Inscription(RenseignementsPersonnels):
             if self.prise_en_charge_hebergement:
                 liste.append('supplement_chambre_double')
         for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
-            self.append_code_montant(liste, champ_membre)
             if self.accompagnateur:
                 self.append_code_montant(liste, champ_invite)
         if self.forfait_invite_transfert:

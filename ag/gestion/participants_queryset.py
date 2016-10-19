@@ -174,7 +174,6 @@ class ParticipantsQuerySet(QuerySet):
         elif name == 'frais_activites':
             return """(
                 SELECT IFNULL(
-                    SUM(a.prix) +
                     SUM(IF(p.avec_invites, %s * a.prix_invite, 0)),
                     0
                 )
@@ -184,17 +183,6 @@ class ParticipantsQuerySet(QuerySet):
                 WHERE
                     p.participant_id = gestion_participant.id
             )""" % self.sql_expr('nombre_invites')
-        elif name == 'frais_activites_facture':
-            return """(
-                %s - IF(gestion_participant.prise_en_charge_activites, (
-                    SELECT IFNULL(SUM(a.prix), 0)
-                    FROM gestion_participationactivite p
-                        INNER JOIN gestion_activite a
-                        ON a.id = p.activite_id
-                    WHERE
-                        p.participant_id = gestion_participant.id
-                ), 0)
-            )""" % self.sql_expr('frais_activites')
         elif name == 'frais_autres':
             return """IFNULL((
                 SELECT SUM(quantite * IFNULL(montant,0))
@@ -214,7 +202,7 @@ class ParticipantsQuerySet(QuerySet):
                 self.sql_expr('frais_inscription_facture'),
                 self.sql_expr('frais_transport_facture'),
                 self.sql_expr('frais_hebergement_facture'),
-                self.sql_expr('frais_activites_facture'),
+                self.sql_expr('frais_activites'),
             )
         elif name == 'solde':
             return "(%s - gestion_participant.accompte)" % \

@@ -13,35 +13,20 @@ MONTANTS_DATA = {
             'montant': 30,
             'categorie': 'hebe',
         },
-    'soiree_9_mai_membre':
-        {
-            # 'montant': 0, vient de la table activités
-            'categorie': 'acti',
-        },
     'soiree_9_mai_invite':
         {
             # 'montant': 0, vient de la table activités
-            'categorie': 'acti',
-        },
-    'soiree_10_mai_membre':
-        {
-            # 'montant': 0,vient de la table activités
-            'categorie': 'acti',
+            'categorie': 'invite',
         },
     'soiree_10_mai_invite':
         {
             # 'montant': 0,vient de la table activités
-            'categorie': 'acti',
-        },
-    'gala_membre':
-        {
-            # 'montant': 0,vient de la table activités
-            'categorie': 'acti',
+            'categorie': 'invite',
         },
     'gala_invite':
         {
             # 'montant': 0,vient de la table activités
-            'categorie': 'acti',
+            'categorie': 'invite',
         },
     # 'cocktail_12_mai':
     #     {
@@ -72,18 +57,17 @@ class InfosMontant(object):
             return u'Inclus'
 
 
-def get_montants_activite_from_db():
+def get_montants_activite_invite_from_db():
     from ag.gestion.models import Activite
     activites = Activite.objects.all()
-    return {activite.code: (activite.prix, activite.prix_invite)
+    return {activite.code: activite.prix_invite
             for activite in activites}
 
 
 CODES_MONTANTS_ACTIVITES = (
-    ('soiree_9_mai', ('soiree_9_mai_membre', 'soiree_9_mai_invite')),
-    ('soiree_10_mai', ('soiree_10_mai_membre', 'soiree_10_mai_invite')),
-    ('gala', ('gala_membre', 'gala_invite')),
-    # ('cocktail_12_mai', ('cocktail_12_mai', None)),
+    ('soiree_9_mai', 'soiree_9_mai_invite'),
+    ('soiree_10_mai', 'soiree_10_mai_invite'),
+    ('gala', 'gala_invite'),
 )
 
 
@@ -91,21 +75,12 @@ def init_montants():
     infos_montants = {}
     for code, infos_montants_data in MONTANTS_DATA.iteritems():
         infos_montants[code] = InfosMontant(infos_montants_data)
-    montants_activites = get_montants_activite_from_db()
+    montants_activites_invites = get_montants_activite_invite_from_db()
     for codes in CODES_MONTANTS_ACTIVITES:
-        code_activite, (code_montant_membre, code_montant_invite) = codes
-        montant_membre, montant_invite = montants_activites[code_activite]
-        infos_montants[code_montant_membre].montant = int(montant_membre)
-        if code_montant_invite:
-            infos_montants[code_montant_invite].montant = int(montant_invite)
+        code_activite, code_montant_invite = codes
+        montant_invite = montants_activites_invites[code_activite]
+        infos_montants[code_montant_invite].montant = int(montant_invite)
     return infos_montants
-
-
-def infos_montant_par_nom_champ(nom_champ):
-    for infos_montant in get_infos_montants().itervalues():
-        if hasattr(infos_montant, "nom_champ") and infos_montant.nom_champ == nom_champ:
-            return infos_montant
-    return None
 
 
 def infos_montant_par_code(code):

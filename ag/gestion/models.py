@@ -198,7 +198,6 @@ class ActiviteManager(Manager):
 
 
 class Activite(core.TableReference):
-    prix = FloatField()
     prix_invite = FloatField(u"Prix pour les invités")
     objects = ActiviteManager()
 
