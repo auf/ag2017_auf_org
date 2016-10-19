@@ -5,12 +5,12 @@ from django.core.cache import cache
 MONTANTS_DATA = {
     'frais_inscription':
         {
-            'montant': 330,
+            'montant': 400,
             'categorie': 'insc',
         },
     'supplement_chambre_double':
         {
-            'montant': 100,
+            'montant': 30,
             'categorie': 'hebe',
         },
     'soiree_9_mai_membre':
@@ -43,9 +43,14 @@ MONTANTS_DATA = {
             # 'montant': 0,vient de la table activités
             'categorie': 'acti',
         },
+    # 'cocktail_12_mai':
+    #     {
+    #         # 'montant': 0,vient de la table activités
+    #         'categorie': 'acti',
+    #     },
     'forfait_invite_dejeuners':
         {
-             'montant': 30,
+             'montant': 60,
              'categorie': 'invite'
         },
     'forfait_invite_transfert':
@@ -78,6 +83,7 @@ CODES_MONTANTS_ACTIVITES = (
     ('soiree_9_mai', ('soiree_9_mai_membre', 'soiree_9_mai_invite')),
     ('soiree_10_mai', ('soiree_10_mai_membre', 'soiree_10_mai_invite')),
     ('gala', ('gala_membre', 'gala_invite')),
+    # ('cocktail_12_mai', ('cocktail_12_mai', None)),
 )
 
 
@@ -90,7 +96,8 @@ def init_montants():
         code_activite, (code_montant_membre, code_montant_invite) = codes
         montant_membre, montant_invite = montants_activites[code_activite]
         infos_montants[code_montant_membre].montant = int(montant_membre)
-        infos_montants[code_montant_invite].montant = int(montant_invite)
+        if code_montant_invite:
+            infos_montants[code_montant_invite].montant = int(montant_invite)
     return infos_montants
 
 
