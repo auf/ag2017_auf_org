@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+from collections import namedtuple
 from datetime import date
 
 from django.utils.formats import number_format, date_format
@@ -19,8 +20,64 @@ from ag.gestion import APP_ROOT
 PAGESIZE = letter
 
 
+Facture = namedtuple('Facture',
+                     ('civilite', 'nom', 'prenom', 'numero_facture',
+                      'date_facturation', 'adresse', 'etablissement_id',
+                      'numero_dossier', 'imputation', 'frais_inscription',
+                      'frais_forfaits', 'total_frais', 'paiements',
+                      'verse_en_trop', 'solde_a_payer', 'validee'))
+
+
+def get_renseignement_personnels_fields(rp):
+    """
+
+    :param rp: ag.inscription.models.RenseignementsPersonnels
+    :return:
+    """
+    return {
+        'civilite': rp.get_genre_display(),
+        'nom': rp.nom,
+        'prenom': rp.prenom,
+        'adresse': rp.get_adresse(),
+    }
+
+
+def facture_from_participant(participant):
+    pass
+
+
+def facture_from_inscription(inscription):
+    """
+
+    :param inscription: ag.inscription.models.Inscription
+    :return:
+    """
+    rp_dict = get_renseignement_personnels_fields(inscription)
+    return Facture(
+        numero_facture=u"",
+        date_facturation=inscription.date_fermeture,
+        etablissement_id=inscription.get_etablissement().id,
+        numero_dossier=inscription.numero_dossier,
+        imputation=None,
+        frais_inscription=inscription.get_frais_inscription(),
+        frais_forfaits=inscription.get_total_activites(),
+        total_frais=inscription.get_montant_total(),
+        paiements=inscription.get_paiements(),
+        verse_en_trop=inscription.get_verse_en_trop(),
+        solde_a_payer=inscription.get_solde_a_payer(),
+        validee=False,
+        **rp_dict
+    )
+
+
 # noinspection PyTypeChecker
-def generer_factures(output_file, participants):
+def generer_factures(output_file, factures):
+    """
+
+    :param output_file: File
+    :param factures: List[Facture]
+    :return:
+    """
 
     # Dimensions
     page_width, page_height = PAGESIZE
@@ -41,17 +98,17 @@ def generer_factures(output_file, participants):
     styles.add_style('droite', alignment=TA_RIGHT)
 
     canvas = Canvas(output_file, pagesize=PAGESIZE)
-    for participant in participants:
+    for facture in factures:
 
         # Préparation de certaines chaînes
         nom_participant = ' '.join((
-            participant.get_genre_display(), participant.prenom,
-            participant.nom
+            facture.civilite, facture.prenom,
+            facture.nom
         ))
-        numero_facture = u"000A09-%02d" % participant.numero_facture
-        date_facturation = date_format(participant.date_facturation,
+        numero_facture = u"000A09-%02d" % facture.numero_facture
+        date_facturation = date_format(facture.date_facturation,
                                        'SHORT_DATE_FORMAT')
-        adresse = participant.get_adresse_facturation()
+        adresse = facture.adresse
 
         # Logos
         logo_height = 52
@@ -117,11 +174,11 @@ def generer_factures(output_file, participants):
                 [
                     u"# Dossier",
                     u"{}-CGRM{}".format(
-                        participant.inscription.numero_dossier,
-                        participant.etablissement.id)
-                    if participant.etablissement else u""
+                        facture.numero_dossier,
+                        facture.etablissement_id)
+                    if facture.etablissement_id else u""
                 ],
-                [u"# Imputation", u"70810." + participant.imputation],
+                [u"# Imputation", u"70810." + facture.imputation],
             ],
             colWidths=(4 * cm, 4 * cm),
             style=TableStyle([
@@ -144,11 +201,11 @@ def generer_factures(output_file, participants):
                 ],
                 [
                     u"- Frais d'inscription",
-                    montant_str(participant.frais_inscription_facture)
+                    montant_str(facture.frais_inscription)
                 ],
                 [
                     u"- Forfaits supplémentaires",
-                    montant_str(participant.frais_activites_facture)
+                    montant_str(facture.frais_forfaits)
                 ],
             ] +
             (

@@ -694,7 +694,7 @@ class PaypalIPNTests(django.test.TestCase):
 
 class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
     def setUp(self):
-        i = self.i = InscriptionFactory()
+        i = self.i = InscriptionFactory()  # type: Inscription
         invoice = PaypalInvoice.objects.create(inscription=i, montant=150)
         PaypalResponse.objects.create(inscription=i, type_reponse="IPN",
                                       montant=150, statut="Completed",
@@ -704,6 +704,9 @@ class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
                                       type_reponse="PDT", montant=150,
                                       invoice_uid=invoice.invoice_uid,
                                       validated=True)
+
+    def test_unique_responses(self):
+        assert len(self.i.get_unique_paypal_responses()) == 1
 
     def test_total_compte_une_fois(self):
         # Il peut y avoir plusieurs confirmations pour la même transaction

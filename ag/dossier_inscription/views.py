@@ -5,12 +5,15 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from ag.gestion import models as gestion_models
-from ag.gestion import forms as gestion_forms
-from ag.inscription.models import Invitation, InvitationEnveloppe, Inscription
+from ag.inscription.models import (
+    Invitation,
+    InvitationEnveloppe,
+    Inscription,
+    Adresse)
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
-from ag.dossier_inscription.models import InscriptionFermee, Adresse
+from ag.dossier_inscription.models import InscriptionFermee
 from ag.reference.models import Region, Pays
 
 InfoVirement = collections.namedtuple(
@@ -150,7 +153,12 @@ def set_adresse(request):
     inscription = InscriptionFermee.objects.get(id=inscription_id)
     form_adresse = forms.AdresseForm(request.POST)
     if form_adresse.is_valid():
-        inscription.set_adresse(Adresse(**form_adresse.cleaned_data))
+        adresse_courante = inscription.get_adresse()
+        inscription.set_adresse(
+            Adresse(
+                telephone=adresse_courante.telephone,
+                telecopieur=adresse_courante.telecopieur,
+                **form_adresse.cleaned_data))
         inscription.save()
     return render(request, 'dossier_inscription/includes/adresse.html',
                   {'adresse': inscription.get_adresse(),

@@ -8,7 +8,6 @@ from urllib import unquote_plus
 import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
-from django.db.models import Sum, Q
 import requests
 from ag.reference.models import Etablissement
 from django.conf import settings
@@ -31,6 +30,14 @@ class LigneFacture(object):
 
     def total(self):
         return self.montant * self.quantite
+
+
+Paiement = collections.namedtuple(
+    'Paiement', ('date', 'moyen', 'bureau', 'ref_paiement', 'montant'))
+
+Adresse = collections.namedtuple(
+    'Adresse', ('adresse', 'code_postal', 'ville', 'pays', 'telephone',
+                'telecopieur'))
 
 
 class RenseignementsPersonnels(models.Model):
@@ -98,6 +105,21 @@ class RenseignementsPersonnels(models.Model):
     def save(self, **kwargs):
         self.nom = self.nom.upper()
         return super(RenseignementsPersonnels, self).save(**kwargs)
+
+    def get_paiements(self):
+        pass
+
+    def get_adresse(self):
+        return Adresse(adresse=self.adresse, ville=self.ville,
+                       code_postal=self.code_postal,
+                       pays=self.pays, telephone=self.telephone,
+                       telecopieur=self.telecopieur)
+
+    def get_verse_en_trop(self):
+        return -min(self.total_facture - self.total_deja_paye, 0)
+
+    def get_solde_a_payer(self):
+        return max(self.total_facture - self.total_deja_paye, 0)
 
 
 class Invitation(models.Model):
@@ -325,6 +347,14 @@ class Inscription(RenseignementsPersonnels):
             total += ligne.total()
         return int(total)
 
+    @property
+    def total_facture(self):
+        return self.get_montant_total()
+
+    @property
+    def total_deja_paye(self):
+        return self.paiement_paypal_total()
+
     def get_montant_a_payer(self):
         return self.get_montant_total() - self.paiement_paypal_total()
 
@@ -424,17 +454,21 @@ class Inscription(RenseignementsPersonnels):
     def paiement_paypal_ok(self):
         return PaypalResponse.objects.accepted(self).exists()
 
-    def paiement_paypal_total(self):
+    def get_unique_paypal_responses(self):
+        reponses = []
         reponses_valides = PaypalResponse.objects.accepted(self)
-        total = 0
         if reponses_valides:
             encountered_txns = set()
             for reponse in reponses_valides:
                 # il peut y en avoir plusieurs (PDT/IPN)
                 if reponse.txn_id not in encountered_txns:
-                    total += reponse.montant
+                    reponses.append(reponse)
                     encountered_txns.add(reponse.txn_id)
-        return total
+        return reponses
+
+    def paiement_paypal_total(self):
+        reponses = self.get_unique_paypal_responses()
+        return sum(reponse.montant for reponse in reponses)
 
     def numeros_confirmation_paypal(self):
         return u', '.join([
@@ -455,6 +489,17 @@ class Inscription(RenseignementsPersonnels):
         self.fermee = True
         self.date_fermeture = datetime.datetime.now().date()
         self.save()
+
+    def get_paiements(self):
+        paiements = []
+        for reponse in self.get_unique_paypal_responses():
+            paiement = Paiement(date=reponse.received_at.date,
+                                moyen=u"Paiement en ligne",
+                                montant=reponse.montant,
+                                ref_paiement=reponse.txn_id,
+                                bureau=u"???")
+            paiements.append(paiement)
+        return paiements
 
     def __unicode__(self):
         return self.nom.upper() + u', ' + self.prenom + u' (' \
