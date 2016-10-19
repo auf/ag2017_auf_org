@@ -1,14 +1,7 @@
 # encoding: utf-8
 import datetime
-
 from django import forms
-from django.forms.widgets import RadioSelect
-from django.utils.safestring import mark_safe
-
 from ag.inscription.models import Inscription, CODES_CHAMPS_MONTANTS
-from ag.gestion.montants import (
-    infos_montant_par_nom_champ, infos_montant_par_code
-)
 
 
 class InscriptionForm(forms.ModelForm):
@@ -155,37 +148,14 @@ def get_date_hotel_choices(depart_ou_arrivee):
         Inscription.DATE_HOTEL_MAX - Inscription.DATE_HOTEL_MIN
     ).days + 1
     premier_jour = Inscription.DATE_HOTEL_MIN \
-            if depart_ou_arrivee == 'arrivee' \
-            else Inscription.DATE_HOTEL_MIN + datetime.timedelta(days=1)
+        if depart_ou_arrivee == 'arrivee' \
+        else Inscription.DATE_HOTEL_MIN + datetime.timedelta(days=1)
     for numero_jour in xrange(nombre_jours):
         date = premier_jour + datetime.timedelta(days=numero_jour)
         date_str = date.strftime('%d %B %Y')
         choices.append((date.isoformat(), date_str))
     return choices
 
-
-#def get_type_chambre_choices():
-#    model_choices = Inscription.TYPE_CHAMBRE_CHOICES
-#    choices = (
-#        (
-#            model_choices[0][0],
-#            mark_safe(
-#                model_choices[0][1] + ' ' +
-#                str(infos_montant_par_code('hebergement_simple').montant) +
-#                ' &euro;'
-#            )
-#        ),
-#        (
-#            model_choices[1][0],
-#            mark_safe(
-#                model_choices[1][1] + ' ' +
-#                str(infos_montant_par_code('hebergement_double').montant) +
-#                ' &euro;'
-#            )
-#        ),
-#    )
-#    return choices
-#
 
 class TransportHebergementForm(forms.ModelForm):
     prise_en_charge_hebergement = forms.NullBooleanField(
@@ -250,10 +220,11 @@ class PaiementForm(forms.ModelForm):
     def require_fields(self):
         self.fields['paiement'].required = True
 
+
 PAYPAL_DATE_FORMATS = ("%H:%M:%S %b. %d, %Y PST",
-                      "%H:%M:%S %b. %d, %Y PDT",
-                      "%H:%M:%S %b %d, %Y PST",
-                      "%H:%M:%S %b %d, %Y PDT",)
+                       "%H:%M:%S %b. %d, %Y PDT",
+                       "%H:%M:%S %b %d, %Y PST",
+                       "%H:%M:%S %b %d, %Y PDT",)
 
 
 class PaypalNotificationForm(forms.Form):
