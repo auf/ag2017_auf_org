@@ -377,10 +377,9 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                                                'programmation', ))
         inscription.accompagnateur = True
         inscription.prise_en_charge_hebergement = True
-        inscription.type_chambre_hotel = '2'
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertContains(response, u"supplément chambre double")
+        self.assertContains(response, u"supplément accompagnateur")
 
     def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',

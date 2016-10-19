@@ -207,18 +207,10 @@ class TransportHebergementForm(forms.ModelForm):
         model = Inscription
         fields = (
             'prise_en_charge_hebergement', 'prise_en_charge_transport',
-            'type_chambre_hotel',
         )
-
-        widgets = {
-            'type_chambre_hotel': forms.RadioSelect
-        }
 
     def __init__(self, *args, **kwargs):
         super(TransportHebergementForm, self).__init__(*args, **kwargs)
-        # seul moyen pour supprimer choix vide
-        self.fields['type_chambre_hotel'].choices = \
-            self.fields['type_chambre_hotel'].choices[1:]
 
     def require_fields(self):
         inscription = self.instance
@@ -230,10 +222,6 @@ class TransportHebergementForm(forms.ModelForm):
             field = self.fields['prise_en_charge_transport']
             field.required = True
             field.widget.required = True
-
-        type_chambre = self.fields['type_chambre_hotel']
-        type_chambre.required = False
-        type_chambre.widget.required = True
 
     def clean_prise_en_charge_hebergement(self):
         return self._clean_prise_en_charge_field('hebergement')
@@ -247,17 +235,6 @@ class TransportHebergementForm(forms.ModelForm):
         if required and value is None:
             raise forms.ValidationError('Ce champ est obligatoire')
         return value
-
-    def clean_type_chambre_hotel(self):
-        required = self.cleaned_data.get('prise_en_charge_hebergement', False)
-        value = self.cleaned_data.get('type_chambre_hotel')
-        if required and not value:
-            raise forms.ValidationError('Ce champ est obligatoire')
-        return value
-
-
-# sandbox:  merchant berang_1344607404_biz@auf.org / 344607384
-#           buyer berang_1344628599_per@auf.org 344628567
 
 
 class PaiementForm(forms.ModelForm):
