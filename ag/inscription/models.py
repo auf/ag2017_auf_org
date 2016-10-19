@@ -351,12 +351,10 @@ class Inscription(RenseignementsPersonnels):
 
     def get_total_programmation(self):
         return self.get_total_categorie('insc') + \
-               self.get_total_categorie('acti') + \
                self.get_total_categorie('invite')
 
-    def get_total_activites(self):
-        return self.get_total_categorie('acti') + \
-               self.get_total_categorie('invite')
+    def get_total_forfaits_suppl(self):
+        return self.get_total_categorie('invite')
 
     def get_total_categorie(self, cat):
         total = 0
@@ -370,14 +368,6 @@ class Inscription(RenseignementsPersonnels):
 
     def get_frais_inscription(self):
         return self.get_total_categorie('insc')
-
-    def get_liste_activites(self):
-        liste = []
-        liste_codes = frozenset(self.get_liste_codes_frais())
-        for code, infos_montant in get_infos_montants().iteritems():
-            if code in liste_codes and infos_montant.categorie == 'acti':
-                liste.append(infos_montant)
-        return liste
 
     def get_etablissement(self):
         return self.invitation.etablissement

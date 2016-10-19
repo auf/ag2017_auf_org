@@ -60,7 +60,7 @@ def facture_from_inscription(inscription):
         numero_dossier=inscription.numero_dossier,
         imputation=None,
         frais_inscription=inscription.get_frais_inscription(),
-        frais_forfaits=inscription.get_total_activites(),
+        frais_forfaits=inscription.get_total_forfaits_suppl(),
         total_frais=inscription.get_montant_total(),
         paiements=inscription.get_paiements(),
         verse_en_trop=inscription.get_verse_en_trop(),

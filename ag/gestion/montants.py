@@ -28,11 +28,6 @@ MONTANTS_DATA = {
             # 'montant': 0,vient de la table activités
             'categorie': 'invite',
         },
-    # 'cocktail_12_mai':
-    #     {
-    #         # 'montant': 0,vient de la table activités
-    #         'categorie': 'acti',
-    #     },
     'forfait_invite_dejeuners':
         {
              'montant': 60,
