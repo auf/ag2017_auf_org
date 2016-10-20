@@ -96,6 +96,9 @@ def dossier(request):
     adresse = inscription.get_adresse()
     participant = inscription.get_participant()
 
+    activites = {a.code: a.libelle
+                 for a in gestion_models.Activite.objects.all()}
+
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
@@ -113,7 +116,7 @@ def dossier(request):
         'avant_15_decembre': (datetime.datetime.today() <
                               datetime.datetime(2016, 12, 15)),
         'plan_vol_form': handle_plan_vol_form(request, inscription),
-
+        'activites': activites,
     }
 
     if participant:

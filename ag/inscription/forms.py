@@ -124,6 +124,7 @@ class ProgrammationForm(forms.ModelForm):
             'programmation_soiree_9_mai', 'programmation_soiree_9_mai_invite',
             'programmation_soiree_10_mai', 'programmation_soiree_10_mai_invite',
             'programmation_gala', 'programmation_gala_invite',
+            'programmation_soiree_12_mai',
             'forfait_invite_dejeuners', 'forfait_invite_transfert',
         )
 

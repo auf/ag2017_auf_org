@@ -226,18 +226,21 @@ class Inscription(RenseignementsPersonnels):
 
     # Programmation
     programmation_soiree_9_mai = models.BooleanField(
-        u"Je participerai à la soirée du 9 mai.", default=False)
+        u"Dîner du 9 mai à l’hôtel Mogador", default=False)
     programmation_soiree_9_mai_invite = models.BooleanField(
-        u"Dîner du 9 mai", default=False)
+        u"Dîner du 9 mai à l’hôtel Mogador", default=False)
     programmation_soiree_10_mai = models.BooleanField(
-        u"Je participerai à la soirée du 10 mai.", default=False)
+        u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_soiree_10_mai_invite = models.BooleanField(
-        u"Dîner du 10 mai", default=False)
+        u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_gala = models.BooleanField(
-        u"Je participerai à la soirée de gala de clôture de l'assemblée "
-        u"générale le 11 mai", default=False)
+        u"Soirée de gala de clôture de l'Assemblée générale le 11 mai.",
+        default=False)
     programmation_gala_invite = models.BooleanField(
-        u"Dîner de gala du 11 mai", default=False)
+        u"Soirée de gala de clôture de l'Assemblée générale le 11 mai.",
+        default=False)
+    programmation_soiree_12_mai = models.BooleanField(
+        u"Cocktail dînatoire de clôture le 12 mai.", default=False)
     forfait_invite_dejeuners = models.BooleanField(
         u"Forfait 3 Déjeuners (9,10 et 11)", default=False)
     forfait_invite_transfert = models.BooleanField(

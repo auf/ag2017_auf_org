@@ -63,6 +63,9 @@ def transfere(inscription, statut, prise_en_charge_transport,
         activite = Activite.objects.get(code="gala")
         participant.inscrire_a_activite(
             activite, inscription.programmation_gala_invite)
+    if inscription.programmation_soiree_12_mai:
+        activite = Activite.objects.get(code="cocktail_12_mai")
+        participant.inscrire_a_activite(activite, False)
     participant.set_infos_depart_arrivee(inscription)
     participant.prise_en_charge_transport = prise_en_charge_transport
     if prise_en_charge_transport:

@@ -300,19 +300,21 @@ Vous avez acquitté tous vos frais de participation. Merci.
   <h2>Activités</h2>
 
   {% unicode_checkbox inscription.programmation_soiree_9_mai %}
-  Dîner du 9 mai<br/>
+  {{ activites.soiree_9_mai }}<br/>
   {% unicode_checkbox inscription.programmation_soiree_10_mai %}
-  Dîner du 10 mai<br/>
+  {{ activites.soiree_10_mai }}<br/>
   {% unicode_checkbox inscription.programmation_gala %}
-  Dîner de gala du 11 mai<br/>
+  {{ activites.gala }}<br/>
+  {% unicode_checkbox inscription.programmation_soiree_12_mai %}
+  {{ activites.cocktail_12_mai }}<br/>
   {% if inscription.accompagnateur %}
     <h3>Forfaits sélectionnés pour votre accompagnateur personnel</h3>
     {% unicode_checkbox inscription.programmation_soiree_9_mai_invite %}
-    Dîner du 9 mai<br/>
+    {{ activites.soiree_9_mai }}<br/>
     {% unicode_checkbox inscription.programmation_soiree_10_mai_invite %}
-    Dîner du 10 mai<br/>
+    {{ activites.soiree_10_mai }}<br/>
     {% unicode_checkbox inscription.programmation_gala_invite %}
-    Dîner de gala du 11 mai<br/>
+    {{ activites.gala }}<br/>
     {% unicode_checkbox inscription.forfait_invite_dejeuners %}
     Forfait 3 Déjeuners (9,10 et 11)<br/>
     {% unicode_checkbox inscription.forfait_invite_transfert %}
