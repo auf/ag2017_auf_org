@@ -16,7 +16,8 @@ from django.core.management import call_command
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
 from ag.reference.models import Etablissement, Pays
 from ag.inscription.views import paypal_ipn
-from ag.core.test_utils import find_input_by_id, InscriptionFactory
+from ag.core.test_utils import find_input_by_id, InscriptionFactory, \
+    find_input_by_name
 import mock
 from ag.gestion.models import Participant, StatutParticipant
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
@@ -187,7 +188,9 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
     def test_accueil_non_mandate(self):
         inscription = self.create_inscription([], mandate=False)
         response = self.client.get(url_etape(inscription, 'accueil'))
-        self.assertContains(response, u'accompagnateurs issus du même')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        assert find_input_by_name(tree, 'identite_accompagnateur_confirmee')
 
     def test_debut_processus(self):
         inscription = self.create_inscription([])
@@ -579,7 +582,9 @@ def test_inscription_terminee():
 
 
 class PreremplirTest(unittest.TestCase):
-    def get_inscription(self, pour_mandate, nom=None, prenom=None):
+    @staticmethod
+    def get_inscription(pour_mandate, nom=None, prenom=None,
+                        pha='P'):
         p = Pays(nom=u"pppp")
         etablissement = Etablissement(
             nom=u"eeee", adresse=u"adr", ville=u"laville",
@@ -591,7 +596,7 @@ class PreremplirTest(unittest.TestCase):
                                 etablissement=etablissement,
                                 courriel=u"invitation@courriel.com",
                                 nom=nom, prenom=prenom)
-        inscription = Inscription(invitation=invitation)
+        inscription = Inscription(invitation=invitation, atteste_pha=pha)
         inscription.preremplir()
         return inscription
 
@@ -603,13 +608,20 @@ class PreremplirTest(unittest.TestCase):
         assert not i.poste
         assert not i.genre
 
-    def test_pour_mandate_renseignements_personnels_remplis(self):
+    def test_pour_mandate_renseignements_personnels_remplis_si_pha(self):
         i = self.get_inscription(pour_mandate=True)
         e = i.get_etablissement()
         assert i.nom == e.responsable_nom
         assert i.prenom == e.responsable_prenom
         assert i.poste == e.responsable_fonction
         assert i.genre == e.responsable_genre
+
+    def test_pour_mandate_renseignements_personnels_pas_remplis_si_pas_pha(self):
+        i = self.get_inscription(pour_mandate=True, pha='R')
+        assert not i.nom
+        assert not i.prenom
+        assert not i.poste
+        assert not i.genre
 
     def test_champs_etablissement_copies(self):
         i = self.get_inscription(False)

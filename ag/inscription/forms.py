@@ -13,18 +13,24 @@ class InscriptionForm(forms.ModelForm):
 class AccueilForm(forms.ModelForm):
     class Meta:
         model = Inscription
-        fields = ('identite_confirmee', 'conditions_acceptees')
+        fields = ('identite_accompagnateur_confirmee', 'atteste_pha',
+                  'conditions_acceptees')
+        widgets = {
+            'atteste_pha': forms.RadioSelect,
+        }
 
     def __init__(self, *args, **kwargs):
         super(AccueilForm, self).__init__(*args, **kwargs)
         assert self.instance is not None
+        atteste_pha = self.fields['atteste_pha']
         if self.instance.est_pour_mandate():
-            label = (
-                u"J'atteste être le représentant dûment délégué par "
-                u"la plus haute autorité de mon établissement pour "
-                u"participer à la 16e assemblée générale de l'AUF."
-            )
+            del self.fields['identite_accompagnateur_confirmee']
+            # seul moyen pour supprimer choix vide
+            atteste_pha.choices = atteste_pha.choices[1:]
+            atteste_pha.label = u""
+            atteste_pha.required = True
         else:
+            del atteste_pha
             representants = Inscription.objects.filter(
                 invitation__pour_mandate=True,
                 invitation__etablissement=self.instance.get_etablissement()
@@ -41,7 +47,8 @@ class AccueilForm(forms.ModelForm):
             else:
                 label = u"J'accompagne le représentant mandaté " \
                         u"de l'établissement"
-        self.fields['identite_confirmee'].label = label
+            self.fields['identite_accompagnateur_confirmee'].label = label
+        self.require_fields()
 
     def require_fields(self):
         for name, field in self.fields.iteritems():
@@ -178,9 +185,6 @@ class TransportHebergementForm(forms.ModelForm):
         fields = (
             'prise_en_charge_hebergement', 'prise_en_charge_transport',
         )
-
-    def __init__(self, *args, **kwargs):
-        super(TransportHebergementForm, self).__init__(*args, **kwargs)
 
     def require_fields(self):
         inscription = self.instance

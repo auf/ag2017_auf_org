@@ -186,8 +186,16 @@ class Inscription(RenseignementsPersonnels):
     invitation = models.OneToOneField(Invitation)
 
     # Accueil
-    identite_confirmee = models.BooleanField('identité confirmée',
-                                             default=False)
+    atteste_pha = models.CharField(max_length=1, choices=(
+        ('P', u"J'atteste être la plus haute autorité de mon établissement et "
+              u"participerai à la 17ème Assemblée générale de l'AUF"),
+        ('R', u"J'atteste être le représentant dûment mandaté par la plus "
+              u"haute autorité de mon établissement pour participer à la "
+              u"17ème Assemblée générale de l'AUF"),
+    ), null=True)
+
+    identite_accompagnateur_confirmee = models.BooleanField(
+        'identité confirmée', default=False)
     conditions_acceptees = models.BooleanField(
         mark_safe(
             u'J\'ai lu et j\'accepte les '
@@ -397,7 +405,7 @@ class Inscription(RenseignementsPersonnels):
         self.pays = etablissement.pays.nom
         self.telephone = etablissement.telephone
         self.courriel = self.invitation.get_adresse()
-        if self.est_pour_mandate():
+        if self.est_pour_mandate() and self.atteste_pha == 'P':
             self.nom = etablissement.responsable_nom
             self.prenom = etablissement.responsable_prenom
             self.genre = etablissement.responsable_genre
