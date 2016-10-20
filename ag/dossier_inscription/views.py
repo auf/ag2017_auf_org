@@ -2,9 +2,10 @@
 import collections
 import datetime
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from ag.gestion import models as gestion_models
+from ag.gestion import pdf
 from ag.inscription.models import (
     Invitation,
     InvitationEnveloppe,
@@ -117,6 +118,7 @@ def dossier(request):
                               datetime.datetime(2016, 12, 15)),
         'plan_vol_form': handle_plan_vol_form(request, inscription),
         'activites': activites,
+        'titre_facture': pdf.titre_facture(participant or inscription)
     }
 
     if participant:
@@ -269,3 +271,9 @@ INFOS_VIREMENT = {
     ),
     
 }
+
+
+def facture_dossier(request):
+    inscription_id = request.session.get('inscription_id', None)
+    inscription = get_object_or_404(InscriptionFermee, id=inscription_id)
+    return pdf.facture_response(inscription)

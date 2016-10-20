@@ -19,7 +19,7 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
 from ag.core import models as core
-from ag.gestion.montants import get_infos_montants, infos_montant_par_code
+from ag.gestion.montants import infos_montant_par_code
 
 
 class LigneFacture(object):
@@ -379,6 +379,9 @@ class Inscription(RenseignementsPersonnels):
 
     def get_frais_inscription(self):
         return self.get_total_categorie('insc')
+
+    def get_frais_hebergement(self):
+        return self.get_total_categorie('hebe')
 
     def get_etablissement(self):
         return self.invitation.etablissement

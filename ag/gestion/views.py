@@ -1,4 +1,11 @@
 # -*- encoding: utf-8 -*-
+import csv
+import json
+import os
+import urllib
+from datetime import datetime
+
+from auf.django.permissions import require_permission
 from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import user_passes_test
@@ -8,18 +15,11 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from sendfile import sendfile
 
-from auf.django.permissions import require_permission
-
-from ag.gestion.donnees_etats import *
 from ag.gestion import pdf
+from ag.gestion.donnees_etats import *
 from ag.gestion.forms import *
 from ag.gestion.models import *
-
-import csv
-from datetime import datetime
-import json
-import os
-import urllib
+from ag.gestion.pdf import facture_response
 
 
 def liste_etablissements_json(request):
@@ -450,11 +450,7 @@ def facture_pdf(request, id_participant):
             ).get(id=id_participant)
     except Participant.DoesNotExist:
         raise Http404
-    filename = u'Facture - %s %s.pdf' % (participant.prenom, participant.nom)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
-                                      urllib.quote(filename.encode('utf-8'))
-    return pdf.generer_factures(response, [participant])
+    return facture_response(participant)
 
 
 def itineraire_pdf(request, id_participant):

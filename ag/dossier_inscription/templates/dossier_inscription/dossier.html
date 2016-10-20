@@ -44,11 +44,19 @@
 </p>
   <h3>Suivi du dossier</h3>
   <p>
- {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
-{% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
-  {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
-  {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
-</p>
+    {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
+    {% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
+    {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
+    {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
+  </p>
+
+  <h3>Documents</h3>
+  <ul>
+    <li><a href="">Conditions générales</a></li>
+    <li><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
+{#    <li><a href="">Itinéraire de voyage</a></li>#}
+{#    <li><a href="">Coupons navette</a></li>#}
+  </ul>
 
 <h2>État de compte</h2>
 {% if inscription.etablissement_delinquant %}
