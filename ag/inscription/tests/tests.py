@@ -190,7 +190,18 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         response = self.client.get(url_etape(inscription, 'accueil'))
         tree = html5lib.parse(response.content, treebuilder='lxml',
                               namespaceHTMLElements=False)
-        assert find_input_by_name(tree, 'identite_accompagnateur_confirmee')
+        assert (find_input_by_name(tree, 'identite_accompagnateur_confirmee')
+                is not None)
+        assert find_input_by_name(tree, 'atteste_pha') is None
+
+    def test_accueil_mandate(self):
+        inscription = self.create_inscription([], mandate=True)
+        response = self.client.get(url_etape(inscription, 'accueil'))
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        assert find_input_by_name(tree, 'atteste_pha') is not None
+        assert (find_input_by_name(tree, 'identite_accompagnateur_confirmee')
+                is None)
 
     def test_debut_processus(self):
         inscription = self.create_inscription([])
