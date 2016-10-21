@@ -1,11 +1,8 @@
-MySQL-python==1.2.5
-Pillow==3.3.0
 Django==1.8.14
 django-cms==3.3
 -e git://github.com/auf/auf_django_mailing.git@v0.6#egg=auf.django.mailing
 django-crispy-forms==1.6.0
 raven
-reportlab==2.4
 django-sendfile==0.3.10
 
 -e git://github.com/auf/auf_django_permissions.git#egg=auf.django.permissions
