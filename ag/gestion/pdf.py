@@ -5,6 +5,7 @@ import urllib
 from collections import namedtuple
 from datetime import date
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.utils.formats import number_format, date_format
 from django.utils.dateformat import time_format
@@ -257,25 +258,21 @@ def generer_factures(output_file, factures):
         t.drawOn(canvas, x, y - h)
 
         if facture.paiements:
+            lignes_paiement = [[u"Paiements reçus"]]
+            lignes_paiement.extend([
+                [date_format(p.date, settings.SHORT_DATE_FORMAT),
+                 p.moyen, p.bureau, p.ref_paiement,
+                 montant_str(p.montant)] for p in facture.paiements])
             t = Table(
-                [
-                    [u"Paiements reçus"],
-                    [u"25/12/2016", u"Virement bancaire", u"BAO",
-                     u"5KP05198LR130290D", u"100,00 €"],
-                    [u"25/12/2016", u"Virement bancaire", u"BAO",
-                     u"5KP05198LR130290D", u"100,00 €"],
-                    [u"25/12/2016", u"Virement bancaire", u"BAO",
-                     u"5KP05198LR130290D", u"100,00 €"],
-                    [u"", u"", u"", u"", u"Total payé: 100,00 €"]
-                ],
+                lignes_paiement,
                 colWidths=(2 * cm, 5 * cm, 2 * cm, 5 * cm,
                            frame_width - 14 * cm),
                 style=TableStyle([
-                    ('SPAN', (0, 0), (1, 0)),
+                    ('SPAN', (0, 0), (3, 0)),
                     ('BOX', (0, 0), (-1, -1), 0.5, black),
                     ('LINEBELOW', (0, 0), (-1, 0), 0.5, black),
                     # ('BOTTOMPADDING', (0, 0), (-1, 0), 0.5 * cm),
-                    ('BOTTOMPADDING', (0, -2), (-1, -2), 0.5 * cm),
+                    # ('BOTTOMPADDING', (0, -2), (-1, -2), 0.5 * cm),
                     ('ALIGN', (-1, 1), (-1, -1), 'RIGHT'),
                     ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
                     ('FONT', (0, 0), (-1, 0), 'Helvetica', 12),

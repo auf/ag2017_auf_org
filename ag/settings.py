@@ -14,6 +14,7 @@ TIME_ZONE = 'America/Montreal'
 
 LANGUAGE_CODE = 'fr'
 gettext = lambda x: x
+USE_L10N = True
 
 SITE_ID = 1
 
