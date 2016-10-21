@@ -2,6 +2,8 @@
 import StringIO
 import csv
 from django.core.management import call_command
+
+from ag.gestion import consts
 from ag.gestion.donnees_etats import *
 from ag.gestion.models import *
 from ag.gestion.tests import CODE_HOTEL
@@ -257,14 +259,14 @@ class EtatsVolsTestCase(TestCase):
             ville_arrivee=VILLE_SAO_PAULO,
             date_arrivee=DATE_ARRIVEE_AG, heure_arrivee=HEURE_ARRIVEE_AG_1200,
             numero_vol=NO_VOL_ARRIVEE_AG_1200, compagnie=COMPAGNIE,
-            vol_groupe=vol_groupe1, type_infos=VOL_GROUPE)
+            vol_groupe=vol_groupe1, type_infos=consts.VOL_GROUPE)
         InfosVol.objects.create(
             ville_depart=VILLE_SAO_PAULO, date_depart=DATE_DEPART_AG,
             heure_depart=HEURE_DEPART_AG_1400, ville_arrivee=VILLE_PARIS,
             date_arrivee=DATE_ARRIVEE_ORIGINE,
             heure_arrivee=HEURE_ARRIVEE_ORIGINE_0800,
             numero_vol=NO_VOL_DEPART_AG_1400, compagnie=COMPAGNIE,
-            vol_groupe=vol_groupe1, type_infos=VOL_GROUPE)
+            vol_groupe=vol_groupe1, type_infos=consts.VOL_GROUPE)
         vol_groupe2 = VolGroupe.objects.create(nom='volgroupe2')
         InfosVol.objects.create(
             ville_depart=VILLE_BORDEAUX, date_depart=DATE_DEPART_ORIGINE,
@@ -272,7 +274,7 @@ class EtatsVolsTestCase(TestCase):
             ville_arrivee=VILLE_SAO_PAULO,
             date_arrivee=DATE_ARRIVEE_AG, 
             heure_arrivee=HEURE_ARRIVEE_AG_1300,
-            vol_groupe=vol_groupe2, type_infos=VOL_GROUPE,
+            vol_groupe=vol_groupe2, type_infos=consts.VOL_GROUPE,
             numero_vol=NO_VOL_ARRIVEE_AG_1300, compagnie=COMPAGNIE,)
         InfosVol.objects.create(
             ville_depart=VILLE_SAO_PAULO, date_depart=DATE_ARRIVEE_AG,
@@ -281,7 +283,7 @@ class EtatsVolsTestCase(TestCase):
             date_arrivee=DATE_ARRIVEE_ORIGINE2,
             heure_arrivee=HEURE_ARRIVEE_ORIGINE_0900,
             vol_groupe=vol_groupe2,  compagnie=COMPAGNIE,
-            type_infos=VOL_GROUPE)
+            type_infos=consts.VOL_GROUPE)
         cls.vol_groupe1, cls.vol_groupe2 = vol_groupe1, vol_groupe2
         cls.participant1 = creer_participant(
             'UN', 'a', genre='M', transport_organise_par_auf=True)
@@ -556,7 +558,7 @@ class VoteTestCase(TestCase):
             nom=u'etab_de', pays=pays_de, region=region_EO, statut=u'T',
             qualite=u'ESR', membre=True)
         etablissement_DOM_TOM = Etablissement.objects.create(
-            id=EXCEPTIONS_DOM_TOM[0],
+            id=consts.EXCEPTIONS_DOM_TOM[0],
             nom=u'etab_dom_tom', pays=pays_fr, region=region_MO, statut=u'T',
             qualite=u'ESR', membre=True)
         statuts = dict((statut.code, statut)
@@ -604,18 +606,19 @@ class VoteTestCase(TestCase):
 
     def test_MO(self):
         region = self.get_region_vote_participant(self.participant_MO)
-        self.assertEquals(region, REG_MOYEN_ORIENT)
+        self.assertEquals(region, consts.REG_MOYEN_ORIENT)
 
     def test_filtre_MO(self):
-        p = Participant.objects.filter_region_vote(REG_MOYEN_ORIENT)
+        p = Participant.objects.filter_region_vote(consts.REG_MOYEN_ORIENT)
         self.assertEqual(list(p), [self.participant_MO])
 
     def test_EO(self):
         region = self.get_region_vote_participant(self.participant_DE)
-        self.assertEquals(region, REG_EUROPE_OUEST)
+        self.assertEquals(region, consts.REG_EUROPE_OUEST)
 
     def test_filtre_EO(self):
-        p = list(Participant.objects.filter_region_vote(REG_EUROPE_OUEST))
+        p = list(Participant.objects.filter_region_vote(
+            consts.REG_EUROPE_OUEST))
         self.assertTrue(self.participant_DOM_TOM in p)
         self.assertTrue(self.participant_DE_sans_invitation in p)
         self.assertEqual(len(p), 4)
@@ -630,7 +633,7 @@ class VoteTestCase(TestCase):
     def test_DOM_TOM(self):
         region = self.get_region_vote_participant(
             self.participant_DOM_TOM)
-        self.assertEquals(region, REG_EUROPE_OUEST)
+        self.assertEquals(region, consts.REG_EUROPE_OUEST)
 
     def test_nombre_votants_fr(self):
         donnees_regions, totaux = get_nombre_votants_par_region()

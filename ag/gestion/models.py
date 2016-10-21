@@ -25,6 +25,28 @@ from ag.inscription.models import Inscription, RenseignementsPersonnels
 from ag.gestion.consts import *
 
 
+__all__ = ('Participant',
+           'nouveau_participant',
+           'ParticipationActivite',
+           'StatutParticipant',
+           'Invite',
+           'get_donnees_hotels',
+           'get_nombre_votants_par_region',
+           'get_inscriptions_par_mois',
+           'PointDeSuivi',
+           'get_donnees_activites',
+           'get_donnees_prise_en_charge',
+           'Hotel',
+           'Fichier',
+           'VolGroupe',
+           'InfosVol',
+           'Activite',
+           'AGRole',
+           'TypeInstitutionSupplementaire',
+           'ReservationChambre',
+           'TypeFrais', )
+
+
 class TypeInstitutionSupplementaire(core.TableReferenceOrdonnee):
     class Meta:
         verbose_name = u"Type d'institution supplémentaire"
