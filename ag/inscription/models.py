@@ -103,7 +103,8 @@ class RenseignementsPersonnels(models.Model):
     )
 
     def save(self, **kwargs):
-        self.nom = self.nom.upper()
+        if self.nom:
+            self.nom = self.nom.upper()
         return super(RenseignementsPersonnels, self).save(**kwargs)
 
     def get_paiements(self):
@@ -411,11 +412,12 @@ class Inscription(RenseignementsPersonnels):
         self.pays = etablissement.pays.nom
         self.telephone = etablissement.telephone
         self.courriel = self.invitation.get_adresse()
-        if self.est_pour_mandate() and self.atteste_pha == 'P':
-            self.nom = etablissement.responsable_nom
-            self.prenom = etablissement.responsable_prenom
-            self.genre = etablissement.responsable_genre
-            self.poste = etablissement.responsable_fonction
+        if self.est_pour_mandate():
+            if self.atteste_pha == 'P':
+                self.nom = etablissement.responsable_nom
+                self.prenom = etablissement.responsable_prenom
+                self.genre = etablissement.responsable_genre
+                self.poste = etablissement.responsable_fonction
         else:
             self.nom = self.invitation.nom
             self.prenom = self.invitation.prenom
@@ -488,7 +490,7 @@ class Inscription(RenseignementsPersonnels):
     def get_paiements(self):
         paiements = []
         for reponse in self.get_unique_paypal_responses():
-            paiement = Paiement(date=reponse.received_at.date,
+            paiement = Paiement(date=reponse.received_at.date(),
                                 moyen=u"Paiement en ligne",
                                 montant=reponse.montant,
                                 ref_paiement=reponse.txn_id,

@@ -210,7 +210,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                             u'représentent officiellement un établissement')
         response = self.client.post(url_etape(inscription, 'accueil'),
                                     data={
-                                        'identite_confirmee': u'on',
+                                        'atteste_pha': u'P',
                                         'conditions_acceptees': u'on',
                                     })
         self.assertRedirects(
