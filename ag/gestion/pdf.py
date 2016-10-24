@@ -254,7 +254,7 @@ def generer_factures(output_file, factures):
             lignes_paiement = [[u"Paiements reçus"]]
             lignes_paiement.extend([
                 [date_format(p.date, settings.SHORT_DATE_FORMAT),
-                 p.moyen, p.bureau, p.ref_paiement,
+                 p.moyen, p.implantation, p.ref_paiement,
                  montant_str(p.montant)] for p in facture.paiements])
             t = Table(
                 lignes_paiement,

@@ -33,7 +33,7 @@ class LigneFacture(object):
 
 
 Paiement = collections.namedtuple(
-    'Paiement', ('date', 'moyen', 'bureau', 'ref_paiement', 'montant'))
+    'Paiement', ('date', 'moyen', 'implantation', 'ref_paiement', 'montant'))
 
 Adresse = collections.namedtuple(
     'Adresse', ('adresse', 'code_postal', 'ville', 'pays', 'telephone',
@@ -494,7 +494,7 @@ class Inscription(RenseignementsPersonnels):
                                 moyen=u"Paiement en ligne",
                                 montant=reponse.montant,
                                 ref_paiement=reponse.txn_id,
-                                bureau=u"???")
+                                implantation=u"ICA1")
             paiements.append(paiement)
         return paiements
 
