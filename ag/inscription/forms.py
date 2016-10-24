@@ -1,14 +1,7 @@
 # encoding: utf-8
 import datetime
-
 from django import forms
-from django.forms.widgets import RadioSelect
-from django.utils.safestring import mark_safe
-
 from ag.inscription.models import Inscription, CODES_CHAMPS_MONTANTS
-from ag.gestion.montants import (
-    infos_montant_par_nom_champ, infos_montant_par_code
-)
 
 
 class InscriptionForm(forms.ModelForm):
@@ -20,18 +13,24 @@ class InscriptionForm(forms.ModelForm):
 class AccueilForm(forms.ModelForm):
     class Meta:
         model = Inscription
-        fields = ('identite_confirmee', 'conditions_acceptees')
+        fields = ('identite_accompagnateur_confirmee', 'atteste_pha',
+                  'conditions_acceptees')
+        widgets = {
+            'atteste_pha': forms.RadioSelect,
+        }
 
     def __init__(self, *args, **kwargs):
         super(AccueilForm, self).__init__(*args, **kwargs)
         assert self.instance is not None
+        atteste_pha = self.fields['atteste_pha']
         if self.instance.est_pour_mandate():
-            label = (
-                u"J'atteste être le représentant dûment délégué par "
-                u"la plus haute autorité de mon établissement pour "
-                u"participer à la 16e assemblée générale de l'AUF."
-            )
+            del self.fields['identite_accompagnateur_confirmee']
+            # seul moyen pour supprimer choix vide
+            atteste_pha.choices = atteste_pha.choices[1:]
+            atteste_pha.label = u""
+            atteste_pha.required = True
         else:
+            del atteste_pha
             representants = Inscription.objects.filter(
                 invitation__pour_mandate=True,
                 invitation__etablissement=self.instance.get_etablissement()
@@ -48,7 +47,8 @@ class AccueilForm(forms.ModelForm):
             else:
                 label = u"J'accompagne le représentant mandaté " \
                         u"de l'établissement"
-        self.fields['identite_confirmee'].label = label
+            self.fields['identite_accompagnateur_confirmee'].label = label
+        self.require_fields()
 
     def require_fields(self):
         for name, field in self.fields.iteritems():
@@ -124,6 +124,7 @@ class ProgrammationForm(forms.ModelForm):
             'programmation_soiree_9_mai', 'programmation_soiree_9_mai_invite',
             'programmation_soiree_10_mai', 'programmation_soiree_10_mai_invite',
             'programmation_gala', 'programmation_gala_invite',
+            'programmation_soiree_12_mai',
             'forfait_invite_dejeuners', 'forfait_invite_transfert',
         )
 
@@ -155,37 +156,14 @@ def get_date_hotel_choices(depart_ou_arrivee):
         Inscription.DATE_HOTEL_MAX - Inscription.DATE_HOTEL_MIN
     ).days + 1
     premier_jour = Inscription.DATE_HOTEL_MIN \
-            if depart_ou_arrivee == 'arrivee' \
-            else Inscription.DATE_HOTEL_MIN + datetime.timedelta(days=1)
+        if depart_ou_arrivee == 'arrivee' \
+        else Inscription.DATE_HOTEL_MIN + datetime.timedelta(days=1)
     for numero_jour in xrange(nombre_jours):
         date = premier_jour + datetime.timedelta(days=numero_jour)
         date_str = date.strftime('%d %B %Y')
         choices.append((date.isoformat(), date_str))
     return choices
 
-
-#def get_type_chambre_choices():
-#    model_choices = Inscription.TYPE_CHAMBRE_CHOICES
-#    choices = (
-#        (
-#            model_choices[0][0],
-#            mark_safe(
-#                model_choices[0][1] + ' ' +
-#                str(infos_montant_par_code('hebergement_simple').montant) +
-#                ' &euro;'
-#            )
-#        ),
-#        (
-#            model_choices[1][0],
-#            mark_safe(
-#                model_choices[1][1] + ' ' +
-#                str(infos_montant_par_code('hebergement_double').montant) +
-#                ' &euro;'
-#            )
-#        ),
-#    )
-#    return choices
-#
 
 class TransportHebergementForm(forms.ModelForm):
     prise_en_charge_hebergement = forms.NullBooleanField(
@@ -207,18 +185,7 @@ class TransportHebergementForm(forms.ModelForm):
         model = Inscription
         fields = (
             'prise_en_charge_hebergement', 'prise_en_charge_transport',
-            'type_chambre_hotel',
         )
-
-        widgets = {
-            'type_chambre_hotel': forms.RadioSelect
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(TransportHebergementForm, self).__init__(*args, **kwargs)
-        # seul moyen pour supprimer choix vide
-        self.fields['type_chambre_hotel'].choices = \
-            self.fields['type_chambre_hotel'].choices[1:]
 
     def require_fields(self):
         inscription = self.instance
@@ -230,10 +197,6 @@ class TransportHebergementForm(forms.ModelForm):
             field = self.fields['prise_en_charge_transport']
             field.required = True
             field.widget.required = True
-
-        type_chambre = self.fields['type_chambre_hotel']
-        type_chambre.required = False
-        type_chambre.widget.required = True
 
     def clean_prise_en_charge_hebergement(self):
         return self._clean_prise_en_charge_field('hebergement')
@@ -247,17 +210,6 @@ class TransportHebergementForm(forms.ModelForm):
         if required and value is None:
             raise forms.ValidationError('Ce champ est obligatoire')
         return value
-
-    def clean_type_chambre_hotel(self):
-        required = self.cleaned_data.get('prise_en_charge_hebergement', False)
-        value = self.cleaned_data.get('type_chambre_hotel')
-        if required and not value:
-            raise forms.ValidationError('Ce champ est obligatoire')
-        return value
-
-
-# sandbox:  merchant berang_1344607404_biz@auf.org / 344607384
-#           buyer berang_1344628599_per@auf.org 344628567
 
 
 class PaiementForm(forms.ModelForm):
@@ -273,10 +225,11 @@ class PaiementForm(forms.ModelForm):
     def require_fields(self):
         self.fields['paiement'].required = True
 
+
 PAYPAL_DATE_FORMATS = ("%H:%M:%S %b. %d, %Y PST",
-                      "%H:%M:%S %b. %d, %Y PDT",
-                      "%H:%M:%S %b %d, %Y PST",
-                      "%H:%M:%S %b %d, %Y PDT",)
+                       "%H:%M:%S %b. %d, %Y PDT",
+                       "%H:%M:%S %b %d, %Y PST",
+                       "%H:%M:%S %b %d, %Y PDT",)
 
 
 class PaypalNotificationForm(forms.Form):

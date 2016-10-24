@@ -100,9 +100,38 @@ L'inscription à l'assemblée générale vous permet de participer :
   {% endif %}
 
   <div class="buttonHolder">
-  {% checkbox form.identite_confirmee %}
-  {% checkbox form.conditions_acceptees %}
-    <input type="submit" value="Débuter l'inscription en ligne" class="secondaryAction" />
+    {% if inscription.est_pour_mandate %}
+      {% with field=form.atteste_pha %}
+        <div id="holder_{{ field.html_name }}"
+             class="ctrlHolder noLabel{% if field.errors %} error{% endif %}"
+             style="border: none;">
+          <ul class="inline-radio" style="width:100%;">
+            <li style="padding-left: 5px;">
+              {% for value, label in field.field.choices %}
+                <label>
+                  <input name="{{ field.html_name }}" type="radio"
+                         value="{{ value }}"
+                         {% if field.value == value %}checked{% endif %}>
+                  {{ label }}
+                </label>
+              {% endfor %}
+            </li>
+          </ul>
+          {% if field.errors %}
+            <p class="formHint warning">
+              {% for error in field.errors %}
+                {{ error }}
+              {% endfor %}
+            </p>
+          {% endif %}
+        </div>
+      {% endwith %}
+    {% else %}
+      {% checkbox form.identite_accompagnateur_confirmee %}
+    {% endif %}
+    {% checkbox form.conditions_acceptees %}
+    <input type="submit" value="Débuter l'inscription en ligne"
+           class="secondaryAction"/>
   </div>
 </form>
 {% endblock %}

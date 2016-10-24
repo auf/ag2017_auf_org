@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from ag.gestion import consts
 from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
@@ -17,10 +18,11 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core import mail
 from django.test import TestCase
+from django.conf import settings
 import html5lib
 
 CODE_HOTEL = 'gtulip'
-TYPE_CHAMBRE_TEST = CHAMBRE_DOUBLE
+TYPE_CHAMBRE_TEST = consts.CHAMBRE_DOUBLE
 
 VOL_TEST_DATA = {
     u'vols-TOTAL_FORMS': u'2',
@@ -40,7 +42,6 @@ VOL_TEST_DATA = {
 }
 
 
-# noinspection PyUnresolvedReferences
 class GestionTestCase(TestCase):
     fixtures = ['test_data.json']
 
@@ -214,13 +215,13 @@ class GestionTestCase(TestCase):
             .filter(participant=participant, type_chambre='S')
         self.assertEqual(len(reservations), 1)
         reservation = reservations[0]
-        self.assertEqual(reservation.type_chambre, CHAMBRE_SIMPLE)
+        self.assertEqual(reservation.type_chambre, consts.CHAMBRE_SIMPLE)
         self.assertEqual(reservation.nombre, 1)
         reservations = ReservationChambre.objects \
             .filter(participant=participant, type_chambre='D')
         self.assertEqual(len(reservations), 1)
         reservation = reservations[0]
-        self.assertEqual(reservation.type_chambre, CHAMBRE_DOUBLE)
+        self.assertEqual(reservation.type_chambre, consts.CHAMBRE_DOUBLE)
         self.assertEqual(reservation.nombre, 2)
         hotel = Hotel.objects.get(code=CODE_HOTEL)
         self.assertEquals(
@@ -231,9 +232,9 @@ class GestionTestCase(TestCase):
             hotel.nombre_total_chambres_reservees(), 3)
         chambres = hotel.chambres()
         self.assertEquals(
-            chambres[CHAMBRE_SIMPLE]['nb_reservees'], 1)
+            chambres[consts.CHAMBRE_SIMPLE]['nb_reservees'], 1)
         self.assertEquals(
-            chambres[CHAMBRE_DOUBLE]['nb_reservees'], 2)
+            chambres[consts.CHAMBRE_DOUBLE]['nb_reservees'], 2)
 
     def test_fiche_participant(self):
         participant = self.participant
@@ -598,7 +599,6 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        montant_attendu += activite.prix
         self.assertEquals(participant.total_frais, montant_attendu)
         self.assertEquals(participant.total_facture, montant_attendu)
 
@@ -611,7 +611,7 @@ class GestionTestCase(TestCase):
         self.assertEquals(participant.total_facture, montant_attendu)
 
         infos_vol = InfosVol(prix=999, participant=participant,
-                             type_infos=VOL_ORGANISE)
+                             type_infos=consts.VOL_ORGANISE)
         infos_vol.save()
         participant.prise_en_charge_transport = True
         participant.transport_organise_par_auf = True
@@ -898,7 +898,7 @@ class GestionTestCase(TestCase):
         infos_vol.date_arrivee = datetime.date.today()
         infos_vol.ville_depart = u'SAO PAULO'
         infos_vol.prix = 100
-        infos_vol.TYPE_VOL = VOL_ORGANISE
+        infos_vol.TYPE_VOL = consts.VOL_ORGANISE
         infos_vol.participant = participant
         infos_vol.save()
         participant = Participant.actifs.sql_extra_fields('frais_transport') \
@@ -909,7 +909,7 @@ class GestionTestCase(TestCase):
         infos_vol.ville_depart = u'SAO PAULO'
         infos_vol.date_arrivee = datetime.date.today()
         infos_vol.ville_depart = u'PARIS'
-        infos_vol.TYPE_VOL = VOL_ORGANISE
+        infos_vol.TYPE_VOL = consts.VOL_ORGANISE
         infos_vol.participant = participant
         infos_vol.save()
         # on vérifie que pour qu'un prix NULL est considéré comme 0
@@ -938,7 +938,7 @@ class GestionTestCase(TestCase):
                 .get(id=self.participant.id)
             self.assertTrue(p.get_participation_activite(activite))
             self.assertEqual(p.frais_activites - frais_activites,
-                             activite.prix + activite.prix_invite
+                             activite.prix_invite
                              if avec_invites else 0)
             avec_invites = not avec_invites
 
@@ -973,8 +973,9 @@ class GestionTestCase(TestCase):
         response = self.client.get(
             reverse('fiche_participant', args=(participant.id,)))
         self.assertNotContains(response,
-                               PROBLEMES['paiement_en_trop']['libelle'])
-        self.assertContains(response, PROBLEMES['solde_a_payer']['libelle'])
+                               consts.PROBLEMES['paiement_en_trop']['libelle'])
+        self.assertContains(response,
+                            consts.PROBLEMES['solde_a_payer']['libelle'])
         participant.accompte = participant.solde
         participant.save()
         participant = get_participant()
@@ -983,8 +984,9 @@ class GestionTestCase(TestCase):
         response = self.client.get(
             reverse('fiche_participant', args=(participant.id,)))
         self.assertNotContains(response,
-                               PROBLEMES['paiement_en_trop']['libelle'])
-        self.assertNotContains(response, PROBLEMES['solde_a_payer']['libelle'])
+                               consts.PROBLEMES['paiement_en_trop']['libelle'])
+        self.assertNotContains(response,
+                               consts.PROBLEMES['solde_a_payer']['libelle'])
         participant.accompte += 1
         participant.save()
         participant = get_participant()
@@ -993,8 +995,10 @@ class GestionTestCase(TestCase):
         self.assertTrue(participant.paiement_en_trop)
         response = self.client.get(
             reverse('fiche_participant', args=(participant.id,)))
-        self.assertContains(response, PROBLEMES['paiement_en_trop']['libelle'])
-        self.assertNotContains(response, PROBLEMES['solde_a_payer']['libelle'])
+        self.assertContains(response,
+                            consts.PROBLEMES['paiement_en_trop']['libelle'])
+        self.assertNotContains(response,
+                               consts.PROBLEMES['solde_a_payer']['libelle'])
 
     def tests_probleme_reservation_hotel_manquante(self):
         p = self.participant
@@ -1054,7 +1058,7 @@ class GestionTestCase(TestCase):
             numero_vol='AF615',
             prix=500,
             vol_groupe=vol_groupe,
-            type_infos=VOL_GROUPE
+            type_infos=consts.VOL_GROUPE
         )
         infos_vol_aller.save()
         infos_vol_retour = InfosVol(
@@ -1068,7 +1072,7 @@ class GestionTestCase(TestCase):
             numero_vol='AF616',
             prix=600,
             vol_groupe=vol_groupe,
-            type_infos=VOL_GROUPE
+            type_infos=consts.VOL_GROUPE
         )
         infos_vol_retour.save()
         participant = self.participant
@@ -1103,7 +1107,7 @@ class GestionTestCase(TestCase):
             numero_vol='AF333',
             prix=400,
             participant=participant,
-            type_infos=VOL_ORGANISE
+            type_infos=consts.VOL_ORGANISE
         )
         infos_vol_aller_organise.save()
         infos_vol_retour_organise = InfosVol(
@@ -1117,7 +1121,7 @@ class GestionTestCase(TestCase):
             numero_vol='AF334',
             prix=401,
             participant=participant,
-            type_infos=VOL_ORGANISE
+            type_infos=consts.VOL_ORGANISE
         )
         infos_vol_retour_organise.save()
         itineraire = participant.itineraire()
@@ -1245,19 +1249,19 @@ class PermissionsGestionTestCase(TestCase):
                                                        password='abc')
         self.user_lecteur = User.objects.create_user(username='lecteur',
                                                      password='abc')
-        self.user_lecteur.roles.add(AGRole(type_role=ROLE_LECTEUR))
+        self.user_lecteur.roles.add(AGRole(type_role=consts.ROLE_LECTEUR))
         self.user_sai = User.objects.create_user(username='sai',
                                                  password='abc')
-        self.user_sai.roles.add(AGRole(type_role=ROLE_SAI))
+        self.user_sai.roles.add(AGRole(type_role=consts.ROLE_SAI))
         self.user_sejour = User.objects.create_user(username='sejour',
                                                     password='abc')
-        self.user_sejour.roles.add(AGRole(type_role=ROLE_SEJOUR))
+        self.user_sejour.roles.add(AGRole(type_role=consts.ROLE_SEJOUR))
         self.user_comptable = User.objects.create_user(username='comptable',
                                                        password='abc')
-        self.user_comptable.roles.add(AGRole(type_role=ROLE_COMPTABLE))
+        self.user_comptable.roles.add(AGRole(type_role=consts.ROLE_COMPTABLE))
         self.user_admin = User.objects.create_user(username='admin',
                                                    password='abc')
-        self.user_admin.roles.add(AGRole(type_role=ROLE_ADMIN))
+        self.user_admin.roles.add(AGRole(type_role=consts.ROLE_ADMIN))
 
     def tearDown(self):
         self.client.logout()
@@ -1421,9 +1425,9 @@ class PermissionsGestionTestCase(TestCase):
         participant_MO2.save()
 
         user_mo = User.objects.create_user(username='mo', password='abc')
-        user_mo.roles.add(AGRole(type_role=ROLE_SAI, region=region_MO))
+        user_mo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_MO))
         user_eo = User.objects.create_user(username='eo', password='abc')
-        user_eo.roles.add(AGRole(type_role=ROLE_SAI, region=region_EO))
+        user_eo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_EO))
 
         self.try_url(reverse('renseignements_personnels',
                              args=[self.participant.id]), [],
@@ -1438,11 +1442,11 @@ class PermissionsGestionTestCase(TestCase):
         user_mo_lecteur = User.objects.create_user(username='mol',
                                                    password='abc')
         user_mo_lecteur.roles.add(
-            AGRole(type_role=ROLE_LECTEUR, region=region_MO))
+            AGRole(type_role=consts.ROLE_LECTEUR, region=region_MO))
         user_eo_lecteur = User.objects.create_user(username='eol',
                                                    password='abc')
         user_eo_lecteur.roles.add(
-            AGRole(type_role=ROLE_LECTEUR, region=region_EO))
+            AGRole(type_role=consts.ROLE_LECTEUR, region=region_EO))
         self.try_url(reverse('notes_de_frais',
                              args=[self.participant.id]), [],
                      [user_mo_lecteur, user_eo_lecteur])
@@ -1482,7 +1486,7 @@ class TestsVolsGroupes(TestCase):
         self.assertRedirects(response, reverse('liste_vols_groupes'))
         self.assertEqual(VolGroupe.objects.count(), 1)
         self.assertEqual(InfosVol.objects.filter(
-            type_infos=VOL_GROUPE).count(), 1)
+            type_infos=consts.VOL_GROUPE).count(), 1)
         response = self.client.get(reverse('liste_vols_groupes'))
         self.assertContains(response, u"test vol")
         self.assertContains(response, u"Aucun participant")

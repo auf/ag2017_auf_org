@@ -2,13 +2,19 @@
 import collections
 import datetime
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-from ag.inscription.models import Invitation, InvitationEnveloppe, Inscription
+from ag.gestion import models as gestion_models
+from ag.gestion import pdf
+from ag.inscription.models import (
+    Invitation,
+    InvitationEnveloppe,
+    Inscription,
+    Adresse)
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
-from ag.dossier_inscription.models import InscriptionFermee, Adresse
+from ag.dossier_inscription.models import InscriptionFermee
 from ag.reference.models import Region, Pays
 
 InfoVirement = collections.namedtuple(
@@ -85,11 +91,19 @@ def dossier(request):
     if not inscription_id:
         return redirect('connexion_inscription')
     inscription = InscriptionFermee.objects.get(id=inscription_id)
+    if not inscription.fermee:
+        return redirect(reverse('connexion_inscription'))
+
     adresse = inscription.get_adresse()
+    participant = inscription.get_participant()
+
+    activites = {a.code: a.libelle
+                 for a in gestion_models.Activite.objects.all()}
 
     # noinspection PyProtectedMember
     context = {
         'inscription': inscription,
+        'participant': participant,
         'adresse': adresse,
         'suivi': inscription.get_suivi_dossier(),
         'solde': inscription.get_total_du(),
@@ -102,8 +116,14 @@ def dossier(request):
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
         'avant_15_decembre': (datetime.datetime.today() <
                               datetime.datetime(2016, 12, 15)),
-        'plan_vol_form': handle_plan_vol_form(request, inscription)
+        'plan_vol_form': handle_plan_vol_form(request, inscription),
+        'activites': activites,
+        'titre_facture': pdf.titre_facture(participant or inscription)
     }
+
+    if participant:
+        context['passeport_form'] = forms.AjoutPasseportForm(
+            instance=participant)
 
     if inscription.reseautage:
         form_filtre_reseautage, liste_reseautage = handle_reseautage(
@@ -116,6 +136,21 @@ def dossier(request):
 
 
 @require_POST
+def upload_passeport(request):
+    inscription = InscriptionFermee.objects.get(
+        id=request.session.get('inscription_id', None))
+    if not inscription.a_televerse_passeport():
+        fichier = gestion_models.Fichier(
+            participant=inscription.get_participant(),
+            cree_par=request.user)
+        form = forms.AjoutPasseportForm(
+            request.POST, request.FILES, instance=fichier)
+        if form.is_valid():
+            form.save()
+    return redirect(reverse('dossier_inscription') + '#passeport')
+
+
+@require_POST
 def set_adresse(request):
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
@@ -123,7 +158,12 @@ def set_adresse(request):
     inscription = InscriptionFermee.objects.get(id=inscription_id)
     form_adresse = forms.AdresseForm(request.POST)
     if form_adresse.is_valid():
-        inscription.set_adresse(Adresse(**form_adresse.cleaned_data))
+        adresse_courante = inscription.get_adresse()
+        inscription.set_adresse(
+            Adresse(
+                telephone=adresse_courante.telephone,
+                telecopieur=adresse_courante.telecopieur,
+                **form_adresse.cleaned_data))
         inscription.save()
     return render(request, 'dossier_inscription/includes/adresse.html',
                   {'adresse': inscription.get_adresse(),
@@ -231,3 +271,9 @@ INFOS_VIREMENT = {
     ),
     
 }
+
+
+def facture_dossier(request):
+    inscription_id = request.session.get('inscription_id', None)
+    inscription = get_object_or_404(InscriptionFermee, id=inscription_id)
+    return pdf.facture_response(inscription)

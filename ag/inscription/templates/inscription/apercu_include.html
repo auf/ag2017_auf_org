@@ -63,10 +63,10 @@
     <div class="Data">
       {% if inscription.prise_en_charge_hebergement %}
         Prise en charge par l'AUF
-        {% if inscription.accompagnateur and inscription.type_chambre_hotel == '2' %}
+        {% if inscription.accompagnateur %}
           <br/>
           </div>
-          <div class="Data">(supplément chambre double) :
+          <div class="Data">(supplément accompagnateur personnel) :
           <span style="float:right;">
             {{ montants.supplement_chambre_double.affiche }}</span>
         {% endif %}
@@ -99,11 +99,11 @@
   </div>
   <div class="ctrlHolder">
     <div class="Label">
-      Activités sélectionnées
+      Forfaits sélectionnés
     </div>
     <div class="Data">
       <span style="float:right;">
-        {{ inscription.get_total_activites }}&nbsp;€</span>
+        {{ inscription.get_total_forfaits_suppl }}&nbsp;€</span>
     </div>
   </div>
 </fieldset>

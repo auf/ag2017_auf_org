@@ -1,25 +1,42 @@
 # -*- encoding: utf-8 -*-
+import csv
+import json
+import os
+import urllib
+from datetime import datetime
+
+from auf.django.permissions import require_permission
+from collections import defaultdict
 from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.utils.datastructures import SortedDict
 from sendfile import sendfile
+from django.conf import settings
 
-from auf.django.permissions import require_permission
-
-from ag.gestion.donnees_etats import *
+from ag.gestion import donnees_etats
 from ag.gestion import pdf
-from ag.gestion.forms import *
-from ag.gestion.models import *
-
-import csv
-from datetime import datetime
-import json
-import os
-import urllib
+from ag.gestion import consts
+from ag.gestion import forms
+from ag.gestion.models import (
+    Participant,
+    nouveau_participant,
+    ParticipationActivite,
+    StatutParticipant,
+    Invite,
+    get_donnees_hotels,
+    get_nombre_votants_par_region,
+    get_inscriptions_par_mois,
+    PointDeSuivi,
+    get_donnees_activites,
+    get_donnees_prise_en_charge, Hotel, Fichier, VolGroupe, InfosVol, Activite)
+from ag.gestion.pdf import facture_response
+from ag.reference.models import Etablissement
 
 
 def liste_etablissements_json(request):
@@ -31,18 +48,18 @@ def liste_etablissements_json(request):
 
 
 def critere_prise_en_charge_bool(critere):
-    if critere == PEC_ACCEPTEE:
+    if critere == forms.PEC_ACCEPTEE:
         return True
-    elif critere == PEC_REFUSEE:
+    elif critere == forms.PEC_REFUSEE:
         return False
     else:
         return None
 
 
 def participants_view(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     if request.method == 'GET':
-        form = RechercheParticipantForm(request.GET.copy())
+        form = forms.RechercheParticipantForm(request.GET.copy())
         if form.is_valid():
             nom = form.cleaned_data['nom']
             etablissement = form.cleaned_data['etablissement']
@@ -131,10 +148,11 @@ def modifier_renseignements_personnels(request, id_participant=None,
                                        cancel_to_url=''):
     participant = Participant.objects.get(id=id_participant) if id_participant \
         else None
-    require_permission(request.user, PERM_MODIF_RENSEIGNEMENTS_PERSONNELS,
+    require_permission(request.user, 
+                       consts.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS,
                        obj=participant)
     if request.method == 'GET':
-        form = RenseignementsPersonnelsForm(instance=participant)
+        form = forms.RenseignementsPersonnelsForm(instance=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
@@ -142,7 +160,8 @@ def modifier_renseignements_personnels(request, id_participant=None,
         post_data = request.POST.copy()  # pour pouvoir faire del
         # ce champ ne sert que pour le autocomplete, seul l'ID nous intéresse
         del post_data['etablissement_nom']
-        form = RenseignementsPersonnelsForm(post_data, instance=participant)
+        form = forms.RenseignementsPersonnelsForm(post_data, 
+                                                  instance=participant)
         if form.is_valid():
             send_signal = participant is None
             participant = form.save()
@@ -164,13 +183,14 @@ def ajout_participant(request):
 
 
 def fiche_participant(request, id_participant):
-    require_permission(request.user, PERM_LECTURE)
-    extrafields = [probleme['sql_expr'] for probleme in PROBLEMES.values()]
+    require_permission(request.user, consts.PERM_LECTURE)
+    extrafields = [probleme['sql_expr']
+                   for probleme in consts.PROBLEMES.values()]
     extrafields.extend((
         'frais_inscription', 'frais_inscription_facture',
         'frais_transport', 'frais_transport_facture',
         'frais_hebergement', 'frais_hebergement_facture',
-        'frais_activites', 'frais_activites_facture', 'frais_autres',
+        'frais_activites', 'frais_autres',
         'total_frais', 'total_facture', 'solde'
     ))
     participant = Participant.objects \
@@ -179,15 +199,15 @@ def fiche_participant(request, id_participant):
                         'etablissement__pays', 'inscription',
                         'statut', 'hotel') \
         .get(pk=id_participant)
-    renseignements_personnels = RenseignementsPersonnelsForm(
+    renseignements_personnels = forms.RenseignementsPersonnelsForm(
         instance=participant)
-    sejour_form = SejourForm(participant=participant)
-    transport_top = TransportFormTop(instance=participant)
-    transport_arrdep = ArriveeDepartForm(participant=participant)
-    transport_bottom = TransportFormBottom(instance=participant)
+    sejour_form = forms.SejourForm(participant=participant)
+    transport_top = forms.TransportFormTop(instance=participant)
+    transport_arrdep = forms.ArriveeDepartForm(participant=participant)
+    transport_bottom = forms.TransportFormBottom(instance=participant)
     participation_activites = ParticipationActivite.objects.filter(
         participant=participant)
-    facturation_form = FacturationForm(instance=participant)
+    facturation_form = forms.FacturationForm(instance=participant)
     prises_en_charge = []
     if participant.prise_en_charge_inscription:
         prises_en_charge.append(u"Frais d'inscription")
@@ -201,7 +221,7 @@ def fiche_participant(request, id_participant):
     if participant.prise_en_charge_activites:
         prises_en_charge.append(u"Activités")
     problemes = []
-    for probleme in PROBLEMES.values():
+    for probleme in consts.PROBLEMES.values():
         sql_expr = probleme['sql_expr']
         if getattr(participant, sql_expr):
             problemes.append(probleme)
@@ -220,7 +240,7 @@ def fiche_participant(request, id_participant):
         'transport_bottom': transport_bottom,
         'facturation': facturation_form,
         'prises_en_charge': prises_en_charge,
-        'perms_dict': PERMS_DICT,
+        'perms_dict': consts.PERMS_DICT,
         'problemes': problemes,
         'fichiers': fichiers,
     })
@@ -233,7 +253,7 @@ def renseignements_personnels_view(request, id_participant):
 
 
 def tableau_de_bord(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     total_participants = Participant.objects.count()
     total_actifs = Participant.actifs.count()
     total_problematiques = Participant.actifs \
@@ -247,7 +267,7 @@ def tableau_de_bord(request):
                                                     probleme['sql_expr']
                                                     ).count()
         }
-        for code, probleme in PROBLEMES.items()
+        for code, probleme in consts.PROBLEMES.items()
     ]
     par_statut = []
     for statut in StatutParticipant.objects.all():
@@ -294,15 +314,15 @@ def tableau_de_bord(request):
 
 def notes_de_frais(request, id_participant):
     participant = Participant.objects.get(pk=id_participant)
-    require_permission(request.user, PERM_MODIF_NOTES_DE_FRAIS,
+    require_permission(request.user, consts.PERM_MODIF_NOTES_DE_FRAIS,
                        obj=participant)
     if request.method == 'GET':
-        form = NotesDeFraisForm(participant=participant)
+        form = forms.NotesDeFraisForm(participant=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
-        form = NotesDeFraisForm(request.POST, participant=participant)
+        form = forms.NotesDeFraisForm(request.POST, participant=participant)
         if form.is_valid():
             form.save()
             return redirect('fiche_participant', id_participant)
@@ -313,14 +333,14 @@ def notes_de_frais(request, id_participant):
 
 def sejour(request, id_participant):
     participant = Participant.objects.get(pk=id_participant)
-    require_permission(request.user, PERM_MODIF_SEJOUR, obj=participant)
+    require_permission(request.user, consts.PERM_MODIF_SEJOUR, obj=participant)
     if request.method == 'GET':
-        form = SejourForm(participant=participant)
+        form = forms.SejourForm(participant=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
-        form = SejourForm(request.POST, participant=participant)
+        form = forms.SejourForm(request.POST, participant=participant)
         if form.is_valid():
             form.save()
             return redirect('fiche_participant', id_participant)
@@ -341,14 +361,14 @@ def sejour(request, id_participant):
 
 def suivi_view(request, id_participant):
     participant = Participant.objects.get(pk=id_participant)
-    require_permission(request.user, PERM_MODIF_SUIVI, obj=participant)
+    require_permission(request.user, consts.PERM_MODIF_SUIVI, obj=participant)
     if request.method == 'GET':
-        form = SuiviForm(instance=participant)
+        form = forms.SuiviForm(instance=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
-        form = SuiviForm(request.POST, instance=participant)
+        form = forms.SuiviForm(request.POST, instance=participant)
         if form.is_valid():
             form.save()
             return redirect('fiche_participant', id_participant)
@@ -358,30 +378,30 @@ def suivi_view(request, id_participant):
 
 def transport(request, id_participant):
     participant = Participant.objects.get(pk=id_participant)
-    require_permission(request.user, PERM_MODIF_SEJOUR, obj=participant)
+    require_permission(request.user, consts.PERM_MODIF_SEJOUR, obj=participant)
     if request.method == 'GET':
-        form_top = TransportFormTop(instance=participant, prefix='top')
-        form_bottom = TransportFormBottom(
+        form_top = forms.TransportFormTop(instance=participant, prefix='top')
+        form_bottom = forms.TransportFormBottom(
             instance=participant, prefix='bottom'
         )
-        form_arrivee_depart = ArriveeDepartForm(
+        form_arrivee_depart = forms.ArriveeDepartForm(
             participant=participant, prefix='arrdep'
         )
-        formset_vols = VolFormSet(instance=participant, prefix='vols')
+        formset_vols = forms.VolFormSet(instance=participant, prefix='vols')
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
-        form_top = TransportFormTop(
+        form_top = forms.TransportFormTop(
             request.POST, instance=participant, prefix='top'
         )
-        form_bottom = TransportFormBottom(
+        form_bottom = forms.TransportFormBottom(
             request.POST, instance=participant, prefix='bottom'
         )
-        form_arrivee_depart = ArriveeDepartForm(
+        form_arrivee_depart = forms.ArriveeDepartForm(
             request.POST, participant=participant, prefix='arrdep'
         )
-        formset_vols = VolFormSet(
+        formset_vols = forms.VolFormSet(
             request.POST, instance=participant, prefix='vols'
         )
         top_is_valid = form_top.is_valid()
@@ -406,15 +426,17 @@ def transport(request, id_participant):
 def invites_view(request, id_participant):
     participant = Participant.objects.get(pk=id_participant)
     require_permission(
-        request.user, PERM_MODIF_RENSEIGNEMENTS_PERSONNELS, obj=participant
+        request.user, consts.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS,
+        obj=participant
     )
     if request.method == 'GET':
-        formset_invites = InvitesFormSet(instance=participant)
+        formset_invites = forms.InvitesFormSet(instance=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
-        formset_invites = InvitesFormSet(request.POST, instance=participant)
+        formset_invites = forms.InvitesFormSet(request.POST,
+                                               instance=participant)
         if formset_invites.is_valid():
             formset_invites.save()
             return redirect('fiche_participant', id_participant)
@@ -425,14 +447,15 @@ def invites_view(request, id_participant):
 
 def facturation(request, id_participant):
     participant = Participant.objects.get(pk=id_participant)
-    require_permission(request.user, PERM_MODIF_FACTURATION, obj=participant)
+    require_permission(request.user, consts.PERM_MODIF_FACTURATION,
+                       obj=participant)
     if request.method == 'GET':
-        form = FacturationForm(instance=participant)
+        form = forms.FacturationForm(instance=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
-        form = FacturationForm(request.POST, instance=participant)
+        form = forms.FacturationForm(request.POST, instance=participant)
         if form.is_valid():
             form.save()
             return redirect('fiche_participant', id_participant)
@@ -446,16 +469,11 @@ def facture_pdf(request, id_participant):
         participant = Participant.objects \
             .sql_extra_fields(
                 'frais_inscription_facture', 'frais_transport_facture',
-                'frais_hebergement_facture', 'frais_activites_facture',
-                'total_facture', 'solde'
+                'frais_hebergement_facture', 'total_facture', 'solde'
             ).get(id=id_participant)
     except Participant.DoesNotExist:
         raise Http404
-    filename = u'Facture - %s %s.pdf' % (participant.prenom, participant.nom)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
-                                      urllib.quote(filename.encode('utf-8'))
-    return pdf.generer_factures(response, [participant])
+    return facture_response(participant)
 
 
 def itineraire_pdf(request, id_participant):
@@ -472,13 +490,14 @@ def itineraire_pdf(request, id_participant):
 
 def fichiers_view(request, id_participant):
     participant = Participant.objects.get(id=id_participant)
-    require_permission(request.user, PERM_MODIF_FICHIERS, obj=participant)
+    require_permission(request.user, consts.PERM_MODIF_FICHIERS, 
+                       obj=participant)
     if request.user.is_staff:
         fichiers = participant.fichier_set.all()
     else:
         fichiers = participant.fichier_set.filter(efface_le=None)
     if request.method == 'GET':
-        form = AjoutFichierForm(instance=participant)
+        form = forms.AjoutFichierForm(instance=participant)
     else:
         assert request.method == 'POST'
         if 'fichier_a_effacer' in request.POST:
@@ -497,7 +516,7 @@ def fichiers_view(request, id_participant):
         else:
             fichier = Fichier(participant=participant,
                               cree_par=request.user)
-            form = AjoutFichierForm(
+            form = forms.AjoutFichierForm(
                 request.POST, request.FILES,
                 instance=fichier
             )
@@ -512,7 +531,7 @@ def fichiers_view(request, id_participant):
 
 
 def media_participant(request, nom_fichier):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     return sendfile(request, os.path.join(
         settings.PATH_FICHIERS_PARTICIPANTS, nom_fichier
     ))
@@ -537,7 +556,7 @@ def changement_mot_de_passe(request):
 def supprimer_participant(request):
     id_participant = request.POST['id']
     participant = Participant.objects.get(id=id_participant)
-    require_permission(request.user, PERM_SUPPRESSION, obj=participant)
+    require_permission(request.user, consts.PERM_SUPPRESSION, obj=participant)
     participant.delete()
     return redirect('tableau_de_bord')
 
@@ -554,13 +573,14 @@ def modifier_vol_groupe(request, id_participant):
     else:
         vol_groupe = VolGroupe()
     if request.method == 'GET':
-        form = VolGroupeForm(instance=vol_groupe, prefix='top')
-        formset = VolGroupeFormSet(instance=vol_groupe, prefix='vols')
+        form = forms.VolGroupeForm(instance=vol_groupe, prefix='top')
+        formset = forms.VolGroupeFormSet(instance=vol_groupe, prefix='vols')
     else:
         assert request.method == 'POST'
-        form = VolGroupeForm(request.POST, instance=vol_groupe, prefix='top')
-        formset = VolGroupeFormSet(request.POST, instance=vol_groupe,
-                                   prefix='vols')
+        form = forms.VolGroupeForm(request.POST, instance=vol_groupe,
+                                   prefix='top')
+        formset = forms.VolGroupeFormSet(request.POST, instance=vol_groupe,
+                                         prefix='vols')
         form_is_valid = form.is_valid()
         formset_is_valid = formset.is_valid()
         if form_is_valid and formset_is_valid:
@@ -575,7 +595,7 @@ def modifier_vol_groupe(request, id_participant):
 
 
 def liste_vols_groupes(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     liste_vols = VolGroupe.objects.all()
     return render(request, 'gestion/liste_vols_groupes.html',
                   {'liste_vols': liste_vols})
@@ -590,7 +610,7 @@ def supprimer_vol_groupe(request, id_vol):
 
 
 def itineraire_view(request, id_itineraire):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     itineraire = InfosVol.objects.filter(vol_groupe__id=id_itineraire)
     prix_total = sum([vol.prix or 0 for vol in itineraire])
     return render(request, "gestion/table_itineraire.html", {
@@ -600,15 +620,15 @@ def itineraire_view(request, id_itineraire):
 
 
 def etats_listes(request):
-    require_permission(request.user, PERM_LECTURE)
-    form_departs = FiltresEtatArriveesForm(
-        dates=get_dates_departs(),
-        auto_id=DEPARTS + '_%s',
-        initial={'arrivee_depart': DEPARTS})
-    form_arrivees = FiltresEtatArriveesForm(
-        dates=get_dates_arrivees(),
-        auto_id=ARRIVEES + '_%s',
-        initial={'arrivee_depart': ARRIVEES})
+    require_permission(request.user, consts.PERM_LECTURE)
+    form_departs = forms.FiltresEtatArriveesForm(
+        dates=donnees_etats.get_dates_departs(),
+        auto_id=consts.DEPARTS + '_%s',
+        initial={'arrivee_depart': consts.DEPARTS})
+    form_arrivees = forms.FiltresEtatArriveesForm(
+        dates=donnees_etats.get_dates_arrivees(),
+        auto_id=consts.ARRIVEES + '_%s',
+        initial={'arrivee_depart': consts.ARRIVEES})
     return render(request, 'gestion/etats_listes.html', {
         'form_departs': form_departs,
         'form_arrivees': form_arrivees
@@ -616,8 +636,8 @@ def etats_listes(request):
 
 
 def etat_inscrits(request):
-    require_permission(request.user, PERM_LECTURE)
-    liste_inscrits = get_donnees_etat_participants()
+    require_permission(request.user, consts.PERM_LECTURE)
+    liste_inscrits = donnees_etats.get_donnees_etat_participants()
     maintenant = datetime.now()
     return render(request, 'gestion/etat_inscrits.html', {
         'liste_inscrits': liste_inscrits,
@@ -626,8 +646,8 @@ def etat_inscrits(request):
 
 
 def etat_activites(request):
-    require_permission(request.user, PERM_LECTURE)
-    participants_activites = get_donnees_participants_activites()
+    require_permission(request.user, consts.PERM_LECTURE)
+    participants_activites = donnees_etats.get_donnees_participants_activites()
     maintenant = datetime.now()
     return render(
         request,
@@ -637,20 +657,21 @@ def etat_activites(request):
 
 
 def etat_arrivees_departs(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     maintenant = datetime.now()
     if request.method == 'GET':
-        if request.GET['arrivee_depart'] == ARRIVEES:
-            dates = get_dates_arrivees()
+        if request.GET['arrivee_depart'] == consts.ARRIVEES:
+            dates = donnees_etats.get_dates_arrivees()
         else:
-            dates = get_dates_departs()
-        form = FiltresEtatArriveesForm(data=request.GET, dates=dates)
+            dates = donnees_etats.get_dates_departs()
+        form = forms.FiltresEtatArriveesForm(data=request.GET, dates=dates)
         if form.is_valid():
             arrivees_departs = form.cleaned_data["arrivee_depart"]
             ville = form.cleaned_data["ville"]
             jour = datetime.strptime(form.cleaned_data["jour"], '%d/%m/%Y')
-            donnees_arrivees_departs = get_donnees_arrivees_departs(
-                arrivees_departs, ville, jour)
+            donnees_arrivees_departs = \
+                donnees_etats.get_donnees_arrivees_departs(
+                    arrivees_departs, ville, jour)
             donnees_arrivees_departs.update({'maintenant': maintenant}) 
             return render(request,
                           'gestion/etat_arrivees_departs.html',
@@ -662,15 +683,15 @@ def etat_arrivees_departs(request):
 
 
 def liste_participants_activites_scientifiques(request):
-    require_permission(request.user, PERM_LECTURE)
-    donnees = get_donnees_activites_scientifiques()
+    require_permission(request.user, consts.PERM_LECTURE)
+    donnees = donnees_etats.get_donnees_activites_scientifiques()
     return render(request, 'gestion/activites_scientifiques.html', {
         'donnees': donnees,
     })
 
 
 def votants_csv(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="votants_ag.csv"'
     writer = csv.writer(response, delimiter=',', quotechar='"')
@@ -699,7 +720,7 @@ def votants_csv(request):
 
 
 def etat_votants(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     votants = Participant.actifs.avec_region_vote().filter_votants()
     maintenant = datetime.now()
     votants = votants.order_by('nom', 'prenom')
@@ -713,23 +734,24 @@ TOUTES_VILLES = u'(Toutes)'
 
 
 def etat_vols(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     ville_depart = request.GET.get('ville_depart', None)
     ville_arrivee = request.GET.get('ville_arrivee', None)
     ville_depart = None if ville_depart == TOUTES_VILLES else ville_depart
     ville_arrivee = None if ville_arrivee == TOUTES_VILLES else ville_arrivee
     return render(request, 'gestion/etat_vols.html', {
-        'donnees': get_donnees_tous_vols(filtre_ville_depart=ville_depart,
-                                         filtre_ville_arrivee=ville_arrivee,),
-        'villes_depart': [TOUTES_VILLES] + get_villes_depart(),
-        'villes_arrivee': [TOUTES_VILLES] + get_villes_arrivee(),
+        'donnees': donnees_etats.get_donnees_tous_vols(
+            filtre_ville_depart=ville_depart,
+            filtre_ville_arrivee=ville_arrivee, ),
+        'villes_depart': [TOUTES_VILLES] + donnees_etats.get_villes_depart(),
+        'villes_arrivee': [TOUTES_VILLES] + donnees_etats.get_villes_arrivee(),
         'ville_depart': ville_depart,
         'ville_arrivee': ville_arrivee,
     })
 
 
 def etat_vols_csv(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     now_str = datetime.now().strftime('%Y%m%d')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
@@ -739,7 +761,7 @@ def etat_vols_csv(request):
         "Date", "Heure", "Compagnie", "# vol", "Ville",
         "Type", "c", "Nom", "Prenom", "Direction", "Ville", "Date",
         "Vol Groupe", "PEC transport", "PEC sejour", "participant_id"])
-    donnees = get_donnees_tous_vols()
+    donnees = donnees_etats.get_donnees_tous_vols()
     for row in donnees:
         # noinspection PyProtectedMember
         row_dict = row._asdict().copy()
@@ -770,7 +792,7 @@ def bool_to_01(b):
 
 
 def export_donnees_csv(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     now_str = datetime.now().strftime('%Y%m%d')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
@@ -809,19 +831,19 @@ def export_donnees_csv(request):
     arrivees_vols_groupes = dict(
         (info.vol_groupe_id, info) for info in
         InfosVol.objects.filter(ville_arrivee='SAO PAULO',
-                                type_infos=VOL_GROUPE))
+                                type_infos=consts.VOL_GROUPE))
     departs_vols_groupes = dict(
         (info.vol_groupe_id, info) for info in
         InfosVol.objects.filter(ville_depart='SAO PAULO',
-                                type_infos=VOL_GROUPE))
+                                type_infos=consts.VOL_GROUPE))
     arrivees_autres = dict(
         (info.participant_id, info) for info in
         InfosVol.objects.filter(ville_arrivee='SAO PAULO')
-        .exclude(type_infos=VOL_GROUPE))
+        .exclude(type_infos=consts.VOL_GROUPE))
     departs_autres = dict(
         (info.participant_id, info) for info in
         InfosVol.objects.filter(ville_depart='SAO PAULO')
-        .exclude(type_infos=VOL_GROUPE))
+        .exclude(type_infos=consts.VOL_GROUPE))
     invites_participants = defaultdict(list)
     for invite in Invite.objects.all():
         invites_participants[invite.participant_id].append(invite)
@@ -917,15 +939,15 @@ def export_donnees_csv(request):
 
 
 def etat_paiements(request):
-    require_permission(request.user, PERM_LECTURE)
-    donnees = get_donnees_paiements(actifs_seulement=True)
+    require_permission(request.user, consts.PERM_LECTURE)
+    donnees = donnees_etats.get_donnees_paiements(actifs_seulement=True)
     return render(request, 'gestion/etat_paiements.html', {
         'donnees': donnees,
     })
 
 
 def etat_paiements_csv(request):
-    require_permission(request.user, PERM_LECTURE)
+    require_permission(request.user, consts.PERM_LECTURE)
     now_str = datetime.now().strftime('%Y%m%d')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
@@ -941,7 +963,7 @@ def etat_paiements_csv(request):
         'f_valide', 'f_mode', 'f_accompte', 'n_R', 'n_N', 'n_T', 'n_A',
         'n_mode', 'n_statut',)
     writer.writerow(fields)
-    for p in get_donnees_paiements(actifs_seulement=False):
+    for p in donnees_etats.get_donnees_paiements(actifs_seulement=False):
         row = SortedDict([(field, "") for field in fields])
         for field in fields:
             row[field] = getattr(p, field)

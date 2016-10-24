@@ -8,7 +8,6 @@ from urllib import unquote_plus
 import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
-from django.db.models import Sum, Q
 import requests
 from ag.reference.models import Etablissement
 from django.conf import settings
@@ -20,7 +19,7 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
 from ag.core import models as core
-from ag.gestion.montants import get_infos_montants, infos_montant_par_code
+from ag.gestion.montants import infos_montant_par_code
 
 
 class LigneFacture(object):
@@ -31,6 +30,14 @@ class LigneFacture(object):
 
     def total(self):
         return self.montant * self.quantite
+
+
+Paiement = collections.namedtuple(
+    'Paiement', ('date', 'moyen', 'implantation', 'ref_paiement', 'montant'))
+
+Adresse = collections.namedtuple(
+    'Adresse', ('adresse', 'code_postal', 'ville', 'pays', 'telephone',
+                'telecopieur'))
 
 
 class RenseignementsPersonnels(models.Model):
@@ -91,13 +98,29 @@ class RenseignementsPersonnels(models.Model):
 
     # Options de paiement
     paiement = models.CharField(
-        'modalités de paiement', max_length=2, choices=PAIEMENT_CHOICES,
+        u"modalités de paiement", max_length=2, choices=PAIEMENT_CHOICES,
         blank=True
     )
 
     def save(self, **kwargs):
-        self.nom = self.nom.upper()
+        if self.nom:
+            self.nom = self.nom.upper()
         return super(RenseignementsPersonnels, self).save(**kwargs)
+
+    def get_paiements(self):
+        pass
+
+    def get_adresse(self):
+        return Adresse(adresse=self.adresse, ville=self.ville,
+                       code_postal=self.code_postal,
+                       pays=self.pays, telephone=self.telephone,
+                       telecopieur=self.telecopieur)
+
+    def get_verse_en_trop(self):
+        return -min(self.total_facture - self.total_deja_paye, 0)
+
+    def get_solde_a_payer(self):
+        return max(self.total_facture - self.total_deja_paye, 0)
 
 
 class Invitation(models.Model):
@@ -143,11 +166,8 @@ class InvitationEnveloppe(models.Model):
 
 # À certains champs correspondent des montants (ex:
 CODES_CHAMPS_MONTANTS = {
-    'programmation_soiree_9_mai': 'soiree_9_mai_membre',
     'programmation_soiree_9_mai_invite': 'soiree_9_mai_invite',
-    'programmation_soiree_10_mai': 'soiree_10_mai_membre',
     'programmation_soiree_10_mai_invite': 'soiree_10_mai_invite',
-    'programmation_gala': 'gala_membre',
     'programmation_gala_invite': 'gala_invite',
     'forfait_invite_dejeuners': 'forfait_invite_dejeuners',
     'forfait_invite_transfert': 'forfait_invite_transfert',
@@ -167,8 +187,16 @@ class Inscription(RenseignementsPersonnels):
     invitation = models.OneToOneField(Invitation)
 
     # Accueil
-    identite_confirmee = models.BooleanField('identité confirmée',
-                                             default=False)
+    atteste_pha = models.CharField(max_length=1, choices=(
+        ('P', u"J'atteste être la plus haute autorité de mon établissement et "
+              u"participerai à la 17ème Assemblée générale de l'AUF"),
+        ('R', u"J'atteste être le représentant dûment mandaté par la plus "
+              u"haute autorité de mon établissement pour participer à la "
+              u"17ème Assemblée générale de l'AUF"),
+    ), null=True)
+
+    identite_accompagnateur_confirmee = models.BooleanField(
+        'identité confirmée', default=False)
     conditions_acceptees = models.BooleanField(
         mark_safe(
             u'J\'ai lu et j\'accepte les '
@@ -199,18 +227,21 @@ class Inscription(RenseignementsPersonnels):
 
     # Programmation
     programmation_soiree_9_mai = models.BooleanField(
-        u"Je participerai à la soirée du 9 mai.", default=False)
+        u"Dîner du 9 mai à l’hôtel Mogador", default=False)
     programmation_soiree_9_mai_invite = models.BooleanField(
-        u"Dîner du 9 mai", default=False)
+        u"Dîner du 9 mai à l’hôtel Mogador", default=False)
     programmation_soiree_10_mai = models.BooleanField(
-        u"Je participerai à la soirée du 10 mai.", default=False)
+        u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_soiree_10_mai_invite = models.BooleanField(
-        u"Dîner du 10 mai", default=False)
+        u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_gala = models.BooleanField(
-        u"Je participerai à la soirée de gala de clôture de l'assemblée "
-        u"générale le 11 mai", default=False)
+        u"Soirée de gala de clôture de l'Assemblée générale le 11 mai.",
+        default=False)
     programmation_gala_invite = models.BooleanField(
-        u"Dîner de gala du 11 mai", default=False)
+        u"Soirée de gala de clôture de l'Assemblée générale le 11 mai.",
+        default=False)
+    programmation_soiree_12_mai = models.BooleanField(
+        u"Cocktail dînatoire de clôture le 12 mai.", default=False)
     forfait_invite_dejeuners = models.BooleanField(
         u"Forfait 3 Déjeuners (9,10 et 11)", default=False)
     forfait_invite_transfert = models.BooleanField(
@@ -224,11 +255,6 @@ class Inscription(RenseignementsPersonnels):
     prise_en_charge_transport = models.NullBooleanField(
         "Je demande la prise en charge de mon transport."
     )
-
-    type_chambre_hotel = models.CharField(
-        max_length=1, null=True, blank=True,
-        choices=(('1', "chambre avec 1 lit simple"),
-                 ('2', "chambre double (supplément de 100€)"),))
 
     arrivee_date = models.DateField(
         "date d'arrivée à São Paulo", blank=True, null=True,
@@ -302,7 +328,6 @@ class Inscription(RenseignementsPersonnels):
             if self.prise_en_charge_hebergement:
                 liste.append('supplement_chambre_double')
         for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
-            self.append_code_montant(liste, champ_membre)
             if self.accompagnateur:
                 self.append_code_montant(liste, champ_invite)
         if self.forfait_invite_transfert:
@@ -325,17 +350,23 @@ class Inscription(RenseignementsPersonnels):
             total += ligne.total()
         return int(total)
 
+    @property
+    def total_facture(self):
+        return self.get_montant_total()
+
+    @property
+    def total_deja_paye(self):
+        return self.paiement_paypal_total()
+
     def get_montant_a_payer(self):
         return self.get_montant_total() - self.paiement_paypal_total()
 
     def get_total_programmation(self):
         return self.get_total_categorie('insc') + \
-               self.get_total_categorie('acti') + \
                self.get_total_categorie('invite')
 
-    def get_total_activites(self):
-        return self.get_total_categorie('acti') + \
-               self.get_total_categorie('invite')
+    def get_total_forfaits_suppl(self):
+        return self.get_total_categorie('invite')
 
     def get_total_categorie(self, cat):
         total = 0
@@ -350,13 +381,8 @@ class Inscription(RenseignementsPersonnels):
     def get_frais_inscription(self):
         return self.get_total_categorie('insc')
 
-    def get_liste_activites(self):
-        liste = []
-        liste_codes = frozenset(self.get_liste_codes_frais())
-        for code, infos_montant in get_infos_montants().iteritems():
-            if code in liste_codes and infos_montant.categorie == 'acti':
-                liste.append(infos_montant)
-        return liste
+    def get_frais_hebergement(self):
+        return self.get_total_categorie('hebe')
 
     def get_etablissement(self):
         return self.invitation.etablissement
@@ -387,10 +413,11 @@ class Inscription(RenseignementsPersonnels):
         self.telephone = etablissement.telephone
         self.courriel = self.invitation.get_adresse()
         if self.est_pour_mandate():
-            self.nom = etablissement.responsable_nom
-            self.prenom = etablissement.responsable_prenom
-            self.genre = etablissement.responsable_genre
-            self.poste = etablissement.responsable_fonction
+            if self.atteste_pha == 'P':
+                self.nom = etablissement.responsable_nom
+                self.prenom = etablissement.responsable_prenom
+                self.genre = etablissement.responsable_genre
+                self.poste = etablissement.responsable_fonction
         else:
             self.nom = self.invitation.nom
             self.prenom = self.invitation.prenom
@@ -424,17 +451,21 @@ class Inscription(RenseignementsPersonnels):
     def paiement_paypal_ok(self):
         return PaypalResponse.objects.accepted(self).exists()
 
-    def paiement_paypal_total(self):
+    def get_unique_paypal_responses(self):
+        reponses = []
         reponses_valides = PaypalResponse.objects.accepted(self)
-        total = 0
         if reponses_valides:
             encountered_txns = set()
             for reponse in reponses_valides:
                 # il peut y en avoir plusieurs (PDT/IPN)
                 if reponse.txn_id not in encountered_txns:
-                    total += reponse.montant
+                    reponses.append(reponse)
                     encountered_txns.add(reponse.txn_id)
-        return total
+        return reponses
+
+    def paiement_paypal_total(self):
+        reponses = self.get_unique_paypal_responses()
+        return sum(reponse.montant for reponse in reponses)
 
     def numeros_confirmation_paypal(self):
         return u', '.join([
@@ -455,6 +486,17 @@ class Inscription(RenseignementsPersonnels):
         self.fermee = True
         self.date_fermeture = datetime.datetime.now().date()
         self.save()
+
+    def get_paiements(self):
+        paiements = []
+        for reponse in self.get_unique_paypal_responses():
+            paiement = Paiement(date=reponse.received_at.date(),
+                                moyen=u"Paiement en ligne",
+                                montant=reponse.montant,
+                                ref_paiement=reponse.txn_id,
+                                implantation=u"ICA1")
+            paiements.append(paiement)
+        return paiements
 
     def __unicode__(self):
         return self.nom.upper() + u', ' + self.prenom + u' (' \

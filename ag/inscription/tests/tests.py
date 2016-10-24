@@ -16,7 +16,8 @@ from django.core.management import call_command
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
 from ag.reference.models import Etablissement, Pays
 from ag.inscription.views import paypal_ipn
-from ag.core.test_utils import find_input_by_id, InscriptionFactory
+from ag.core.test_utils import find_input_by_id, InscriptionFactory, \
+    find_input_by_name
 import mock
 from ag.gestion.models import Participant, StatutParticipant
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
@@ -187,7 +188,20 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
     def test_accueil_non_mandate(self):
         inscription = self.create_inscription([], mandate=False)
         response = self.client.get(url_etape(inscription, 'accueil'))
-        self.assertContains(response, u'accompagnateurs issus du même')
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        assert (find_input_by_name(tree, 'identite_accompagnateur_confirmee')
+                is not None)
+        assert find_input_by_name(tree, 'atteste_pha') is None
+
+    def test_accueil_mandate(self):
+        inscription = self.create_inscription([], mandate=True)
+        response = self.client.get(url_etape(inscription, 'accueil'))
+        tree = html5lib.parse(response.content, treebuilder='lxml',
+                              namespaceHTMLElements=False)
+        assert find_input_by_name(tree, 'atteste_pha') is not None
+        assert (find_input_by_name(tree, 'identite_accompagnateur_confirmee')
+                is None)
 
     def test_debut_processus(self):
         inscription = self.create_inscription([])
@@ -196,7 +210,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                             u'représentent officiellement un établissement')
         response = self.client.post(url_etape(inscription, 'accueil'),
                                     data={
-                                        'identite_confirmee': u'on',
+                                        'atteste_pha': u'P',
                                         'conditions_acceptees': u'on',
                                     })
         self.assertRedirects(
@@ -377,10 +391,9 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                                                'programmation', ))
         inscription.accompagnateur = True
         inscription.prise_en_charge_hebergement = True
-        inscription.type_chambre_hotel = '2'
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertContains(response, u"supplément chambre double")
+        self.assertContains(response, u"supplément accompagnateur")
 
     def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',
@@ -580,7 +593,9 @@ def test_inscription_terminee():
 
 
 class PreremplirTest(unittest.TestCase):
-    def get_inscription(self, pour_mandate, nom=None, prenom=None):
+    @staticmethod
+    def get_inscription(pour_mandate, nom=None, prenom=None,
+                        pha='P'):
         p = Pays(nom=u"pppp")
         etablissement = Etablissement(
             nom=u"eeee", adresse=u"adr", ville=u"laville",
@@ -592,7 +607,7 @@ class PreremplirTest(unittest.TestCase):
                                 etablissement=etablissement,
                                 courriel=u"invitation@courriel.com",
                                 nom=nom, prenom=prenom)
-        inscription = Inscription(invitation=invitation)
+        inscription = Inscription(invitation=invitation, atteste_pha=pha)
         inscription.preremplir()
         return inscription
 
@@ -604,13 +619,20 @@ class PreremplirTest(unittest.TestCase):
         assert not i.poste
         assert not i.genre
 
-    def test_pour_mandate_renseignements_personnels_remplis(self):
+    def test_pour_mandate_renseignements_personnels_remplis_si_pha(self):
         i = self.get_inscription(pour_mandate=True)
         e = i.get_etablissement()
         assert i.nom == e.responsable_nom
         assert i.prenom == e.responsable_prenom
         assert i.poste == e.responsable_fonction
         assert i.genre == e.responsable_genre
+
+    def test_pour_mandate_renseignements_personnels_pas_remplis_si_pas_pha(self):
+        i = self.get_inscription(pour_mandate=True, pha='R')
+        assert not i.nom
+        assert not i.prenom
+        assert not i.poste
+        assert not i.genre
 
     def test_champs_etablissement_copies(self):
         i = self.get_inscription(False)
@@ -694,7 +716,7 @@ class PaypalIPNTests(django.test.TestCase):
 
 class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
     def setUp(self):
-        i = self.i = InscriptionFactory()
+        i = self.i = InscriptionFactory()  # type: Inscription
         invoice = PaypalInvoice.objects.create(inscription=i, montant=150)
         PaypalResponse.objects.create(inscription=i, type_reponse="IPN",
                                       montant=150, statut="Completed",
@@ -704,6 +726,9 @@ class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
                                       type_reponse="PDT", montant=150,
                                       invoice_uid=invoice.invoice_uid,
                                       validated=True)
+
+    def test_unique_responses(self):
+        assert len(self.i.get_unique_paypal_responses()) == 1
 
     def test_total_compte_une_fois(self):
         # Il peut y avoir plusieurs confirmations pour la même transaction

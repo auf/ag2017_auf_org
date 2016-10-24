@@ -4,11 +4,11 @@ import datetime
 import django.test
 from ag.core.test_utils import InscriptionFactory, ParticipantFactory
 from ag.dossier_inscription.models import (
-    Adresse,
     InscriptionFermee, SuiviDossier)
 from ag.gestion.models import COMPLETE
 from ag.dossier_inscription import views
-import ag.gestion.models as gestion_models
+from ag.inscription.models import Adresse
+
 
 class InscriptionFermeeTests(django.test.TestCase):
     def test_get_adresse_self(self):
@@ -16,7 +16,8 @@ class InscriptionFermeeTests(django.test.TestCase):
         l'adresse de l'objet Inscription.
         """
         adresse = Adresse(adresse="adr", code_postal="12345", ville="laville",
-                          pays="unpays")
+                          pays="unpays", telephone='123-222-2222',
+                          telecopieur='123-222-2222')
         i = InscriptionFermee(**adresse.__dict__)
         assert i.get_adresse() == adresse
 
@@ -26,7 +27,9 @@ class InscriptionFermeeTests(django.test.TestCase):
         doit retourner.
         """
         adresse_part = Adresse(adresse="adrpart", code_postal="98765",
-                               ville="lavillepart", pays="unpays")
+                               ville="lavillepart", pays="unpays",
+                               telephone='123-222-2222',
+                               telecopieur='123-222-2222')
         i = InscriptionFactory()
         ParticipantFactory(inscription=i, **adresse_part.__dict__)
         i = InscriptionFermee.objects.get(id=i.id)

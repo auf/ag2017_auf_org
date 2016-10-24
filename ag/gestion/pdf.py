@@ -1,8 +1,12 @@
 # encoding: utf-8
 
 import os
+import urllib
+from collections import namedtuple
 from datetime import date
 
+from django.conf import settings
+from django.http import HttpResponse
 from django.utils.formats import number_format, date_format
 from django.utils.dateformat import time_format
 from reportlab.pdfgen.canvas import Canvas
@@ -14,13 +18,81 @@ from reportlab.lib.styles import StyleSheet1, ParagraphStyle
 from reportlab.lib.units import cm
 
 from ag.gestion import APP_ROOT
-
+from ag.inscription.models import Inscription
 
 PAGESIZE = letter
 
 
+Facture = namedtuple('Facture',
+                     ('titre', 'civilite', 'nom', 'prenom', 'numero_facture',
+                      'date_facturation', 'adresse', 'etablissement_id',
+                      'numero_dossier', 'imputation', 'frais_inscription',
+                      'frais_forfaits', 'frais_hebergement', 'total_frais',
+                      'paiements', 'verse_en_trop', 'solde_a_payer', 'validee'))
+
+
+def get_renseignement_personnels_fields(rp):
+    """
+
+    :param rp: ag.inscription.models.RenseignementsPersonnels
+    :return:
+    """
+    return {
+        'civilite': rp.get_genre_display(),
+        'nom': rp.nom,
+        'prenom': rp.prenom,
+        'adresse': rp.get_adresse(),
+        'titre': titre_facture(rp)
+    }
+
+
+def titre_facture(inscription_ou_participant):
+    obj = inscription_ou_participant
+    if obj.total_deja_paye == 0:
+        return u"Facture"
+    elif obj.get_verse_en_trop() or obj.get_solde_a_payer():
+        return u"État de compte"
+    else:
+        return u"Reçu"
+
+
+def facture_from_participant(participant):
+    pass
+
+
+def facture_from_inscription(inscription):
+    """
+
+    :param inscription: ag.inscription.models.Inscription
+    :return:
+    """
+    rp_dict = get_renseignement_personnels_fields(inscription)
+    return Facture(
+        numero_facture=None,
+        date_facturation=inscription.date_fermeture,
+        etablissement_id=inscription.get_etablissement().id,
+        numero_dossier=inscription.numero_dossier,
+        imputation=None,
+        frais_inscription=inscription.get_frais_inscription(),
+        frais_forfaits=inscription.get_total_forfaits_suppl(),
+        frais_hebergement=inscription.get_frais_hebergement(),
+        total_frais=inscription.get_montant_total(),
+        paiements=inscription.get_paiements(),
+        verse_en_trop=inscription.get_verse_en_trop(),
+        solde_a_payer=inscription.get_solde_a_payer(),
+        validee=False,
+        **rp_dict
+    )
+
+
 # noinspection PyTypeChecker
-def generer_factures(output_file, participants):
+def generer_factures(output_file, factures):
+    """
+
+    :param output_file: File
+    :param factures: List[Facture]
+    :return:
+    """
 
     # Dimensions
     page_width, page_height = PAGESIZE
@@ -41,46 +113,42 @@ def generer_factures(output_file, participants):
     styles.add_style('droite', alignment=TA_RIGHT)
 
     canvas = Canvas(output_file, pagesize=PAGESIZE)
-    for participant in participants:
+    for facture in factures:
 
         # Préparation de certaines chaînes
         nom_participant = ' '.join((
-            participant.get_genre_display(), participant.prenom,
-            participant.nom
+            facture.civilite, facture.prenom,
+            facture.nom
         ))
-        numero_facture = u"000A09-%02d" % participant.numero_facture
-        date_facturation = date_format(participant.date_facturation,
+        if facture.numero_facture:
+            numero_facture = u"000A09-%02d" % facture.numero_facture
+        else:
+            numero_facture = None
+        date_facturation = date_format(facture.date_facturation,
                                        'SHORT_DATE_FORMAT')
-        adresse = participant.get_adresse_facturation()
+        adresse = facture.adresse
 
         # Logos
-        logo_height = 52
-        logo_width = 130 * logo_height / 91
+        logo_height = 80
+        logo_width = 300 * logo_height / 143
         canvas.drawImage(
-            os.path.join(APP_ROOT, 'images', 'logoaufnb.jpg'),
+            os.path.join(APP_ROOT, 'images', 'agauflogo2017.jpg'),
             margin_left, page_height - margin_top - logo_height,
-            logo_width, logo_height
-        )
-        logo_width = 195 * logo_height / 90
-        canvas.drawImage(
-            os.path.join(APP_ROOT, 'images', 'logoagN.jpg'),
-            page_width - margin_right - logo_width,
-            page_height - margin_top - logo_height,
             logo_width, logo_height
         )
 
         # Adresse de l'AUF
-        x = margin_left + 75
-        y = page_height - margin_top - 8
+        x = margin_left + logo_width
+        y = page_height - margin_top - 16
         canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawString(x, y, u"Agence universitaire de la Francophonie")
+        canvas.drawString(x, y, u"Secrétariat de l'assemblée générale")
         y -= 12
         canvas.setFont('Helvetica', 8)
         for s in [
-            u"Secrétariat de l'assemblée générale",
             u"Case postale du Musée C.P. 49714",
             u"Montréal (Québec), H3T 2A5, Canada",
-            u"Courriel : ag2013@auf.org  Site : www.ag2013.auf.org",
+            u"Courriel : ag2017@auf.org",
+            u"Site : www.ag2017.auf.org",
         ]:
             canvas.drawString(x, y, s)
             y -= 10
@@ -89,7 +157,7 @@ def generer_factures(output_file, participants):
         y -= 2 * cm
         x = margin_left
         canvas.setFont('Helvetica-Bold', 14)
-        canvas.drawString(x, y, u"Reçu de paiement")
+        canvas.drawString(x, y, facture.titre)
 
         # Adresse
         y -= 1.5 * cm
@@ -100,10 +168,10 @@ def generer_factures(output_file, participants):
         canvas.setFont('Helvetica', 10)
         p = Paragraph(u'<br/>'.join([
             nom_participant,
-            adresse['adresse'],
-            adresse['ville'],
-            adresse['code_postal'],
-            adresse['pays']
+            adresse.adresse,
+            adresse.ville,
+            adresse.code_postal,
+            adresse.pays,
         ]), styles['normal'])
         w, h = p.wrap(8 * cm, 5 * cm)
         p.drawOn(canvas, x, y - h)
@@ -113,15 +181,16 @@ def generer_factures(output_file, participants):
         t = Table(
             [
                 [u"Date d'émission", date_facturation],
-                [u"# Facture", numero_facture],
+                [u"# Facture", numero_facture] if numero_facture else [],
                 [
                     u"# Dossier",
                     u"{}-CGRM{}".format(
-                        participant.inscription.numero_dossier,
-                        participant.etablissement.id)
-                    if participant.etablissement else u""
+                        facture.numero_dossier,
+                        facture.etablissement_id)
+                    if facture.etablissement_id else u""
                 ],
-                [u"# Imputation", u"70810." + participant.imputation],
+                [u"# Imputation", u"70810." + facture.imputation]
+                if facture.imputation else [],
             ],
             colWidths=(4 * cm, 4 * cm),
             style=TableStyle([
@@ -144,24 +213,24 @@ def generer_factures(output_file, participants):
                 ],
                 [
                     u"- Frais d'inscription",
-                    montant_str(participant.frais_inscription_facture)
+                    montant_str(facture.frais_inscription)
                 ],
                 [
                     u"- Forfaits supplémentaires",
-                    montant_str(participant.frais_activites_facture)
+                    montant_str(facture.frais_forfaits)
                 ],
             ] +
             (
                 [[
                     u"- Frais de supplément chambre double",
-                    montant_str(participant.frais_hebergement_facture)
+                    montant_str(facture.frais_hebergement)
                 ]]
-                if participant.frais_hebergement_facture else []
+                if facture.frais_hebergement else []
             ) +
             [
                 [
                     u"",
-                    u"Montant total: " + montant_str(participant.total_facture)
+                    u"Montant total: " + montant_str(facture.total_frais)
                 ],
             ],
             colWidths=(12 * cm, frame_width - 12 * cm),
@@ -181,46 +250,42 @@ def generer_factures(output_file, participants):
         w, h = t.wrap(frame_width, 10 * cm)
         t.drawOn(canvas, x, y - h)
 
-        t = Table(
-            [
-                [u"Paiements reçus"],
-                [u"25/12/2016", u"Virement bancaire", u"BAO",
-                 u"5KP05198LR130290D", u"100,00 €"],
-                [u"25/12/2016", u"Virement bancaire", u"BAO",
-                 u"5KP05198LR130290D", u"100,00 €"],
-                [u"25/12/2016", u"Virement bancaire", u"BAO",
-                 u"5KP05198LR130290D", u"100,00 €"],
-                [u"", u"", u"", u"", u"Total payé: 100,00 €"]
-            ],
-            colWidths=(2 * cm, 5 * cm, 2 * cm, 5 * cm, frame_width - 14 * cm),
-            style=TableStyle([
-                ('SPAN', (0, 0), (1, 0)),
-                ('BOX', (0, 0), (-1, -1), 0.5, black),
-                ('LINEBELOW', (0, 0), (-1, 0), 0.5, black),
-                # ('BOTTOMPADDING', (0, 0), (-1, 0), 0.5 * cm),
-                ('BOTTOMPADDING', (0, -2), (-1, -2), 0.5 * cm),
-                ('ALIGN', (-1, 1), (-1, -1), 'RIGHT'),
-                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
-                ('FONT', (0, 0), (-1, 0), 'Helvetica', 12),
-                ('BACKGROUND', (-1, -1), (-1, -1), lightgrey),
-            ]))
-        x = margin_left
-        y -= h + 0.75 * cm
-        w, h = t.wrap(frame_width, 10 * cm)
-        t.drawOn(canvas, x, y - h)
+        if facture.paiements:
+            lignes_paiement = [[u"Paiements reçus"]]
+            lignes_paiement.extend([
+                [date_format(p.date, settings.SHORT_DATE_FORMAT),
+                 p.moyen, p.implantation, p.ref_paiement,
+                 montant_str(p.montant)] for p in facture.paiements])
+            t = Table(
+                lignes_paiement,
+                colWidths=(2 * cm, 5 * cm, 2 * cm, 5 * cm,
+                           frame_width - 14 * cm),
+                style=TableStyle([
+                    ('SPAN', (0, 0), (3, 0)),
+                    ('BOX', (0, 0), (-1, -1), 0.5, black),
+                    ('LINEBELOW', (0, 0), (-1, 0), 0.5, black),
+                    # ('BOTTOMPADDING', (0, 0), (-1, 0), 0.5 * cm),
+                    # ('BOTTOMPADDING', (0, -2), (-1, -2), 0.5 * cm),
+                    ('ALIGN', (-1, 1), (-1, -1), 'RIGHT'),
+                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                    ('FONT', (0, 0), (-1, 0), 'Helvetica', 12),
+                    ('BACKGROUND', (-1, -1), (-1, -1), lightgrey),
+                ]))
+            x = margin_left
+            y -= h + 0.75 * cm
+            w, h = t.wrap(frame_width, 10 * cm)
+            t.drawOn(canvas, x, y - h)
 
         y -= h + 0.75 * cm
-        if participant.get_verse_en_trop():
-            solde_text = u"Versé en trop: " + montant_str(
-                participant.get_verse_en_trop())
+        if facture.verse_en_trop:
+            solde_text = u"Versé en trop: " + montant_str(facture.verse_en_trop)
         else:
-            solde_text = u"Solde à payer: " + montant_str(
-                participant.get_solde_a_payer())
+            solde_text = u"Solde à payer: " + montant_str(facture.solde_a_payer)
         p = Paragraph(solde_text,
                       styles['droite'])
         _, h = p.wrap(frame_width, 2 * cm)
         p.drawOn(canvas, x, y)
-        if participant.get_verse_en_trop():
+        if facture.verse_en_trop:
             y -= h + 0.5 * cm
             p = Paragraph(
                 u"""Votre remboursement s’effectuera automatiquement dans les
@@ -529,3 +594,17 @@ class StyleSheet(StyleSheet1):
         if 'leading' not in options:
             options['leading'] = options['fontSize'] * 1.2
         self.add(ParagraphStyle(name, **options))
+
+
+def facture_response(inscription_ou_participant):
+    filename = u'Facture - %s %s.pdf' % (inscription_ou_participant.prenom,
+                                         inscription_ou_participant.nom)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
+                                      urllib.quote(filename.encode('utf-8'))
+
+    if isinstance(inscription_ou_participant, Inscription):
+        facture = facture_from_inscription(inscription_ou_participant)
+    else:
+        facture = facture_from_participant(inscription_ou_participant)
+    return generer_factures(response, [facture])

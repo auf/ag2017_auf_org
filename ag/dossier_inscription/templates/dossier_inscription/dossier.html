@@ -44,11 +44,19 @@
 </p>
   <h3>Suivi du dossier</h3>
   <p>
- {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
-{% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
-  {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
-  {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
-</p>
+    {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
+    {% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
+    {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
+    {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
+  </p>
+
+  <h3>Documents</h3>
+  <ul>
+    <li><a href="">Conditions générales</a></li>
+    <li><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
+{#    <li><a href="">Itinéraire de voyage</a></li>#}
+{#    <li><a href="">Coupons navette</a></li>#}
+  </ul>
 
 <h2>État de compte</h2>
 {% if inscription.etablissement_delinquant %}
@@ -177,7 +185,7 @@ Vous avez acquitté tous vos frais de participation. Merci.
       Transmettre votre chèque par courrier avec votre dossier d'inscription
       imprimé.<br/>
       Adresse postale pour la région {{ region.nom }} :<br/>
-            {{ region.adresse }}
+            {% include "dossier_inscription/includes/adresse_region_cheque.html" with code_region=region.code%}
     </p>
   </div>
   <div id="tab-dl">
@@ -300,19 +308,21 @@ Vous avez acquitté tous vos frais de participation. Merci.
   <h2>Activités</h2>
 
   {% unicode_checkbox inscription.programmation_soiree_9_mai %}
-  Dîner du 9 mai<br/>
+  {{ activites.soiree_9_mai }}<br/>
   {% unicode_checkbox inscription.programmation_soiree_10_mai %}
-  Dîner du 10 mai<br/>
+  {{ activites.soiree_10_mai }}<br/>
   {% unicode_checkbox inscription.programmation_gala %}
-  Dîner de gala du 11 mai<br/>
+  {{ activites.gala }}<br/>
+  {% unicode_checkbox inscription.programmation_soiree_12_mai %}
+  {{ activites.cocktail_12_mai }}<br/>
   {% if inscription.accompagnateur %}
     <h3>Forfaits sélectionnés pour votre accompagnateur personnel</h3>
     {% unicode_checkbox inscription.programmation_soiree_9_mai_invite %}
-    Dîner du 9 mai<br/>
+    {{ activites.soiree_9_mai }}<br/>
     {% unicode_checkbox inscription.programmation_soiree_10_mai_invite %}
-    Dîner du 10 mai<br/>
+    {{ activites.soiree_10_mai }}<br/>
     {% unicode_checkbox inscription.programmation_gala_invite %}
-    Dîner de gala du 11 mai<br/>
+    {{ activites.gala }}<br/>
     {% unicode_checkbox inscription.forfait_invite_dejeuners %}
     Forfait 3 Déjeuners (9,10 et 11)<br/>
     {% unicode_checkbox inscription.forfait_invite_transfert %}
@@ -389,6 +399,20 @@ Vous avez acquitté tous vos frais de participation. Merci.
     </form>
   {% endif %}
 
+  {% if participant %}
+    <a id="passeport"></a>
+    <h2>Passeport</h2>
+    {% if inscription.a_televerse_passeport %}
+      <p>Passeport envoyé !</p>
+    {% else %}
+      <form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
+        {% csrf_token %}
+        {{ passeport_form }}
+        <input type="submit" value="Envoyer"/>
+      </form>
+    {% endif %}
+  {% endif %}
+
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
 
@@ -409,6 +433,7 @@ function init_dossier() {
       });
       $('#id_arrivee_date').datepicker();
       $('#id_depart_date').datepicker();
+      $('#annuler-changement-adresse').click(annuler_changement_adresse)
   });
 }
 
@@ -431,6 +456,12 @@ function click_modifier_adresse(e) {
   e.preventDefault();
   $('#adresse').hide();
   $('#form-adresse').show();
+}
+
+function annuler_changement_adresse(e) {
+    e.preventDefault();
+  $('#adresse').show();
+  $('#form-adresse').hide();
 }
 
 $("#tabs-paiement").tabs();

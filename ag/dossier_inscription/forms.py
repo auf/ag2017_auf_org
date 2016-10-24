@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 from django import forms
 import ag.inscription.models
+from ag.gestion import models as gestion_models
 
 
 class AdresseForm(forms.Form):
@@ -40,3 +41,19 @@ class PlanVolForm(forms.ModelForm):
         model = ag.inscription.models.Inscription
         fields = ('depart_date', 'depart_heure', 'depart_vol',
                   'arrivee_date', 'arrivee_heure', 'arrivee_vol')
+
+
+class AjoutPasseportForm(forms.ModelForm):
+    class Meta:
+        model = gestion_models.Fichier
+        exclude = ('participant', 'cree_le', 'cree_par', 'efface_par',
+                   'efface_le', 'type_fichier')
+        labels = {
+            'fichier': u"Sélectionnez le fichier image de votre passeport"
+        }
+
+    def save(self, commit=True):
+        fichier = super(AjoutPasseportForm, self).save(commit)
+        fichier.type_fichier = 1
+        fichier.save()
+        return fichier

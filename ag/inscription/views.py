@@ -3,12 +3,8 @@ import collections
 import datetime
 import json
 import time
-
-from auf.django.mailing.models import Enveloppe, ModeleCourriel
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.core.validators import validate_email
 from django.db import transaction
 from django.dispatch import Signal
 from django.http import Http404, HttpResponse
@@ -18,13 +14,22 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 import six
 
+from ag.gestion.montants import get_infos_montants
 from ag.inscription.models import (
-    Inscription, get_infos_montants, Invitation, InvitationEnveloppe,
-    PaypalResponse, validate_pdt, is_ipn_valid, PaypalInvoice)
+    Inscription,
+    Invitation,
+    PaypalResponse,
+    validate_pdt,
+    is_ipn_valid,
+    PaypalInvoice)
 from ag.inscription.forms import (
-    AccueilForm, RenseignementsPersonnelsForm, ProgrammationForm,
-    TransportHebergementForm, InscriptionForm,
-    PaypalNotificationForm, PAYPAL_DATE_FORMATS
+    AccueilForm,
+    RenseignementsPersonnelsForm,
+    ProgrammationForm,
+    TransportHebergementForm,
+    InscriptionForm,
+    PaypalNotificationForm,
+    PAYPAL_DATE_FORMATS
 )
 
 inscription_confirmee = Signal()
@@ -403,7 +408,3 @@ def make_paypal_invoice(request):
     invoice = PaypalInvoice.objects.create(inscription=inscription,
                                            montant=inscription.get_total_du())
     return HttpResponse(str(invoice.invoice_uid))
-
-
-def dossier(request):
-    return render_to_response('inscription/dossier.html')

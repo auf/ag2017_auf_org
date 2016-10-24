@@ -13,6 +13,9 @@ $(function() {
 {% block diapo %}
 <script>
 $(function() {
+
+    $('#hebergement_accompagnateur').appendTo($('#id_prise_en_charge_hebergement_0').closest('li'));
+
     function dependent_control(master, slave) {
         if (master.length && slave.length) {
             master.change(function() {
@@ -42,28 +45,9 @@ $(function() {
     );
 
 
-    dependent_control(
-            $('#id_prise_en_charge_transport_1'),
-            $('#bloc_arrivee_depart')
-    );
-    dependent_control(
-            $('#id_prise_en_charge_transport_0'),
-            $('#bloc_date_naissance')
-    );
-
     // verrue car l'évènement change n'est pas déclenché lorsqu'un radio
     // est déselectionné...
-    $('#id_prise_en_charge_transport_0').change(function() {
-        update_dependent_control(
-                $('#id_prise_en_charge_transport_1'),
-                $('#bloc_arrivee_depart')
-        );
-    });
     $('#id_prise_en_charge_transport_1').change(function() {
-        update_dependent_control(
-                $('#id_prise_en_charge_transport_0'),
-                $('#bloc_date_naissance')
-        );
         update_dependent_control(
                 $('#id_prise_en_charge_transport_0'),
                 $('#avertissement_transport_accompagnateur')
@@ -114,7 +98,7 @@ $(function() {
     </fieldset>
     {% if inscription.accompagnateur %}
       <div id="hebergement_accompagnateur">
-      {% field form.type_chambre_hotel %}
+      (supplément accompagnateur personnel 30€, incluant les petits-déjeuners)
       </div>
     {% endif %}
   </div>
