@@ -129,33 +129,26 @@ def generer_factures(output_file, factures):
         adresse = facture.adresse
 
         # Logos
-        logo_height = 52
-        logo_width = 130 * logo_height / 91
+        logo_height = 80
+        logo_width = 300 * logo_height / 143
         canvas.drawImage(
-            os.path.join(APP_ROOT, 'images', 'logoaufnb.jpg'),
+            os.path.join(APP_ROOT, 'images', 'agauflogo2017.jpg'),
             margin_left, page_height - margin_top - logo_height,
-            logo_width, logo_height
-        )
-        logo_width = 195 * logo_height / 90
-        canvas.drawImage(
-            os.path.join(APP_ROOT, 'images', 'logoagN.jpg'),
-            page_width - margin_right - logo_width,
-            page_height - margin_top - logo_height,
             logo_width, logo_height
         )
 
         # Adresse de l'AUF
-        x = margin_left + 75
-        y = page_height - margin_top - 8
+        x = margin_left + logo_width
+        y = page_height - margin_top - 16
         canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawString(x, y, u"Agence universitaire de la Francophonie")
+        canvas.drawString(x, y, u"Secrétariat de l'assemblée générale")
         y -= 12
         canvas.setFont('Helvetica', 8)
         for s in [
-            u"Secrétariat de l'assemblée générale",
             u"Case postale du Musée C.P. 49714",
             u"Montréal (Québec), H3T 2A5, Canada",
-            u"Courriel : ag2013@auf.org  Site : www.ag2013.auf.org",
+            u"Courriel : ag2017@auf.org",
+            u"Site : www.ag2017.auf.org",
         ]:
             canvas.drawString(x, y, s)
             y -= 10
