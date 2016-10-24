@@ -289,19 +289,19 @@
                 {{ participant.accompte_devise_locale }}</td>
         </tr>
         {% endif %}
-        {% champ_fiche facturation "paiement" %}
-        {% if participant.paiement == 'CB' and participant.inscription %}
-            <tr>
-                <td class="tag">
-                    Paypal
-                </td>
-                <td>
-                    {{ participant.inscription.statut_paypal_text }}<br/>
-                    {{ participant.inscription.numeros_confirmation_paypal }}
-
-                </td>
-            </tr>
-        {% endif %}
+{#        {% champ_fiche facturation "paiement" %}#}
+{#        {% if participant.paiement == 'CB' and participant.inscription %}#}
+{#            <tr>#}
+{#                <td class="tag">#}
+{#                    Paypal#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ participant.inscription.statut_paypal_text }}<br/>#}
+{#                    {{ participant.inscription.numeros_confirmation_paypal }}#}
+{##}
+{#                </td>#}
+{#            </tr>#}
+{#        {% endif %}#}
          <tr><td class="tag">Validée</td><td>{% if participant.facturation_validee %}Oui{% else %}Non{% endif %}</td></tr>
         {% if participant.facturation_validee %}
         <tr><td class="tag">Numéro facture</td><td>{{ participant.numero_facture }}</td></tr>

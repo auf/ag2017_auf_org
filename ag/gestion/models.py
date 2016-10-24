@@ -5,15 +5,15 @@ import os
 import unicodedata
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 
-from ag.reference.models import Etablissement, Region, Pays
+from ag.reference.models import Etablissement, Region, Pays, Implantation
 from auf.django.permissions import Role
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.db import connection
-from django.db.models import Model, PROTECT
 from django.db.models.aggregates import Sum, Max, Min, Count
 from django.db.models import (
+    Model, PROTECT, DecimalField,
     CharField, DateField, EmailField, TextField, FloatField, IntegerField,
     BooleanField, TimeField, DateTimeField, NullBooleanField,
     ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
@@ -44,7 +44,9 @@ __all__ = ('Participant',
            'AGRole',
            'TypeInstitutionSupplementaire',
            'ReservationChambre',
-           'TypeFrais', )
+           'TypeFrais',
+           'Paiement',
+           )
 
 
 class TypeInstitutionSupplementaire(core.TableReferenceOrdonnee):
@@ -800,11 +802,12 @@ class Participant(RenseignementsPersonnels):
             and self.inscription.prise_en_charge_hebergement)
 
     def get_paiement_string(self):
-        display = self.get_paiement_display()
-        if self.accompte:
-            display += u', paiement : ' + unicode(self.accompte) + u'€'
-        if self.paiement == 'CB' and self.inscription:
-            display += self.inscription.statut_paypal_text()
+        display = u""
+        # todo: réécrire ça
+        # if self.accompte:
+        #     display += u', paiement : ' + unicode(self.accompte) + u'€'
+        # if self.paiement == 'CB' and self.inscription:
+        #     display += self.inscription.statut_paypal_text()
         return display
 
     def get_etablissement_sud(self):
@@ -835,6 +838,21 @@ class Participant(RenseignementsPersonnels):
 
 
 facturation_validee = Signal()
+
+
+class Paiement(Model):
+    participant = ForeignKey(Participant)
+    date = DateField(default=datetime.date.today)
+    montant_euros = DecimalField(u"Montant (€)", decimal_places=2,
+                                 max_digits=10)
+    moyen = CharField(u"modalité", max_length=2, choices=PAIEMENT_CHOICES)
+    implantation = ForeignKey(Implantation)
+    ref = CharField(u"référence", max_length=255)
+    montant_devise_locale = DecimalField(
+        u'paiement en devises locales', blank=True, null=True,
+        decimal_places=2, max_digits=16)
+    devise_locale = CharField(u'devise paiement', max_length=3,
+                              blank=True, null=True)
 
 
 class Invite(Model):

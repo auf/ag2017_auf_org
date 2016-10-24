@@ -70,18 +70,17 @@ class InscriptionAdmin(ModelAdmin):
             'programmation_soiree_10_mai_invite',
             'programmation_gala', 'programmation_gala_invite',
         )}),
-        (u"Modalités", {'fields': ('paiement',)}),
         (u"Validation", {'fields': (
             'fermee', 'date_fermeture', 'inscription_validee', 'statut',
             'accepter_hebergement', 'facturer_supplement_chambre_double',
             'accepter_transport'
         )}),
     )
-    list_filter = ('fermee', 'paiement', 'invitation__etablissement__region')
+    list_filter = ('fermee', 'invitation__etablissement__region')
     search_fields = ['nom', 'invitation__etablissement__nom']
     list_display = (
         'get_nom_prenom', 'get_nom_etablissement', 'get_date_fermeture',
-        'get_nom_region', 'get_paiement_list_display', 'numero'
+        'get_nom_region', 'numero',
     )
     list_select_related = True
 
@@ -123,12 +122,13 @@ class InscriptionAdmin(ModelAdmin):
     def queryset(self, request):
         return Inscription.objects.filter(participant__id__isnull=True)
 
-    def get_paiement_list_display(self, obj):
-        display = obj.get_paiement_display()
-        if obj.paiement == 'CB':
-            display += obj.statut_paypal_text()
-        return display
-    get_paiement_list_display.short_description = u'Paiement'
+    # def get_paiement_list_display(self, obj):
+    #
+    #     display = obj.get_paiement_display()
+    #     if obj.paiement == 'CB':
+    #         display += obj.statut_paypal_text()
+    #     return display
+    # get_paiement_list_display.short_description = u'Paiement'
 
     def response_change(self, request, obj):
         # on ne veut pas que l'utilisateur puisse valider l'inscription puis

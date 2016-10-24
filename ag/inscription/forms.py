@@ -212,20 +212,6 @@ class TransportHebergementForm(forms.ModelForm):
         return value
 
 
-class PaiementForm(forms.ModelForm):
-    paiement = forms.ChoiceField(
-        label='Modalités de paiement', choices=Inscription.PAIEMENT_CHOICES,
-        widget=forms.RadioSelect
-    )
-
-    class Meta:
-        model = Inscription
-        fields = ('paiement',)
-
-    def require_fields(self):
-        self.fields['paiement'].required = True
-
-
 PAYPAL_DATE_FORMATS = ("%H:%M:%S %b. %d, %Y PST",
                        "%H:%M:%S %b. %d, %Y PDT",
                        "%H:%M:%S %b %d, %Y PST",

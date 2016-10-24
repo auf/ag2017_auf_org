@@ -216,3 +216,10 @@ ALLOWED = (
 
 ARRIVEES = u'A'
 DEPARTS = u'D'
+
+PAIEMENT_CHOICES = (
+    ('CB', u'Carte bancaire'),
+    ('VB', u'Virement bancaire'),
+    ('CE', u'Chèque en euros'),
+    ('DL', u'Devises locales'),
+)

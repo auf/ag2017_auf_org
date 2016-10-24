@@ -50,13 +50,6 @@ class RenseignementsPersonnels(models.Model):
         ('F', u'Mme'),
         )
 
-    PAIEMENT_CHOICES = (
-        ('CB', u'Carte bancaire'),
-        ('VB', u'Virement bancaire'),
-        ('CE', u'Chèque en euros'),
-        ('DL', u'Devises locales'),
-        )
-
     genre = models.CharField(
         'civilité', max_length=1, choices=GENRE_CHOICES, blank=True
     )
@@ -94,12 +87,6 @@ class RenseignementsPersonnels(models.Model):
     )
     date_depart_hotel = models.DateField(
         u"Date de départ", null=True, blank=True
-    )
-
-    # Options de paiement
-    paiement = models.CharField(
-        u"modalités de paiement", max_length=2, choices=PAIEMENT_CHOICES,
-        blank=True
     )
 
     def save(self, **kwargs):

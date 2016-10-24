@@ -742,7 +742,7 @@ class FacturationForm(GestionModelForm):
             'facturation_supplement_chambre_double',
             'prise_en_charge_activites', 'accompte',
             'montant_accompte_devise_locale', 'accompte_devise_locale',
-            'paiement',  'facturation_validee', 'date_facturation',
+            'facturation_validee', 'date_facturation',
             'imputation', 'notes_facturation'
         )
 

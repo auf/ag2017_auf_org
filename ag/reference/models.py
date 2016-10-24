@@ -77,3 +77,7 @@ class Etablissement(models.Model):
     def __repr__(self):
         return u"<Établissement: {}-{}>".format(self.id, self.nom)
 
+
+class Implantation(models.Model):
+    nom = models.CharField(max_length=255)
+    nom_court = models.CharField(max_length=255, blank=True)

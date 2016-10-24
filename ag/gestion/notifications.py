@@ -86,8 +86,9 @@ def get_nouveau_participant_mail(participant):
     statut = participant.statut.libelle if participant.statut else u"Statut?"
     subject = u"AG2013 Nouveau participant - " + region + u"-" + statut + u"-"\
               + etablissement
-    body = participant.get_paiement_display() + u"-"
-    body += u"Prise en charge transport:" +\
+    # todo: rétablir paiement dans mail transfert
+    # body = participant.get_paiement_display() + u"-"
+    body = u"Prise en charge transport:" +\
             participant.get_prise_en_charge_transport_text() + u"-"
     body += u"Prise en charge hébergement:" +\
             participant.get_prise_en_charge_sejour_text() + u"-"
