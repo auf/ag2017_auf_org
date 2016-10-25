@@ -1,4 +1,14 @@
-#corp { width: 940px; }
+#corp { width: 940px; max-width:940px; }
+#corp a { color: #A90F30; text-decoration: none; }
+.uniForm { background: none; background-color: #dacfac; border: none; color: #3e3d3e; }
+#corp .buttonHolder p { text-align: left; }
+#corp .buttonHolder label { margin: 4px; font-size: 1.1em; }
+
+form hr { 
+	color: #f9f7f1; 
+	border-top: 1px solid #c3b077; 
+	border-left: 1px solid #c3b077; 
+}
 
 form h2 {
 border-bottom: solid 1px #EFEFEF;
@@ -42,7 +52,6 @@ fieldset {border-top: 1px solid #efefef !important;}
 #holder_identite_confirmee, #holder_conditions_acceptees{
 	font-size: 13px;
 }
-
 .uniForm .ctrlHolder {
 	padding: 7px 5px 9px 5px;
 }
@@ -56,15 +65,17 @@ margin: 10px;
 }
 
 .contents #etapes li {
+	font-size: medium;
 	display: inline-block;
-	margin-right: 8px;
-	padding-left: 30px;
-	background: url(img/separ2.png) left no-repeat;
+    margin-right: 10px;
+    padding-left: 20px;
+    background: url(img/bt-next.png) left no-repeat;
+    background-position: -8px;
 }
 
 .contents .etape_courante {
 	font-weight: bold;
-	color: #00334D !important;
+	color: #a81835 !important;
 }
 #holder_accompagnateur label {width:100%;}
 #holder_type_chambre_hotel {}
@@ -133,7 +144,7 @@ a.primaryAction {text-decoration: none;}
 	border-color: #999;
 }
 
-.uniForm .buttonHolder .primaryAction{ font-size: 15px; padding: 8px 14px; font-weight: normal;}
+.uniForm .buttonHolder .primaryAction { font-size: 15px; padding: 8px 14px; font-weight: normal;}
 
 .PrintMessage p {
 	width: 500px;
