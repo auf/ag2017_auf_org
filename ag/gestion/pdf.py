@@ -7,21 +7,20 @@ from datetime import date
 
 from django.conf import settings
 from django.http import HttpResponse
-from django.utils.formats import number_format, date_format
 from django.utils.dateformat import time_format
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.platypus import Frame, Paragraph, Table, TableStyle, Spacer
+from django.utils.formats import date_format
 from reportlab.lib.colors import black, lightgrey
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import StyleSheet1, ParagraphStyle
 from reportlab.lib.units import cm
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.platypus import Frame, Paragraph, Table, TableStyle, Spacer
 
 from ag.gestion import APP_ROOT
-from ag.inscription.models import Inscription
+from ag.inscription.models import Inscription, montant_str
 
 PAGESIZE = letter
-
 
 Facture = namedtuple('Facture',
                      ('titre', 'civilite', 'nom', 'prenom', 'numero_facture',
@@ -77,7 +76,7 @@ def facture_from_inscription(inscription):
         frais_forfaits=inscription.get_total_forfaits_suppl(),
         frais_hebergement=inscription.get_frais_hebergement(),
         total_frais=inscription.get_montant_total(),
-        paiements=inscription.get_paiements(),
+        paiements=inscription.get_paiements_display(),
         verse_en_trop=inscription.get_verse_en_trop(),
         solde_a_payer=inscription.get_solde_a_payer(),
         validee=False,
@@ -252,10 +251,9 @@ def generer_factures(output_file, factures):
 
         if facture.paiements:
             lignes_paiement = [[u"Paiements reçus"]]
-            lignes_paiement.extend([
-                [date_format(p.date, settings.SHORT_DATE_FORMAT),
-                 p.moyen, p.implantation, p.ref_paiement,
-                 montant_str(p.montant)] for p in facture.paiements])
+            lignes_paiement.extend(
+                [[p.date, p.moyen, p.implantation,p.ref_paiement, p.montant]
+                 for p in facture.paiements])
             t = Table(
                 lignes_paiement,
                 colWidths=(2 * cm, 5 * cm, 2 * cm, 5 * cm,
@@ -302,12 +300,7 @@ def generer_factures(output_file, factures):
     return output_file
 
 
-def montant_str(montant):
-    return u"{} €".format(number_format(montant, 2))
-
-
 def generer_itineraires(output_file, participants):
-
     # Dimensions
     page_width, page_height = PAGESIZE
     margin_top = margin_bottom = 1 * cm
@@ -413,14 +406,14 @@ def generer_itineraires(output_file, participants):
         contenu.append(Spacer(0, 0.25 * cm))
         contenu.append(Table(
             [[
-                Paragraph(header, styles['itineraire-header'])
-                for header in [
-                    u"Date de départ", u"Ville de départ",
-                    u"Ville d'arrivée", u"Compagnie aérienne",
-                    u"Numéro de vol", u"Heure de départ",
-                    u"Heure d'arrivée", u"Date d'arrivée"
-                ]
-            ]] +
+                 Paragraph(header, styles['itineraire-header'])
+                 for header in [
+                     u"Date de départ", u"Ville de départ",
+                     u"Ville d'arrivée", u"Compagnie aérienne",
+                     u"Numéro de vol", u"Heure de départ",
+                     u"Heure d'arrivée", u"Date d'arrivée"
+                 ]
+                 ]] +
             [
                 [
                     Paragraph(s, styles['itineraire'])
@@ -438,9 +431,9 @@ def generer_itineraires(output_file, participants):
                         date_format(vol.date_arrivee, 'SHORT_DATE_FORMAT')
                         if vol.date_arrivee else u'',
                     ]
-                ]
+                    ]
                 for vol in vols
-            ],
+                ],
             colWidths=(
                 2.5 * cm, 3 * cm, 3 * cm, 2.5 * cm, 2 * cm, 1.5 * cm,
                 1.5 * cm, 2.5 * cm
@@ -485,7 +478,7 @@ def generer_itineraires(output_file, participants):
         # Remarques
         if participant.remarques_transport:
             contenu.append(Paragraph(u"Remarques :", styles['section']))
-            
+
             contenu.append(Paragraph(
                 participant.remarques_transport, styles['normal']
             ))
@@ -498,20 +491,20 @@ def generer_itineraires(output_file, participants):
                                      styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table([
-                    [u"Montant:", u"%.2d €" % participant.frais_autres],
-                    [u"Versement:",
-                     participant.get_modalite_versement_frais_sejour_display()],
-                ],
+                [u"Montant:", u"%.2d €" % participant.frais_autres],
+                [u"Versement:",
+                 participant.get_modalite_versement_frais_sejour_display()],
+            ],
                 colWidths=(
                     2 * cm, 8 * cm,
-                    ),
+                ),
                 style=TableStyle([
                     ('BOX', (0, 0), (-1, -1), 0.5, black),
                     ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
                     ('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
                     ('VALIGN', (0, 1), (-1, -1), 'TOP'),
                 ]),
-                hAlign='LEFT',))
+                hAlign='LEFT', ))
 
             contenu.append(Spacer(0, 0.5 * cm))
 
@@ -535,7 +528,7 @@ def generer_itineraires(output_file, participants):
             u"échéant).",
             styles['itineraire-header']
         ))
-        
+
         contenu.append(Paragraph(
             u"N.B. Les départs de votre hotel sont prévus 4 heures avant le "
             u"décollage de votre avion.",
@@ -581,7 +574,6 @@ def generer_itineraires(output_file, participants):
 
 
 class StyleSheet(StyleSheet1):
-
     def add_style(self, name, **options):
         """
         Ajoute un style à partir des options données avec de bonnes valeurs

@@ -223,3 +223,5 @@ PAIEMENT_CHOICES = (
     ('CE', u'Chèque en euros'),
     ('DL', u'Devises locales'),
 )
+
+PAIEMENT_CHOICES_DICT = dict(PAIEMENT_CHOICES)

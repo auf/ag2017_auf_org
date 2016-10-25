@@ -1,29 +1,31 @@
 # -*- encoding: utf-8 -*-
-from collections import namedtuple
 import datetime
 import os
 import unicodedata
-from ag.gestion.participants_queryset import ParticipantsQuerySet
+from collections import namedtuple
 
-from ag.reference.models import Etablissement, Region, Pays, Implantation
 from auf.django.permissions import Role
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.db import connection
-from django.db.models.aggregates import Sum, Max, Min, Count
 from django.db.models import (
     Model, PROTECT, DecimalField,
     CharField, DateField, EmailField, TextField, FloatField, IntegerField,
     BooleanField, TimeField, DateTimeField, NullBooleanField,
     ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
+from django.db.models.aggregates import Sum, Max, Min, Count
 from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
 from ag.core import models as core
-from ag.inscription.models import Inscription, RenseignementsPersonnels
 from ag.gestion.consts import *
-
+from ag.gestion.participants_queryset import ParticipantsQuerySet
+from ag.inscription.models import (
+    Inscription,
+    RenseignementsPersonnels,
+    Paiement as PaiementNamedTuple)
+from ag.reference.models import Etablissement, Region, Pays, Implantation
 
 __all__ = ('Participant',
            'nouveau_participant',
@@ -46,6 +48,7 @@ __all__ = ('Participant',
            'ReservationChambre',
            'TypeFrais',
            'Paiement',
+           'ActiviteScientifique',
            )
 
 
@@ -824,7 +827,10 @@ class Participant(RenseignementsPersonnels):
         return self.fichier_set.filter(type_fichier=1).exists()
 
     def get_paiements(self):
-        return []
+        paiements_paypal = self.inscription.get_paiements()
+        paiements_gestion = list(self.paiement_set.all())
+        return sorted(paiements_paypal + paiements_gestion,
+                      key=lambda p: p.date)
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:
@@ -853,6 +859,15 @@ class Paiement(Model):
         decimal_places=2, max_digits=16)
     devise_locale = CharField(u'devise paiement', max_length=3,
                               blank=True, null=True)
+
+    def to_paiement_namedtuple(self):
+        return PaiementNamedTuple(
+            date=self.date,
+            montant=self.montant_euros,
+            moyen=self.moyen,
+            implantation=self.implantation.nom_court,
+            ref_paiement=self.ref,
+        )
 
 
 class Invite(Model):

@@ -41,7 +41,6 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.courriel = inscription.courriel
     participant.date_arrivee_hotel = inscription.date_arrivee_hotel
     participant.date_depart_hotel = inscription.date_depart_hotel
-    participant.paiement = inscription.paiement
     participant.statut = statut
     participant.save()
     if inscription.accompagnateur:
@@ -76,7 +75,6 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.facturation_supplement_chambre_double = facturer_supplement_chambre_double
     participant.type_institution = 'E'
     participant.etablissement = inscription.get_etablissement()
-    participant.accompte = inscription.paiement_paypal_total()
     participant.save()
     inscription_transferee.send_robust(participant)
     return participant

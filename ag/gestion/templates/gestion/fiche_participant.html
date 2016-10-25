@@ -281,6 +281,41 @@
                 {% endfor %}{% endspaceless %}
             </td>
         </tr>
+          <tr>
+            <td colspan="2">
+              <table>
+                <thead>
+                <tr>
+                  <th colspan="5">
+                    Paiements
+                  </th>
+                </tr>
+                <tr>
+                  <th>Date</th>
+                  <th>Modalité</th>
+                  <th>Implantation</th>
+                  <th>Référence</th>
+                  <th>Montant</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for paiement in participant.get_paiements_display %}
+                  <tr>
+                    <td>{{ paiement.date }}</td>
+                    <td>{{ paiement.moyen }}</td>
+                    <td>{{ paiement.implantation }}</td>
+                    <td>{{ paiement.ref_paiement }}</td>
+                    <td>{{ paiement.montant }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="5">Aucun paiement effectué</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </td>
+          </tr>
         {% champ_fiche facturation "accompte" %}
         {% if participant.montant_accompte_devise_locale %}
         <tr>

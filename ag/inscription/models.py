@@ -9,6 +9,9 @@ import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 import requests
+from django.utils.formats import date_format, number_format
+
+from ag.gestion.consts import PAIEMENT_CHOICES_DICT
 from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -95,7 +98,20 @@ class RenseignementsPersonnels(models.Model):
         return super(RenseignementsPersonnels, self).save(**kwargs)
 
     def get_paiements(self):
-        pass
+        """
+
+        :return: List[Paiement]
+        """
+        return []
+
+    def get_paiements_display(self):
+        return [Paiement(
+            date=date_format(p.date, settings.SHORT_DATE_FORMAT),
+            montant=montant_str(p.montant),
+            ref_paiement=p.ref_paiement,
+            implantation=p.implantation,
+            moyen=PAIEMENT_CHOICES_DICT[p.moyen]
+        ) for p in self.get_paiements()]
 
     def get_adresse(self):
         return Adresse(adresse=self.adresse, ville=self.ville,
@@ -478,7 +494,7 @@ class Inscription(RenseignementsPersonnels):
         paiements = []
         for reponse in self.get_unique_paypal_responses():
             paiement = Paiement(date=reponse.received_at.date(),
-                                moyen=u"Paiement en ligne",
+                                moyen='CB',
                                 montant=reponse.montant,
                                 ref_paiement=reponse.txn_id,
                                 implantation=u"ICA1")
@@ -559,3 +575,7 @@ def is_ipn_valid(request):
         settings.PAYPAL_URL,
         data="cmd=_notify-validate&" + request.body)
     return response.text == 'VERIFIED', response.text
+
+
+def montant_str(montant):
+    return u"{} €".format(number_format(montant, 2))
