@@ -82,6 +82,15 @@
         <!-- sidebar -->
 		{% block sidebar %}
             <div id="sid">
+
+                {% if request.current_page.reverse_id != "accueil" and request.current_page.get_root.children.all %}
+                <div class="box">
+                     <h2>{% page_attribute "title" request.current_page.get_root %}</h2>
+                     <ul>
+                        {% show_menu 1 100 0 100 %}
+                    </ul>
+                </div>
+                {% endif %}
             
                 <div class="box">
                      <h2>Ils ont dit </h2>
