@@ -827,10 +827,10 @@ class Participant(RenseignementsPersonnels):
         return self.fichier_set.filter(type_fichier=1).exists()
 
     def get_paiements(self):
-        paiements_paypal = self.inscription.get_paiements()
-        paiements_gestion = list(self.paiement_set.all())
-        return sorted(paiements_paypal + paiements_gestion,
-                      key=lambda p: p.date)
+        paiements = list(self.paiement_set.all())
+        if self.inscription:
+            paiements.extend(self.inscription.get_paiements())
+        return sorted(paiements, key=lambda p: p.date)
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:
