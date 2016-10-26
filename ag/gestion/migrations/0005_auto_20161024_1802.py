@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='Paiement',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('date', models.DateField(default=datetime.date.today)),
+                ('date', models.DateField()),
                 ('montant_euros', models.DecimalField(verbose_name='Montant (\u20ac)', max_digits=10, decimal_places=2)),
                 ('moyen', models.CharField(max_length=2, verbose_name='modalit\xe9', choices=[(b'CB', 'Carte bancaire'), (b'VB', 'Virement bancaire'), (b'CE', 'Ch\xe8que en euros'), (b'DL', 'Devises locales')])),
                 ('ref', models.CharField(max_length=255, verbose_name='r\xe9f\xe9rence')),

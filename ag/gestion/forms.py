@@ -739,8 +739,7 @@ class FacturationForm(GestionModelForm):
             'prise_en_charge_inscription', 'prise_en_charge_transport',
             'prise_en_charge_sejour',
             'facturation_supplement_chambre_double',
-            'prise_en_charge_activites', 'accompte',
-            'montant_accompte_devise_locale', 'accompte_devise_locale',
+            'prise_en_charge_activites',
             'facturation_validee', 'date_facturation',
             'imputation', 'notes_facturation'
         )
@@ -757,10 +756,6 @@ class FacturationForm(GestionModelForm):
             if participant.inscription.prise_en_charge_transport:
                 self.fields['prise_en_charge_transport'].help_text = \
                     u'Prise en charge demandée'
-            if participant.inscription.paiement_paypal_ok():
-                self.fields['accompte'].help_text = \
-                    u"Dont reçu par Paypal: %s €" % \
-                    participant.inscription.paiement_paypal_total()
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -769,11 +764,35 @@ class FacturationForm(GestionModelForm):
                 'facturation_supplement_chambre_double',
                 'prise_en_charge_activites',
             ),
-            Fieldset(u"Paiement", 'accompte', 'montant_accompte_devise_locale',
-                     'accompte_devise_locale', 'paiement'),
             Fieldset(u"Autres informations", 'facturation_validee',
                      'date_facturation', 'imputation', 'notes_facturation'),
         )
+
+
+class PaiementForm(ModelForm):
+    class Meta:
+        model = Paiement
+        fields = ('date', 'moyen', 'implantation', 'ref', 'montant_euros',
+                  'montant_devise_locale', 'devise_locale')
+        field_classes = {
+            'montant_euros': CurrencyField,
+            'montant_devise_locale': CurrencyField,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PaiementForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            MultiField(u'', 'date', 'moyen', 'implantation', 'ref',
+                       'montant_euros', 'montant_devise_locale',
+                       'devise_locale', 'DELETE',
+                       template='gestion/ligne_paiement.html'))
+        self.helper.form_tag = False
+        self.helper.form_method = 'get'
+
+
+PaiementFormset = inlineformset_factory(Participant, Paiement,
+                                        form=PaiementForm, extra=1)
 
 
 class ValidationInscriptionForm(ModelForm):

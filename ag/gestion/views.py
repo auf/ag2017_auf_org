@@ -451,17 +451,21 @@ def facturation(request, id_participant):
                        obj=participant)
     if request.method == 'GET':
         form = forms.FacturationForm(instance=participant)
+        paiement_formset = forms.PaiementFormset(instance=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
         form = forms.FacturationForm(request.POST, instance=participant)
-        if form.is_valid():
+        paiement_formset = forms.PaiementFormset(request.POST,
+                                                 instance=participant)
+        if form.is_valid() and paiement_formset.is_valid():
             form.save()
+            paiement_formset.save()
             return redirect('fiche_participant', id_participant)
     return render(request, 'gestion/facturation.html',
                   {'participant': participant,
-                   'form': form})
+                   'form': form, 'paiement_formset': paiement_formset})
 
 
 def facture_pdf(request, id_participant):

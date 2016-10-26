@@ -10,7 +10,7 @@ from ag.core.test_utils import (
     find_input_by_name,
     find_checked_input_by_name)
 from ag.tests import create_fixtures, creer_participant
-from ag.reference.models import Etablissement, Pays, Region
+from ag.reference.models import Etablissement, Pays, Region, Implantation
 from ag.gestion.montants import infos_montant_par_code
 
 import datetime
@@ -501,6 +501,7 @@ class GestionTestCase(TestCase):
 
     def test_facturation_edition(self):
         participant = self.participant
+        imp_id = Implantation.objects.create(nom='aa', nom_court='nb').id
         response = self.client.get(
             reverse('facturation', args=[participant.id])
         )
@@ -508,27 +509,35 @@ class GestionTestCase(TestCase):
         data = {
             u'prise_en_charge_hebergement': u'on',
             u'prise_en_charge_sejour': u'on',
-            u'accompte': u'100',
-            u'paiement': u'CB',
             u'facturation_validee': u'',
             u'date_facturation': u'',
-            u'imputation': u'',
-            u'notes_facturation': u''
+            u'imputation': u'90002AG201',
+            u'notes_facturation': u'',
+            u'paiement_set-TOTAL_FORMS': u'1',
+            u'paiement_set-INITIAL_FORMS': u'0',
+            u'paiement_set-MAX_NUM_FORMS': u'1000',
+            u'paiement_set-0-id': u'',
+            u'paiement_set-0-date': u'26/10/2016',
+            u'paiement_set-0-moyen': u'VB',
+            u'paiement_set-0-implantation': unicode(imp_id),
+            u'paiement_set-0-ref': u'abcd',
+            u'paiement_set-0-montant_euros': u'100.30',
+            u'paiement_set-0-participant': unicode(participant.id),
         }
         response = self.client.post(
             reverse('facturation', args=[participant.id]),
             data=data
         )
+        print(response)
         self.assertRedirects(response, self.url_fiche_participant())
         participant = Participant.objects.get(pk=participant.id)
-        self.assertEquals(participant.accompte, 100)
         response = self.client.get(
             reverse('facturation', args=[participant.id])
         )
         tree = html5lib.parse(response.content, treebuilder='lxml',
                               namespaceHTMLElements=False)
-        input_element = tree.find("//input[@name='{0}']".format('accompte'))
-        self.assertEqual(input_element.get('value'), '100.0')
+        input_element = tree.find("//input[@name='{0}']".format('imputation'))
+        self.assertEqual(input_element.get('value'), '90002AG201')
 
     def test_numero_facture(self):
         participant = self.participant

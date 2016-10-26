@@ -347,6 +347,24 @@ width: 570px;
 margin-bottom: 20px;
 }
 
+.paiement-row .dateinput {
+    width: 9em;
+}
+
+.paiement-row input[name$='-ref'] {
+    width: 21em;
+}
+
+.paiement-row input[name$='-devise_locale'] {
+    width: 7em;
+}
+
+tr.th-formset th {
+    text-align: center;
+    background: #DDDDFF;
+    border: solid #999 1px;
+}
+
 /* ---end media screen--- */
 
 @media print {
@@ -374,5 +392,4 @@ p, li { font-size: 12px !important; line-height: 12px !important;}
 #f-status { display: none;}
 #colonne { padding-right: 0; position: absolute; top: 0; width: 95%; }
 }
-
 

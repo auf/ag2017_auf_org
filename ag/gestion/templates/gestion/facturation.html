@@ -1,5 +1,64 @@
 {% extends 'gestion/base_edit_form.html' %}
-{% block title %}{{ block.super }} - Facturation{% endblock title %}
 {% load crispy_forms_tags %}
+{% block title %}{{ block.super }} - Facturation{% endblock title %}
+{% block js_initializations %}
+    {{ block.super }}
+  <script type="text/javascript" src="{{ STATIC_URL }}scripts/jquery.formset.min.js"></script>
+  <script type="text/javascript">
+      $(function () {
+          $('.paiement-row').formset({
+              prefix: '{{ paiement_formset.prefix }}',
+              addText: 'Ajouter un paiement',
+              deleteText: 'supprimer',
+              added: function (row) {
+                  init_datepicker(row.find("input.dateinput"));
+              }
+          });
+
+          function init_datepicker(target) {
+              target.datepicker({
+                  dateFormat: "d/m/yy",
+                  minDate: new Date(2016, 9, 1),
+                  maxDate: new Date(2017, 12, 30)
+              });
+
+          }
+          $.datepicker.setDefaults($.datepicker.regional["fr"]);
+          init_datepicker($("input.dateinput"));
+      });
+  </script>
+  {% endblock %}
 {% block page_crumb %}Facturation{% endblock %}
-{% block form_fields %}<h1>Modifier Facturation</h1>{% crispy form %}{% endblock %}
+{% block form_fields %}<h1>Modifier Facturation</h1>
+  {% crispy form %}
+  <div class="module">
+    <h2>Paiements</h2>
+    {{ paiement_formset.management_form }}
+    <table>
+      <thead>
+      <tr class="th-formset">
+        <th>Date</th>
+        <th>Moyen</th>
+        <th>Implantation</th>
+        <th>Ref</th>
+        <th>Montant (€)</th>
+        <th>Montant (devises locales)</th>
+        <th>Devise locale</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for paiement_form in paiement_formset %}
+        {% if paiement_form.non_field_errors %}
+          {{ paiement_form.non_field_errors }}
+        {% endif %}
+        {% crispy paiement_form %}
+        {% for hidden in paiement_form.hidden_fields %}
+          {{ hidden }}
+        {% endfor %}
+      {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+

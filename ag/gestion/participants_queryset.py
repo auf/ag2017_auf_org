@@ -38,6 +38,17 @@ REGION_VOTE_SQL = """
                             CALCUL_REGION_VOTE_SQL=CALCUL_REGION_VOTE_SQL)
 
 
+SOMME_PAIEMENTS_GESTION = """SELECT SUM(montant_euros) FROM gestion_paiement
+                      WHERE participant_id=gestion_participant.id"""
+
+SOMME_PAIEMENTS_PAYPAL = """SELECT coalesce(sum(montant), 0) FROM
+                      (SELECT min(montant) AS montant
+                      FROM inscription_paypalresponse
+                      WHERE validated=1 AND inscription_id =
+                      gestion_participant.inscription_id
+                      GROUP BY invoice_uid) AS montants"""
+
+
 class ParticipantsQuerySet(QuerySet):
     def actifs(self):
         return self.exclude(desactive=True)
@@ -205,8 +216,10 @@ class ParticipantsQuerySet(QuerySet):
                 self.sql_expr('frais_activites'),
             )
         elif name == 'solde':
-            return "(%s - gestion_participant.accompte)" % \
-                   self.sql_expr('total_facture')
+            return "({} - ({}) - ({}))".format(
+                self.sql_expr('total_facture'),
+                SOMME_PAIEMENTS_GESTION,
+                SOMME_PAIEMENTS_PAYPAL)
         elif name == 'solde_a_payer':
             return "(%s > 0)" % self.sql_expr('solde')
         elif name == 'paiement_en_trop':

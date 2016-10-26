@@ -79,5 +79,11 @@ class Etablissement(models.Model):
 
 
 class Implantation(models.Model):
+    class Meta:
+        ordering = ('nom_court', )
+
     nom = models.CharField(max_length=255)
     nom_court = models.CharField(max_length=255, blank=True)
+
+    def __unicode__(self):
+        return self.nom_court

@@ -384,13 +384,6 @@ class Participant(RenseignementsPersonnels):
         db_constraint=False)
     region = ForeignKey(Region, verbose_name=u"Région", null=True,
                         db_constraint=False)
-    # facturation
-    accompte = FloatField(u'paiement (€)', default=0, blank=True)
-    montant_accompte_devise_locale = FloatField(u'paiement en devises locales',
-                                                default=0, blank=True,
-                                                null=True)
-    accompte_devise_locale = CharField(u'devise paiement', max_length=3,
-                                       blank=True, null=True)
     numero_facture = IntegerField(u"Numéro de facture", null=True)
     date_facturation = DateField(u"Date de facturation", null=True, blank=True)
     facturation_validee = BooleanField(u"Facturation validée", default=False)
@@ -821,13 +814,16 @@ class Participant(RenseignementsPersonnels):
 
     @property
     def total_deja_paye(self):
-        return self.accompte
+        return sum(p.montant for p in self.get_paiements())
 
     def a_televerse_passeport(self):
         return self.fichier_set.filter(type_fichier=1).exists()
 
     def get_paiements(self):
-        paiements = list(self.paiement_set.all())
+        paiements = [PaiementNamedTuple(
+            date=p.date, moyen=p.moyen, ref_paiement=p.ref,
+            montant=p.montant_euros, implantation=p.implantation.nom_court,
+        ) for p in self.paiement_set.all()]
         if self.inscription:
             paiements.extend(self.inscription.get_paiements())
         return sorted(paiements, key=lambda p: p.date)
@@ -848,7 +844,7 @@ facturation_validee = Signal()
 
 class Paiement(Model):
     participant = ForeignKey(Participant)
-    date = DateField(default=datetime.date.today)
+    date = DateField()
     montant_euros = DecimalField(u"Montant (€)", decimal_places=2,
                                  max_digits=10)
     moyen = CharField(u"modalité", max_length=2, choices=PAIEMENT_CHOICES)
