@@ -1,8 +1,58 @@
 #corp { width: 940px; max-width:940px; }
 #corp a { color: #A90F30; text-decoration: none; }
-.uniForm { background: none; background-color: #dacfac; border: none; color: #3e3d3e; }
-#corp .buttonHolder p { text-align: left; }
-#corp .buttonHolder label { margin: 4px; font-size: 1.1em; }
+#corp .uniForm { background: none; background-color: #efe9d4; border: none; color: #3e3d3e; }
+#corp .formulaire { text-align: left; background: #fff; border: none; padding:20px; margin-bottom: 20px; }
+#corp .uniForm .buttonHolder { background-color: #fff; border: none; }
+#corp .uniForm .buttonHolder label { margin: 4px; font-size: 1.1em; }
+#corp .formulaire input.primaryAction { 
+	float: right;    
+	text-decoration: none;
+    background-color: #76C931;
+    border-color: #46781d;
+    padding: 10px 20px;
+    margin: 10px 0 2px 0;
+    color: #363636;
+    font-size: 14px;
+    text-shadow: 0 1px 1px #E8E8E8;
+    transition: all 0.2s linear;
+    }
+#corp .formulaire input.secondaryAction { 
+	float: left;    
+	text-decoration: none;
+    background-color: #FFFF99;
+    border-color: #FFCC66;
+    padding: 10px 20px;
+    margin: 10px 0 2px 0;
+    color: #363636;
+    font-size: 14px;
+    text-shadow: 0 1px 1px #E8E8E8;
+    transition: all 0.2s linear;
+    }
+    
+#corp .formulaire input[type=submit]:hover.primaryAction {
+ box-shadow: 0 1px 1px #FFF inset, 0 0 0 5px #E0E0E0;
+}
+#corp .formulaire .inline-radio label { display: inline !important; float: left;  margin-bottom: 10px; }
+#corp .formulaire .inline-radio li { padding: 0px; }
+#corp .intro { clear: both; }
+#corp .message { background-color: aliceblue; margin-bottom: 20px; padding: 20px; }
+#corp .attention { background-color: #FFFF99; margin-bottom: 20px; padding: 20px; }
+
+.uniForm .inlineLabels ul {
+	width:50%;
+	text-align: left;
+	}
+
+.uniForm .ctrlHolder {
+	padding: 7px 5px 9px 5px;
+	border: none;
+}
+
+#holder_prise_en_charge_hebergement ul {
+	width: 100%;
+}
+
+#corp .intro ul { width: 100%; }
 
 form hr { 
 	color: #f9f7f1; 
@@ -11,36 +61,27 @@ form hr {
 }
 
 form h2 {
-border-bottom: solid 1px #EFEFEF;
 text-decoration: none;
 padding: 10px 0;
 margin: 24px 0px 20px 0px;
 }
 
-h3 {
-font-size: 16px;
+.formulaire > h2:first-of-type {
+margin-top: 0px;
+}
+
+#corp form h3 {
+font-size: 18px;
 margin: 24px 0 20px 0;
 text-decoration: none;
-border-bottom: solid 1px #999;
 padding: 8px 0 8px 0;
 }
 
-h4 {
+form h4 {
 font-size: 14px;
 text-decoration: none;
 margin: 18px 0 12px 0;
 padding: 10px 0 12px 0;
-}
-
-fieldset {border-top: 1px solid #efefef !important;}
-
-
-.Data {
-	width: 480px;
-	color: #3F3F3F;
-	font-family: Tahoma, Arial, Verdana, sans-serif;
-	position: relative;
-	left: 250px;
 }
 
 .ctrlHolder .Label {
@@ -49,15 +90,27 @@ fieldset {border-top: 1px solid #efefef !important;}
 	left: 0px;
 }
 
-#holder_identite_confirmee, #holder_conditions_acceptees{
-	font-size: 13px;
-}
-.uniForm .ctrlHolder {
-	padding: 7px 5px 9px 5px;
+#corp .apercu div.Label {
+    left: 0px;
+    top: 0px;
+    width: 40%;
+    float: left;
+    background-color: aliceblue;
 }
 
-#content .ctrlHolder ul li {
-margin: 10px;
+
+#corp .apercu div.Data {
+    /* font-family: Tahoma, Arial, Verdana, sans-serif; */
+    float: right;
+    /* position: relative; */
+    /* left: 250px; */
+    width: 60%;
+    text-align: left;
+}
+
+
+#holder_identite_confirmee, #holder_conditions_acceptees{
+	font-size: 13px;
 }
 
 .contents #etapes {
@@ -82,30 +135,25 @@ margin: 10px;
 #holder_date_arrivee_hotel {}
 #holder_date_depart_hotel {}
 
-.inline-radio label {display: inline !important;}
-
-.uniForm .inlineLabels ul {width:50%;}
-
 .ui-datepicker {font-size: smaller;}
-
-a.primaryAction {text-decoration: none;}
-
-.avertissement {background: #ffff88; border: 1px solid #666; padding: 1em;}
 
 .prix {
 	float: right;
 	width: 10%;
 	font-size:16px;
+	font-weight: bold;
+	text-align: right;
 }
 
 .total {
 	float: right;
 	width: 10%;
-	font-size:17px;
+	font-size:20px;
+	text-align: right;
 }
 
 .detail {
-	color: #960528;
+	color: #a58e49;
 }
 
 .calcul fieldset {
@@ -117,7 +165,9 @@ a.primaryAction {text-decoration: none;}
 	float: right;
 	width: 10%;
 	font-size:14px;
-  font-style: normal;
+  	font-style: normal;
+  	font-weight:bold;
+  	text-align: right;
 }
 
 .selectPaiement ul {
@@ -144,30 +194,15 @@ a.primaryAction {text-decoration: none;}
 	border-color: #999;
 }
 
-.uniForm .buttonHolder .primaryAction { font-size: 15px; padding: 8px 14px; font-weight: normal;}
 
 .PrintMessage p {
 	width: 500px;
 	float: left;
 }
-
-.message {background: none repeat scroll 0 0 #F8F8F8;
-    border: 1px solid #CCCCCC;
-    margin: 8px 0 0;
-    padding: 0 1.5em;}
 	
 .erreur h4 {color:red; padding: 10px 0 10px 0;}
 .succes h4 {color:green;}
 
-#message {
-	padding: 0 20px;
-	position: relative;
-	top: -13px;
-}
-
-#message h4 {
-	padding-top: 0;
-}
 
 #confirmation{
 	overflow: hidden;

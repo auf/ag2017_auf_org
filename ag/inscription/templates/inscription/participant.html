@@ -22,7 +22,8 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block formulaire %}
-<h1>Formulaire d'inscription 2/7 - Participant</h1>
+<h1>Formulaire d'inscription | 17<sup style="text-transform: none;">e</sup> AG - 
+    10, 11 et 12 mai 2017, Marrakech, Maroc</h1>
 <ul id="etapes">
     {% for etape in etapes %}
     {% if etape.tab_visible %}
@@ -34,21 +35,21 @@ $(document).ready(function() {
 <form class="uniForm" method="post">
   {% csrf_token %}
 
-<div class="buttonHolder">
+<div class="intro">
   <p><strong>Pour débuter l'inscription, merci de saisir vos renseignements
     personnels.</strong> <br><br>Les champs marqués d'un astérisque (<span
       class="required">*</span>) doivent obligatoirement être remplis.</p>
 </div>
 
-  <div class="buttonHolder">
+  <fieldset class="inlineLabels formulaire">
+    <h2>Renseignements personnels</h2>
+    
+<div class="message">
     Notez que nous avons inséré les informations qui nous ont été communiquées
     sur vous et votre établissement. Veuillez compléter les informations
     manquantes et corriger en cas d'erreur.
   </div>
-
-
-  <fieldset class="inlineLabels">
-    <h2>Renseignements personnels</h2>
+    
     {% inline_radio form.genre %}
     {% field form.nom %}
     {% field form.prenom %}
@@ -62,17 +63,13 @@ $(document).ready(function() {
     {% field form.telecopieur %}
   </fieldset>
 
-  <fieldset class="inlineLabels accompagnateur">
-    <h2>Autre voyageur non-participant à l'assemblée générale (ex.: conjoint, époux, etc.)</h2>
+  <fieldset class="inlineLabels accompagnateur formulaire">
+    <h2>Accompagnateur personnel (ex.: conjoint, époux, etc.)</h2>
     {% checkbox form.accompagnateur %}
     <div id="details-accompagnateurs">
 
       {% if inscription.prise_en_charge_hebergement_possible or inscription.prise_en_charge_transport_possible %}
-        <p class="avertissement">Attention : L'AUF ne pourra prendre en charge
-          le transport ni le séjour de votre accompagnateur personnel.<br/>
-          Si vous acceptez la prise en charge de votre séjour, un supplément
-          sera facturé pour la réservation d'une chambre double pour vous et
-          votre invité.</p>
+        <p class="attention">Attention : L'AUF ne pourra prendre en charge ni le transport ni le séjour de votre accompagnateur personnel.</p>
       {% endif %}
 
       {% inline_radio form.accompagnateur_genre %}
@@ -81,8 +78,8 @@ $(document).ready(function() {
     </div>
   </fieldset>
 
-  <div class="buttonHolder">
-    <input type="submit" value="Sauvegarder et continuer" class="secondaryAction" />
+  <div class="buttonHolder formulaire">
+    <input type="submit" value="Sauvegarder et continuer" class="primaryAction" />
   </div>
 
 </form>

@@ -15,7 +15,7 @@
 </ul>
 <form class="uniForm" method="post">
   {% csrf_token %}
-
+      
 	<div class="intro">
 	<p><strong>L'inscription à l'Assemblée générale vous permet de participer :</strong></p>
 
@@ -54,7 +54,7 @@
 	{% email_region "AG%202013%20-Formulaire%20en%20ligne" %}</p>
 	</div>
 
-	<div class="buttonHolder">
+	<div class="formulaire">
 
 	{% if inscription.est_pour_mandate %}
 
@@ -111,7 +111,7 @@
              class="ctrlHolder noLabel{% if field.errors %} error{% endif %}"
              style="border: none;">
           <ul class="inline-radio" style="width:100%;">
-            <li style="padding-left: 5px;">
+            <li>
               {% for value, label in field.field.choices %}
                 <label>
                   <input name="{{ field.html_name }}" type="radio"
@@ -135,8 +135,9 @@
       {% checkbox form.identite_accompagnateur_confirmee %}
     {% endif %}
     {% checkbox form.conditions_acceptees %}
-    <input type="submit" value="Débuter l'inscription en ligne"
-           class="secondaryAction"/>
+  </div>
+  <div class="buttonHolder formulaire"><input type="submit" value="Débuter l'inscription en ligne"
+           class="primaryAction"/>
   </div>
 </form>
 {% endblock %}

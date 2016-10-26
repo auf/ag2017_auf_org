@@ -64,7 +64,8 @@ $(function() {
 {% endblock %}
 
 {% block formulaire %}
- <h1>Formulaire d'inscription 4/7 - Séjour</h1>
+<h1>Formulaire d'inscription | 17<sup style="text-transform: none;">e</sup> AG - 
+    10, 11 et 12 mai 2017, Marrakech, Maroc</h1>
  <ul id="etapes">
     {% for etape in etapes %}
     {% if etape.tab_visible %}
@@ -76,13 +77,13 @@ $(function() {
 <form class="uniForm" method="post">
   {% csrf_token %}
 
-<div class="buttonHolder">
+<div class="intro">
   <p><strong>Pour poursuivre l'inscription, merci de saisir vos informations de séjour.</strong></p>
 </div>
 
     <!-- Bloc Prise en charge -->
 {% if inscription.prise_en_charge_hebergement_possible %}
-  <div>
+  <div class="formulaire">
     <h2>Prise en charge des frais d'hébergement</h2>
 
     <p>La prise en charge des frais d'hébergement est réservée exclusivement
@@ -91,17 +92,19 @@ $(function() {
 
     <p>L'AUF se réserve le droit d'accepter ou de refuser une demande
       de prise en charge. Si elle est acceptée, l'AUF fixe les modalités de
-      séjour
-      du participant.</p>
+      séjour du participant.</p>
+    <p>Notez que les petits-déjeuner sont inclus.</p>
+
     <fieldset>
       {% field form.prise_en_charge_hebergement %}
     </fieldset>
     {% if inscription.accompagnateur %}
-      <div id="hebergement_accompagnateur">
+      <div id="hebergement_accompagnateur" class="attention">
       (supplément accompagnateur personnel 30€, incluant les petits-déjeuners)
       </div>
     {% endif %}
   </div>
+
 {% endif %}
   <!-- Section transport -->
 {% if inscription.prise_en_charge_transport_possible %}
@@ -116,15 +119,14 @@ $(function() {
   <fieldset>
     {% field form.prise_en_charge_transport %}
     {% if inscription.accompagnateur %}
-      <p id="avertissement_transport_accompagnateur" class="avertissement">
+      <div id="avertissement_transport_accompagnateur" class="avertissement">
         Attention : L'AUF ne pourra pas prendre en charge le transport de votre invité,
-        il lui appartient d'effectuer la réservation de son titre de transport.</p>
+        il lui appartient d'effectuer la réservation de son titre de transport.</div>
     {% endif %}
   </fieldset>
 {% endif %}
-
-  <div class="buttonHolder">
-    <input type="submit" value="Sauvegarder et continuer" class="secondaryAction" />
+  <div class="buttonHolder formulaire">
+    <input type="submit" value="Sauvegarder et continuer" class="primaryAction" />
   </div>
 
 </form>
