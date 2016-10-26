@@ -28,6 +28,7 @@
   {% block extrahead %}{% endblock %}
 </head>
 <body>
+{% cms_toolbar %}
 
 	<!-- PARTIE LOGO ET TEXTE-->
 	<div id="baseline">
@@ -42,12 +43,11 @@
                	<nav id="top2">
 
 		    <ul>
-		       <!-- <li><a href="{% url "accueil" %}"><img src="{{ STATIC_URL }}img/accueil.png"></a></li>-->
+		       <li class="home"><a href="{% url "accueil" %}"><img src="{{ STATIC_URL }}img/accueil.png"></a></li>
 		        {% show_menu 0 1 100 100 %}
 		    </ul>
 		    
-				{% block langue %}
-	    		{% endblock %}
+				
 		    <div style="clear: both;"></div>
 		    
 	      	</nav>
@@ -60,14 +60,14 @@
 <!-- menu -->
 
    <div id="top2-header">
-    <header id="top">
+
     	
 		
         
         {% block diapo %}
     	{% endblock %}
  
-	 </header>
+
      </div>
     
     <!-- PARTIE CENTRALE -->
@@ -93,7 +93,7 @@
                 {% endif %}
             
                 <div class="box">
-                     <h2>Ils ont dit </h2>
+                     <h2>Accès rapide</h2>
                      {% if  mot_list2 %}
                         {% for item in mot_list2 %}
                             <p><a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}"><img class="flott" src="{{ MEDIA_URL }}{{ item.image }}" width="94" height="122" alt="{{ item.recteur }}"></a>
@@ -106,14 +106,17 @@
                 </div>         
        
                 <div class="box">
-                    <h2>Vidéo à la une </h2>
+
+
+		<a class="twitter-timeline" href="https://twitter.com/auf_org"  height="450" >Suivez nous sur Twitter @auf_org</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8" ></script>
+                    <!--<h2>Vidéo à la une </h2>
                     {% if video_list %}
                         {% for item in video_list %}
                             <div class="video">{{ item.video|safe }}</div>
                         {% endfor %}
                     {% else %}
                         <div class="video"><iframe width="280" height="161" src="http://www.dailymotion.com/embed/video/xmklf5?logo=0&hideInfos=1"></iframe></div>
-                    {% endif %}
+                    {% endif %}-->
                 </div>    
                  
                
@@ -122,6 +125,7 @@
 	</div>
 
 
+<!--
  <div class="partenaire-frame">
  <div class="partenaire">
                     <h2>Partenaires</h2>
@@ -134,16 +138,24 @@
                     {% endif %}
                 </div>                
          </div>
-
+-->
 
         <div id="footer-wrap">  
 {% block footer %}    
   	<!-- PARTIE FOOTER-->
         <footer id="footer">
 
-            <p><span><a href="/plan-du-site/">Plan du site</a> - <a href="http://www.auf.org" target="_blank">Visiter le site institutionnel de l'AUF</a> - <a href="/mentions-legales/">Mentions légales</a> - <a href="/contact/" >Contact</a><br>© AUF 2016 Tous droits réservés</span> 
+ 	<ul>
+		<li><a href="/plan-du-site/">Plan du site</a> </li>
+		<li><a href="http://www.auf.org" target="_blank">Visiter le site institutionnel de l'AUF</a> </li>
+		<li><a href="/mentions-legales/">Mentions légales</a></li>
+		<li><a href="/contacts/" >Contact</a></li>
+		<li>© AUF 2016 Tous droits réservés</li>
+	</ul>
 
-<span style="float:right;">
+    
+
+<span class="MS-icons">
 
 <a href="https://twitter.com/auf_org" target="_blank"><img src="https://www.auf.org/media/adminfiles/Twitter.png" alt="Twitter" /></a>
               <a href="https://www.facebook.com/aufinternational" target="_blank"><img src="https://www.auf.org/media/adminfiles/Facebook.png" alt="Facebook" /></a>

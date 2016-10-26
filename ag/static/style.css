@@ -26,9 +26,63 @@ select {
 
 /*HEADER*/
 #top {
-    /*height: 320px;*/
-    width: 980px;
-    margin: 0 auto;
+max-width:100%;
+margin:auto;
+}
+
+
+#top2-header {
+	width:100%;
+
+}
+
+
+.image img {
+
+  	display: block;	
+	max-width:100%;
+	height:auto;
+
+}
+
+
+#diapo {
+    background-color: white;
+}
+
+
+
+#diapo .note {
+    position: absolute;
+    bottom: 0;
+    height: 150px;
+    width: 500px;
+    padding: 30px 20px 30px 20px;
+left:22%;
+    z-index: 500;
+    background-color: black;
+    opacity: 0.70;
+    filter: alpha(opacity=70);
+
+
+}
+
+#diapo .note a {
+    display: block;
+
+    text-decoration: none;
+    color: #fff;
+    font:  2em "Ubuntu","Open Sans",sans-serif;
+    text-align: right;
+    text-transform:uppercase;
+   
+}
+
+#diapo .note a .petitbanner
+{
+
+    font:  0.8em "Ubuntu","Open Sans",sans-serif;
+    text-transform:none;
 }
 
 #top2-center {
@@ -36,30 +90,25 @@ select {
     width: 100%;
     /*background-image: url(img/bgmenu.png);*/
     background-color: #A90F30;
-;
 }
 
 #top2 {
-    min-height: 42px;
-    width: 880px;
-margin: auto;
-text-align: left;
-float: left;
-padding-top: 80px;
+    	min-height: 42px;
+
+	text-align: left;
+	float: right;
+	padding-top: 80px;
 
 }
 
 #top2 ul {
     float: left;
-
-
-
 }
 
 #top2 ul li {
     float: left;
     /*background: url(img/separ.png) right center no-repeat;*/
-padding: 15px 0 15px 0;
+    padding: 15px 0 15px 0;
 }
 
 #top2 ul li a {
@@ -67,12 +116,11 @@ padding: 15px 0 15px 0;
     text-decoration: none;
     color: #A90F30;
     font-size: 1em;
-font-weight: normal;
+    font-weight: normal;
     text-align: left;
     line-height: 42px;
     height: 42px;
     text-transform: uppercase;
-
     padding: 0 30px 0 0;
 
 }
@@ -199,13 +247,13 @@ a:hover > span.selectOption {
 #baseline {
     width: 100%;
     margin: 0 auto;
-    background: url(img/img-header.jpg) white no-repeat top left;
-    background-size: 100%;
+    background: url(img/entrelac-blanc.png) white no-repeat top left;
+
 }
 
 #baseline-center {
 
-    width: 1200px;
+    max-width: 1024px;
     margin: 0 auto;
 
 }
@@ -237,7 +285,7 @@ a:hover > span.selectOption {
 
     float: left;
     padding: 15px 0 7px 0;
-width: 300px;
+width: 276px;
 }
 
 #logo img {
@@ -284,11 +332,7 @@ width: 300px;
 
 
 
-#top2-header {
-    width: 100%;
-    background-color: #aaaba9;
-;
-}
+
 
 
 #ligne h3, #baseline4 h3 {
@@ -300,49 +344,21 @@ width: 300px;
     padding: 0;
 }
 
-#diapo {
-    height: 278px;
-    background-color: white;
-    position: relative;
-}
-
-.image {
-    height: 278px;
-    position: relative;
-}
-
-#diapo .note {
-
-    position: absolute;
-    top: 0;
-    right: -208px;
-    height: 278px;
-    width: 275px;
-    z-index: 500;
-}
-
-#diapo .note a {
-    display: block;
-    margin: 120px 20px 20px 60px;
-    text-decoration: none;
-    color: #2C2C2C;
-    font: bold 17px "Open Sans",sans-serif;
-    text-align: right;
-    text-shadow: 1px 1px 1px #ffffff;
-    filter: dropshadow(color=#ffffff, offx=1, offy=1);
-}
-
 #footer-wrap {
-    background-color: #A90F30;
-    height: 42px;
+
+  background: url("img/entrelac-bordeaux.png") #a81835 no-repeat bottom right;
+    overflow:auto;
     width: 100%;
-    padding: 30px 0 80px 0;
+    padding: 30px 0 40px 0;
+margin-top: 25px;
 }
 
 #footer {
     width: 950px;
     margin: auto;
 }
+
+
 
 #footer p {
     font-size: 0.9em;
@@ -351,9 +367,15 @@ width: 300px;
 
 }
 
-#footer span {
-    float: left;
+
+#footer ul {
+    color: #FFFFFF;
+ 	max-width:500px;	
+	float: left;
+font-size:0.9em;
 }
+
+.MS-icons { float: right; max-width:350px;}
 
 #footer a {
     color: #FFFFFF;
@@ -363,15 +385,18 @@ width: 300px;
 
 #corp {
     background-color: white;
-    width: 600px;
+    width: 100%;
+	max-width:640px;
     float: left;
     padding: 20px;
-    min-height: 900px;
+    min-height: 600px;
     margin-top: 20px;
 }
 
 #sid {
-    width: 320px;
+    
+	max-width:320px; 
+	width: 100%;
     margin-left: 20px;
     float: left;
 }
@@ -437,7 +462,8 @@ float: left;
 }
 
 .contents {
-    width: 980px;
+    max-width: 1024px;
+	width:100%;
     overflow: hidden;
     margin: 0 auto;
 }
@@ -612,7 +638,21 @@ table td {
     padding: 14px 18px;
 }
 
-#corp h2, #sid h2, #corp h1, #sid h1, .partenaire h2 {
+
+h1{
+
+    font-family: "Ubuntu","Open Sans",sans-serif;
+    font-size: 2em;
+    color: #A90F30;
+
+    padding-bottom: 15px;
+    margin-bottom: 21px;
+
+}
+
+
+
+#corp h2, #sid h2,  .partenaire h2 {
 
     font-family: "Open Sans",sans-serif;
     font-size: 1.2em;
@@ -664,7 +704,12 @@ p {
 }
 
 #corp a {
-    color: #00334d;
+    color: #A90F30;
+    text-decoration: none;
+}
+
+#corp a:hover {
+    color: #c3b077;
     text-decoration: none;
 }
 
@@ -996,3 +1041,307 @@ input.invite-widget {
 #plan-vol-dossier input[type="text"] {
     width: 90%;
 }
+
+/******************************* 1024px ********************************************/
+
+@media screen and (max-width: 1024px) {
+
+#logo img {
+    margin-top: 0;
+margin-left:20px;
+}
+
+#baseline {
+background-image:none;
+
+}
+
+#corp {
+	padding-right:0px;
+    width: 100%;
+    max-width:620px;
+    margin-left: 20px;
+    margin-right: 0px;
+}
+
+#sid {
+      max-width:300px;
+	width: 100%;
+ margin-right: 20px;
+
+}
+
+}
+
+
+/******************************* 768px ********************************************/
+
+@media screen and (max-width: 768px) {
+
+#logo img {
+    margin-top: 0;
+}
+
+#baseline {
+background-image:none;
+
+}
+
+#corp {
+	padding-right:0px;
+    width: 93%;
+    max-width:93%;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+#sid {
+      max-width:96%;
+	width: 96%;
+ margin-left: 20px;
+    margin-right: 20px;
+
+}
+
+.MS-icons { float: left;}
+
+#footer ul {
+    color: #FFFFFF;
+ 	clear:both;
+	font-size:0.9em; margin-left: 20px;margin-bottom: 30px;
+}
+
+.MS-icons { 	margin-left: 20px; clear:both;}
+
+#top2 {
+    	min-height: 42px;
+
+	text-align: left;
+	float: left;
+	padding-top: 0px;
+margin-left:20px;
+
+}
+
+#top2 ul {
+    float: left;
+}
+
+#top2 ul li {
+    float:left;
+    /*background: url(img/separ.png) right center no-repeat;*/
+    padding: 0px 0 0px 0;
+}
+
+#top2 ul li a {
+    display: block;
+    text-decoration: none;
+    color: #A90F30;
+    font-size: 1em;
+    font-weight: normal;
+    text-align: left;
+    line-height: 42px;
+    height: 42px;
+    text-transform: uppercase;
+    padding: 0 30px 0 0;
+
+
+
+}
+
+}
+
+
+/******************************* 640px ********************************************/
+
+@media screen and (max-width: 640px) {
+
+#logo img {
+    margin-top: 0;
+}
+
+#baseline {
+background-image:none;
+
+}
+
+#diapo .note {
+    position: absolute;
+    bottom: 0;
+    height: 150px;
+    width: 500px;
+    padding: 30px 20px 30px 20px;
+left:4%;
+    z-index: 500;
+    background-color: black;
+    opacity: 0.70;
+    filter: alpha(opacity=70);
+
+
+}
+
+#corp {
+	padding-right:0px;
+    width: 93%;
+    max-width:93%;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+#sid {
+      max-width:96%;
+	width: 96%;
+ margin-left: 20px;
+    margin-right: 20px;
+
+}
+
+.MS-icons { float: left;}
+
+#footer ul {
+    color: #FFFFFF;
+ 	clear:both;
+	font-size:0.9em; margin-left: 20px;margin-bottom: 30px;
+}
+
+.MS-icons { 	margin-left: 20px; clear:both;}
+
+#top2 {
+    	min-height: 42px;
+
+	text-align: left;
+	float: left;
+	padding-top: 0px;
+margin-left:20px;
+
+}
+
+#top2 ul {
+    float: left;
+}
+
+#top2 ul li {
+    float:left;
+    /*background: url(img/separ.png) right center no-repeat;*/
+    padding: 0px 0 0px 0;
+}
+
+#top2 ul li a {
+    display: block;
+    text-decoration: none;
+    color: #A90F30;
+    font-size: 1em;
+    font-weight: normal;
+    text-align: left;
+    line-height: 42px;
+    height: 42px;
+    text-transform: uppercase;
+    padding: 0 30px 0 0;
+}
+}
+
+
+
+/******************************* 480px ********************************************/
+
+@media screen and (max-width: 480px) {
+
+#logo img {
+    margin-top: 0;
+}
+
+#baseline {
+background-image:none;
+
+}
+
+
+#diapo, .image img {height:250px;}
+
+#diapo .note a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    font: 1.4em "Ubuntu","Open Sans",sans-serif;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+
+#diapo .note {
+    position: absolute;
+    bottom: 0;
+    height: 150px;
+    width: 300px;
+    padding: 30px 20px 30px 20px;
+left:4%;
+    z-index: 500;
+    background-color: black;
+    opacity: 0.70;
+    filter: alpha(opacity=70);
+
+
+}
+
+#corp {
+	padding-right:0px;
+    width: 90%;
+    max-width:90%;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#sid {
+      max-width:90%;
+	width: 90%;
+ margin-left: 10px;
+    margin-right: 10px;
+
+}
+
+.home { display:none;}
+
+.MS-icons { float: left;}
+
+#footer ul {
+    color: #FFFFFF;
+ 	clear:both;
+	font-size:0.9em; margin-left: 20px;margin-bottom: 30px;
+}
+
+.MS-icons { 	margin-left: 20px; clear:both;}
+
+#top2 {
+    	min-height: 42px;
+
+	text-align: left;
+	float: left;
+	padding-top: 0px;
+margin-left:20px;
+
+}
+
+#top2 ul {
+    float: left;
+}
+
+#top2 ul li {
+    float:left;
+    /*background: url(img/separ.png) right center no-repeat;*/
+    padding: 0px 0 0px 0;
+}
+
+#top2 ul li a {
+    display: block;
+    text-decoration: none;
+    color: #A90F30;
+    font-size: 1em;
+    font-weight: normal;
+    text-align: left;
+    line-height: 42px;
+    height: 42px;
+    text-transform: uppercase;
+    padding: 0 30px 0 0;
+}
+}
+
