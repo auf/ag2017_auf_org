@@ -470,8 +470,7 @@ float: left;
 
 .contents ul {
   margin: 0 0 18px 4px;
-    font: 13px/18px "Open Sans",sans-serif;
-    color: #2F2F2F;
+
 }
 
 .contents ul li {
@@ -722,6 +721,8 @@ p {
      color: #666666;
      position: absolute;
     min-width: 200px;
+        padding-top: 15px;
+
 }
 #top2 ul li ul li {
      float: none;
