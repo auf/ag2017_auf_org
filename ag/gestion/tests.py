@@ -536,8 +536,9 @@ class GestionTestCase(TestCase):
         )
         tree = html5lib.parse(response.content, treebuilder='lxml',
                               namespaceHTMLElements=False)
-        input_element = tree.find("//input[@name='{0}']".format('imputation'))
-        self.assertEqual(input_element.get('value'), '90002AG201')
+        input_element = tree.find("//option[@value='{0}']".format(
+            data[u'imputation']))
+        self.assertEqual(input_element.get('selected'), 'selected')
 
     def test_numero_facture(self):
         participant = self.participant
