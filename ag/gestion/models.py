@@ -798,13 +798,13 @@ class Participant(RenseignementsPersonnels):
             and self.inscription.prise_en_charge_hebergement)
 
     def get_paiement_string(self):
-        display = u""
-        # todo: réécrire ça
+        # todo: voir avec mc ce qu'on met dans la colonne paiement de la liste
+        # display = u""
         # if self.accompte:
         #     display += u', paiement : ' + unicode(self.accompte) + u'€'
         # if self.paiement == 'CB' and self.inscription:
         #     display += self.inscription.statut_paypal_text()
-        return display
+        return self.total_deja_paye
 
     def get_etablissement_sud(self):
         return self.etablissement and self.etablissement.pays.sud
@@ -814,7 +814,8 @@ class Participant(RenseignementsPersonnels):
 
     @property
     def total_deja_paye(self):
-        return sum(p.montant for p in self.get_paiements())
+        return getattr(self, 'total_deja_paye_sql',
+                       sum(p.montant for p in self.get_paiements()))
 
     def a_televerse_passeport(self):
         return self.fichier_set.filter(type_fichier=1).exists()
