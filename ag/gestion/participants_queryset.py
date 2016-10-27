@@ -42,11 +42,12 @@ SOMME_PAIEMENTS_GESTION = """SELECT SUM(montant_euros) FROM gestion_paiement
                       WHERE participant_id=gestion_participant.id"""
 
 SOMME_PAIEMENTS_PAYPAL = """SELECT coalesce(sum(montant), 0) FROM
-                      (SELECT min(montant) AS montant
+                      (SELECT coalesce(min(montant), 0) as montant,
+                      min(inscription_id) AS iid
                       FROM inscription_paypalresponse
-                      WHERE validated=1 AND inscription_id =
-                      gestion_participant.inscription_id
-                      GROUP BY invoice_uid) AS montants"""
+                      WHERE validated=1
+                      GROUP BY invoice_uid) AS montants
+                      where iid = gestion_participant.inscription_id"""
 
 
 class ParticipantsQuerySet(QuerySet):
