@@ -826,7 +826,7 @@ class Participant(RenseignementsPersonnels):
         ) for p in self.paiement_set.all()]
         if self.inscription:
             paiements.extend(self.inscription.get_paiements())
-        return sorted(paiements, key=lambda p: p.date)
+        return sorted(paiements, key=lambda pm: pm.date)
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:

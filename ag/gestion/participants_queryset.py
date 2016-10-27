@@ -38,7 +38,8 @@ REGION_VOTE_SQL = """
                             CALCUL_REGION_VOTE_SQL=CALCUL_REGION_VOTE_SQL)
 
 
-SOMME_PAIEMENTS_GESTION = """SELECT SUM(montant_euros) FROM gestion_paiement
+SOMME_PAIEMENTS_GESTION = """SELECT coalesce(SUM(montant_euros), 0)
+                      FROM gestion_paiement
                       WHERE participant_id=gestion_participant.id"""
 
 SOMME_PAIEMENTS_PAYPAL = """SELECT coalesce(sum(montant), 0) FROM

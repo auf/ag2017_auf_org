@@ -990,7 +990,7 @@ class GestionTestCase(TestCase):
     # noinspection PyMethodMayBeStatic
     def test_verse_en_trop(self):
         p = test_utils.ParticipantFactory()  # type: Participant
-        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
         p.total_facture = 50
         assert p.get_verse_en_trop() == 50
         p.total_facture = 150
@@ -998,7 +998,8 @@ class GestionTestCase(TestCase):
 
     # noinspection PyMethodMayBeStatic
     def test_solde_a_payer(self):
-        p = Participant(accompte=100)
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
         p.total_facture = 50
         assert p.get_solde_a_payer() == 0
         p.total_facture = 150
@@ -1022,7 +1023,8 @@ class GestionTestCase(TestCase):
                                consts.PROBLEMES['paiement_en_trop']['libelle'])
         self.assertContains(response,
                             consts.PROBLEMES['solde_a_payer']['libelle'])
-        participant.accompte = participant.solde
+        test_utils.PaiementFactory(montant_euros=participant.solde,
+                                   moyen='VB', participant=participant)
         participant.save()
         participant = get_participant()
         self.assertFalse(participant.solde_a_payer)
@@ -1033,8 +1035,8 @@ class GestionTestCase(TestCase):
                                consts.PROBLEMES['paiement_en_trop']['libelle'])
         self.assertNotContains(response,
                                consts.PROBLEMES['solde_a_payer']['libelle'])
-        participant.accompte += 1
-        participant.save()
+        test_utils.PaiementFactory(montant_euros=1, moyen='VB',
+                                   participant=participant)
         participant = get_participant()
         self.assertTrue(participant.problematique)
         self.assertFalse(participant.solde_a_payer)
