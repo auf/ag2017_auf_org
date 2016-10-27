@@ -1,10 +1,13 @@
 # -*- encoding: utf-8 -*-
+import uuid
+
+from ag.core import test_utils
 from ag.gestion import consts
 from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
-from ag.inscription.models import Inscription, Invitation
+from ag.inscription.models import Inscription, Invitation, PaypalResponse
 from ag.core.test_utils import (
     find_input_by_id,
     find_input_by_name,
@@ -952,9 +955,42 @@ class GestionTestCase(TestCase):
                              if avec_invites else 0)
             avec_invites = not avec_invites
 
+    def test_deja_paye(self):
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        assert p.total_deja_paye == 100
+
+    def test_deja_paye_paypal(self):
+        p = self.get_participant_avec_paypal()
+        assert p.total_deja_paye == 175
+
+    @staticmethod
+    def get_participant_avec_paypal():
+        i = test_utils.InscriptionFactory()  # type: Inscription
+        p = test_utils.ParticipantFactory(inscription=i)  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        inv1_uid = uuid.uuid4()
+        inv2_uid = uuid.uuid4()
+        PaypalResponse.objects.create(
+            montant=50, inscription=i, invoice_uid=inv1_uid,
+            validated=True, type_reponse='IPN', statut='Completed',
+            txn_id='A')
+        PaypalResponse.objects.create(
+            montant=50, inscription=i, invoice_uid=inv1_uid,
+            validated=True, type_reponse='PDT', statut='Completed',
+            txn_id='A')
+        PaypalResponse.objects.create(
+            montant=25, inscription=i, invoice_uid=inv2_uid,
+            validated=True, type_reponse='IPN', statut='Completed',
+            txn_id='B')
+        return p
+
     # noinspection PyMethodMayBeStatic
     def test_verse_en_trop(self):
-        p = Participant(accompte=100)
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
         p.total_facture = 50
         assert p.get_verse_en_trop() == 50
         p.total_facture = 150
