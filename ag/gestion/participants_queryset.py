@@ -226,6 +226,9 @@ class ParticipantsQuerySet(QuerySet):
             return "(%s > 0)" % self.sql_expr('solde')
         elif name == 'paiement_en_trop':
             return "(%s < 0)" % self.sql_expr('solde')
+        elif name == 'total_deja_paye_sql':
+            return "(({}) + ({}))".format(SOMME_PAIEMENTS_GESTION,
+                                          SOMME_PAIEMENTS_PAYPAL)
         else:
             raise ValueError('Expression inconnue: %s' % name)
 

@@ -1005,6 +1005,26 @@ class GestionTestCase(TestCase):
         p.total_facture = 150
         assert p.get_solde_a_payer() == 50
 
+    def test_total_deja_paye__sans_paypal_sql(self):
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
+        p = Participant.objects\
+            .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
+        assert p.total_deja_paye_sql == 200
+
+    def test_total_deja_paye_zero(self):
+        p = test_utils.ParticipantFactory()  # type: Participant
+        p = Participant.objects\
+            .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
+        assert p.total_deja_paye_sql == 0
+
+    def test_total_deja_paye_sql_paypal(self):
+        p = self.get_participant_avec_paypal()
+        p = Participant.objects\
+            .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
+        assert p.total_deja_paye_sql == 175
+
     def test_problemes_solde(self):
         def get_participant():
             return Participant.actifs \
