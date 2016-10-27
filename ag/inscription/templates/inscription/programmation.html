@@ -58,7 +58,8 @@ $(function() {
 {% endblock %}
 
 {% block formulaire %}
-<h1>Formulaire d'inscription 3/7 - Programmation</h1>
+<h1>Formulaire d'inscription | 17<sup style="text-transform: none;">e</sup> AG - 
+    10, 11 et 12 mai 2017, Marrakech, Maroc</h1>
 <ul id="etapes">
     {% for etape in etapes %}
     {% if etape.tab_visible %}
@@ -68,82 +69,62 @@ $(function() {
     {% endfor %}
 </ul>
 
-<div class="message">
-  <p><strong>Les frais d'inscription ne s'appliquent qu'aux participants de
-    l'AG</strong></p>
-  <ul>
-    <li>Transferts aéroport ↔ hôtel (en fonction des vols groupés proposés
-      par AUF)</li>
-    <li>3 Déjeuners (10, 11 et 12 mai), 3 Dîners (9, 10 et 11 mai), Cocktail
-      dînatoire (12 mai), 6 pauses café (10, 11 et 12 mai)</li>
-    <li>Trousse du participant contenant tous les documents et accessoires de
-      l'AG</li>
-    <li>Connexion WIFI</li>
-  </ul>
-
-  <p><strong>Veuillez sélectionner les activités que vous souhaitez réserver
-    {% if inscription.accompagnateur %} pour vous et votre invité
-    {% endif %}.</strong></p>
-</div>
-
 <form id="form-programmation" class="uniForm" method="post">
   {% csrf_token %}
-  <h3>Frais d'inscription</h3>
+  
+  <div class="intro formulaire">
+  	<h2>Frais de participation</h2>
+  	<div class="ctrlHolder">
+    	<div class="prix"><span id="montant_frais_inscription">{{ montant_frais_inscription }}</span>&nbsp;€</div>
+		<div class="detail">Frais de 400€ pour tous les participants de l'AG</div>
+  	</div>
+ </div>
+ <div class="formulaire">  
+  	<h2>Activités</h2>
+  	<p><strong>Veuillez sélectionner les activités que vous souhaitez réserver
+    {% if inscription.accompagnateur %} pour vous et votre invité
+    {% endif %}.</strong></p>
+  	<fieldset class="calcul">
 
-  <div class="ctrlHolder">
-    <p class="prix"><span id="montant_frais_inscription">{{ montant_frais_inscription }}</span>&nbsp;€</p>
-
-    <div class="detail">(paiement obligatoire)</div>
-  </div>
-  <p>Les frais d'inscription comprennent aussi les transports des hôtels vers
-    les lieux de réunion,
-    les repas du midi, les pauses café, la trousse du participant ainsi que les
-    soirées organisées.</p>
-
-  <h3>Activités des 7, 8 et 9 mai 2013</h3>
-<p class="detail">(Réservation requise)</p>
-  <fieldset class="calcul">
-	<p></p>
     {% checkbox form.programmation_soiree_9_mai %}
-  </fieldset>
-  <fieldset class="calcul">
-    <p></p>
+  	</fieldset>
+  	<fieldset class="calcul">
+
     {% checkbox form.programmation_soiree_10_mai %}
-  </fieldset>
-  <fieldset class="calcul">
-    <p></p>
+	</fieldset>
+	<fieldset class="calcul">
+
     {% checkbox form.programmation_gala %}
-  </fieldset>
-  <fieldset class="calcul">
-    <p></p>
+	</fieldset>
+	<fieldset class="calcul">
+
     {% checkbox form.programmation_soiree_12_mai %}
-  </fieldset>
+	</fieldset>
 
     {% if inscription.accompagnateur %}
 
-      <p><strong>Forfaits à la carte pour votre accompagnateur
-        personnel</strong>
-        Les accompagnateurs personnels ne peuvent assister aux activités
-        associatives, mais peuvent vous accompagner pour certaines activités non
-        institutionnelles.<br/>
-        Les frais supplémentaires seront ajoutés au total de vos frais de
-        participation.</p>
-
-      <fieldset class="calcul">
+	<p><strong>Forfaits à la carte pour votre accompagnateur
+        personnel</strong><br>
+        Les accompagnateurs personnels ne peuvent pas assister aux activités 
+        associatives, mais peuvent vous accompagner pour certaines activités 
+        sociales. Les montants des forfaits sélectionnés seront ajoutés à vos 
+        frais de participation.</p>
+	<fieldset class="calcul">
         <p></p>
         {% checkbox form.programmation_soiree_9_mai_invite %}
         {% checkbox form.programmation_soiree_10_mai_invite %}
         {% checkbox form.programmation_gala_invite %}
         {% checkbox form.forfait_invite_dejeuners %}
         {% checkbox form.forfait_invite_transfert %}
-      </fieldset>
+	</fieldset>
     {% endif %}
-
-
-  <h2>Total des frais de participation&nbsp;{% if inscription.accompagnateur %}(2 personnes){% else %}(1 personne){% endif %}:&nbsp;
+	</div>
+	<div class="formulaire">
+  <h3>Total des frais de participation&nbsp;{% if inscription.accompagnateur %}(2 personnes){% else %}(1 personne){% endif %}:&nbsp;
       <span class="total"><span id="total_frais_inscription">
         {{ total_programmation }}</span>&nbsp;€</span>
-  </h2>
+  </h3>
+  </div>
    <!--  <div class="ctrlHolder">
     <p class="formHint"></p>
   <div class="readOnlyLabel">Ces frais doivent être payés en euros<em> le 15
@@ -151,8 +132,8 @@ $(function() {
   tard.</div>
   </div> -->
 
-  <div class="buttonHolder">
-    <input type="submit" value="Sauvegarder et continuer" class="secondaryAction" />
+  <div class="buttonHolder formulaire">
+    <input type="submit" value="Sauvegarder et continuer" class="primaryAction" />
   </div>
 
 </form>
