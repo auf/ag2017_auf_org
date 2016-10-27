@@ -19,4 +19,4 @@ python-memcached==1.48
 django-tinymce==2.3.0
 django-treebeard==4.0.1
 requests==2.11.1
-djangocms_admin_style=1.2.6
+djangocms_admin_style==1.2.6
