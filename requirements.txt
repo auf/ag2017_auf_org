@@ -1,7 +1,7 @@
 Django==1.8.14
 django-cms==3.3
 
-djangocms-text-ckeditor>=3.2.1
+djangocms-text-ckeditor==3.3.0
 djangocms-link>=1.8
 easy_thumbnails
 django-filer>=1.2
