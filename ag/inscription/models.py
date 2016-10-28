@@ -407,23 +407,27 @@ class Inscription(RenseignementsPersonnels):
     def get_jeton(self):
         return self.invitation.enveloppe.jeton
 
-    def preremplir(self):
+    def get_donnees_preremplir(self):
         etablissement = self.get_etablissement()
-        self.adresse = etablissement.nom + "\n" + etablissement.adresse
-        self.ville = etablissement.ville
-        self.code_postal = etablissement.code_postal
-        self.pays = etablissement.pays.nom
-        self.telephone = etablissement.telephone
-        self.courriel = self.invitation.get_adresse()
+        d = {
+            'adresse': etablissement.nom + '\n' + etablissement.adresse,
+            'ville': etablissement.ville,
+            'code_postal': etablissement.code_postal,
+            'pays': etablissement.pays.nom,
+            'telephone': etablissement.telephone,
+        }
         if self.est_pour_mandate():
             if self.atteste_pha == 'P':
-                self.nom = etablissement.responsable_nom
-                self.prenom = etablissement.responsable_prenom
-                self.genre = etablissement.responsable_genre
-                self.poste = etablissement.responsable_fonction
+                d['nom'] = etablissement.responsable_nom
+                d['prenom'] = etablissement.responsable_prenom
+                d['genre'] = etablissement.responsable_genre
+                d['poste'] = etablissement.responsable_fonction
+                d['courriel'] = etablissement.responsable_courriel
         else:
-            self.nom = self.invitation.nom
-            self.prenom = self.invitation.prenom
+            d['nom'] = self.invitation.nom
+            d['prenom'] = self.invitation.prenom
+            d['courriel'] = self.invitation.courriel
+        return d
 
     def get_invitations_accompagnateurs(self):
         if self.est_pour_mandate():

@@ -115,7 +115,6 @@ def connexion_inscription(request, jeton):
     except Inscription.DoesNotExist:
         if not inscriptions_terminees():
             inscription = Inscription(invitation=invitation)
-            inscription.preremplir()
             inscription.save()
             inscription.make_numero_dossier()
             request.session['inscription_id'] = inscription.id
@@ -239,6 +238,19 @@ def apercu(appel_etape_processus):
                                 form_kwargs=None, etape_suivante=None)
 
 
+def renseignements_personnels(appel_etape_processus):
+    """
+
+    :param appel_etape_processus: AppelEtapeProcessus
+    :return: AppelEtapeResult
+    """
+    inscription = appel_etape_processus.inscription
+    initial = inscription.get_donnees_preremplir()
+    return AppelEtapeResult(redirect=None, template_context=None,
+                            form_kwargs={'initial': initial},
+                            etape_suivante=None)
+
+
 # noinspection PyUnusedLocal
 def programmation(appel_etape_processus):
         inscription = appel_etape_processus.inscription
@@ -277,7 +289,7 @@ ETAPES_INSCRIPTION = (
         "template": "participant.html",
         "form_class": RenseignementsPersonnelsForm,
         "tab_visible": True,
-        "func": None,
+        "func": renseignements_personnels,
     },
     {
         "n": 2,
