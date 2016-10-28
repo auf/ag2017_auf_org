@@ -686,10 +686,11 @@ table.atelier {
 #corp h3 {
     font-weight: bold;
     font-size: 13px;
-    color: #333;
-    padding-bottom: 3px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #333;
+    color: white;
+    background-color:#A90F30;
+    padding: 5px 10px;
+    border:none;
+    width:96%;
 }
 
 #act_sci_participant h2 {
@@ -1346,3 +1347,36 @@ margin-left:20px;
 }
 }
 
+
+
+/***************************   CODE MON DOSSIER   *********************************/
+
+
+.info-participant {
+    width :44%;
+    float:left;
+    background-color:white; margin-right:3%;
+    padding:2%;
+}
+
+.statut-dossier {
+    width :44%;
+    float:left;
+    background-color:white;
+    padding:2%;
+}
+
+.bloc-dossier1 {clear:both; overflow:auto;}
+
+.bloc-paiement, .bloc-planvol, .bloc-hebergement, .bloc-activites, .bloc-reseautage, .bloc-accompagnateur {
+    float:none;
+    clear:both;
+    background-color:white;
+    padding:2%;
+    margin-top:20px;
+}
+
+.ui-tabs .ui-tabs-panel, .ui-tabs span {
+    font-size: 0.9em;
+    font-family: open sans;
+}

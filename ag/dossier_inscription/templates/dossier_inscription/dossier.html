@@ -1,40 +1,49 @@
 {% extends "dossier_inscription/base_dossier.html" %}
 {% load inscription %}
 {% block content %}
-<h2>Informations du participant</h2>
-  <p>
-  {{ inscription.get_genre_display }} {{ inscription.nom }}
-  {{ inscription.prenom }}<br/>
-  {{ inscription.poste }}<br/>
-  {{ inscription.courriel }}<br/>
-  T:{{ inscription.telephone }}<br/>
-  F:{{ inscription.telecopieur }}<br/>
-</p>
-  {% if inscription.accompagnateur %}
-    <h3>Accompagnateur personnel</h3>
-    <p>
-    {{ inscription.get_accompagnateur_genre_display }}
-    {{ inscription.accompagnateur_nom }},
-    {{ inscription.accompagnateur_prenom }}</p>
-  {% endif %}
 
-  <h3>Type d'inscription</h3>
-  <p>
-  <strong>
-  {% if inscription.est_pour_mandate %}
-  Représentant mandaté
-  {% else %}
-  Accompagnateur
-  {% endif %}</strong><br/>
-  {{ inscription.get_etablissement.nom }}<br/>
-  Membre {{ inscription.get_etablissement.get_statut_display }} du
-  {{ inscription.get_est_pour_sud_display }}
+<div class="bloc-dossier1">
 
-</p>
-  <h3>Adresse de facturation</h3>
-  <div id="adresse-container">
-  {% include "dossier_inscription/includes/adresse.html" %}
-  </div>
+<div class="info-participant">
+   <h2> Informations du participant</h2>
+      <p>
+      {{ inscription.get_genre_display }} {{ inscription.nom }}
+      {{ inscription.prenom }}<br/>
+      {{ inscription.poste }}<br/>
+      {{ inscription.courriel }}<br/>
+      T:{{ inscription.telephone }}<br/>
+      F:{{ inscription.telecopieur }}<br/>
+    </p>
+      {% if inscription.accompagnateur %}
+        <h3>Accompagnateur personnel</h3>
+        <p>
+        {{ inscription.get_accompagnateur_genre_display }}
+        {{ inscription.accompagnateur_nom }},
+        {{ inscription.accompagnateur_prenom }}</p>
+      {% endif %}
+
+      <h3>Type d'inscription</h3>
+      <p>
+      <strong>
+      {% if inscription.est_pour_mandate %}
+      Représentant mandaté
+      {% else %}
+      Accompagnateur
+      {% endif %}</strong><br/>
+      {{ inscription.get_etablissement.nom }}<br/>
+      Membre {{ inscription.get_etablissement.get_statut_display }} du
+      {{ inscription.get_est_pour_sud_display }}
+
+      </p>
+      <h3>Adresse de facturation</h3>
+      <div id="adresse-container">
+      {% include "dossier_inscription/includes/adresse.html" %}
+      </div>
+</div>
+
+
+
+<div class="statut-dossier">
 
 <h2>Statut du dossier</h2>
   <p>
@@ -57,6 +66,10 @@
 {#    <li><a href="">Itinéraire de voyage</a></li>#}
 {#    <li><a href="">Coupons navette</a></li>#}
   </ul>
+</div>
+
+</div>
+<div class="bloc-paiement">
 
 <h2>État de compte</h2>
 {% if inscription.etablissement_delinquant %}
@@ -226,9 +239,13 @@ Vous avez acquitté tous vos frais de participation. Merci.
   <br/>
 {% endifequal %}
 {% if inscription.est_pour_mandate %}
+
+  </div>
+
+<div class="bloc-accompagnateur">
   <a id="invitations"></a>
   <h2>Accompagnateurs institutionels</h2>
-  <strong>Invitations aux accompagnateurs</strong><br/>
+
   <p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur
   de votre établissement en indiquant leur Nom, Prénom et Adresse électronique.
   Revenez en tout temps pour envoyer d'autres invitations et suivre le statut de
@@ -271,6 +288,10 @@ Vous avez acquitté tous vos frais de participation. Merci.
   {% endif %}
 {% endif %}
   <br/>
+
+  </div>
+
+  <div class="bloc-reseautage">
   <a id="reseautage"></a>
   <h2>Rencontres réseautage</h2>
   <p> L'assemblée générale vous offre la possibilité de programmer des
@@ -305,6 +326,9 @@ Vous avez acquitté tous vos frais de participation. Merci.
 
   {% endif %}
   <br/>
+
+    </div>
+    <div class="bloc-activites">
   <h2>Activités</h2>
 
   {% unicode_checkbox inscription.programmation_soiree_9_mai %}
@@ -330,9 +354,12 @@ Vous avez acquitté tous vos frais de participation. Merci.
   {% endif %}
 
   <br/>
-  <h2>Informations de voyage</h2>
+
+      </div>
+      <div class="bloc-hebergement">
+  <h2>Hébergement</h2>
   {% if inscription.prise_en_charge_hebergement %}
-  <h3>Hébergement</h3>
+
   <p>
     L'AUF a obtenu des tarifs négociés à l’hôtel Mogador, qui héberge le centre
     des congrès ou se déroule l'AG. Obtenez ce tarif en spécifiant le code
@@ -358,8 +385,11 @@ Vous avez acquitté tous vos frais de participation. Merci.
 {#    Votre badge vous sera remis à l'accueil de l'assemblée générale.#}
 
 
+        </div>
+        <div class="bloc-planvol">
+
   {% if not inscription.prise_en_charge_transport %}
-    <br/>
+
     <a id="plan-vol"></a>
     <h2>Renseignements sur mon plan de vol</h2>
     <p> La saisie facultative de ces informations permettra à l'AUF de planifier
@@ -412,7 +442,7 @@ Vous avez acquitté tous vos frais de participation. Merci.
       </form>
     {% endif %}
   {% endif %}
-
+</div>
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
 
