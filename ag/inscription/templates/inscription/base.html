@@ -21,7 +21,11 @@ $(function(){
 {% block content %}
 {% block sidebar %} {% endblock %}
   {% include "inscription/entete_processus.html" %}
-{% block formulaire %}{% endblock %}
+  {% if form and form.errors %}
+    <div class="erreur"><h4>Veuillez corriger les champs du formulaire ci-dessous marqués en rouge</h4></div>
+  {% endif %}
+{% block formulaire %}
+{% endblock %}
 {% endblock %}
 {% block footer %}    
   	<!-- PARTIE FOOTER-->
