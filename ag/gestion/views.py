@@ -23,18 +23,7 @@ from ag.gestion import donnees_etats
 from ag.gestion import pdf
 from ag.gestion import consts
 from ag.gestion import forms
-from ag.gestion.models import (
-    Participant,
-    nouveau_participant,
-    ParticipationActivite,
-    StatutParticipant,
-    Invite,
-    get_donnees_hotels,
-    get_nombre_votants_par_region,
-    get_inscriptions_par_mois,
-    PointDeSuivi,
-    get_donnees_activites,
-    get_donnees_prise_en_charge, Hotel, Fichier, VolGroupe, InfosVol, Activite)
+from ag.gestion.models import *
 from ag.gestion.pdf import facture_response
 from ag.reference.models import Etablissement
 
@@ -451,17 +440,21 @@ def facturation(request, id_participant):
                        obj=participant)
     if request.method == 'GET':
         form = forms.FacturationForm(instance=participant)
+        paiement_formset = forms.PaiementFormset(instance=participant)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
             return redirect('fiche_participant', id_participant)
         form = forms.FacturationForm(request.POST, instance=participant)
-        if form.is_valid():
+        paiement_formset = forms.PaiementFormset(request.POST,
+                                                 instance=participant)
+        if form.is_valid() and paiement_formset.is_valid():
             form.save()
+            paiement_formset.save()
             return redirect('fiche_participant', id_participant)
     return render(request, 'gestion/facturation.html',
                   {'participant': participant,
-                   'form': form})
+                   'form': form, 'paiement_formset': paiement_formset})
 
 
 def facture_pdf(request, id_participant):

@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import re
-from ag.reference.models import Etablissement, Region
+
+from django.utils.safestring import mark_safe
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Div, MultiField, HTML, Submit
 from crispy_forms.layout import Field as crispy_Field
@@ -23,14 +24,12 @@ from django.forms.widgets import (
     CheckboxSelectMultiple
 )
 
+from ag.reference.models import Etablissement, Region
 from ag.gestion import transfert_inscription
-from ag.gestion.models import (
-    Participant, PointDeSuivi, TypeInstitutionSupplementaire, Hotel,
-    Activite, InfosVol, VOL_ORGANISE, Invite, StatutParticipant,
-    TYPES_CHAMBRES, TypeFrais, Fichier,
-    PROBLEMES, VolGroupe, VOL_GROUPE, ARRIVEES, DEPARTS, ActiviteScientifique)
+from ag.gestion.models import *
+from ag.gestion.consts import *
 from ag.gestion.transfert_inscription import statut_par_defaut
-from ag.inscription.models import Inscription
+from ag.inscription.models import Inscription, montant_str
 from django.utils import formats
 
 PEC_ACCEPTEE = 'A'
@@ -740,9 +739,8 @@ class FacturationForm(GestionModelForm):
             'prise_en_charge_inscription', 'prise_en_charge_transport',
             'prise_en_charge_sejour',
             'facturation_supplement_chambre_double',
-            'prise_en_charge_activites', 'accompte',
-            'montant_accompte_devise_locale', 'accompte_devise_locale',
-            'paiement',  'facturation_validee', 'date_facturation',
+            'prise_en_charge_activites',
+            'facturation_validee', 'date_facturation',
             'imputation', 'notes_facturation'
         )
 
@@ -758,10 +756,6 @@ class FacturationForm(GestionModelForm):
             if participant.inscription.prise_en_charge_transport:
                 self.fields['prise_en_charge_transport'].help_text = \
                     u'Prise en charge demandée'
-            if participant.inscription.paiement_paypal_ok():
-                self.fields['accompte'].help_text = \
-                    u"Dont reçu par Paypal: %s €" % \
-                    participant.inscription.paiement_paypal_total()
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -770,25 +764,50 @@ class FacturationForm(GestionModelForm):
                 'facturation_supplement_chambre_double',
                 'prise_en_charge_activites',
             ),
-            Fieldset(u"Paiement", 'accompte', 'montant_accompte_devise_locale',
-                     'accompte_devise_locale', 'paiement'),
             Fieldset(u"Autres informations", 'facturation_validee',
                      'date_facturation', 'imputation', 'notes_facturation'),
         )
+
+
+class PaiementForm(ModelForm):
+    class Meta:
+        model = Paiement
+        fields = ('date', 'moyen', 'implantation', 'ref', 'montant_euros',
+                  'montant_devise_locale', 'devise_locale')
+        field_classes = {
+            'montant_euros': CurrencyField,
+            'montant_devise_locale': CurrencyField,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PaiementForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            MultiField(u'', 'date', 'moyen', 'implantation', 'ref',
+                       'montant_euros', 'montant_devise_locale',
+                       'devise_locale', 'DELETE',
+                       template='gestion/ligne_paiement.html'))
+        self.helper.form_tag = False
+        self.helper.form_method = 'get'
+
+
+PaiementFormset = inlineformset_factory(Participant, Paiement,
+                                        form=PaiementForm, extra=1)
 
 
 class ValidationInscriptionForm(ModelForm):
     class Meta:
         model = Inscription
         exclude = ('invitation', )
-        readonly_fields = ()
 
     def __init__(self, *args, **kwargs):
         super(ValidationInscriptionForm, self).__init__(*args, **kwargs)
-        if self.instance.paiement_paypal_ok():
-            self.fields['paiement'].help_text = u'Reçu par paypal : ' \
-                + unicode(self.instance.paiement_paypal_total()) + u"€"\
-                + u"(" + self.instance.numeros_confirmation_paypal() + u")"
+        self.initial['paiement_paypal_total_str'] = \
+            montant_str(self.instance.paiement_paypal_total())
+        self.fields['paiement_paypal_total_str'].help_text = mark_safe(
+            u'Reçu par paypal : ' + u";".join(
+                [u"{}-{}-{}".format(p.date, p.montant, p.ref_paiement)
+                 for p in self.instance.get_paiements_display()]))
         self.initial['statut'] = statut_par_defaut(self.instance).id
         if self.instance.prise_en_charge_hebergement \
                 and self.instance.accompagnateur:
@@ -809,6 +828,9 @@ class ValidationInscriptionForm(ModelForm):
         label=u"Prise en charge hébergement acceptée", required=False)
     facturer_supplement_chambre_double = BooleanField(
         label=u"Facturer un supplément pour chambre double", required=False)
+    paiement_paypal_total_str = CharField(
+        label=u"Total des paiements par paypal", required=False,
+        widget=forms.TextInput(attrs={'readonly': 'readonly'}))
 
     def save(self, commit=True):
         obj = super(ValidationInscriptionForm, self).save(commit)

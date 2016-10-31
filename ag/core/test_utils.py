@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-
+import datetime
 import factory
 import ag.reference.models as ref_models
 import ag.inscription.models as inscription_models
@@ -45,6 +45,13 @@ class EtablissementFactory(factory.DjangoModelFactory):
     qualite = "ESR"
 
 
+class ImplantationFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = ref_models.Implantation
+    nom = factory.Sequence(lambda n: u"Impl{0}".format(n))
+    nom_court = factory.Sequence(lambda n: u"Impl{0}".format(n))
+
+
 # noinspection PyUnresolvedReferences
 class StatutFactory(factory.DjangoModelFactory):
     class Meta:
@@ -75,3 +82,11 @@ class ParticipantFactory(factory.DjangoModelFactory):
         model = gestion_models.Participant
 
     statut = factory.SubFactory(StatutFactory)
+
+
+class PaiementFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = gestion_models.Paiement
+    date = datetime.date(2016, 10, 10)
+    ref = factory.Sequence(lambda n: u"ref{0}".format(n))
+    implantation = factory.SubFactory(ImplantationFactory)
