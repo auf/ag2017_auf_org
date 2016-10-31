@@ -513,14 +513,6 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         response = self.client.get('/inscription/connexion/' + invitation.jeton)
         inscription = Inscription.objects.get(invitation=invitation)
         self.assertRedirects(response, url_etape(inscription, 'accueil'))
-        self.assertEqual(
-            inscription.adresse,
-            invitation.etablissement.nom + "\n" +
-            invitation.etablissement.adresse)
-        self.assertEqual(inscription.ville, invitation.etablissement.ville)
-        self.assertEqual(inscription.code_postal,
-                         invitation.etablissement.code_postal)
-        self.assertEqual(inscription.pays, invitation.etablissement.pays.nom)
         self.assertTrue(inscription.numero_dossier)
 
     def test_inscription_fermee(self):
@@ -733,20 +725,20 @@ class InscriptionFonctionsPaypalTestCase(django.test.TestCase):
                                       validated=True)
 
     def test_unique_responses(self):
-        assert len(self.i["get_unique_paypal_responses"]()) == 1
+        assert len(self.i.get_unique_paypal_responses()) == 1
 
     def test_total_compte_une_fois(self):
         # Il peut y avoir plusieurs confirmations pour la même transaction
         # (IPN/PDT), mais quand on fait le total on ne doit compter qu'une fois
-        assert self.i["paiement_paypal_total"]() == 150
+        assert self.i.paiement_paypal_total() == 150
 
     def test_paiement_paypal_ok(self):
-        assert self.i["paiement_paypal_ok"]()
+        assert self.i.paiement_paypal_ok()
 
     def test_paiement_paypal_not_ok(self):
         PaypalResponse.objects.update(validated=False)
-        assert not self.i["paiement_paypal_ok"]()
+        assert not self.i.paiement_paypal_ok()
 
     def test_total_0_if_not_validated(self):
         PaypalResponse.objects.update(validated=False)
-        assert self.i["paiement_paypal_total"]() == 0
+        assert self.i.paiement_paypal_total() == 0
