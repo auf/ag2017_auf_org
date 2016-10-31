@@ -1,6 +1,6 @@
 {% extends "inscription/base.html" %}
 {% load inscription %}
-
+{% block title %}| Formulaire d'inscription - Informations de séjour{% endblock %}
 {% block extrahead %}
 {{ block.super }}
 <script type="text/javascript">
@@ -90,7 +90,7 @@ $(function() {
     </fieldset>
     {% if inscription.accompagnateur %}
       <div id="hebergement_accompagnateur" class="attention">
-      (supplément accompagnateur personnel 30€, incluant les petits-déjeuners)
+      <strong>Supplément pour accompagnateur personnel 30€</strong> (incluant les petits-déjeuners)
       </div>
     {% endif %}
   </div>
@@ -98,6 +98,7 @@ $(function() {
 {% endif %}
   <!-- Section transport -->
 {% if inscription.prise_en_charge_transport_possible %}
+  <div class="formulaire">
   <h2>Transport</h2>
 	<h3>Prise en charge des frais de transport</h3>
   <p>La prise en charge des frais de transport international et des frais de
@@ -109,11 +110,12 @@ $(function() {
   <fieldset>
     {% field form.prise_en_charge_transport %}
     {% if inscription.accompagnateur %}
-      <div id="avertissement_transport_accompagnateur" class="avertissement">
-        Attention : L'AUF ne pourra pas prendre en charge le transport de votre invité,
+      <div id="avertissement_transport_accompagnateur" class="attention">
+        <span style="font-weight:bold; color:#A90F30;">Attention :</span> L'AUF ne pourra pas prendre en charge le transport de votre invité,
         il lui appartient d'effectuer la réservation de son titre de transport.</div>
     {% endif %}
   </fieldset>
+  </div>
 {% endif %}
   <div class="buttonHolder formulaire">
     <input type="submit" value="Sauvegarder et continuer" class="primaryAction" />

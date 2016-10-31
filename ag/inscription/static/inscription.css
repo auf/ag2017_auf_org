@@ -1,4 +1,4 @@
-#corp { width: 940px; max-width:940px; }
+#corp { width: 940px; max-width:940px; background-color: #c3b077;}
 #corp a { color: #A90F30; text-decoration: none; }
 #corp .uniForm { background: none; background-color: #efe9d4; border: none; color: #3e3d3e; }
 #corp .formulaire { text-align: left; background: #fff; border: none; padding:20px; margin-bottom: 20px; }
@@ -8,7 +8,7 @@
 	float: right;    
 	text-decoration: none;
     background-color: #76C931;
-    border-color: #46781d;
+    border: none;
     padding: 10px 20px;
     margin: 10px 0 2px 0;
     color: #363636;
@@ -20,11 +20,12 @@
 	float: left;    
 	text-decoration: none;
     background-color: #FFFF99;
-    border-color: #FFCC66;
+    border: none;
     padding: 10px 20px;
     margin: 10px 0 2px 0;
     color: #363636;
     font-size: 14px;
+    font-weight: bold;
     text-shadow: 0 1px 1px #E8E8E8;
     transition: all 0.2s linear;
     }
@@ -37,6 +38,7 @@
 #corp .intro { clear: both; }
 #corp .message { background-color: aliceblue; margin-bottom: 20px; padding: 20px; }
 #corp .attention { background-color: #FFFF99; margin-bottom: 20px; padding: 20px; }
+#corp .erreur { background-color: #FFDFDF; margin-bottom: 20px; padding: 20px; }
 
 .uniForm .inlineLabels ul {
 	width:50%;
@@ -200,7 +202,7 @@ padding: 10px 0 12px 0;
 	float: left;
 }
 	
-.erreur h4 {color:red; padding: 10px 0 10px 0;}
+.erreur h4 {color:#a81835; padding: 10px 0 10px 0;}
 .succes h4 {color:green;}
 
 
@@ -319,3 +321,6 @@ border: 1px solid #CCC;
     form.Invites { display: none; }
     .buttonHolder { display: none; }
 }
+
+
+

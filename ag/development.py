@@ -77,6 +77,7 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
 
 PAYPAL_EMAIL_ADDRESS = 'benselme-facilitator@gmail.com'
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
+PAYPAL_PDT_TOKEN = ''
 
 SENDFILE_BACKEND="sendfile.backends.development"
 #LOGGING = {
