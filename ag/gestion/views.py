@@ -23,18 +23,7 @@ from ag.gestion import donnees_etats
 from ag.gestion import pdf
 from ag.gestion import consts
 from ag.gestion import forms
-from ag.gestion.models import (
-    Participant,
-    nouveau_participant,
-    ParticipationActivite,
-    StatutParticipant,
-    Invite,
-    get_donnees_hotels,
-    get_nombre_votants_par_region,
-    get_inscriptions_par_mois,
-    PointDeSuivi,
-    get_donnees_activites,
-    get_donnees_prise_en_charge, Hotel, Fichier, VolGroupe, InfosVol, Activite)
+from ag.gestion.models import *
 from ag.gestion.pdf import facture_response
 from ag.reference.models import Etablissement
 
