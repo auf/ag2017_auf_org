@@ -2,7 +2,7 @@
 {% load inscription %}
 {% block content %}
 
-<div class="bloc-dossier1">
+<div id="dossiercorp" class="bloc-dossier1">
 
 <div class="info-participant">
    <h2> Informations du participant</h2>
@@ -45,26 +45,22 @@
 
 <div class="statut-dossier">
 
-<h2>Statut du dossier</h2>
-  <p>
-  Numéro de dossier: <strong>{{ inscription.numero_dossier }}</strong><br/>
-  Veuillez utiliser ce numéro de dossier dans toutes vos communications avec
-  votre représentant régional  {% email_region %}
+<h2>Numéro de dossier <span style="color:black; margin-left: 40px;" >{{ inscription.numero_dossier }}</span></h2>
+<p>Veuillez utiliser le numéro "{{ inscription.numero_dossier }}" dans toutes vos communications avec votre représentant régional, à l'adresse suivante: {% email_region %}
 </p>
   <h3>Suivi du dossier</h3>
-  <p>
-    {% unicode_checkbox suivi.inscription_recue %} Inscription reçue<br/>
-    {% unicode_checkbox suivi.inscription_validee %} Inscription validée<br/>
-    {% unicode_checkbox suivi.participation_confirmee %} Participation confirmée<br/>
-    {% unicode_checkbox suivi.plan_de_vol_complete %} Plan de vol complété<br/>
-  </p>
-
+  <ul>
+  	<li class="{% if suivi.inscription_recue %}complet{% endif %}">Inscription reçue</li>
+  	<li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
+  	<li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
+  	<li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
+  </ul>
   <h3>Documents</h3>
   <ul>
-    <li><a href="">Conditions générales</a></li>
-    <li><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
-{#    <li><a href="">Itinéraire de voyage</a></li>#}
-{#    <li><a href="">Coupons navette</a></li>#}
+    <li class="documentpdf"><a href="">Conditions générales</a></li>
+    <li class="documentpdf"><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
+<!-- à faire --> {#    <li><a href="">Itinéraire de voyage</a></li>#}
+<!-- à faire --> {#    <li><a href="">Coupons navette</a></li>#}
   </ul>
 </div>
 
