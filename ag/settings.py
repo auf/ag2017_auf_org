@@ -71,6 +71,15 @@ INSTALLED_APPS = (
     'cms',
     'menus',
     'tinymce',
+    'filer',
+    'djangocms_text_ckeditor',
+    'easy_thumbnails',
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_link',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_teaser',
+    'cmsplugin_filer_video',
     )
 
 

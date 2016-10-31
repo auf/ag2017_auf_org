@@ -87,7 +87,7 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
                 # automatiquement.
                 field.widget.is_required = True
             elif name not in (
-                'code_postal', 'telecopieur', 'accompagnateur'
+                'telecopieur', 'accompagnateur'
             ):
                 field.required = True
                 field.widget.is_required = True
