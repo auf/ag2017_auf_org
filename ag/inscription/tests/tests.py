@@ -513,14 +513,6 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         response = self.client.get('/inscription/connexion/' + invitation.jeton)
         inscription = Inscription.objects.get(invitation=invitation)
         self.assertRedirects(response, url_etape(inscription, 'accueil'))
-        self.assertEqual(
-            inscription.adresse,
-            invitation.etablissement.nom + "\n" +
-            invitation.etablissement.adresse)
-        self.assertEqual(inscription.ville, invitation.etablissement.ville)
-        self.assertEqual(inscription.code_postal,
-                         invitation.etablissement.code_postal)
-        self.assertEqual(inscription.pays, invitation.etablissement.pays.nom)
         self.assertTrue(inscription.numero_dossier)
 
     def test_inscription_fermee(self):
@@ -593,57 +585,62 @@ def test_inscription_terminee():
 
 
 class PreremplirTest(unittest.TestCase):
-    @staticmethod
-    def get_inscription(pour_mandate, nom=None, prenom=None,
-                        pha='P'):
+    
+    def setUp(self):
         p = Pays(nom=u"pppp")
-        etablissement = Etablissement(
+        self.etablissement = Etablissement(
             nom=u"eeee", adresse=u"adr", ville=u"laville",
             code_postal=u"60240", pays=p, telephone=u"123123123",
             responsable_nom=u"rn", responsable_prenom=u"rp",
             responsable_courriel=u"rc", responsable_fonction=u"rf",
             responsable_genre=u"F")
-        invitation = Invitation(pour_mandate=pour_mandate,
-                                etablissement=etablissement,
-                                courriel=u"invitation@courriel.com",
-                                nom=nom, prenom=prenom)
+
+    def make_donnees_preremplir(self, pour_mandate, nom=None, prenom=None,
+                                pha='P', courriel=None):
+        invitation = Invitation(
+            pour_mandate=pour_mandate,
+            etablissement=self.etablissement,
+            courriel=courriel or self.etablissement.responsable_courriel,
+            nom=nom, prenom=prenom)
         inscription = Inscription(invitation=invitation, atteste_pha=pha)
-        inscription.preremplir()
-        return inscription
+        return inscription.get_donnees_preremplir()
 
     def test_pas_pour_mandate_renseignements_personnels_non_remplis(self):
-        i = self.get_inscription(pour_mandate=False, nom="nom_invite",
-                                 prenom="prenom_invite")
-        assert i.nom == "nom_invite"
-        assert i.prenom == "prenom_invite"
-        assert not i.poste
-        assert not i.genre
+        d = self.make_donnees_preremplir(pour_mandate=False, nom="nom_invite",
+                                         prenom="prenom_invite",
+                                         courriel="courriel_invite")
+        assert d['nom'] == "nom_invite"
+        assert d['prenom'] == "prenom_invite"
+        assert d['courriel'] == 'courriel_invite'
+        assert 'poste' not in d
+        assert 'genre' not in d
 
     def test_pour_mandate_renseignements_personnels_remplis_si_pha(self):
-        i = self.get_inscription(pour_mandate=True)
-        e = i.get_etablissement()
-        assert i.nom == e.responsable_nom
-        assert i.prenom == e.responsable_prenom
-        assert i.poste == e.responsable_fonction
-        assert i.genre == e.responsable_genre
+        d = self.make_donnees_preremplir(pour_mandate=True)
+        e = self.etablissement
+        assert d['nom'] == e.responsable_nom
+        assert d['prenom'] == e.responsable_prenom
+        assert d['poste'] == e.responsable_fonction
+        assert d['genre'] == e.responsable_genre
+        assert d['courriel'] == e.responsable_courriel
 
     def test_pour_mandate_renseignements_personnels_pas_remplis_si_pas_pha(self):
-        i = self.get_inscription(pour_mandate=True, pha='R')
-        assert not i.nom
-        assert not i.prenom
-        assert not i.poste
-        assert not i.genre
+        d = self.make_donnees_preremplir(pour_mandate=True, pha='R')
+        assert 'nom' not in d
+        assert 'prenom' not in d
+        assert 'poste' not in d
+        assert 'genre' not in d
+        assert 'courriel' not in d
 
     def test_champs_etablissement_copies(self):
-        i = self.get_inscription(False)
-        e = i.get_etablissement()
-        assert i.ville == e.ville
-        assert i.pays == e.pays.nom
-        assert i.adresse.startswith(e.nom)
-        assert i.adresse.endswith(e.adresse)
-        assert i.code_postal == e.code_postal
-        assert i.telephone == e.telephone
-        assert i.courriel == i.invitation.courriel
+        d = self.make_donnees_preremplir(False)
+        e = self.etablissement
+        assert d['ville'] == e.ville
+        assert d['pays'] == e.pays.nom
+        assert d['adresse'].startswith(e.nom)
+        assert d['adresse'].endswith(e.adresse)
+        assert d['code_postal'] == e.code_postal
+        assert d['telephone'] == e.telephone
 
 
 class PaypalCancelTests(django.test.TestCase):

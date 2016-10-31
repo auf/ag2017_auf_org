@@ -1,16 +1,19 @@
 # -*- encoding: utf-8 -*-
+import uuid
+
+from ag.core import test_utils
 from ag.gestion import consts
 from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
-from ag.inscription.models import Inscription, Invitation
+from ag.inscription.models import Inscription, Invitation, PaypalResponse
 from ag.core.test_utils import (
     find_input_by_id,
     find_input_by_name,
     find_checked_input_by_name)
 from ag.tests import create_fixtures, creer_participant
-from ag.reference.models import Etablissement, Pays, Region
+from ag.reference.models import Etablissement, Pays, Region, Implantation
 from ag.gestion.montants import infos_montant_par_code
 
 import datetime
@@ -501,6 +504,7 @@ class GestionTestCase(TestCase):
 
     def test_facturation_edition(self):
         participant = self.participant
+        imp_id = Implantation.objects.create(nom='aa', nom_court='nb').id
         response = self.client.get(
             reverse('facturation', args=[participant.id])
         )
@@ -508,27 +512,36 @@ class GestionTestCase(TestCase):
         data = {
             u'prise_en_charge_hebergement': u'on',
             u'prise_en_charge_sejour': u'on',
-            u'accompte': u'100',
-            u'paiement': u'CB',
             u'facturation_validee': u'',
             u'date_facturation': u'',
-            u'imputation': u'',
-            u'notes_facturation': u''
+            u'imputation': u'90002AG201',
+            u'notes_facturation': u'',
+            u'paiement_set-TOTAL_FORMS': u'1',
+            u'paiement_set-INITIAL_FORMS': u'0',
+            u'paiement_set-MAX_NUM_FORMS': u'1000',
+            u'paiement_set-0-id': u'',
+            u'paiement_set-0-date': u'26/10/2016',
+            u'paiement_set-0-moyen': u'VB',
+            u'paiement_set-0-implantation': unicode(imp_id),
+            u'paiement_set-0-ref': u'abcd',
+            u'paiement_set-0-montant_euros': u'100.30',
+            u'paiement_set-0-participant': unicode(participant.id),
         }
         response = self.client.post(
             reverse('facturation', args=[participant.id]),
             data=data
         )
+        print(response)
         self.assertRedirects(response, self.url_fiche_participant())
         participant = Participant.objects.get(pk=participant.id)
-        self.assertEquals(participant.accompte, 100)
         response = self.client.get(
             reverse('facturation', args=[participant.id])
         )
         tree = html5lib.parse(response.content, treebuilder='lxml',
                               namespaceHTMLElements=False)
-        input_element = tree.find("//input[@name='{0}']".format('accompte'))
-        self.assertEqual(input_element.get('value'), '100.0')
+        input_element = tree.find("//option[@value='{0}']".format(
+            data[u'imputation']))
+        self.assertEqual(input_element.get('selected'), 'selected')
 
     def test_numero_facture(self):
         participant = self.participant
@@ -942,9 +955,42 @@ class GestionTestCase(TestCase):
                              if avec_invites else 0)
             avec_invites = not avec_invites
 
+    def test_deja_paye(self):
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        assert p.total_deja_paye == 100
+
+    def test_deja_paye_paypal(self):
+        p = self.get_participant_avec_paypal()
+        assert p.total_deja_paye == 175
+
+    @staticmethod
+    def get_participant_avec_paypal():
+        i = test_utils.InscriptionFactory()  # type: Inscription
+        p = test_utils.ParticipantFactory(inscription=i)  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        test_utils.PaiementFactory(participant=p, montant_euros=50)
+        inv1_uid = uuid.uuid4()
+        inv2_uid = uuid.uuid4()
+        PaypalResponse.objects.create(
+            montant=50, inscription=i, invoice_uid=inv1_uid,
+            validated=True, type_reponse='IPN', statut='Completed',
+            txn_id='A')
+        PaypalResponse.objects.create(
+            montant=50, inscription=i, invoice_uid=inv1_uid,
+            validated=True, type_reponse='PDT', statut='Completed',
+            txn_id='A')
+        PaypalResponse.objects.create(
+            montant=25, inscription=i, invoice_uid=inv2_uid,
+            validated=True, type_reponse='IPN', statut='Completed',
+            txn_id='B')
+        return p
+
     # noinspection PyMethodMayBeStatic
     def test_verse_en_trop(self):
-        p = Participant(accompte=100)
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
         p.total_facture = 50
         assert p.get_verse_en_trop() == 50
         p.total_facture = 150
@@ -952,11 +998,32 @@ class GestionTestCase(TestCase):
 
     # noinspection PyMethodMayBeStatic
     def test_solde_a_payer(self):
-        p = Participant(accompte=100)
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
         p.total_facture = 50
         assert p.get_solde_a_payer() == 0
         p.total_facture = 150
         assert p.get_solde_a_payer() == 50
+
+    def test_total_deja_paye__sans_paypal_sql(self):
+        p = test_utils.ParticipantFactory()  # type: Participant
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
+        test_utils.PaiementFactory(participant=p, montant_euros=100)
+        p = Participant.objects\
+            .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
+        assert p.total_deja_paye_sql == 200
+
+    def test_total_deja_paye_zero(self):
+        p = test_utils.ParticipantFactory()  # type: Participant
+        p = Participant.objects\
+            .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
+        assert p.total_deja_paye_sql == 0
+
+    def test_total_deja_paye_sql_paypal(self):
+        p = self.get_participant_avec_paypal()
+        p = Participant.objects\
+            .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
+        assert p.total_deja_paye_sql == 175
 
     def test_problemes_solde(self):
         def get_participant():
@@ -976,7 +1043,8 @@ class GestionTestCase(TestCase):
                                consts.PROBLEMES['paiement_en_trop']['libelle'])
         self.assertContains(response,
                             consts.PROBLEMES['solde_a_payer']['libelle'])
-        participant.accompte = participant.solde
+        test_utils.PaiementFactory(montant_euros=participant.solde,
+                                   moyen='VB', participant=participant)
         participant.save()
         participant = get_participant()
         self.assertFalse(participant.solde_a_payer)
@@ -987,8 +1055,8 @@ class GestionTestCase(TestCase):
                                consts.PROBLEMES['paiement_en_trop']['libelle'])
         self.assertNotContains(response,
                                consts.PROBLEMES['solde_a_payer']['libelle'])
-        participant.accompte += 1
-        participant.save()
+        test_utils.PaiementFactory(montant_euros=1, moyen='VB',
+                                   participant=participant)
         participant = get_participant()
         self.assertTrue(participant.problematique)
         self.assertFalse(participant.solde_a_payer)

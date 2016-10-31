@@ -2,17 +2,6 @@
 {% load inscription %}
 {% block title %}| Formulaire d'inscription - Accueil{% endblock %}
 {% block formulaire %}
-<h1>Formulaire d'inscription | 17<sup style="text-transform: none;">e</sup> AG - 
-    10, 11 et 12 mai 2017, Marrakech, Maroc
-</h1>
-<ul id="etapes">
-    {% for etape in etapes %}
-    {% if etape.tab_visible %}
-        <li{% ifequal etape.n etape_courante.n %} class="etape_courante"{% else %}{% endifequal %}>
-        {{ etape.label }}</li>
-    {% endif %}
-    {% endfor %}
-</ul>
 <form class="uniForm" method="post">
   {% csrf_token %}
       
