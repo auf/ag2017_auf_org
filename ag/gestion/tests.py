@@ -7,14 +7,14 @@ from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
-from ag.inscription.models import Inscription, Invitation, PaypalResponse
+from ag.inscription.models import Inscription, Invitation, PaypalResponse, \
+    get_forfaits
 from ag.core.test_utils import (
     find_input_by_id,
     find_input_by_name,
     find_checked_input_by_name)
 from ag.tests import create_fixtures, creer_participant
 from ag.reference.models import Etablissement, Pays, Region, Implantation
-from ag.gestion.montants import infos_montant_par_code
 
 import datetime
 from django.contrib.auth.models import User
@@ -444,7 +444,6 @@ class GestionTestCase(TestCase):
                                          "id_arrdep-date_arrivee")
         self.assertEqual(input_element.get("value"), "05/06/2013")
 
-    # TODO: revoir ce test, il échoue
     def test_transport_organise_auf(self):
         participant = self.participant
         data = {
@@ -595,8 +594,9 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais') \
             .get(id=self.participant.id)
+        forfaits = get_forfaits()
         self.assertEquals(participant.total_frais,
-                          infos_montant_par_code('frais_inscription').montant)
+                          forfaits[consts.CODE_FRAIS_INSCRIPTION].montant)
 
         invite = Invite(genre='M', nom='nom_invite', prenom='prenom_invite')
         invite.participant = participant
@@ -604,7 +604,7 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais') \
             .get(id=self.participant.id)
-        montant_attendu = infos_montant_par_code('frais_inscription').montant
+        montant_attendu = forfaits[consts.CODE_FRAIS_INSCRIPTION].montant
         self.assertEquals(participant.total_frais, montant_attendu)
 
         activite = Activite.objects.get(code='gala')
@@ -718,7 +718,7 @@ class GestionTestCase(TestCase):
         participant.prise_en_charge_sejour = True
         participant.save()
         montant_supplement_chambre_double = \
-            infos_montant_par_code('supplement_chambre_double').montant
+            get_forfaits()[consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE].montant
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
@@ -848,20 +848,21 @@ class GestionTestCase(TestCase):
         self.assertEqual(p.pays, i.pays)
         self.assertEqual(
             ParticipationActivite.objects.filter(
-                participant=p, activite__code='soiree_9_mai', avec_invites=True
+                participant=p, activite__code=consts.CODE_SOIREE_9_MAI,
+                avec_invites=True
             ).count(),
             1
         )
         self.assertEqual(
             ParticipationActivite.objects.filter(
-                participant=p, activite__code='soiree_10_mai',
+                participant=p, activite__code=consts.CODE_SOIREE_10_MAI,
                 avec_invites=False
             ).count(),
             1
         )
         self.assertEqual(
             ParticipationActivite.objects.filter(
-                participant=p, activite__code='gala'
+                participant=p, activite__code=consts.CODE_GALA
             ).count(),
             0
         )
@@ -1029,11 +1030,14 @@ class GestionTestCase(TestCase):
         def get_participant():
             return Participant.actifs \
                 .sql_extra_fields('problematique', 'hotel_manquant', 'solde',
-                                  'solde_a_payer', 'paiement_en_trop') \
+                                  'solde_a_payer', 'paiement_en_trop',
+                                  'total_facture', 'frais_inscription') \
                 .get(id=id_participant)
 
         id_participant = self.participant.id
         participant = get_participant()
+        print(participant.total_facture)
+        print(participant.frais_inscription)
         self.assertTrue(participant.problematique)
         self.assertTrue(participant.solde_a_payer)
         self.assertFalse(participant.paiement_en_trop)

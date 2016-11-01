@@ -1,12 +1,19 @@
 # -*- encoding: utf-8 -*-
 import datetime
 from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory
-from ag.gestion import montants
-from ag.gestion.models import AGRole, ROLE_ADMIN, StatutParticipant, TypeInstitutionSupplementaire, Participant, \
-    Activite
+from ag.gestion.consts import *
+
+from ag.gestion.models import (
+    AGRole,
+    ROLE_ADMIN,
+    StatutParticipant,
+    TypeInstitutionSupplementaire,
+    Participant,
+    Activite)
 from auf.django.mailing.models import ModeleCourriel
-from ag.reference.models import Pays, Region, Etablissement
 from django.contrib.auth.models import User
+
+from ag.inscription.models import Forfait
 
 
 def create_fixtures(test_case):
@@ -58,7 +65,8 @@ def create_fixtures(test_case):
     modele_courriel_mandate_rappel = ModeleCourriel()
     modele_courriel_mandate_rappel.sujet = 'test rappel mand'
     modele_courriel_mandate_rappel.code = 'mand_rel'
-    modele_courriel_mandate_rappel.corps = 'Rappel {{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_mandate_rappel.corps = 'Rappel {{ nom_destinataire }}-' \
+                                           '{{ nom_etablissement }}-{{ url }}'
     modele_courriel_mandate_rappel.html = False
     modele_courriel_mandate_rappel.save()
     test_case.modele_courriel_mandate_rappel = modele_courriel_mandate_rappel
@@ -66,7 +74,8 @@ def create_fixtures(test_case):
     modele_courriel_accompagnateur = ModeleCourriel()
     modele_courriel_accompagnateur.sujet = 'test accompagnateur'
     modele_courriel_accompagnateur.code = 'acc'
-    modele_courriel_accompagnateur.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_accompagnateur.corps = '{{ nom_destinataire }}-' \
+                                           '{{ nom_etablissement }}-{{ url }}'
     modele_courriel_accompagnateur.html = False
     modele_courriel_accompagnateur.save()
     test_case.modele_courriel_accompagnateur = modele_courriel_mandate
@@ -74,11 +83,28 @@ def create_fixtures(test_case):
     modele_courriel_rappel = ModeleCourriel()
     modele_courriel_rappel.sujet = 'test rappel'
     modele_courriel_rappel.code = 'rappel'
-    modele_courriel_rappel.corps = '{{ nom_destinataire }}-{{ nom_etablissement }}-{{ url }}'
+    modele_courriel_rappel.corps = '{{ nom_destinataire }}-' \
+                                   '{{ nom_etablissement }}-{{ url }}'
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
-    for code_activite, _ in montants.CODES_MONTANTS_ACTIVITES:
+    forfaits_test = {
+        CODE_FRAIS_INSCRIPTION: (400, CODE_CAT_INSCRIPTION),
+        CODE_SOIREE_9_MAI_INVITE: (30, CODE_CAT_INVITE),
+        CODE_SOIREE_10_MAI_INVITE: (40, CODE_CAT_INVITE),
+        CODE_GALA_INVITE: (50, CODE_CAT_INVITE),
+        CODE_COCKTAIL_12_MAI_INVITE: (60, CODE_CAT_INVITE),
+        CODE_SUPPLEMENT_CHAMBRE_DOUBLE: (100, CODE_CAT_HEBERGEMENT),
+        CODE_TRANSFERT_AEROPORT: (20, CODE_CAT_INVITE),
+        CODE_DEJEUNERS: (10, CODE_CAT_INVITE),
+    }
+
+    for code_forfait in CODES_FORFAITS:
+        Forfait.objects.create(code=code_forfait, libelle=code_forfait,
+                               categorie=forfaits_test[code_forfait][1],
+                               montant=forfaits_test[code_forfait][0])
+
+    for code_activite in CODES_ACTIVITES:
         Activite.objects.create(code=code_activite, libelle=code_activite,
                                 prix_invite=30)
 
@@ -112,4 +138,6 @@ def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
     defaults.update(kwargs)
     participant = Participant(**defaults)
     participant.save()
+    participant.forfaits.add(
+        Forfait.objects.get(code=CODE_FRAIS_INSCRIPTION))
     return participant

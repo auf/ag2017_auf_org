@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
+from ag.gestion import consts
 from ag.gestion.consts import *
-from ag.gestion.montants import get_infos_montants, infos_montant_par_code
 from django.db.models import Q
 from django.db.models.query import QuerySet
 
@@ -49,6 +49,18 @@ SOMME_PAIEMENTS_PAYPAL = """SELECT coalesce(sum(montant), 0) FROM
                       WHERE validated=1
                       GROUP BY invoice_uid) AS montants
                       where iid = gestion_participant.inscription_id"""
+
+SOMME_FORFAITS_CATEGORIE = """
+  SELECT sum(coalesce(montant, 0)) FROM
+  inscription_forfait WHERE categorie = '{CATEGORIE}'
+  AND id in (
+  SELECT forfait_id FROM gestion_participant_forfaits
+  WHERE participant_id = gestion_participant.id)
+"""
+
+
+def somme_forfaits_categorie(categorie):
+    return "({})".format(SOMME_FORFAITS_CATEGORIE.format(CATEGORIE=categorie))
 
 
 class ParticipantsQuerySet(QuerySet):
@@ -125,18 +137,10 @@ class ParticipantsQuerySet(QuerySet):
                 WHERE participant_id = gestion_participant.id
             )"""
         elif name == 'frais_inscription':
-            montants = get_infos_montants()
-            return "(%s)" % (
-                montants['frais_inscription'].montant,
-            )
+            return somme_forfaits_categorie(consts.CODE_CAT_INSCRIPTION)
         elif name == 'frais_inscription_facture':
-            montants = get_infos_montants()
-            return """(
-                %s - IF(gestion_participant.prise_en_charge_inscription, %s, 0)
-            )""" % (
-                self.sql_expr('frais_inscription'),
-                montants['frais_inscription'].montant,
-            )
+            return """(IF(gestion_participant.prise_en_charge_inscription, 0,
+            {}))""".format(self.sql_expr('frais_inscription'))
         elif name == 'frais_transport':
             return """IF(gestion_participant.transport_organise_par_auf=1,
                 IFNULL( (
@@ -175,13 +179,13 @@ class ParticipantsQuerySet(QuerySet):
                 gestion_participant.prise_en_charge_sejour,
                 IF(
                     gestion_participant.facturation_supplement_chambre_double,
-                    %s,
+                    (SELECT montant FROM inscription_forfait WHERE code='{}'),
                     0
                 ),
-                %s
+                {}
             )
-            )""" % (
-                infos_montant_par_code('supplement_chambre_double').montant,
+            )""".format(
+                consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE,
                 self.sql_expr('frais_hebergement'),
             )
         elif name == 'frais_activites':

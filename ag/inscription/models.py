@@ -11,6 +11,7 @@ from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 import requests
 from django.utils.formats import date_format, number_format
 
+from ag.gestion import consts
 from ag.gestion.consts import PAIEMENT_CHOICES_DICT
 from ag.reference.models import Etablissement
 from django.conf import settings
@@ -22,14 +23,13 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
 from ag.core import models as core
-from ag.gestion.montants import infos_montant_par_code
 
 
 class LigneFacture(object):
-    def __init__(self, infos_montant, quantite=1, montant=None):
-        self.infos_montant = infos_montant
+    def __init__(self, forfait, quantite=1, montant=None):
+        self.forfait = forfait
         self.quantite = quantite
-        self.montant = montant or infos_montant.montant
+        self.montant = montant or forfait.montant
 
     def total(self):
         return self.montant * self.quantite
@@ -169,11 +169,11 @@ class InvitationEnveloppe(models.Model):
 
 # À certains champs correspondent des montants (ex:
 CODES_CHAMPS_MONTANTS = {
-    'programmation_soiree_9_mai_invite': 'soiree_9_mai_invite',
-    'programmation_soiree_10_mai_invite': 'soiree_10_mai_invite',
-    'programmation_gala_invite': 'gala_invite',
-    'forfait_invite_dejeuners': 'forfait_invite_dejeuners',
-    'forfait_invite_transfert': 'forfait_invite_transfert',
+    'programmation_soiree_9_mai_invite': consts.CODE_SOIREE_9_MAI_INVITE,
+    'programmation_soiree_10_mai_invite': consts.CODE_SOIREE_10_MAI_INVITE,
+    'programmation_gala_invite': consts.CODE_GALA_INVITE,
+    'forfait_invite_dejeuners': consts.CODE_DEJEUNERS,
+    'forfait_invite_transfert': consts.CODE_TRANSFERT_AEROPORT,
 }
 
 
@@ -326,23 +326,24 @@ class Inscription(RenseignementsPersonnels):
 
     # noinspection PyTypeChecker
     def get_liste_codes_frais(self):
-        liste = ['frais_inscription']
+        liste = [consts.CODE_FRAIS_INSCRIPTION]
         if self.accompagnateur:
             if self.prise_en_charge_hebergement:
-                liste.append('supplement_chambre_double')
-        for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
-            if self.accompagnateur:
+                liste.append(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
+        if self.accompagnateur:
+            for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
                 self.append_code_montant(liste, champ_invite)
         if self.forfait_invite_transfert:
-            liste.append(CODES_CHAMPS_MONTANTS['forfait_invite_transfert'])
+            liste.append(CODES_CHAMPS_MONTANTS[consts.CODE_TRANSFERT_AEROPORT])
         if self.forfait_invite_dejeuners:
-            liste.append(CODES_CHAMPS_MONTANTS['forfait_invite_dejeuners'])
+            liste.append(CODES_CHAMPS_MONTANTS[consts.CODE_DEJEUNERS])
         return liste
 
     def get_facture(self):
         lignes = []
+        forfaits = get_forfaits()
         for code_montant in self.get_liste_codes_frais():
-            infos_montant = infos_montant_par_code(code_montant)
+            infos_montant = forfaits[code_montant]
             ligne = LigneFacture(infos_montant)
             lignes.append(ligne)
         return lignes
@@ -365,16 +366,16 @@ class Inscription(RenseignementsPersonnels):
         return self.get_montant_total() - self.paiement_paypal_total()
 
     def get_total_programmation(self):
-        return self.get_total_categorie('insc') + \
-               self.get_total_categorie('invite')
+        return self.get_total_categorie(consts.CODE_CAT_INSCRIPTION) + \
+               self.get_total_categorie(consts.CODE_CAT_INVITE)
 
     def get_total_forfaits_suppl(self):
-        return self.get_total_categorie('invite')
+        return self.get_total_categorie(consts.CODE_CAT_INVITE)
 
     def get_total_categorie(self, cat):
         total = 0
         for ligne in self.get_facture():
-            if ligne.infos_montant.categorie == cat:
+            if ligne.forfait.categorie == cat:
                 total += ligne.total()
         return total
 
@@ -382,10 +383,10 @@ class Inscription(RenseignementsPersonnels):
         return self.get_montant_total() - self.paiement_paypal_total()
 
     def get_frais_inscription(self):
-        return self.get_total_categorie('insc')
+        return self.get_total_categorie(consts.CODE_CAT_INSCRIPTION)
 
     def get_frais_hebergement(self):
-        return self.get_total_categorie('hebe')
+        return self.get_total_categorie(consts.CODE_CAT_HEBERGEMENT)
 
     def get_etablissement(self):
         return self.invitation.etablissement
@@ -583,3 +584,16 @@ def is_ipn_valid(request):
 
 def montant_str(montant):
     return u"{} €".format(number_format(montant, 2))
+
+
+class Forfait(core.TableReference):
+    montant = models.IntegerField()
+    categorie = models.CharField(max_length=4,
+                                 choices=consts.CATEGORIES_FORFAITS)
+
+    def affiche(self):
+        return montant_str(self.montant)
+
+
+def get_forfaits():
+    return {f.code: f for f in Forfait.objects.all()}

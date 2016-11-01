@@ -3,14 +3,17 @@ from collections import namedtuple, defaultdict
 from functools import partial
 from itertools import groupby
 import datetime
+
+from ag.gestion import consts
 from ag.gestion.consts import ARRIVEES, DEPARTS, VOL_ORGANISE, DEPART_SEULEMENT, ARRIVEE_SEULEMENT
 from ag.gestion.models import (Participant, InfosVol, Invite, Activite, Hotel,
                                ParticipationActivite, ActiviteScientifique,
                                strip_accents, Frais, PointDeSuivi)
-from ag.gestion.montants import infos_montant_par_code
 from django.db import connection
 from django.db.models import Q, Count
 from django.utils.datastructures import SortedDict
+
+from ag.inscription.models import get_forfaits
 
 Element = namedtuple('DonneeEtat', ['titre', 'elements'])
 
@@ -421,6 +424,7 @@ def get_donnees_paiements(actifs_seulement):
         Participant.objects.values('id').annotate(num_invites=Count('invite')))
 
     bool_ON = lambda b: u"O" if b else u"N"
+    forfaits = get_forfaits()
     result = []
     for p in participants:
         frais = frais_participants[p.id]
@@ -455,7 +459,7 @@ def get_donnees_paiements(actifs_seulement):
             f_total_S=format_money(p.frais_hebergement),
             f_fact_S=format_money(p.frais_hebergement_facture),
             f_supp_S=format_money(
-                infos_montant_par_code('supplement_chambre_double').montant
+                forfaits[consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE].montant
                 if p.facturation_supplement_chambre_double else 0),
             f_PEC_A=bool_ON(p.prise_en_charge_activites),
             f_total_A=format_money(p.frais_activites),

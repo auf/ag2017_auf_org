@@ -19,12 +19,14 @@ from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
 from ag.core import models as core
+from ag.gestion import consts
 from ag.gestion.consts import *
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 from ag.inscription.models import (
     Inscription,
     RenseignementsPersonnels,
-    Paiement as PaiementNamedTuple)
+    Paiement as PaiementNamedTuple,
+    Forfait)
 from ag.reference.models import Etablissement, Region, Pays, Implantation
 
 __all__ = ('Participant',
@@ -226,6 +228,9 @@ class ActiviteManager(Manager):
 
 class Activite(core.TableReference):
     prix_invite = FloatField(u"Prix pour les invités")
+    forfait_invite = ForeignKey(Forfait,
+                                verbose_name=u"Forfait invité correspondant",
+                                null=True, blank=True)
     objects = ActiviteManager()
 
     class Meta:
@@ -450,6 +455,7 @@ class Participant(RenseignementsPersonnels):
     activites = ManyToManyField(Activite, through='ParticipationActivite')
     activite_scientifique = ForeignKey(ActiviteScientifique, blank=True,
                                        null=True)
+    forfaits = ManyToManyField(Forfait)
 
     commentaires = TextField(blank=True, null=True)
 
@@ -581,6 +587,11 @@ class Participant(RenseignementsPersonnels):
             participation = ParticipationActivite(participant=self,
                                                   activite=activite)
         participation.avec_invites = avec_invites
+        if activite.forfait_invite:
+            if avec_invites:
+                self.forfaits.add(activite.forfait_invite)
+            else:
+                self.forfaits.remove(activite.forfait_invite)
         participation.save()
 
     def desinscrire_d_activite(self, activite):

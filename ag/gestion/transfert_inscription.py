@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from ag.gestion import consts
 from ag.gestion.models import Participant, Invite, Activite, StatutParticipant
 from django.dispatch.dispatcher import Signal
 
@@ -51,19 +52,19 @@ def transfere(inscription, statut, prise_en_charge_transport,
         invite.participant = participant
         invite.save()
     if inscription.programmation_soiree_9_mai:
-        activite = Activite.objects.get(code="soiree_9_mai")
+        activite = Activite.objects.get(code=consts.CODE_SOIREE_9_MAI)
         participant.inscrire_a_activite(
             activite, inscription.programmation_soiree_9_mai_invite)
     if inscription.programmation_soiree_10_mai:
-        activite = Activite.objects.get(code="soiree_10_mai")
+        activite = Activite.objects.get(code=consts.CODE_SOIREE_10_MAI)
         participant.inscrire_a_activite(
             activite, inscription.programmation_soiree_10_mai_invite)
     if inscription.programmation_gala:
-        activite = Activite.objects.get(code="gala")
+        activite = Activite.objects.get(code=consts.CODE_GALA)
         participant.inscrire_a_activite(
             activite, inscription.programmation_gala_invite)
     if inscription.programmation_soiree_12_mai:
-        activite = Activite.objects.get(code="cocktail_12_mai")
+        activite = Activite.objects.get(code=consts.CODE_COCKTAIL_12_MAI)
         participant.inscrire_a_activite(activite, False)
     participant.set_infos_depart_arrivee(inscription)
     participant.prise_en_charge_transport = prise_en_charge_transport

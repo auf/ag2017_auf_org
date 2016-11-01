@@ -14,14 +14,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 import six
 
-from ag.gestion.montants import get_infos_montants
+from ag.gestion import consts
 from ag.inscription.models import (
     Inscription,
     Invitation,
     PaypalResponse,
     validate_pdt,
     is_ipn_valid,
-    PaypalInvoice)
+    PaypalInvoice,
+    get_forfaits)
 from ag.inscription.forms import (
     AccueilForm,
     RenseignementsPersonnelsForm,
@@ -139,17 +140,6 @@ def get_paypal_context(request):
     }
 
 
-def get_montants_context():
-    toutes_infos_montants = get_infos_montants()
-    return {
-        'montants': toutes_infos_montants,
-        'montants_json': json.dumps(dict(
-            (code, infos_montant.__dict__)
-            for code, infos_montant in toutes_infos_montants.iteritems()
-        )),
-    }
-
-
 AppelEtapeProcessus = collections.namedtuple(
     'AppelEtapeProcessus',
     ('etapes_processus', 'etape_courante', 'request',
@@ -233,7 +223,7 @@ def apercu(appel_etape_processus):
                                 form_kwargs=None, etape_suivante=None)
     else:
         context = get_paypal_context(appel_etape_processus.request)
-        context['montants'] = get_infos_montants()
+        context['montants'] = get_forfaits()
         return AppelEtapeResult(redirect=None, template_context=context,
                                 form_kwargs=None, etape_suivante=None)
 
@@ -255,8 +245,9 @@ def renseignements_personnels(appel_etape_processus):
 def programmation(appel_etape_processus):
         inscription = appel_etape_processus.inscription
         total_programmation = inscription.get_total_programmation()
-        infos_montants = get_infos_montants()
-        montant_inscription = infos_montants['frais_inscription'].montant
+        infos_montants = get_forfaits()
+        montant_inscription = infos_montants[consts.CODE_FRAIS_INSCRIPTION]\
+            .montant
         if not inscription.prise_en_charge_possible():
             etape_suivante = appel_etape_processus.etapes_processus\
                 .etape_par_url('apercu')
@@ -325,7 +316,7 @@ ETAPES_INSCRIPTION = (
 def calcul_frais_programmation(request):
     inscription = Inscription(accompagnateur=True)
     form = ProgrammationForm(request.GET, instance=inscription,
-                             infos_montants=get_infos_montants())
+                             infos_montants=get_forfaits())
     form.is_valid()
     total = form.instance.get_total_programmation()
     return HttpResponse(str(int(total)))

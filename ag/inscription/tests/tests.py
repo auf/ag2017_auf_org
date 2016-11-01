@@ -23,9 +23,10 @@ from ag.gestion.models import Participant, StatutParticipant
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
-    infos_montant_par_code, InvitationEnveloppe, PaypalInvoice, PaypalResponse
+    InvitationEnveloppe, PaypalInvoice, PaypalResponse, get_forfaits
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
+from ag.gestion import consts
 
 ETAPES_INSCRIPTION_TEST = (
     {
@@ -181,6 +182,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
 
     def setUp(self):
         create_fixtures(self)
+        self.forfaits = get_forfaits()
 
     def tearDown(self):
         self.client.logout()
@@ -447,13 +449,13 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         self.assertEquals(inscription.get_montant_total(),
                           inscription.get_frais_inscription())
         self.assertEquals(inscription.get_frais_inscription(),
-                          infos_montant_par_code('frais_inscription').montant)
+                          self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant)
         inscription.accompagnateur = True
         liste = frozenset(inscription.get_liste_codes_frais())
-        self.assertEqual(liste, frozenset(('frais_inscription',)))
+        self.assertEqual(liste, frozenset((consts.CODE_FRAIS_INSCRIPTION,)))
         self.assertEquals(
             inscription.get_frais_inscription(),
-            infos_montant_par_code('frais_inscription').montant)
+            self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant)
 
     def test_commande_generer_invitation_mandates(self):
         call_command('generer_invitations_mandates')
@@ -526,7 +528,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
     def test_facturation(self):
         inscription = self.create_inscription(['participant',
                                                'transport-hebergement', ])
-        total_attendu = infos_montant_par_code('frais_inscription').montant
+        total_attendu = self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant
         self.assertEqual(inscription.get_montant_total(),
                          total_attendu)
 
