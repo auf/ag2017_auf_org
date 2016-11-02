@@ -114,8 +114,8 @@ def dossier(request):
             inscription.get_invitations_accompagnateurs(),
         'invites_formset': handle_invites_formset(request, inscription),
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
-        'avant_15_decembre': (datetime.datetime.today() <
-                              datetime.datetime(2016, 12, 15)),
+        'avant_31_decembre': (datetime.datetime.today() <
+                              datetime.datetime(2016, 12, 31)),
         'plan_vol_form': handle_plan_vol_form(request, inscription),
         'activites': activites,
         'titre_facture': pdf.titre_facture(participant or inscription)

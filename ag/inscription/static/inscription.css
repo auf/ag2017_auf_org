@@ -1,4 +1,5 @@
-#corp { width: 940px; max-width: 940px;}
+.contents { overflow: visible; color: #333; }
+#corp { width: 1024px; max-width: 1024px;}
 #corp a { color: #A90F30; text-decoration: none; }
 .clair:after{
     clear: both;
@@ -317,7 +318,7 @@ border: 1px solid #CCC;
 .bloc-1 {clear:both; overflow:auto; margin-left: 146px;}
 
 .info-participant {
-    width :49%;
+    width :50%;
     float:left;
     margin-right:20px;
     padding:10px;
@@ -339,7 +340,7 @@ border: 1px solid #CCC;
 	margin:5px;
 }
 
-#adresse-container .bouton_sub {
+#adresse-container .bouton_sub, #plan-vol-dossier .bouton_sub {
 	float: right;
 	position: relative;
 	bottom: 30px;
@@ -372,11 +373,16 @@ border: 1px solid #CCC;
     background: url("/static/img/pdf.png") no-repeat scroll left center transparent;
 }
 
+#listes {
+	display: flex;
+}
+#listes > div:first-of-type {
+	margin: 0 40px 0 10px;;
+}
 
 .bloc-paiement, .bloc-planvol, .bloc-hebergement, .bloc-activites, .bloc-reseautage, .bloc-accompagnateur {
-    float:left;
     clear:both;
-    padding:10px;
+    padding:20px;
     margin:20px 0 20px 146px;
     background-color: #efe9d4;
 }
@@ -403,6 +409,10 @@ border: 1px solid #CCC;
 	font-weight: bold;
 	color: #A90F30;
 	padding-left: 0;
+}
+
+.ui-widget {
+	font-family: "Open Sans",sans-serif;
 }
 
 .ui-corner-all, .ui-corner-top, .ui-corner-right {
@@ -473,14 +483,14 @@ border: 1px solid #CCC;
 
 }
 
-.bloc-activites #liste-activites {
+/*.bloc-activites #liste-activites {
 	margin: 0 30px 20px 10px;
 	float:left;
 }
 .bloc-activites #liste-forfaits {
 	margin: 0 20px 20px 3px;
 	float:right;
-}
+}*/
 
 .bloc-activites ul {
 	margin: 10px 0 0 0;
