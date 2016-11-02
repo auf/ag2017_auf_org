@@ -75,8 +75,6 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
     MIGRATION_MODULES = DisableMigrations()
 
 
-
-
 SENDFILE_BACKEND="sendfile.backends.development"
 #LOGGING = {
 #    'version': 1,
