@@ -599,6 +599,8 @@ class Participant(RenseignementsPersonnels):
         try:
             ParticipationActivite.objects.get(
                 participant=self, activite=activite).delete()
+            if activite.forfait_invite:
+                self.forfaits.remove(activite.forfait_invite)
         except ParticipationActivite.DoesNotExist:
             pass
 

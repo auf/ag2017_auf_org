@@ -52,7 +52,7 @@ class GestionTestCase(TestCase):
         create_fixtures(self)
         self.client.login(username='john', password='johnpassword')
 
-        self.participant = creer_participant()
+        self.participant = creer_participant()  # type: Participant
 
         participant_etablissement_membre = Participant()
         participant_etablissement_membre.nom = \
@@ -394,6 +394,23 @@ class GestionTestCase(TestCase):
             self.assertTrue(
                 participant.get_participation_activite(activite).avec_invites
             )
+
+    def test_activites_forfaits_ajoutes(self):
+        participant = self.participant
+        activites = list(Activite.objects.filter(forfait_invite__isnull=False))
+        participant.inscrire_a_activite(activites[0], avec_invites=True)
+        participant.inscrire_a_activite(activites[1], avec_invites=False)
+        forfaits_participant = participant.forfaits.all()
+        assert activites[0].forfait_invite in forfaits_participant
+        assert activites[1].forfait_invite not in forfaits_participant
+
+    def test_activites_forfaits_retires(self):
+        participant = self.participant
+        activites = list(Activite.objects.filter(forfait_invite__isnull=False))
+        participant.inscrire_a_activite(activites[0], avec_invites=True)
+        participant.desinscrire_d_activite(activites[0])
+        forfaits_participant = participant.forfaits.all()
+        assert activites[0].forfait_invite not in forfaits_participant
 
     def test_transport_organise_participant(self):
         participant = self.participant

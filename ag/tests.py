@@ -98,14 +98,24 @@ def create_fixtures(test_case):
         CODE_DEJEUNERS: (10, CODE_CAT_INVITE),
     }
 
+    forfaits = {}
     for code_forfait in CODES_FORFAITS:
-        Forfait.objects.create(code=code_forfait, libelle=code_forfait,
-                               categorie=forfaits_test[code_forfait][1],
-                               montant=forfaits_test[code_forfait][0])
+        forfaits[code_forfait] = Forfait.objects.create(
+            code=code_forfait, libelle=code_forfait,
+            categorie=forfaits_test[code_forfait][1],
+            montant=forfaits_test[code_forfait][0])
+
+    codes_forfaits_activites = {
+        CODE_SOIREE_9_MAI: CODE_SOIREE_9_MAI_INVITE,
+        CODE_SOIREE_10_MAI: CODE_SOIREE_10_MAI_INVITE,
+        CODE_GALA: CODE_GALA_INVITE,
+    }
 
     for code_activite in CODES_ACTIVITES:
+        code_forfait = codes_forfaits_activites.get(code_activite, None)
+        forfait = forfaits.get(code_forfait, None)
         Activite.objects.create(code=code_activite, libelle=code_activite,
-                                prix_invite=30)
+                                prix_invite=30, forfait_invite=forfait)
 
 
 def make_modele_courriel_mandate():
