@@ -77,8 +77,8 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
         'django.contrib.auth.hashers.MD5PasswordHasher',
     )
 else:
-    TEMPLATES['APP_DIRS'] = True
-    del TEMPLATES['OPTIONS']['loaders']
+    TEMPLATES[0]['APP_DIRS'] = True
+    del TEMPLATES[0]['OPTIONS']['loaders']
 
 
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
