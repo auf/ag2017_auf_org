@@ -46,7 +46,7 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
         'version': 1,
         'handlers': {
             'file': {
-                'level': 'DEBUG',
+                'level': 'CRITICAL',
                 'class': 'logging.FileHandler',
                 'filename': '/tmp/codesy-debug.log',
             },
@@ -55,11 +55,11 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
             'django.db.backends.schema': {
                 'handlers': ['file'],
                 'propagate': True,
-                'level': 'INFO',
+                'level': 'CRITICAL',
             },
             '': {
                 'handlers': ['file'],
-                'level': 'DEBUG',
+                'level': 'CRITICAL',
             }
         }
     }
@@ -73,6 +73,12 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
             return "notmigrations"
 
     MIGRATION_MODULES = DisableMigrations()
+    PASSWORD_HASHERS = (
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    )
+else:
+    TEMPLATES['APP_DIRS'] = True
+    del TEMPLATES['OPTIONS']['loaders']
 
 
 PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'

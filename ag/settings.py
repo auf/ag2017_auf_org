@@ -163,7 +163,7 @@ TEMPLATES = [
         'DIRS': [
             'ag/templates'
         ],
-        'APP_DIRS': True,
+        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -184,6 +184,10 @@ TEMPLATES = [
                 'ag.outil.context_processors.list_slider',
                 'ag.outil.context_processors.list_actu',
             ],
+            'loaders': [('django.template.loaders.cached.Loader', [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ])],
         },
     },
 ]
