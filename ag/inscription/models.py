@@ -334,9 +334,9 @@ class Inscription(RenseignementsPersonnels):
             for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
                 self.append_code_montant(liste, champ_invite)
         if self.forfait_invite_transfert:
-            liste.append(CODES_CHAMPS_FORFAITS[consts.CODE_TRANSFERT_AEROPORT])
+            liste.append(CODES_CHAMPS_FORFAITS['forfait_invite_transfert'])
         if self.forfait_invite_dejeuners:
-            liste.append(CODES_CHAMPS_FORFAITS[consts.CODE_DEJEUNERS])
+            liste.append(CODES_CHAMPS_FORFAITS['forfait_invite_dejeuners'])
         return liste
 
     def get_facture(self):
