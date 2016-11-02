@@ -990,11 +990,6 @@ select {
     max-width: 640px;
 }
 
-.ui-state-active span:before {
-    content: "\2713";
-    color: green;
-    font-size: large;
-}
 
 input.invite-widget {
     width: 90%;

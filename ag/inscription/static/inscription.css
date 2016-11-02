@@ -1,10 +1,15 @@
 #corp { width: 940px; max-width: 940px;}
 #corp a { color: #A90F30; text-decoration: none; }
+.clair:after{
+    clear: both;
+    content: "";
+    display: block;
+}
 #corp .uniForm { background: none; background-color: #efe9d4; border: none; color: #3e3d3e; }
 #corp .formulaire { text-align: left; background: #fff; border: none; padding:20px; margin-bottom: 20px; }
 #corp .uniForm .buttonHolder { background-color: #fff; border: none; }
 #corp .uniForm .buttonHolder label { margin: 4px; font-size: 1.1em; }
-#corp .formulaire input.primaryAction { 
+#corp .formulaire input.primaryAction, #corp #butt-paypal input.primaryAction { 
 	float: right;    
 	text-decoration: none;
     background-color: #76C931;
@@ -39,6 +44,8 @@
 #corp .message { background-color: aliceblue; margin-bottom: 20px; padding: 20px; }
 #corp .attention { background-color: #FFFF99; margin-bottom: 20px; padding: 20px; }
 #corp .erreur { background-color: #FFDFDF; margin-bottom: 20px; padding: 20px; }
+
+#corp .attention h3 { padding: 0; margin: 5px 0 0 0; }
 
 .uniForm .inlineLabels ul {
 	width:50%;
@@ -301,11 +308,16 @@ padding: 22px;
 background: url(img/fond2.jpg);
 border: 1px solid #CCC;
 }
+
 /***************************   CODE MON DOSSIER   *********************************/
 
+#bloc-1 p {
+    margin-left:10px;
+}
+.bloc-1 {clear:both; overflow:auto; margin-left: 146px;}
 
 .info-participant {
-    width :50%;
+    width :49%;
     float:left;
     margin-right:20px;
     padding:10px;
@@ -320,16 +332,14 @@ border: 1px solid #CCC;
     margin-top: 0;
     
 }
-#dossiercorp p {
-    margin-left:10px;
-}
-#dossiercorp #adresse-container {
+
+#adresse-container {
 	background-color: white;
 	padding: 5px;
 	margin:5px;
 }
 
-#dossiercorp #adresse-container .bouton_sub {
+#adresse-container .bouton_sub {
 	float: right;
 	position: relative;
 	bottom: 30px;
@@ -362,22 +372,163 @@ border: 1px solid #CCC;
     background: url("/static/img/pdf.png") no-repeat scroll left center transparent;
 }
 
-.bloc-dossier1 {clear:both; overflow:auto;}
 
 .bloc-paiement, .bloc-planvol, .bloc-hebergement, .bloc-activites, .bloc-reseautage, .bloc-accompagnateur {
-    float:none;
+    float:left;
     clear:both;
-    background-color:white;
-    padding:2%;
-    margin-top:20px;
+    padding:10px;
+    margin:20px 0 20px 146px;
+    background-color: #efe9d4;
+}
+.bloc-paiement .intro, .bloc-planvol .intro, .bloc-hebergement .intro, .bloc-activites .intro, .bloc-reseautage .intro, .bloc-accompagnateur .intro {
+    padding: 0 20px 0 0;
 }
 
-.ui-tabs .ui-tabs-panel, .ui-tabs span {
+#corp .bloc-paiement h3, #corp .bloc-planvol h3, #corp .bloc-hebergement h3, #corp .bloc-activites h3, #corp .bloc-reseautage h3, #corp .bloc-accompagnateur h3 {
+    padding: 0; 
+    margin: 5px 0 0 0;
+}
+
+#butt-paypal {
+	
+}
+
+.ui-tabs span {
     font-size: 0.9em;
     font-family: open sans;
+    padding: 15px;
+}
+
+.important, .ui-tabs .important {
+	font-weight: bold;
+	color: #A90F30;
+	padding-left: 0;
+}
+
+.ui-corner-all, .ui-corner-top, .ui-corner-right {
+    margin: 0;
+    padding: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+.ui-corner-all, .ui-widget-header, .ui-widget-content .ui-state-default,  .ui-widget-header .ui-state-default   {
+	border: 0 !important;
+}
+.ui-corner-all, .ui-widget-header, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active   {
+	border: 0 !important;
+	background: none;
+	background-color: white;
+}
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover   {
+	background: none;
+	background-color: #A90F30;
+}
+.ui-widget-header {
+	background: none;
+	background-color: #efe9d4;
+}
+.ui-tabs .ui-tabs-nav {
+    padding: 0;
+}
+.ui-tabs .ui-tabs-nav li {
+    margin-right: 5px;
+}
+
+.bloc-accompagnateur form {
+    padding: 15px;
+    background-color: white;
+}
+
+.bloc-accompagnateur table {
+    margin: 0;
+    padding: 0;
+}
+.bloc-accompagnateur td {
+    border: 1px solid #ccc;
+    padding: 10px 5px 10px 10px;
+}
+
+.bloc-accompagnateur .add-row:before {
+    clear: both;
+    content: "";
+    display: block;
+    height: 10px;
+}
+
+.bloc-accompagnateur tfoot td {
+    vertical-align: middle;
+    border: none;
+    padding: 0;
+    height:30px;
+    text-align: right;
+}
+
+.bloc-accompagnateur .bouton_sub {
+    margin: 0;
+}
+
+.bloc-activites {
+
+}
+
+.bloc-activites #liste-activites {
+	margin: 0 30px 20px 10px;
+	float:left;
+}
+.bloc-activites #liste-forfaits {
+	margin: 0 20px 20px 3px;
+	float:right;
+}
+
+.bloc-activites ul {
+	margin: 10px 0 0 0;
+}
+
+.bloc-activites ul li {
+	list-style: none;
+    line-height: 15px;
+    background: none;
+    text-decoration: line-through;
+    
+}
+
+.bloc-activites .oui {
+	background: url("/static/img/icon_success.gif") no-repeat scroll left center transparent;
+	text-decoration: none;
+}
+
+nav.page-navigation {
+    width: 143px;
+    position: fixed;
+    top: 215px;
+    background-color: #ccc;
+    padding: 2px;
+    
+}
+nav.page-navigation li {
+    width: 100%;
+    line-height: 30px;
+    margin-bottom: 2px;
+    background-color: #A90F30;
+}
+nav.page-navigation a {
+    padding: 10px;
+    width: 100%;
+    color: white;
+    text-decoration: none;
+}
+nav.page-navigation li:hover {
+    background-color: #efe9d4;
+}
+nav.page-navigation a:hover {
+    color: #A90F30
 }
 
 
+
+/***************************   IMPRIMER   *********************************/
 
 @media print {
 	#top, #baseline3, #baseline4, #footer, #logoligne, #etapes, #bouton_invitation, #confirmation { display: none; }
