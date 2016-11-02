@@ -741,8 +741,12 @@ class FacturationForm(GestionModelForm):
             'facturation_supplement_chambre_double',
             'prise_en_charge_activites',
             'facturation_validee', 'date_facturation',
-            'imputation', 'notes_facturation'
+            'imputation', 'notes_facturation', 'forfaits',
         )
+
+        widgets = {
+            'forfaits': CheckboxSelectMultiple,
+        }
 
     def __init__(self, *args, **kwargs):
         super(FacturationForm, self).__init__(*args, **kwargs)
@@ -763,6 +767,9 @@ class FacturationForm(GestionModelForm):
                 'prise_en_charge_transport', 'prise_en_charge_sejour',
                 'facturation_supplement_chambre_double',
                 'prise_en_charge_activites',
+            ),
+            Fieldset(
+                u"Forfaits", 'forfaits',
             ),
             Fieldset(u"Autres informations", 'facturation_validee',
                      'date_facturation', 'imputation', 'notes_facturation'),
