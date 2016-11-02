@@ -1,7 +1,7 @@
 # encoding: utf-8
 import datetime
 from django import forms
-from ag.inscription.models import Inscription, CODES_CHAMPS_MONTANTS
+from ag.inscription.models import Inscription, CODES_CHAMPS_FORFAITS
 
 
 class InscriptionForm(forms.ModelForm):
@@ -111,12 +111,11 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
 class ProgrammationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        infos_montants = kwargs.pop('infos_montants')
+        forfaits = kwargs.pop('forfaits')
         super(ProgrammationForm, self).__init__(*args, **kwargs)
         for key in self.champs_montants():
-                infos_montant = infos_montants[CODES_CHAMPS_MONTANTS[key]]
-                self.fields[key].help_text = infos_montant.affiche
-        self.infos_montants = infos_montants
+                forfait = forfaits[CODES_CHAMPS_FORFAITS[key]]
+                self.fields[key].help_text = forfait.affiche
 
     class Meta:
         model = Inscription
@@ -129,7 +128,7 @@ class ProgrammationForm(forms.ModelForm):
         )
 
     def champs_montants(self):
-        return (key for key in self.fields if key in CODES_CHAMPS_MONTANTS)
+        return (key for key in self.fields if key in CODES_CHAMPS_FORFAITS)
 
     def clean_programmation_soiree_9_mai_invite(self):
         return self._clean_invite_field('programmation_soiree_9_mai')

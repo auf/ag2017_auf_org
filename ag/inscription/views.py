@@ -223,7 +223,7 @@ def apercu(appel_etape_processus):
                                 form_kwargs=None, etape_suivante=None)
     else:
         context = get_paypal_context(appel_etape_processus.request)
-        context['montants'] = get_forfaits()
+        context['forfaits'] = get_forfaits()
         return AppelEtapeResult(redirect=None, template_context=context,
                                 form_kwargs=None, etape_suivante=None)
 
@@ -245,8 +245,8 @@ def renseignements_personnels(appel_etape_processus):
 def programmation(appel_etape_processus):
         inscription = appel_etape_processus.inscription
         total_programmation = inscription.get_total_programmation()
-        infos_montants = get_forfaits()
-        montant_inscription = infos_montants[consts.CODE_FRAIS_INSCRIPTION]\
+        forfaits = get_forfaits()
+        montant_inscription = forfaits[consts.CODE_FRAIS_INSCRIPTION]\
             .montant
         if not inscription.prise_en_charge_possible():
             etape_suivante = appel_etape_processus.etapes_processus\
@@ -259,7 +259,7 @@ def programmation(appel_etape_processus):
                 'total_programmation': total_programmation,
                 'montant_frais_inscription': montant_inscription
             },
-            form_kwargs={'infos_montants': infos_montants},
+            form_kwargs={'forfaits': forfaits},
             etape_suivante=etape_suivante)
 
 
@@ -316,7 +316,7 @@ ETAPES_INSCRIPTION = (
 def calcul_frais_programmation(request):
     inscription = Inscription(accompagnateur=True)
     form = ProgrammationForm(request.GET, instance=inscription,
-                             infos_montants=get_forfaits())
+                             forfaits=get_forfaits())
     form.is_valid()
     total = form.instance.get_total_programmation()
     return HttpResponse(str(int(total)))

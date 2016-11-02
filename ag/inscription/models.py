@@ -168,7 +168,7 @@ class InvitationEnveloppe(models.Model):
         return context
 
 # À certains champs correspondent des montants (ex:
-CODES_CHAMPS_MONTANTS = {
+CODES_CHAMPS_FORFAITS = {
     'programmation_soiree_9_mai_invite': consts.CODE_SOIREE_9_MAI_INVITE,
     'programmation_soiree_10_mai_invite': consts.CODE_SOIREE_10_MAI_INVITE,
     'programmation_gala_invite': consts.CODE_GALA_INVITE,
@@ -322,7 +322,7 @@ class Inscription(RenseignementsPersonnels):
 
     def append_code_montant(self, liste, champ):
         if getattr(self, champ.name):
-            liste.append(CODES_CHAMPS_MONTANTS[champ.name])
+            liste.append(CODES_CHAMPS_FORFAITS[champ.name])
 
     # noinspection PyTypeChecker
     def get_liste_codes_frais(self):
@@ -334,17 +334,16 @@ class Inscription(RenseignementsPersonnels):
             for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:
                 self.append_code_montant(liste, champ_invite)
         if self.forfait_invite_transfert:
-            liste.append(CODES_CHAMPS_MONTANTS[consts.CODE_TRANSFERT_AEROPORT])
+            liste.append(CODES_CHAMPS_FORFAITS[consts.CODE_TRANSFERT_AEROPORT])
         if self.forfait_invite_dejeuners:
-            liste.append(CODES_CHAMPS_MONTANTS[consts.CODE_DEJEUNERS])
+            liste.append(CODES_CHAMPS_FORFAITS[consts.CODE_DEJEUNERS])
         return liste
 
     def get_facture(self):
         lignes = []
         forfaits = get_forfaits()
-        for code_montant in self.get_liste_codes_frais():
-            infos_montant = forfaits[code_montant]
-            ligne = LigneFacture(infos_montant)
+        for code_forfait in self.get_liste_codes_frais():
+            ligne = LigneFacture(forfaits[code_forfait])
             lignes.append(ligne)
         return lignes
 
