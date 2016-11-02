@@ -4,7 +4,7 @@
     {{ adresse.ville }}<br/>
     {{ adresse.code_postal }}<br/>
     {{ adresse.pays }}<br/>
-    <a id="modifier-adresse" href="#">Modifier</a>
+    <a class="bouton_sub" id="modifier-adresse" href="#">Modifier</a>
   </p></div>
   <div id="form-adresse"{% if not form_adresse.errors %} style="display: none;"{% endif %}>
     <form method="post" action="{% url "set_adresse" %}">

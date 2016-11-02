@@ -990,11 +990,6 @@ select {
     max-width: 640px;
 }
 
-.ui-state-active span:before {
-    content: "\2713";
-    color: green;
-    font-size: large;
-}
 
 input.invite-widget {
     width: 90%;
@@ -1347,36 +1342,3 @@ margin-left:20px;
 }
 }
 
-
-
-/***************************   CODE MON DOSSIER   *********************************/
-
-
-.info-participant {
-    width :44%;
-    float:left;
-    background-color:white; margin-right:3%;
-    padding:2%;
-}
-
-.statut-dossier {
-    width :44%;
-    float:left;
-    background-color:white;
-    padding:2%;
-}
-
-.bloc-dossier1 {clear:both; overflow:auto;}
-
-.bloc-paiement, .bloc-planvol, .bloc-hebergement, .bloc-activites, .bloc-reseautage, .bloc-accompagnateur {
-    float:none;
-    clear:both;
-    background-color:white;
-    padding:2%;
-    margin-top:20px;
-}
-
-.ui-tabs .ui-tabs-panel, .ui-tabs span {
-    font-size: 0.9em;
-    font-family: open sans;
-}

@@ -7,15 +7,27 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}inscription.css">
 
 <script type="text/javascript" src="{{ STATIC_URL }}uni-form/js/uni-form.jquery.min.js"></script>
+
 <script>
-$(function(){
-    $('form.uniForm').uniform();
-    $.datepicker.setDefaults($.datepicker.regional['fr']);
+$(function() {
+  $('a[href*="#"]:not([href="#"])').click(function() {
+    if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+      var target = $(this.hash);
+      target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+      if (target.length) {
+        $('html, body').stop().animate({
+          scrollTop: target.offset().top - 200
+        }, 1000);
+        return false;
+      }
+    }
+  });
 });
 </script>
+
 {% endblock %}
 
-{% block subtitle %}Dossier Inscription{% endblock %}
+{% block title %}|Mon dossier AG{% endblock %}
 
 {% block content %}
 {% endblock %}

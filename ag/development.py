@@ -81,8 +81,6 @@ else:
     del TEMPLATES[0]['OPTIONS']['loaders']
 
 
-PAYPAL_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
-
 SENDFILE_BACKEND="sendfile.backends.development"
 #LOGGING = {
 #    'version': 1,
