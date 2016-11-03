@@ -11,21 +11,25 @@
     <div class="Label">Nationalité</div>
     <div class="Data">{{ inscription.nationalite }}</div>
   </div>
+    <div class="ctrlHolder">
+    <div class="Label">Établissement représenté</div>
+    <div class="Data">{{ inscription.get_etablissement.nom }}</div>
+  </div>
   <div class="ctrlHolder">
     <div class="Label">Poste occupé</div>
     <div class="Data">{{ inscription.poste }}</div>
   </div>
   <div class="ctrlHolder">
-    <div class="Label">Courriel</div>
-    <div class="Data">{{ inscription.courriel }}</div>
-  </div>
-  <div class="ctrlHolder">
-    <div class="Label">Adresse</div>
+    <div class="Label">Adresse de facturation</div>
     <div class="Data">
       {{ inscription.adresse|linebreaksbr }}<br>
       {{ inscription.ville }} {{ inscription.code_postal }}<br>
       {{ inscription.pays }}
     </div>
+  </div>
+    <div class="ctrlHolder">
+    <div class="Label">Courriel</div>
+    <div class="Data">{{ inscription.courriel }}</div>
   </div>
   <div class="ctrlHolder">
     <div class="Label">Téléphone</div>
@@ -37,10 +41,6 @@
     <div class="Data">{{ inscription.telecopieur }}</div>
   </div>
   {% endif %}
-  <div class="ctrlHolder">
-    <div class="Label">Établissement</div>
-    <div class="Data">{{ inscription.get_etablissement.nom }}</div>
-  </div>
   {% if inscription.accompagnateur %}
   <div class="ctrlHolder">
     <div class="Label">
@@ -91,7 +91,8 @@
 
 <fieldset class="inlineLabels">
   <div class="ctrlHolder">
-    <div class="Label">Frais d'inscription</div>
+    <div class="Label">Frais d'inscription
+    </div>
     <div class="Data">
       <span style="float:right;">
         {{ inscription.get_frais_inscription }}&nbsp;€</span>
@@ -101,7 +102,7 @@
     <div class="Label">
       Forfaits sélectionnés
     </div>
-    <div class="Data">
+    <div class="Data"">
       <span style="float:right;">
         {{ inscription.get_total_forfaits_suppl }}&nbsp;€</span>
     </div>

@@ -67,7 +67,7 @@
   	<li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
   	<li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
   	{% if inscription.prise_en_charge_hebergement %}
-  	<li class="{% if inscription.a_televerse_passeport %}complet{% endif %}">Copie de passeport reçue</li>
+  	<li class="{% if participant.inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
   	{% endif %}
   </ul>
   <h3>Documents</h3>
