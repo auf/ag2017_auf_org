@@ -760,6 +760,7 @@ class FacturationForm(GestionModelForm):
             if participant.inscription.prise_en_charge_transport:
                 self.fields['prise_en_charge_transport'].help_text = \
                     u'Prise en charge demandée'
+        self.fields['forfaits'].required = False
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(

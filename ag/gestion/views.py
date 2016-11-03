@@ -179,7 +179,7 @@ def fiche_participant(request, id_participant):
         'frais_inscription', 'frais_inscription_facture',
         'frais_transport', 'frais_transport_facture',
         'frais_hebergement', 'frais_hebergement_facture',
-        'frais_activites', 'frais_autres',
+        'forfaits_invites', 'frais_autres',
         'total_frais', 'total_facture', 'solde'
     ))
     participant = Participant.objects \

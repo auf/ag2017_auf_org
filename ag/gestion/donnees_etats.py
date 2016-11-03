@@ -411,7 +411,7 @@ def get_donnees_paiements(actifs_seulement):
     participants = participants.sql_extra_fields(
         'delinquant', 'frais_inscription', 'frais_inscription_facture',
         'frais_transport', 'frais_transport_facture', 'frais_hebergement',
-        'frais_hebergement_facture', 'frais_activites',
+        'frais_hebergement_facture', 'forfaits_invites',
         'frais_autres', 'total_frais',
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
@@ -462,7 +462,7 @@ def get_donnees_paiements(actifs_seulement):
                 forfaits[consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE].montant
                 if p.facturation_supplement_chambre_double else 0),
             f_PEC_A=bool_ON(p.prise_en_charge_activites),
-            f_total_A=format_money(p.frais_activites),
+            f_total_A=format_money(p.forfaits_invites),
             f_valide=bool_ON(p.facturation_validee),
             f_mode=p.get_paiement_display(),
             f_accompte=format_money(p.accompte),

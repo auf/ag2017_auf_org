@@ -636,7 +636,8 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        montant_attendu += activite.prix_invite
+        if activite.forfait_invite:
+            montant_attendu += activite.forfait_invite.montant
         self.assertEquals(participant.total_frais, montant_attendu)
         self.assertEquals(participant.total_facture, montant_attendu)
 
@@ -955,21 +956,22 @@ class GestionTestCase(TestCase):
             .get(id=participant.id)
         self.assertEqual(participant.frais_transport, 0)
 
-    def test_frais_activites(self):
-        p = Participant.objects.sql_extra_fields('frais_activites') \
+    def test_forfaits_invites(self):
+        p = Participant.objects.sql_extra_fields('forfaits_invites') \
             .get(id=self.participant.id)
-        self.assertEqual(p.frais_activites, 0)
+        self.assertEqual(p.forfaits_invites, 0)
         invite = Invite(nom=u"invité", prenom=u"prénom", participant=p)
         invite.save()
         avec_invites = True
         for activite in Activite.objects.all():
-            frais_activites = p.frais_activites
+            forfaits_invites = p.forfaits_invites
             p.inscrire_a_activite(activite, avec_invites=avec_invites)
-            p = Participant.objects.sql_extra_fields('frais_activites') \
+            p = Participant.objects.sql_extra_fields('forfaits_invites') \
                 .get(id=self.participant.id)
             self.assertTrue(p.get_participation_activite(activite))
-            self.assertEqual(p.frais_activites - frais_activites,
-                             activite.prix_invite
+            self.assertEqual(p.forfaits_invites - forfaits_invites,
+                             (activite.forfait_invite.montant
+                              if activite.forfait_invite else 0)
                              if avec_invites else 0)
             avec_invites = not avec_invites
 
@@ -1027,19 +1029,19 @@ class GestionTestCase(TestCase):
         p = test_utils.ParticipantFactory()  # type: Participant
         test_utils.PaiementFactory(participant=p, montant_euros=100)
         test_utils.PaiementFactory(participant=p, montant_euros=100)
-        p = Participant.objects\
+        p = Participant.objects \
             .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
         assert p.total_deja_paye_sql == 200
 
     def test_total_deja_paye_zero(self):
         p = test_utils.ParticipantFactory()  # type: Participant
-        p = Participant.objects\
+        p = Participant.objects \
             .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
         assert p.total_deja_paye_sql == 0
 
     def test_total_deja_paye_sql_paypal(self):
         p = self.get_participant_avec_paypal()
-        p = Participant.objects\
+        p = Participant.objects \
             .sql_extra_fields('total_deja_paye_sql').get(id=p.id)
         assert p.total_deja_paye_sql == 175
 
@@ -1295,7 +1297,7 @@ class TableauDeBordTestCase(TestCase):
             creer_participant(nom=u'Participant' + str(n),
                               prenom=u'prenom' + str(n))
             for n in range(10)
-        ]
+            ]
 
     def tearDown(self):
         self.client.logout()

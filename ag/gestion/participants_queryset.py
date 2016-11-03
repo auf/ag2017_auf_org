@@ -51,7 +51,7 @@ SOMME_PAIEMENTS_PAYPAL = """SELECT coalesce(sum(montant), 0) FROM
                       where iid = gestion_participant.inscription_id"""
 
 SOMME_FORFAITS_CATEGORIE = """
-  SELECT sum(coalesce(montant, 0)) FROM
+  SELECT coalesce(sum(coalesce(montant, 0)), 0) FROM
   inscription_forfait WHERE categorie = '{CATEGORIE}'
   AND id in (
   SELECT forfait_id FROM gestion_participant_forfaits
@@ -188,18 +188,10 @@ class ParticipantsQuerySet(QuerySet):
                 consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE,
                 self.sql_expr('frais_hebergement'),
             )
-        elif name == 'frais_activites':
-            return """(
-                SELECT IFNULL(
-                    SUM(IF(p.avec_invites, %s * a.prix_invite, 0)),
-                    0
-                )
-                FROM gestion_participationactivite p
-                    INNER JOIN gestion_activite a
-                    ON a.id = p.activite_id
-                WHERE
-                    p.participant_id = gestion_participant.id
-            )""" % self.sql_expr('nombre_invites')
+        elif name == 'forfaits_invites':
+            return "({} * {})".format(
+                somme_forfaits_categorie(consts.CODE_CAT_INVITE),
+                self.sql_expr('nombre_invites'))
         elif name == 'frais_autres':
             return """IFNULL((
                 SELECT SUM(quantite * IFNULL(montant,0))
@@ -211,7 +203,7 @@ class ParticipantsQuerySet(QuerySet):
                 self.sql_expr('frais_inscription'),
                 self.sql_expr('frais_transport'),
                 self.sql_expr('frais_hebergement'),
-                self.sql_expr('frais_activites'),
+                self.sql_expr('forfaits_invites'),
                 self.sql_expr('frais_autres'),
             )
         elif name == 'total_facture':
@@ -219,7 +211,7 @@ class ParticipantsQuerySet(QuerySet):
                 self.sql_expr('frais_inscription_facture'),
                 self.sql_expr('frais_transport_facture'),
                 self.sql_expr('frais_hebergement_facture'),
-                self.sql_expr('frais_activites'),
+                self.sql_expr('forfaits_invites'),
             )
         elif name == 'solde':
             return "({} - ({}) - ({}))".format(
