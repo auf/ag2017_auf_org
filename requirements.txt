@@ -1,5 +1,11 @@
 Django==1.8.14
 django-cms==3.3
+djangocms-text-ckeditor==3.3.0
+djangocms-link>=1.8
+easy_thumbnails
+django-filer>=1.2
+cmsplugin-filer>=1.1
+
 -e git://github.com/auf/auf_django_mailing.git@v0.6#egg=auf.django.mailing
 django-crispy-forms==1.6.0
 raven
@@ -12,3 +18,4 @@ python-memcached==1.48
 django-tinymce==2.3.0
 django-treebeard==4.0.1
 requests==2.11.1
+djangocms_admin_style==1.2.6

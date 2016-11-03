@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}uni-form/css/uni-form.css">
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}uni-form/css/default.uni-form.css">
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}inscription.css">
+
 <script type="text/javascript" src="{{ STATIC_URL }}uni-form/js/uni-form.jquery.min.js"></script>
 <script>
 $(function(){
@@ -20,7 +21,12 @@ $(function(){
 
 {% block content %}
 {% block sidebar %} {% endblock %}
-{% block formulaire %}{% endblock %}
+  {% include "inscription/entete_processus.html" %}
+  {% if form and form.errors %}
+    <div class="erreur"><h4>Veuillez corriger les champs du formulaire ci-dessous marqués en rouge</h4></div>
+  {% endif %}
+{% block formulaire %}
+{% endblock %}
 {% endblock %}
 {% block footer %}    
   	<!-- PARTIE FOOTER-->

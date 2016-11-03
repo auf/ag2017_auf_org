@@ -1,57 +1,50 @@
 {% extends "inscription/base.html" %}
 
 {% block subtitle %}Aperçu de l'inscription{% endblock %}
-
+{% block title %}| Formulaire d'inscription - Aperçu du dossier{% endblock %}
 {% block content %}
- <h1>Formulaire d'inscription 6/7 - Aperçu</h1>
-  <ul id="etapes">
-    {% for etape in etapes %}
-    {% if etape.tab_visible %}
-        <li{% ifequal etape.n etape_courante.n %} class="etape_courante"{% else %}{% endifequal %}>
-        {{ etape.label }}</li>
-    {% endif %}
-    {% endfor %}
-</ul>
 {{ block.super }}
 <div class="uniForm">
-  <div class="buttonHolder">
+  <div class="intro">
     <p><strong>Veuillez réviser les informations qui suivent avant de soumettre
-      votre inscription.</strong><br/><br/>
-      Les frais de participation à l'assemblée générale doivent être payés 
-      <strong>avant le 1er mars 2017</strong>, délai de rigueur. Toute
+      votre inscription.</strong></p>
+    <p class="attention">Les frais de participation à l'assemblée générale doivent être payés 
+      <strong>avant le 1er mars 2017</strong>, délai de rigueur. <br>Toute
       inscription dont le paiement <strong>complet</strong> n'est pas effectué
       avant cette date sera annulée.</p>
   </div>
+  <div class="formulaire apercu">
+  <h2>Aperçu de votre dossier d'inscription</h2>
   {% include "inscription/apercu_include.html" %}
-  <h3>Modalités de paiement</h3>
-
   <div class="ctrlHolder">
     <div class="Label">Total à payer</div>
     <div class="Data"><span style="float: right; font-weight: bold;">
       {{ inscription.get_montant_a_payer }}&nbsp;€</span>
     </div>
   </div>
-  <div class="buttonHolder">
-    <p>Si les données sont exactes, confirmez à l'aide du bouton
-      <strong>"Valider et envoyer"</strong> au bas de cette page pour finaliser
-      votre inscription.<br/>
-      Cliquez sur le bouton <strong>"Modifier"</strong> pour retourner au
-      formulaire et effectuer les changements.</p>
   </div>
-  <div class="buttonHolder">
+
+  <div class="buttonHolder formulaire" style="float: right; margin-left: 20px; width: 55%;">
+    <p class="message"><strong>Si ces données sont exactes :</strong><br>
+      Veuillez sélectionner une des options suivantes pour finaliser votre inscription. L'AUF recevra ainsi votre dossier de participation. <br>Consultez votre dossier en utilisant votre lien d'inscription.</p>
     <form method="post">
       {% csrf_token %}
-      <input type="submit" class="primaryAction" name="modifier"
-             value="Modifier ces informations">
+      <input type="submit" class="primaryAction" name="confirmer"
+             value="Autre méthode de paiement">
     </form>
-    <form method="post">
-      {% csrf_token %}
-      <input type="submit" class="secondaryAction" name="confirmer"
-             value="Confirmer et envoyer">
-    </form>
-    {% include "inscription/paypal_button_include.html" with button_label="Valider et procéder au paiement" %}
+    <div style="float: right; padding: 16px;">&nbsp;-Ou-&nbsp;</div>
+    {% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}
     {% include "inscription/paypal_include.html" %}
   </div>
+    <div class="buttonHolder formulaire" style="float: left; width: 32%; clear: none;">
+  <p class="message"><strong>Modifier ces informations:</strong><br> Si vous souhaitez plus de temps, utilisez votre lien d'inscription pour revenir sur ce formulaire, vos informations ont été sauvegardées.</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="submit" class="secondaryAction" name="modifier"
+             value="Retour au formulaire">
+    </form>
+  </div>
+
 </div>
 
 {% endblock %}

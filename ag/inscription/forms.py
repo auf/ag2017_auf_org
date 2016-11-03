@@ -87,7 +87,7 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
                 # automatiquement.
                 field.widget.is_required = True
             elif name not in (
-                'code_postal', 'telecopieur', 'accompagnateur'
+                'telecopieur', 'accompagnateur'
             ):
                 field.required = True
                 field.widget.is_required = True
@@ -210,20 +210,6 @@ class TransportHebergementForm(forms.ModelForm):
         if required and value is None:
             raise forms.ValidationError('Ce champ est obligatoire')
         return value
-
-
-class PaiementForm(forms.ModelForm):
-    paiement = forms.ChoiceField(
-        label='Modalités de paiement', choices=Inscription.PAIEMENT_CHOICES,
-        widget=forms.RadioSelect
-    )
-
-    class Meta:
-        model = Inscription
-        fields = ('paiement',)
-
-    def require_fields(self):
-        self.fields['paiement'].required = True
 
 
 PAYPAL_DATE_FORMATS = ("%H:%M:%S %b. %d, %Y PST",

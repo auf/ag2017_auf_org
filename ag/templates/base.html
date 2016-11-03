@@ -5,11 +5,12 @@
   <meta name="description" content="Ag 2013" />
   <meta name="author" content="AUF" />
   <meta name="google-translate-customization" content="348cc25c484ffe60-c257e7d0f621ac72-gc4a750e733277c46-20"/>
-  <title>Assemblée générale 2017</title>
+  <title>Assemblée générale 2017 {% block title %}{% endblock %}</title>
   <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}favicon.ico">
   <link href="{{ STATIC_URL }}style.css?v=1" rel="stylesheet" type="text/css" media="screen" />
   <link href="{{ STATIC_URL }}style_print.css?v=1" rel="stylesheet" type="text/css" media="print" />
   {% render_block "css" %}
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/i18n/jquery-ui-i18n.min.js"></script>
@@ -33,7 +34,6 @@
 	<!-- PARTIE LOGO ET TEXTE-->
 	<div id="baseline">
 	     <div id="baseline-center">
-        
         	<div id="logoligne">
                 <div id="logo">
                   <a href="{% url "accueil" %}">
@@ -41,16 +41,13 @@
                          alt="Logo AUF"></a>
                 </div>
                	<nav id="top2">
-
-		    <ul>
-		       <li class="home"><a href="{% url "accueil" %}"><img src="{{ STATIC_URL }}img/accueil.png"></a></li>
-		        {% show_menu 0 1 100 100 %}
-		    </ul>
-		    
-				
-		    <div style="clear: both;"></div>
-		    
-	      	</nav>
+		    		<ul>
+		       			<li class="home"><a href="{% url "accueil" %}"><img src="{{ STATIC_URL }}img/accueil.png"></a></li>
+		        		{% show_menu 0 1 100 100 %}
+		    		</ul>
+		    		<div style="clear: both;"></div>
+				</nav>
+				{% block sidemenu %} {% endblock %}
      		</div>
           </div>    
     </div>
@@ -59,18 +56,12 @@
 
 <!-- menu -->
 
-   <div id="top2-header">
-
-    	
-		
-        
+   <div id="top2-header">        
         {% block diapo %}
     	{% endblock %}
- 
-
      </div>
     
-    <!-- PARTIE CENTRALE -->
+<!-- PARTIE CENTRALE -->
     <div class="contents">
     
     	<!-- partie centrale -->

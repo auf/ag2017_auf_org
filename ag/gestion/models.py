@@ -1,29 +1,31 @@
 # -*- encoding: utf-8 -*-
-from collections import namedtuple
 import datetime
 import os
 import unicodedata
-from ag.gestion.participants_queryset import ParticipantsQuerySet
+from collections import namedtuple
 
-from ag.reference.models import Etablissement, Region, Pays
 from auf.django.permissions import Role
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.db import connection
-from django.db.models import Model, PROTECT
-from django.db.models.aggregates import Sum, Max, Min, Count
 from django.db.models import (
+    Model, PROTECT, DecimalField,
     CharField, DateField, EmailField, TextField, FloatField, IntegerField,
     BooleanField, TimeField, DateTimeField, NullBooleanField,
     ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
+from django.db.models.aggregates import Sum, Max, Min, Count
 from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
 from ag.core import models as core
-from ag.inscription.models import Inscription, RenseignementsPersonnels
 from ag.gestion.consts import *
-
+from ag.gestion.participants_queryset import ParticipantsQuerySet
+from ag.inscription.models import (
+    Inscription,
+    RenseignementsPersonnels,
+    Paiement as PaiementNamedTuple)
+from ag.reference.models import Etablissement, Region, Pays, Implantation
 
 __all__ = ('Participant',
            'nouveau_participant',
@@ -44,7 +46,10 @@ __all__ = ('Participant',
            'AGRole',
            'TypeInstitutionSupplementaire',
            'ReservationChambre',
-           'TypeFrais', )
+           'TypeFrais',
+           'Paiement',
+           'ActiviteScientifique',
+           )
 
 
 class TypeInstitutionSupplementaire(core.TableReferenceOrdonnee):
@@ -379,13 +384,6 @@ class Participant(RenseignementsPersonnels):
         db_constraint=False)
     region = ForeignKey(Region, verbose_name=u"Région", null=True,
                         db_constraint=False)
-    # facturation
-    accompte = FloatField(u'paiement (€)', default=0, blank=True)
-    montant_accompte_devise_locale = FloatField(u'paiement en devises locales',
-                                                default=0, blank=True,
-                                                null=True)
-    accompte_devise_locale = CharField(u'devise paiement', max_length=3,
-                                       blank=True, null=True)
     numero_facture = IntegerField(u"Numéro de facture", null=True)
     date_facturation = DateField(u"Date de facturation", null=True, blank=True)
     facturation_validee = BooleanField(u"Facturation validée", default=False)
@@ -800,12 +798,13 @@ class Participant(RenseignementsPersonnels):
             and self.inscription.prise_en_charge_hebergement)
 
     def get_paiement_string(self):
-        display = self.get_paiement_display()
-        if self.accompte:
-            display += u', paiement : ' + unicode(self.accompte) + u'€'
-        if self.paiement == 'CB' and self.inscription:
-            display += self.inscription.statut_paypal_text()
-        return display
+        # todo: voir avec mc ce qu'on met dans la colonne paiement de la liste
+        # display = u""
+        # if self.accompte:
+        #     display += u', paiement : ' + unicode(self.accompte) + u'€'
+        # if self.paiement == 'CB' and self.inscription:
+        #     display += self.inscription.statut_paypal_text()
+        return self.total_deja_paye
 
     def get_etablissement_sud(self):
         return self.etablissement and self.etablissement.pays.sud
@@ -815,13 +814,20 @@ class Participant(RenseignementsPersonnels):
 
     @property
     def total_deja_paye(self):
-        return self.accompte
+        return getattr(self, 'total_deja_paye_sql',
+                       sum(p.montant for p in self.get_paiements()))
 
     def a_televerse_passeport(self):
         return self.fichier_set.filter(type_fichier=1).exists()
 
     def get_paiements(self):
-        return []
+        paiements = [PaiementNamedTuple(
+            date=p.date, moyen=p.moyen, ref_paiement=p.ref,
+            montant=p.montant_euros, implantation=p.implantation.nom_court,
+        ) for p in self.paiement_set.all()]
+        if self.inscription:
+            paiements.extend(self.inscription.get_paiements())
+        return sorted(paiements, key=lambda pm: pm.date)
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:
@@ -835,6 +841,30 @@ class Participant(RenseignementsPersonnels):
 
 
 facturation_validee = Signal()
+
+
+class Paiement(Model):
+    participant = ForeignKey(Participant)
+    date = DateField()
+    montant_euros = DecimalField(u"Montant (€)", decimal_places=2,
+                                 max_digits=10)
+    moyen = CharField(u"modalité", max_length=2, choices=PAIEMENT_CHOICES)
+    implantation = ForeignKey(Implantation)
+    ref = CharField(u"référence", max_length=255)
+    montant_devise_locale = DecimalField(
+        u'paiement en devises locales', blank=True, null=True,
+        decimal_places=2, max_digits=16)
+    devise_locale = CharField(u'devise paiement', max_length=3,
+                              blank=True, null=True)
+
+    def to_paiement_namedtuple(self):
+        return PaiementNamedTuple(
+            date=self.date,
+            montant=self.montant_euros,
+            moyen=self.moyen,
+            implantation=self.implantation.nom_court,
+            ref_paiement=self.ref,
+        )
 
 
 class Invite(Model):

@@ -77,3 +77,13 @@ class Etablissement(models.Model):
     def __repr__(self):
         return u"<Établissement: {}-{}>".format(self.id, self.nom)
 
+
+class Implantation(models.Model):
+    class Meta:
+        ordering = ('nom_court', )
+
+    nom = models.CharField(max_length=255)
+    nom_court = models.CharField(max_length=255, blank=True)
+
+    def __unicode__(self):
+        return self.nom_court

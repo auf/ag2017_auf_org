@@ -9,6 +9,9 @@ import uuid
 
 from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 import requests
+from django.utils.formats import date_format, number_format
+
+from ag.gestion.consts import PAIEMENT_CHOICES_DICT
 from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -50,13 +53,6 @@ class RenseignementsPersonnels(models.Model):
         ('F', u'Mme'),
         )
 
-    PAIEMENT_CHOICES = (
-        ('CB', u'Carte bancaire'),
-        ('VB', u'Virement bancaire'),
-        ('CE', u'Chèque en euros'),
-        ('DL', u'Devises locales'),
-        )
-
     genre = models.CharField(
         'civilité', max_length=1, choices=GENRE_CHOICES, blank=True
     )
@@ -96,19 +92,26 @@ class RenseignementsPersonnels(models.Model):
         u"Date de départ", null=True, blank=True
     )
 
-    # Options de paiement
-    paiement = models.CharField(
-        u"modalités de paiement", max_length=2, choices=PAIEMENT_CHOICES,
-        blank=True
-    )
-
     def save(self, **kwargs):
         if self.nom:
             self.nom = self.nom.upper()
         return super(RenseignementsPersonnels, self).save(**kwargs)
 
     def get_paiements(self):
-        pass
+        """
+
+        :return: List[Paiement]
+        """
+        return []
+
+    def get_paiements_display(self):
+        return [Paiement(
+            date=date_format(p.date, settings.SHORT_DATE_FORMAT),
+            montant=montant_str(p.montant),
+            ref_paiement=p.ref_paiement,
+            implantation=p.implantation,
+            moyen=PAIEMENT_CHOICES_DICT[p.moyen]
+        ) for p in self.get_paiements()]
 
     def get_adresse(self):
         return Adresse(adresse=self.adresse, ville=self.ville,
@@ -404,23 +407,27 @@ class Inscription(RenseignementsPersonnels):
     def get_jeton(self):
         return self.invitation.enveloppe.jeton
 
-    def preremplir(self):
+    def get_donnees_preremplir(self):
         etablissement = self.get_etablissement()
-        self.adresse = etablissement.nom + "\n" + etablissement.adresse
-        self.ville = etablissement.ville
-        self.code_postal = etablissement.code_postal
-        self.pays = etablissement.pays.nom
-        self.telephone = etablissement.telephone
-        self.courriel = self.invitation.get_adresse()
+        d = {
+            'adresse': etablissement.nom + '\n' + etablissement.adresse,
+            'ville': etablissement.ville,
+            'code_postal': etablissement.code_postal,
+            'pays': etablissement.pays.nom,
+            'telephone': etablissement.telephone,
+        }
         if self.est_pour_mandate():
             if self.atteste_pha == 'P':
-                self.nom = etablissement.responsable_nom
-                self.prenom = etablissement.responsable_prenom
-                self.genre = etablissement.responsable_genre
-                self.poste = etablissement.responsable_fonction
+                d['nom'] = etablissement.responsable_nom
+                d['prenom'] = etablissement.responsable_prenom
+                d['genre'] = etablissement.responsable_genre
+                d['poste'] = etablissement.responsable_fonction
+                d['courriel'] = etablissement.responsable_courriel
         else:
-            self.nom = self.invitation.nom
-            self.prenom = self.invitation.prenom
+            d['nom'] = self.invitation.nom
+            d['prenom'] = self.invitation.prenom
+            d['courriel'] = self.invitation.courriel
+        return d
 
     def get_invitations_accompagnateurs(self):
         if self.est_pour_mandate():
@@ -491,7 +498,7 @@ class Inscription(RenseignementsPersonnels):
         paiements = []
         for reponse in self.get_unique_paypal_responses():
             paiement = Paiement(date=reponse.received_at.date(),
-                                moyen=u"Paiement en ligne",
+                                moyen='CB',
                                 montant=reponse.montant,
                                 ref_paiement=reponse.txn_id,
                                 implantation=u"ICA1")
@@ -572,3 +579,7 @@ def is_ipn_valid(request):
         settings.PAYPAL_URL,
         data="cmd=_notify-validate&" + request.body)
     return response.text == 'VERIFIED', response.text
+
+
+def montant_str(montant):
+    return u"{} €".format(number_format(montant, 2))

@@ -65,9 +65,23 @@ INSTALLED_APPS = (
     'ag.actualite',
     'ag.activites_scientifiques',
     'raven.contrib.django',
+    
     'crispy_forms',
     'sekizai',
     'treebeard',
+
+    'filer',
+    'djangocms_text_ckeditor',
+    'easy_thumbnails',
+    'djangocms_link',
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_utils',
+    'cmsplugin_filer_link',
+    'cmsplugin_filer_teaser',
+    'cmsplugin_filer_video',
+
     'cms',
     'menus',
     'tinymce',

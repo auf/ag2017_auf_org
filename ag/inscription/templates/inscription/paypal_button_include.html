@@ -1,5 +1,6 @@
 <form class="valider-payer-form" method="post" action="{% url "make_paypal_invoice" %}">
   {% csrf_token %}
-  <input type="submit" class="secondaryAction" name="confirmer"
+  <img src="/static/img/Paypal.png" alt="Paypal AUF" style="margin-top: 9px; float: right;">
+  <input type="submit" class="primaryAction" name="confirmer"
          value="{{ button_label }}">
 </form>
