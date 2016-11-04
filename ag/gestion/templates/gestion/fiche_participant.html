@@ -277,9 +277,15 @@
             <td class="tag">Prise en charge</td>
             <td>{% spaceless %}
                 {% for prise_en_charge in prises_en_charge %}
-                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}
+                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}à
+                  {% empty %}
+                  Aucune
                 {% endfor %}{% endspaceless %}
             </td>
+        </tr>
+        <tr>
+          <td class="tag">Forfaits</td>
+          <td>{{ participant.forfaits.all|join:", " }}</td>
         </tr>
           <tr>
             <td colspan="2">
