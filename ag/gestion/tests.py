@@ -732,7 +732,7 @@ class GestionTestCase(TestCase):
                          montant_frais_sans_hotel + prix_chambre * 2)
         self.assertEqual(participant.total_facture,
                          participant.total_frais)
-        participant.facturation_supplement_chambre_double = True
+        participant.ajouter_forfait(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
         participant.prise_en_charge_sejour = True
         participant.save()
         montant_supplement_chambre_double = \

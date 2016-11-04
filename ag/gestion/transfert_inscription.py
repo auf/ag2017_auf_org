@@ -3,6 +3,8 @@ from ag.gestion import consts
 from ag.gestion.models import Participant, Invite, Activite, StatutParticipant
 from django.dispatch.dispatcher import Signal
 
+from ag.inscription.models import Forfait
+
 inscription_transferee = Signal()
 
 VILLE_AEROPORT = u'São Paulo'
@@ -73,7 +75,9 @@ def transfere(inscription, statut, prise_en_charge_transport,
     if prise_en_charge_hebergement:
         participant.reservation_hotel_par_auf = True
     participant.prise_en_charge_sejour = prise_en_charge_hebergement
-    participant.facturation_supplement_chambre_double = facturer_supplement_chambre_double
+    if facturer_supplement_chambre_double:
+        participant.forfaits.add(Forfait.objects.get(
+            code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE))
     participant.type_institution = 'E'
     participant.etablissement = inscription.get_etablissement()
     participant.save()

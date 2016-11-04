@@ -201,7 +201,7 @@ def fiche_participant(request, id_participant):
     if participant.prise_en_charge_inscription:
         prises_en_charge.append(u"Frais d'inscription")
     if participant.prise_en_charge_sejour:
-        if participant.facturation_supplement_chambre_double:
+        if participant.a_forfait(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE):
             prises_en_charge.append(u"Hébergement (supplément chambre double)")
         else:
             prises_en_charge.append(u"Hébergement")

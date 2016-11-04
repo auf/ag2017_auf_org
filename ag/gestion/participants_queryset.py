@@ -177,15 +177,11 @@ class ParticipantsQuerySet(QuerySet):
             return """(
             IF(
                 gestion_participant.prise_en_charge_sejour,
-                IF(
-                    gestion_participant.facturation_supplement_chambre_double,
-                    (SELECT montant FROM inscription_forfait WHERE code='{}'),
-                    0
-                ),
+                {},
                 {}
             )
             )""".format(
-                consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE,
+                somme_forfaits_categorie(consts.CODE_CAT_HEBERGEMENT),
                 self.sql_expr('frais_hebergement'),
             )
         elif name == 'forfaits_invites':

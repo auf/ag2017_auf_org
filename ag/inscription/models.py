@@ -63,8 +63,8 @@ class RenseignementsPersonnels(models.Model):
         'prénom(s)', max_length=100, help_text=u'identique au passeport'
     )
     nationalite = models.CharField(
-	'nationalité', max_length=100, help_text=u'identique au passeport', blank=True
-    )
+        'nationalité', max_length=100, help_text=u'identique au passeport',
+        blank=True)
     date_naissance = models.DateField(
         '   Date de naissance', blank=True, null=True,
         help_text=u'format: jj/mm/aaaa'

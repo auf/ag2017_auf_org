@@ -399,9 +399,6 @@ class Participant(RenseignementsPersonnels):
     prise_en_charge_activites = BooleanField(
         u"Prise en charge activités", default=False
     )
-    facturation_supplement_chambre_double = \
-        BooleanField(u"Facturer un supplément pour une chambre double",
-                     default=False)
     imputation = CharField(
         max_length=32, choices=IMPUTATION_CHOICES, blank=True)
     # séjour
@@ -846,6 +843,12 @@ class Participant(RenseignementsPersonnels):
         if self.inscription:
             paiements.extend(self.inscription.get_paiements())
         return sorted(paiements, key=lambda pm: pm.date)
+
+    def a_forfait(self, code):
+        return code in [f.code for f in self.forfaits.all()]
+
+    def ajouter_forfait(self, code):
+        self.forfaits.add(Forfait.objects.get(code=code))
 
     # def get_arrivee(self, ville):
     #     if not self.prise_en_charge_transport:

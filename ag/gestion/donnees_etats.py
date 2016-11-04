@@ -460,7 +460,8 @@ def get_donnees_paiements(actifs_seulement):
             f_fact_S=format_money(p.frais_hebergement_facture),
             f_supp_S=format_money(
                 forfaits[consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE].montant
-                if p.facturation_supplement_chambre_double else 0),
+                if p.a_forfait(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
+                else 0),
             f_PEC_A=bool_ON(p.prise_en_charge_activites),
             f_total_A=format_money(p.forfaits_invites),
             f_valide=bool_ON(p.facturation_validee),
