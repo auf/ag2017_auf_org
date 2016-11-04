@@ -2,7 +2,7 @@
 import datetime
 import os
 import unicodedata
-from collections import namedtuple
+import collections
 
 from auf.django.permissions import Role
 from django.conf import settings
@@ -19,7 +19,6 @@ from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
 from ag.core import models as core
-from ag.gestion import consts
 from ag.gestion.consts import *
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 from ag.inscription.models import (
@@ -118,7 +117,7 @@ class Hotel(core.TableReference):
                                                u" de bord", null=False,
                                                blank=False, default=False)
 
-    def _get_chambres(self):
+    def get_chambres(self):
         if not hasattr(self, "_chambres"):
             self._chambres = Chambre.objects.filter(hotel=self)
             self._chambres = sorted(
@@ -128,7 +127,7 @@ class Hotel(core.TableReference):
         return self._chambres
 
     def nombre_types_chambres(self):
-        return len(self._get_chambres())
+        return len(self.get_chambres())
 
     def chambres(self):
         """ Renvoie le nombre de places et le nombre de chambres réservées
@@ -137,7 +136,7 @@ class Hotel(core.TableReference):
         if not hasattr(self, "_infos_chambres"):
             self._info_chambres = SortedDict([
                 (chambre.type_chambre, {'nb_total': chambre.nb_total or 0})
-                for chambre in self._get_chambres()
+                for chambre in self.get_chambres()
             ])
             for code_type_chambre, chambre in self._info_chambres.items():
                 chambre['nb_reservees'] = \
@@ -203,16 +202,16 @@ class TypeFrais(core.TableReference):
 class ActiviteManager(Manager):
     def with_stats(self):
         qs = self.get_queryset()
-        BASE_QUERY = """
+        base_query = """
             (SELECT count(*) FROM gestion_participationactivite gp
             INNER JOIN gestion_participant p on p.id = gp.participant_id
             WHERE gp.activite_id = gestion_activite.id
               AND p.desactive=0
         """
         qs = qs.extra(select={
-            '_nombre_pris_en_charge': (BASE_QUERY +
+            '_nombre_pris_en_charge': (base_query +
                                        " AND p.prise_en_charge_activites=1)"),
-            '_nombre_non_pris_en_charge': (BASE_QUERY + """ AND
+            '_nombre_non_pris_en_charge': (base_query + """ AND
                                            p.prise_en_charge_activites=0)"""),
             '_nombre_invites': """
                 (SELECT COUNT(*) FROM (gestion_invite i INNER JOIN
@@ -305,8 +304,8 @@ class ParticipantsManager(Manager):
     def get_queryset(self):
         return ParticipantsQuerySet(self.model)
 
-    def actifs(self, **kwargs):
-        return self.get_queryset().actifs(**kwargs)
+    def actifs(self):
+        return self.get_queryset().actifs()
 
     def sql_expr(self, *args, **kwargs):
         return self.get_queryset().sql_expr(*args, **kwargs)
@@ -314,8 +313,8 @@ class ParticipantsManager(Manager):
     def sql_filter(self, *args, **kwargs):
         return self.get_queryset().sql_filter(*args, **kwargs)
 
-    def sql_extra_fields(self, *args, **kwargs):
-        return self.get_queryset().sql_extra_fields(*args, **kwargs)
+    def sql_extra_fields(self, *args):
+        return self.get_queryset().sql_extra_fields(*args)
 
     def avec_region_vote(self):
         return self.get_queryset().avec_region_vote()
@@ -475,10 +474,15 @@ class Participant(RenseignementsPersonnels):
             return 'B%04d' % self.id
 
     def get_reservations(self):
+        """
+
+        :return:  collections.Iterable[ReservationChambre]
+        """
         if self._reservations is None:
             self._reservations = self.reservationchambre_set.all()
         return self._reservations
 
+    # noinspection PyTypeChecker
     def get_nombre_chambres(self, type_chambre):
         """ Renvoie le nombre total de réservations du type de chambre indiqué
         """
@@ -486,6 +490,7 @@ class Participant(RenseignementsPersonnels):
                         if r.type_chambre == type_chambre]
         return reservations[0].nombre if len(reservations) else 0
 
+    # noinspection PyTypeChecker
     def get_nombre_chambres_total(self):
         """ Renvoie le nombre total de chambres réservées
         """
@@ -555,10 +560,10 @@ class Participant(RenseignementsPersonnels):
         (utilisée par les templates)
         """
         result = []
-        for type in TYPES_CHAMBRES:
-            nombre = self.get_nombre_chambres(type['code'])
+        for type_ in TYPES_CHAMBRES:
+            nombre = self.get_nombre_chambres(type_['code'])
             if nombre:
-                result.append({'type': type, 'nombre': nombre})
+                result.append({'type': type_, 'nombre': nombre})
         return result
 
     def nom_institution(self):
@@ -643,18 +648,18 @@ class Participant(RenseignementsPersonnels):
             self._frais = self.frais_set.select_related('type_frais').all()
         return self._frais
 
-    def _set_infos_depart_arrivee(self, type, date, heure, numero_vol,
+    def _set_infos_depart_arrivee(self, type_, date, heure, numero_vol,
                                   compagnie, ville):
         try:
-            infos = InfosVol.objects.get(participant=self, type_infos=type)
+            infos = InfosVol.objects.get(participant=self, type_infos=type_)
         except InfosVol.DoesNotExist:
-            infos = InfosVol(participant=self, type_infos=type)
-        if type == ARRIVEE_SEULEMENT:
+            infos = InfosVol(participant=self, type_infos=type_)
+        if type_ == ARRIVEE_SEULEMENT:
             infos.date_arrivee = date
             infos.heure_arrivee = heure
             infos.ville_arrivee = ville
         else:
-            assert type == DEPART_SEULEMENT
+            assert type_ == DEPART_SEULEMENT
             infos.date_depart = date
             infos.heure_depart = heure
             infos.ville_depart = ville
@@ -789,7 +794,8 @@ class Participant(RenseignementsPersonnels):
             result += u", " + self.poste
         return result
 
-    def get_prise_en_charge_text(self, value, value_demande):
+    @staticmethod
+    def get_prise_en_charge_text(value, value_demande):
         if value is None:
             text = u"À traiter"
         elif value:
@@ -1065,7 +1071,7 @@ def get_donnees_hotels():
             .annotate(total=Sum('nombre'))
         par_hotel_par_type = []
         for hotel in hotels:
-            for chambre in hotel._get_chambres():
+            for chambre in hotel.get_chambres():
                 code_type_chambre = chambre.type_chambre
                 nb_chambres = [
                     donnees_chambre['total']
@@ -1091,9 +1097,10 @@ def get_donnees_hotels():
     return hotels, types_chambres, donnees_hotels_par_jour, totaux
 
 
-VotantsRegion = namedtuple("VotantsRegion",
-                           ('nom_region', 'nb_titulaires', 'nb_associes',
-                           'nb_total'))
+VotantsRegion = collections.namedtuple("VotantsRegion",
+                                       ('nom_region', 'nb_titulaires',
+                                        'nb_associes',
+                                        'nb_total'))
 
 
 def get_nombre_votants_par_region():
@@ -1140,6 +1147,7 @@ def get_donnees_activites():
     return donnees_activites
 
 
+# noinspection PyTypeChecker
 def get_donnees_prise_en_charge():
     def representants(qs):
         return qs.filter(statut__droit_de_vote=True)
