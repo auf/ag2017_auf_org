@@ -66,10 +66,13 @@
   	<li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
   	<li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
   	<li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
+  	{% if inscription.prise_en_charge_hebergement %}
+  	<li class="{% if participant.inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
+  	{% endif %}
   </ul>
   <h3>Documents</h3>
   <ul>
-    <li class="documentpdf"><a href="">Conditions générales</a></li>
+	<li class="documentpdf"><a href="">Conditions générales</a></li>
     <li class="documentpdf"><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
 <!-- à faire --> {#    <li><a href="">Itinéraire de voyage</a></li>#}
 <!-- à faire --> {#    <li><a href="">Coupons navette</a></li>#}
@@ -134,10 +137,10 @@
   	</div>
   <div id="tabs-paiement">
   	<ul>
-    	<li><a href="#tab-cb"><span>Carte Bancaire</span></a></li>
-    	<li><a href="#tab-vb"><span>Virement bancaire</span></a></li>
-    	<li><a href="#tab-ce"><span>Chèque en Euros</span></a></li>
-    	<li><a href="#tab-dl"><span>Devise locale</span></a></li>
+    	<li><a href="#tab-cb" class="tabs-p"><span>Carte Bancaire</span></a></li>
+    	<li><a href="#tab-vb" class="tabs-p"><span>Virement bancaire</span></a></li>
+    	<li><a href="#tab-ce" class="tabs-p"><span>Chèque en Euros</span></a></li>
+    	<li><a href="#tab-dl" class="tabs-p"><span>Devise locale</span></a></li>
   	</ul>
   	<div id="tab-cb">
   		<strong>Paiement en ligne par carte bancaire</strong><br/>
@@ -292,6 +295,7 @@
     
 	<div id="bloc-activites" class="bloc-activites">
 	<h2>Activités {% if inscription.accompagnateur %}et forfaits pour vous et votre invité{% endif %}</h2>
+	<div id="listes">
 		<div id="liste-activites">
 		<h3>Vos activités réservées</h3>
 		<ul>
@@ -313,41 +317,50 @@
 			</ul>
     		</div>
   		{% endif %}
+  		</div>
 	</div>
       
       <div id="bloc-hebergement" class="bloc-hebergement">
   <h2>Hébergement</h2>
-  {% if not inscription.prise_en_charge_hebergement %}
+{% if not inscription.prise_en_charge_hebergement %}
 
   <p>
-    L'AUF a obtenu des tarifs négociés à l’hôtel Mogador, qui héberge le centre
-    des congrès ou se déroule l'AG. Obtenez ce tarif en spécifiant le code
-    promotionnel <strong>AG2017AUF</strong> lors de votre réservation.
+    L'AUF a négocié un tarif préférentiel avec l'hôtel Ryad Mogador Agdal & 
+    Palais des Congrès Mogador, lieu de la tenue de l'Assemblée générale.</p>
+  <p>
+    Un nombre limité de chambres a été réservé pour les participants pour une 
+    période limitée.</p>
     
-    La réservation de chambre doit se faire par courriel à l'adresse 
-    électronique suivante : hagdalresa@mogadorhotels.com
-	Veillez à inclure dans le corps du message les informations suivantes: 
+		{% if avant_31_decembre %}
+		<p class="attention">
+		<strong>Veuillez réserver avant le 31 décembre 2016 pour profiter 
+		du tarif préférentiel.</strong></p>
+		{% endif %}
+  <p>
+    La réservation de chambre doit se faire par courriel à l'adresse électronique 
+	suivante : <a href="mailto:hagdalresa@mogadorhotels.com?subject=AUF - Assemblée générale 2017 - réservation de 		chambre&body=Bonjour je suis invité(e) à participer à l'Assemblée générale de l'Agence universitaire de la Francophonie et je souhaite réserver une chambre (PRÉCISER OCCUPATION DOUBLE OU SIMPLE) au Ryad Mogador Agdal à Marrakech du (PRÉCISER DATE D'ARRIVÉE) au (PRÉCISER DATE DE DÉPART) au tarif préférentiel négocié. Voici mon code promotionnel (CODE : AG2017AUF)">hagdalresa@mogadorhotels.com</a></p>
+  <p>
+    Veillez à inclure dans le corps du message les informations suivantes:</p>
+  <p class="message">
     "Bonjour, je suis invité(e) à participer à l'Assemblée générale de 
-     l'Agence universitaire de la Francophonie et je souhaite réserver une 
-     chambre <span style="color: #A90F30;">(préciser occupation double ou simple)</span> au Ryad Mogador Agdal à 
-     Marrakech du <span style="color: #A90F30;">(préciser date d'arrivée) au (préciser date de départ)</span> au 
-     tarif préférentiel négocié. Voici mon code promotionnel (CODE : AG2017AUF).
-  </p>
-  	{% if avant_15_decembre %}
-    	<p class="avertissement">
-     	 Bénéficiez d'une réduction supplémentaire en réservant avant le 15
-     	 décembre.
-    	</p>
-  	{% endif %}
-  {% else %}
-		<p>L’AUF se charge de réserver votre chambre à l’hôtel Mogador
-		 {% if inscription.accompagnateur %}pour vous et votre invité{% endif %}.
+	l'Agence universitaire de la Francophonie et je souhaite réserver une chambre 
+	<span style="color: #A90F30;">(préciser occupation double ou simple)</span> 
+	au Ryad Mogador Agdal à Marrakech du <span style="color: #A90F30;">(préciser 
+	date d'arrivée) au (préciser date de départ)</span> au tarif préférentiel négocié. 
+	Voici mon code promotionnel (CODE : AG2017AUF)."</p>
+
+{% else %}
+		<p>L’AUF se charge de réserver votre chambre à l'hôtel Ryad Mogador 
+		Agdal & Palais des Congrès Mogador, lieu de la tenue de l'Assemblée générale
+		{% if inscription.accompagnateur %}, pour vous et votre invité{% endif %}.
 	{% if participant %}
    	 	<div id="passeport" class="message">
     	{% if inscription.a_televerse_passeport %}
       		<p>Passeport envoyé !</p>
     	{% else %}
-    		<p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de téléverser une <strong>capture de votre passeport</strong>.</p>
+    		<p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de 
+    		téléverser une <strong>capture de votre passeport</strong>.
+    		{% if inscription.accompagnateur %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
       		<form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
         	{% csrf_token %}
         	{{ passeport_form }}
@@ -357,52 +370,80 @@
     	</div>
   	{% endif %}
   {% endif %}
-
-
     </div>
     
     <div id="bloc-planvol" class="bloc-planvol">
-
+	<h2>Renseignements sur mon plan de vol</h2>
+	
   {% if not inscription.prise_en_charge_transport %}
-
-    <a id="plan-vol"></a>
-    <h2>Renseignements sur mon plan de vol</h2>
-    <p> La saisie facultative de ces informations permettra à l'AUF de planifier
-      les navettes d'accueil et les départ à l'aéroport de Marrakech.(sous
-      réserve de disponibilité)</p>
+  
+    <p>L’AUF offre des navettes entre l'aéroport de Marrakech et l’hôtel Mogador.
+    <br/>Pour bénéficier de ce service, veuillez remplir le formulaire ci dessous.</p>
     <form id="plan-vol-dossier" method="POST"
           action="{% url "dossier_inscription" %}#plan-vol">
       {% csrf_token %}
       <table>
+      <thead>
+      <tr>
+      <th colspan=2>Arrivée à Marrakech</th>
+      <th colspan=2>Départ de Marrakech</th>
+      </tr>
+      </thead>
         <tr>
-          <td>Date d'arrivée</td>
+          <td>Date d'arrivée<br/>
+          	<span style="color: #555; font-size: 11px; text-align: right;">
+          	<em>Exemple: 08/05/2017</em></span></td>
           <td>{{ plan_vol_form.arrivee_date }}
-          {{ plan_vol_form.arrivee_date.errors }}</td>
-          <td>Date de départ</td>
+          	{{ plan_vol_form.arrivee_date.errors }}</td>
+          <td>Date de départ<br/>
+          	<span style="color: #555; font-size: 11px; text-align: right;">
+         	 <em>Exemple: 12/05/2017</em></span></td>
           <td>{{ plan_vol_form.depart_date }}
-          {{ plan_vol_form.depart_date.errors }}</td>
+         	 {{ plan_vol_form.depart_date.errors }}</td>
         </tr>
         <tr>
-          <td>Heure d'arrivée</td>
+          <td>Heure d'arrivée<br/>
+          	<span style="color: #555; font-size: 11px; text-align: right;">
+          	<em>Exemple: 12:10</em></span></td>
           <td>{{ plan_vol_form.arrivee_heure }}
-          {{ plan_vol_form.arrivee_heure.errors }}</td>
-          <td>Heure de départ</td>
+          	{{ plan_vol_form.arrivee_heure.errors }}</td>
+          <td>Heure de départ<br/>
+          	<span style="color: #555; font-size: 11px; text-align: right;">
+          	<em>Exemple: 23:45</em></span></td>
           <td>{{ plan_vol_form.depart_heure }}
-          {{ plan_vol_form.depart_heure.errors }}</td>
+          	{{ plan_vol_form.depart_heure.errors }}</td>
         </tr>
         <tr>
-          <td>Compagnie/N<sup>o</sup> de vol</td>
+          <td>Compagnie/N<sup>o</sup> de vol<br/>
+          	<span style="color: #555; font-size: 11px; text-align: right;">
+          	<em>Exemple: AF 5542</em></span></td>
           <td>{{ plan_vol_form.arrivee_vol }}
-          {{ plan_vol_form.arrivee_vol.errors }}</td>
-          <td>Compagnie/N<sup>o</sup> de vol</td>
+          	{{ plan_vol_form.arrivee_vol.errors }}</td>
+          <td>Compagnie/N<sup>o</sup> de vol<br/>
+          	<span style="color: #555; font-size: 11px; text-align: right;">
+          	<em>Exemple: AT 224</em></span></td>
           <td>{{ plan_vol_form.depart_vol }}
-          {{ plan_vol_form.depart_vol.errors }}</td>
+          	{{ plan_vol_form.depart_vol.errors }}</td>
         </tr>
       </table>
-  <button class="bouton_sub" name="submit-plan-vol-form" type="submit">
+  	<button class="bouton_sub" name="submit-plan-vol-form" type="submit">
     Enregistrer</button>
     </form>
+    
+  {% else %}
+  
+		<p>L’AUF se charge de planifier votre vol.</p>
+		{% ifequal solde 0 %}
+		<p>Votre itinéraire est en cours de préparation. Votre plan de vol 
+		apparaîtra ici lorsqu’il sera complété.</p>
+		<!-- afficher ici le plan de vol organise par l'AUF -->	
+		{% else%}
+		<p>L’organisation de votre itinéraire est en attente de l’acquittement 
+		de vos frais de participation.</p>
+		{% endifequal %}
+		
   {% endif %}
+  
 </div>
 {% include "inscription/paypal_include.html" %}
 {% endblock %}
@@ -422,8 +463,8 @@ function init_dossier() {
           addText:'+ Ajouter une invitation',
           deleteText: ''
       });
-      $('#id_arrivee_date').datepicker();
-      $('#id_depart_date').datepicker();
+      $('#id_arrivee_date').datepicker($.datepicker.regional[ "fr" ]);
+      $('#id_depart_date').datepicker($.datepicker.regional[ "fr" ]);
       $('#annuler-changement-adresse').click(annuler_changement_adresse)
   });
 }
