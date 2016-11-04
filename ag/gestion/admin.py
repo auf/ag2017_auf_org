@@ -10,7 +10,7 @@ from ag.gestion.forms import ValidationInscriptionForm
 from ag.gestion.models import Hotel, Chambre, PointDeSuivi,\
     TypeInstitutionSupplementaire, Activite, InscriptionWeb, TypeFrais, \
     AGRole, TYPE_CHAMBRE_CHOICES, Invitation, ActiviteScientifique
-from ag.inscription.models import Inscription
+from ag.inscription.models import Inscription, Forfait
 
 
 class RoleInline(admin.TabularInline):
@@ -171,3 +171,4 @@ admin.site.register(TypeFrais)
 admin.site.register(ActiviteScientifique)
 admin.site.register(InscriptionWeb, InscriptionAdmin)
 admin.site.register(Invitation, InvitationAdmin)
+admin.site.register(Forfait)
