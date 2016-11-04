@@ -115,7 +115,7 @@ def create_fixtures(test_case):
         code_forfait = codes_forfaits_activites.get(code_activite, None)
         forfait = forfaits.get(code_forfait, None)
         Activite.objects.create(code=code_activite, libelle=code_activite,
-                                prix_invite=30, forfait_invite=forfait)
+                                forfait_invite=forfait)
 
 
 def make_modele_courriel_mandate():

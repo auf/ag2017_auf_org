@@ -226,7 +226,6 @@ class ActiviteManager(Manager):
 
 
 class Activite(core.TableReference):
-    prix_invite = FloatField(u"Prix pour les invités")
     forfait_invite = ForeignKey(Forfait,
                                 verbose_name=u"Forfait invité correspondant",
                                 null=True, blank=True)
