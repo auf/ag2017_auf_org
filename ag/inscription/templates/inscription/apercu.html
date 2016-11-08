@@ -1,42 +1,41 @@
 {% extends "inscription/base.html" %}
 
 {% block subtitle %}Aperçu de l'inscription{% endblock %}
-{% block title %}| Formulaire d'inscription - Aperçu du dossier{% endblock %}
+{% block title %} | Formulaire d'inscription - Aperçu du dossier{% endblock %}
 {% block content %}
 {{ block.super }}
 <div class="uniForm">
-  <div class="intro">
-    <p><strong>Veuillez réviser les informations qui suivent avant de soumettre
-      votre inscription.</strong></p>
-    <p class="attention">Les frais de participation à l'assemblée générale doivent être payés 
-      <strong>avant le 1er mars 2017</strong>, délai de rigueur. <br>Toute
-      inscription dont le paiement <strong>complet</strong> n'est pas effectué
-      avant cette date sera annulée.</p>
-  </div>
   <div class="formulaire apercu">
   <h2>Aperçu de votre dossier d'inscription</h2>
+  <p><strong>Veuillez réviser les informations qui suivent, avant de soumettre
+      votre formulaire d'inscription.</strong></p>
   {% include "inscription/apercu_include.html" %}
-  <div class="ctrlHolder">
+  <div class="ctrlHolder" id="apercutotal">
     <div class="Label">Total à payer</div>
-    <div class="Data"><span style="float: right; font-weight: bold;">
+    <div class="Data" style="background-color: aliceblue;"><span style="float: right;">
       {{ inscription.get_montant_a_payer }}&nbsp;€</span>
     </div>
   </div>
   </div>
-
+<p class="attention">Les frais de participation à l'assemblée générale doivent être payés 
+      <strong>avant le 1er mars 2017</strong>, délai de rigueur. <br>Toute
+      inscription dont le paiement <strong>complet</strong> n'est pas effectué
+      avant cette date sera annulée.
+</p>
   <div class="buttonHolder formulaire" style="float: right; margin-left: 20px; width: 55%;">
     <p class="message"><strong>Si ces données sont exactes :</strong><br>
       Veuillez sélectionner une des options suivantes pour finaliser votre inscription. L'AUF recevra ainsi votre dossier de participation. <br>Consultez votre dossier en utilisant votre lien d'inscription.</p>
     <form method="post">
       {% csrf_token %}
       <input type="submit" class="primaryAction" name="confirmer"
-             value="Autre méthode de paiement">
+             value="Soumettre et payer autrement">
     </form>
-    <div style="float: right; padding: 16px;">&nbsp;-Ou-&nbsp;</div>
+    <div style="float: right; padding: 20px 26px 0 26px;">&nbsp;-Ou-&nbsp;
+    </div>
     {% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}
     {% include "inscription/paypal_include.html" %}
   </div>
-    <div class="buttonHolder formulaire" style="float: left; width: 32%; clear: none;">
+  <div class="buttonHolder formulaire" style="float: left; width: 32%; clear: none;">
   <p class="message"><strong>Modifier ces informations:</strong><br> Si vous souhaitez plus de temps, utilisez votre lien d'inscription pour revenir sur ce formulaire, vos informations ont été sauvegardées.</p>
     <form method="post">
       {% csrf_token %}

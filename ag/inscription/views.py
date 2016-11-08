@@ -285,7 +285,7 @@ ETAPES_INSCRIPTION = (
     {
         "n": 1,
         "url_title": "participant",
-        "label": u"Participant",
+        "label": u"Informations du participant",
         "template": "participant.html",
         "form_class": RenseignementsPersonnelsForm,
         "tab_visible": True,
@@ -294,7 +294,7 @@ ETAPES_INSCRIPTION = (
     {
         "n": 2,
         "url_title": "programmation",
-        "label": u"Programmation",
+        "label": u"Frais de participation",
         "template": "programmation.html",
         "form_class": ProgrammationForm,
         "tab_visible": True,
@@ -303,7 +303,7 @@ ETAPES_INSCRIPTION = (
     {
         "n": 3,
         "url_title": "transport-hebergement",
-        "label": u"Séjour",
+        "label": u"Transport et hébergement",
         "template": "transport_hebergement.html",
         "form_class": TransportHebergementForm,
         "tab_visible": True,

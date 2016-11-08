@@ -57,12 +57,14 @@ class RenseignementsPersonnels(models.Model):
         'civilité', max_length=1, choices=GENRE_CHOICES, blank=True
     )
     nom = models.CharField(
-        'nom', max_length=100, help_text=u'tel que sur le passeport'
+        'nom', max_length=100, help_text=u'identique au passeport'
     )
     prenom = models.CharField(
-        'prénom(s)', max_length=100, help_text=u'tel que sur le passeport'
+        'prénom(s)', max_length=100, help_text=u'identique au passeport'
     )
-    nationalite = models.CharField('nationalité', max_length=100, blank=True)
+    nationalite = models.CharField(
+	'nationalité', max_length=100, help_text=u'identique au passeport', blank=True
+    )
     date_naissance = models.DateField(
         '   Date de naissance', blank=True, null=True,
         help_text=u'format: jj/mm/aaaa'
