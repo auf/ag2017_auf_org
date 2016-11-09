@@ -4,6 +4,9 @@
 * conf.py (checker ATOMIC_REQUESTS et inno db)
 * . ./init_db.sh
 
+* synchro datamaster
+* synchro délinquants
+
 * dump des données CMS -> github
 * dump de auth.User -> privé
 
