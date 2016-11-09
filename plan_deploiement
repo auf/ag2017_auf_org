@@ -1,5 +1,6 @@
 * git fetch   (master)
 * synchro medias depuis test
+* collectstatic
 * auth_user.json dans racine
 * conf.py (checker ATOMIC_REQUESTS et inno db)
 * . ./init_db.sh
