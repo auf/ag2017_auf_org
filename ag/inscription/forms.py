@@ -31,18 +31,17 @@ class AccueilForm(forms.ModelForm):
             atteste_pha.required = True
         else:
             del atteste_pha
-            representants = Inscription.objects.filter(
-                invitation__pour_mandate=True,
-                invitation__etablissement=self.instance.get_etablissement()
-            )
-            if len(representants) > 0 and representants[0].prenom and \
-               representants[0].nom:
-                representant = representants[0]
+            inscription_representant = \
+                self.instance.get_inscription_representant_etablissement()
+            if (inscription_representant and
+                    inscription_representant.prenom and
+                    inscription_representant.nom):
                 label = (
                     u"J'atteste m'inscrire à la 16e assemblée générale "
                     u"de l'AUF comme accompagnateur, à la demande de %s %s, "
                     u"représentant mandaté de l'établissement." %
-                    (representant.prenom, representant.nom)
+                    (inscription_representant.prenom,
+                     inscription_representant.nom)
                 )
             else:
                 label = u"J'accompagne le représentant mandaté " \

@@ -507,6 +507,14 @@ class Inscription(RenseignementsPersonnels):
             paiements.append(paiement)
         return paiements
 
+    def get_inscription_representant_etablissement(self):
+        representants = Inscription.objects.filter(
+            invitation__pour_mandate=True,
+            invitation__etablissement=self.get_etablissement()
+        )
+        if len(representants):
+            return representants[0]
+
     def __unicode__(self):
         return self.nom.upper() + u', ' + self.prenom + u' (' \
             + self.get_etablissement().nom + u')'

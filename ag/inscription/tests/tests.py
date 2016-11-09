@@ -562,6 +562,12 @@ class FinInscriptionsTestCase(django.test.TestCase, InscriptionTestMixin):
         response = self.client.get(url_etape(inscription, 'accueil'))
         self.assertRedirects(response, reverse('dossier_inscription'))
 
+    def test_get_inscription_representant_etablissement(self):
+        im = self.create_inscription([])
+        inm = self.create_inscription([], mandate=False)
+        assert inm.get_inscription_representant_etablissement() == im
+        assert im.get_inscription_representant_etablissement() == im
+
 
 class FakeDate(datetime.date):
     """Une fausse date qui peut être mockée.
