@@ -319,38 +319,6 @@
   },
   {
     "pk": 1,
-    "model": "gestion.activite",
-    "fields": {
-      "code": "soiree_9_mai",
-      "libelle": "D\u00EEner du 9 mai \u00E0 l\u2019h\u00F4tel Mogador"
-    }
-  },
-  {
-    "pk": 2,
-    "model": "gestion.activite",
-    "fields": {
-      "code": "soiree_10_mai",
-      "libelle": "Soir\u00E9e Fantasia \"Chez Ali\" du 10 mai"
-    }
-  },
-  {
-    "pk": 3,
-    "model": "gestion.activite",
-    "fields": {
-      "code": "gala",
-      "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 11 mai 2013"
-    }
-  },
-  {
-    "pk": 4,
-    "model": "gestion.activite",
-    "fields": {
-      "code": "cocktail_12_mai",
-      "libelle": "Cocktail d\u00EEnatoire de cl\u00F4ture le 12 mai"
-    }
-  },
-  {
-    "pk": 1,
     "model": "gestion.typefrais",
     "fields": {
       "code": "repas",
@@ -417,7 +385,7 @@
     "fields": {
       "code": "10_mai_invite",
       "libelle": "Soir\u00E9e Fantasia \"Chez Ali\" du 10 mai (invit\u00E9)",
-      "montant": 30,
+      "montant": 50,
       "categorie": "invi"
     }
   },
@@ -427,7 +395,7 @@
     "fields": {
       "code": "gala_invite",
       "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 11 mai 2013 (invit\u00E9)",
-      "montant": 50,
+      "montant": 55,
       "categorie": "invi"
     }
   },
@@ -459,6 +427,41 @@
       "libelle": "Forfait 3 d\u00E9jeuners (invit\u00E9)",
       "montant": 60,
       "categorie": "invi"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "gestion.activite",
+    "fields": {
+      "code": "soiree_9_mai",
+      "libelle": "D\u00EEner du 9 mai \u00E0 l\u2019h\u00F4tel Mogador",
+      "forfait_invite_id": 2
+    }
+  },
+  {
+    "pk": 2,
+    "model": "gestion.activite",
+    "fields": {
+      "code": "soiree_10_mai",
+      "libelle": "Soir\u00E9e Fantasia \"Chez Ali\" du 10 mai",
+      "forfait_invite_id": 3
+    }
+  },
+  {
+    "pk": 3,
+    "model": "gestion.activite",
+    "fields": {
+      "code": "gala",
+      "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 11 mai 2013",
+      "forfait_invite_id": 4
+    }
+  },
+  {
+    "pk": 4,
+    "model": "gestion.activite",
+    "fields": {
+      "code": "cocktail_12_mai",
+      "libelle": "Cocktail d\u00EEnatoire de cl\u00F4ture le 12 mai"
     }
   }
 ]
