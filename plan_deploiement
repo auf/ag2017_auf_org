@@ -1,0 +1,9 @@
+* git fetch   (master)
+* synchro medias depuis test
+* auth_user.json dans racine
+* conf.py (checker ATOMIC_REQUESTS et inno db)
+* . ./init_db.sh
+
+* dump des données CMS -> github
+* dump de auth.User -> privé
+
