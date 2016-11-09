@@ -30,7 +30,7 @@ class AccueilForm(forms.ModelForm):
             atteste_pha.label = u""
             atteste_pha.required = True
         else:
-            del atteste_pha
+            del self.fields['atteste_pha']
             inscription_representant = \
                 self.instance.get_inscription_representant_etablissement()
             if (inscription_representant and
