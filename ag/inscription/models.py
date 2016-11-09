@@ -167,6 +167,9 @@ class InvitationEnveloppe(models.Model):
                 reverse('connexion_inscription', args=(self.invitation.jeton,))
             )
         }
+        if not self.invitation.pour_mandate:
+            context['inscription_representant'] = \
+                get_inscription_representant(self.invitation.etablissement)
         return context
 
 # À certains champs correspondent des montants (ex:
@@ -508,12 +511,7 @@ class Inscription(RenseignementsPersonnels):
         return paiements
 
     def get_inscription_representant_etablissement(self):
-        representants = Inscription.objects.filter(
-            invitation__pour_mandate=True,
-            invitation__etablissement=self.get_etablissement()
-        )
-        if len(representants):
-            return representants[0]
+        return get_inscription_representant(self.get_etablissement())
 
     def __unicode__(self):
         return self.nom.upper() + u', ' + self.prenom + u' (' \
@@ -593,3 +591,12 @@ def is_ipn_valid(request):
 
 def montant_str(montant):
     return u"{} €".format(number_format(montant, 2))
+
+
+def get_inscription_representant(etablissement):
+    representants = Inscription.objects.filter(
+        invitation__pour_mandate=True,
+        invitation__etablissement=etablissement,
+    )
+    if len(representants):
+        return representants[0]
