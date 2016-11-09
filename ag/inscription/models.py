@@ -167,6 +167,9 @@ class InvitationEnveloppe(models.Model):
                 reverse('connexion_inscription', args=(self.invitation.jeton,))
             )
         }
+        if not self.invitation.pour_mandate:
+            context['inscription_representant'] = \
+                get_inscription_representant(self.invitation.etablissement)
         return context
 
 # À certains champs correspondent des montants (ex:
@@ -507,6 +510,9 @@ class Inscription(RenseignementsPersonnels):
             paiements.append(paiement)
         return paiements
 
+    def get_inscription_representant_etablissement(self):
+        return get_inscription_representant(self.get_etablissement())
+
     def __unicode__(self):
         return self.nom.upper() + u', ' + self.prenom + u' (' \
             + self.get_etablissement().nom + u')'
@@ -598,3 +604,12 @@ class Forfait(core.TableReference):
 
 def get_forfaits():
     return {f.code: f for f in Forfait.objects.all()}
+
+
+def get_inscription_representant(etablissement):
+    representants = Inscription.objects.filter(
+        invitation__pour_mandate=True,
+        invitation__etablissement=etablissement,
+    )
+    if len(representants):
+        return representants[0]
