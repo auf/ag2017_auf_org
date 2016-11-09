@@ -59,13 +59,18 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='participant',
+            name='forfaits',
+            field=models.ManyToManyField(to='inscription.Forfait'),
+        ),
+        migrations.AddField(
+            model_name='participant',
             name='hotel',
             field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='gestion.Hotel', null=True),
         ),
         migrations.AddField(
             model_name='participant',
             name='inscription',
-            field=models.ForeignKey(to='inscription.Inscription', null=True),
+            field=models.OneToOneField(null=True, to='inscription.Inscription'),
         ),
         migrations.AddField(
             model_name='participant',
@@ -96,6 +101,16 @@ class Migration(migrations.Migration):
             model_name='participant',
             name='vol_groupe',
             field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='gestion.VolGroupe', null=True),
+        ),
+        migrations.AddField(
+            model_name='paiement',
+            name='implantation',
+            field=models.ForeignKey(to='reference.Implantation'),
+        ),
+        migrations.AddField(
+            model_name='paiement',
+            name='participant',
+            field=models.ForeignKey(to='gestion.Participant'),
         ),
         migrations.AddField(
             model_name='invite',
@@ -151,6 +166,11 @@ class Migration(migrations.Migration):
             model_name='agrole',
             name='user',
             field=models.ForeignKey(related_name='roles', verbose_name='utilisateur', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='activite',
+            name='forfait_invite',
+            field=models.ForeignKey(verbose_name='Forfait invit\xe9 correspondant', blank=True, to='inscription.Forfait', null=True),
         ),
         migrations.AlterUniqueTogether(
             name='reservationchambre',

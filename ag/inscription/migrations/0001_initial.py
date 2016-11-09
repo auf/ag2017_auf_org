@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import auf.django.mailing.models
+import uuid
 
 
 class Migration(migrations.Migration):
@@ -14,13 +15,26 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='Forfait',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=16, blank=True)),
+                ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
+                ('montant', models.IntegerField()),
+                ('categorie', models.CharField(max_length=4, choices=[(b'insc', 'Inscription'), (b'invi', 'Invit\xe9'), (b'hebe', 'H\xe9bergement')])),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
             name='Inscription',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('genre', models.CharField(blank=True, max_length=1, verbose_name=b'civilit\xc3\xa9', choices=[(b'M', b'M.'), (b'F', b'Mme')])),
-                ('nom', models.CharField(help_text='tel que sur le passeport', max_length=100, verbose_name=b'nom')),
-                ('prenom', models.CharField(help_text='tel que sur le passeport', max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
-                ('nationalite', models.CharField(max_length=100, verbose_name=b'nationalit\xc3\xa9', blank=True)),
+                ('genre', models.CharField(blank=True, max_length=1, verbose_name=b'civilit\xc3\xa9', choices=[(b'M', 'M.'), (b'F', 'Mme')])),
+                ('nom', models.CharField(help_text='identique au passeport', max_length=100, verbose_name=b'nom')),
+                ('prenom', models.CharField(help_text='identique au passeport', max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
+                ('nationalite', models.CharField(help_text='identique au passeport', max_length=100, verbose_name=b'nationalit\xc3\xa9', blank=True)),
                 ('date_naissance', models.DateField(help_text='format: jj/mm/aaaa', null=True, verbose_name=b'   Date de naissance', blank=True)),
                 ('poste', models.CharField(max_length=100, verbose_name=b'poste occup\xc3\xa9', blank=True)),
                 ('courriel', models.EmailField(max_length=254, blank=True)),
@@ -32,19 +46,22 @@ class Migration(migrations.Migration):
                 ('telecopieur', models.CharField(max_length=50, verbose_name=b't\xc3\xa9l\xc3\xa9copieur', blank=True)),
                 ('date_arrivee_hotel', models.DateField(null=True, verbose_name="Date d'arriv\xe9e", blank=True)),
                 ('date_depart_hotel', models.DateField(null=True, verbose_name='Date de d\xe9part', blank=True)),
-                ('paiement', models.CharField(blank=True, max_length=2, verbose_name=b'modalit\xc3\xa9s de paiement', choices=[(b'CB', b'Carte bancaire'), (b'VB', b'Virement bancaire'), (b'CE', b'Ch\xc3\xa8que en euros'), (b'DL', b'Devises locales')])),
-                ('identite_confirmee', models.BooleanField(default=False, verbose_name=b'identit\xc3\xa9 confirm\xc3\xa9e')),
+                ('atteste_pha', models.CharField(max_length=1, null=True, choices=[(b'P', "J'atteste \xeatre la plus haute autorit\xe9 de mon \xe9tablissement et participerai \xe0 la 17\xe8me Assembl\xe9e g\xe9n\xe9rale de l'AUF"), (b'R', "J'atteste \xeatre le repr\xe9sentant d\xfbment mandat\xe9 par la plus haute autorit\xe9 de mon \xe9tablissement pour participer \xe0 la 17\xe8me Assembl\xe9e g\xe9n\xe9rale de l'AUF")])),
+                ('identite_accompagnateur_confirmee', models.BooleanField(default=False, verbose_name=b'identit\xc3\xa9 confirm\xc3\xa9e')),
                 ('conditions_acceptees', models.BooleanField(default=False, verbose_name='J\'ai lu et j\'accepte les <a href="/inscription/conditions-generales/" onclick="javascript:window.open(\'/inscription/conditions-generales/\');return false;" target="_blank">conditions g\xe9n\xe9rales d\'inscription</a>')),
                 ('accompagnateur', models.BooleanField(default=False, verbose_name="Je serai accompagn\xe9(e) par une autre personne qui ne participera pas \xe0 l'assembl\xe9e g\xe9n\xe9rale")),
-                ('accompagnateur_genre', models.CharField(blank=True, max_length=1, verbose_name='genre', choices=[(b'M', b'M.'), (b'F', b'Mme')])),
+                ('accompagnateur_genre', models.CharField(blank=True, max_length=1, verbose_name='genre', choices=[(b'M', 'M.'), (b'F', 'Mme')])),
                 ('accompagnateur_nom', models.CharField(max_length=100, verbose_name=b'nom', blank=True)),
                 ('accompagnateur_prenom', models.CharField(max_length=100, verbose_name='pr\xe9nom(s)', blank=True)),
-                ('programmation_soiree_unesp', models.BooleanField(default=False, verbose_name="Je participerai \xe0 la soir\xe9e organis\xe9e par l'UNESP le 7 mai 2013.")),
-                ('programmation_soiree_unesp_invite', models.BooleanField(default=False, verbose_name='Mon invit\xe9 \xe9galement.')),
-                ('programmation_soiree_interconsulaire', models.BooleanField(default=False, verbose_name='Je participerai \xe0 la soir\xe9e interconsulaire le 8 mai 2013.')),
-                ('programmation_soiree_interconsulaire_invite', models.BooleanField(default=False, verbose_name='Mon invit\xe9 \xe9galement.')),
-                ('programmation_gala', models.BooleanField(default=False, verbose_name="Je participerai \xe0 la soir\xe9e de gala de cl\xf4ture de l'assembl\xe9e g\xe9n\xe9rale le 9 mai 2013.")),
-                ('programmation_gala_invite', models.BooleanField(default=False, verbose_name='Mon invit\xe9 \xe9galement.')),
+                ('programmation_soiree_9_mai', models.BooleanField(default=False, verbose_name='D\xeener du 9 mai \xe0 l\u2019h\xf4tel Mogador')),
+                ('programmation_soiree_9_mai_invite', models.BooleanField(default=False, verbose_name='D\xeener du 9 mai \xe0 l\u2019h\xf4tel Mogador')),
+                ('programmation_soiree_10_mai', models.BooleanField(default=False, verbose_name='Soir\xe9e Fantasia "Chez Ali" du 10 mai.')),
+                ('programmation_soiree_10_mai_invite', models.BooleanField(default=False, verbose_name='Soir\xe9e Fantasia "Chez Ali" du 10 mai.')),
+                ('programmation_gala', models.BooleanField(default=False, verbose_name="Soir\xe9e de gala de cl\xf4ture de l'Assembl\xe9e g\xe9n\xe9rale le 11 mai.")),
+                ('programmation_gala_invite', models.BooleanField(default=False, verbose_name="Soir\xe9e de gala de cl\xf4ture de l'Assembl\xe9e g\xe9n\xe9rale le 11 mai.")),
+                ('programmation_soiree_12_mai', models.BooleanField(default=False, verbose_name='Cocktail d\xeenatoire de cl\xf4ture le 12 mai.')),
+                ('forfait_invite_dejeuners', models.BooleanField(default=False, verbose_name='Forfait 3 D\xe9jeuners (9,10 et 11)')),
+                ('forfait_invite_transfert', models.BooleanField(default=False, verbose_name='2 transferts a\xe9roport et h\xf4tel (seulement si votre accompagnateur voyage avec vous)')),
                 ('prise_en_charge_hebergement', models.NullBooleanField(verbose_name=b'Je demande la prise en charge de mon h\xc3\xa9bergement.')),
                 ('prise_en_charge_transport', models.NullBooleanField(verbose_name=b'Je demande la prise en charge de mon transport.')),
                 ('arrivee_date', models.DateField(help_text=b'format: jj/mm/aaaa', null=True, verbose_name=b"date d'arriv\xc3\xa9e \xc3\xa0 S\xc3\xa3o Paulo", blank=True)),
@@ -58,6 +75,8 @@ class Migration(migrations.Migration):
                 ('depart_vol', models.CharField(max_length=100, verbose_name=b'vol', blank=True)),
                 ('fermee', models.BooleanField(default=False, verbose_name='Confirm\xe9e par le participant')),
                 ('date_fermeture', models.DateField(null=True, verbose_name='Confirm\xe9e le')),
+                ('numero_dossier', models.CharField(max_length=8, unique=True, null=True)),
+                ('reseautage', models.BooleanField(default=False)),
             ],
             options={
                 'abstract': False,
@@ -70,6 +89,8 @@ class Migration(migrations.Migration):
                 ('pour_mandate', models.BooleanField(default=False)),
                 ('courriel', models.EmailField(max_length=254, null=True)),
                 ('jeton', models.CharField(default=auf.django.mailing.models.generer_jeton, max_length=32)),
+                ('nom', models.CharField(max_length=100, null=True)),
+                ('prenom', models.CharField(max_length=100, null=True)),
                 ('etablissement', models.ForeignKey(to='reference.Etablissement')),
             ],
         ),
@@ -82,19 +103,31 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='PaiementPaypal',
+            name='PaypalInvoice',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('invoice_uid', models.UUIDField(default=uuid.uuid4, db_index=True)),
+                ('montant', models.DecimalField(max_digits=6, decimal_places=2)),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('inscription', models.ForeignKey(to='inscription.Inscription')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PaypalResponse',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type_reponse', models.CharField(max_length=3, choices=[(b'IPN', 'Instant Payment Notification'), (b'PDT', 'Payment Data Transfer'), (b'CAN', 'Cancelled')])),
                 ('date_heure', models.DateTimeField(null=True, verbose_name='Date et heure du paiement')),
-                ('montant', models.FloatField(null=True)),
+                ('montant', models.DecimalField(null=True, max_digits=6, decimal_places=2)),
                 ('devise', models.CharField(max_length=32, null=True)),
-                ('numero_transaction', models.CharField(unique=True, max_length=250, db_index=True)),
+                ('invoice_uid', models.UUIDField(null=True, db_index=True)),
+                ('txn_id', models.CharField(max_length=250, null=True, db_index=True)),
                 ('statut', models.CharField(max_length=64, null=True)),
                 ('raison_attente', models.CharField(max_length=128, null=True)),
-                ('ipn_post_data', models.TextField(null=True)),
-                ('pdt_reponse', models.TextField(null=True)),
-                ('ipn_valide', models.BooleanField(default=False)),
-                ('pdt_valide', models.BooleanField(default=False)),
+                ('request_data', models.TextField(null=True)),
+                ('validation_response_data', models.TextField(null=True)),
+                ('validated', models.BooleanField(default=False)),
+                ('received_at', models.DateTimeField(auto_now_add=True)),
                 ('inscription', models.ForeignKey(to='inscription.Inscription', null=True)),
             ],
         ),

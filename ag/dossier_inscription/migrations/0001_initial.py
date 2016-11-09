@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inscription', '0017_remove_inscription_paiement'),
+        ('inscription', '0001_initial'),
     ]
 
     operations = [

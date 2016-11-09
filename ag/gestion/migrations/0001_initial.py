@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import auf.django.permissions
+import ag.gestion.models
 import django.core.files.storage
 
 
@@ -36,8 +37,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('code', models.CharField(max_length=16, blank=True)),
                 ('libelle', models.CharField(max_length=256, verbose_name='Libell\xe9')),
-                ('prix', models.FloatField()),
-                ('prix_invite', models.FloatField(verbose_name='Prix pour les invit\xe9s')),
             ],
             options={
                 'verbose_name': 'Activit\xe9',
@@ -83,7 +82,8 @@ class Migration(migrations.Migration):
             name='Fichier',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('fichier', models.FileField(storage=django.core.files.storage.FileSystemStorage(location=b'/media/benselme/data/dev/projects/auf/ag2017_auf_org/medias_participants'), upload_to=b'.')),
+                ('fichier', models.FileField(storage=django.core.files.storage.FileSystemStorage(location=b'/media/benselme/data/dev/projects/auf/ag2017_auf_org/medias_participants'), upload_to=ag.gestion.models.get_participant_file_path)),
+                ('type_fichier', models.IntegerField(default=0, choices=[(0, 'Autres'), (1, 'Passeport')])),
                 ('cree_le', models.DateTimeField(auto_now_add=True, verbose_name='cr\xe9\xe9 le ')),
                 ('efface_le', models.DateTimeField(null=True, verbose_name='effac\xe9 le ')),
             ],
@@ -135,19 +135,31 @@ class Migration(migrations.Migration):
             name='Invite',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('genre', models.CharField(max_length=1, choices=[(b'M', b'M.'), (b'F', b'Mme')])),
+                ('genre', models.CharField(max_length=1, choices=[(b'M', 'M.'), (b'F', 'Mme')])),
                 ('nom', models.CharField(max_length=100, verbose_name=b'nom')),
                 ('prenom', models.CharField(max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Paiement',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('date', models.DateField()),
+                ('montant_euros', models.DecimalField(verbose_name='Montant (\u20ac)', max_digits=10, decimal_places=2)),
+                ('moyen', models.CharField(max_length=2, verbose_name='modalit\xe9', choices=[(b'CB', 'Carte bancaire'), (b'VB', 'Virement bancaire'), (b'CE', 'Ch\xe8que en euros'), (b'DL', 'Devises locales')])),
+                ('ref', models.CharField(max_length=255, verbose_name='r\xe9f\xe9rence')),
+                ('montant_devise_locale', models.DecimalField(null=True, verbose_name='paiement en devises locales', max_digits=16, decimal_places=2, blank=True)),
+                ('devise_locale', models.CharField(max_length=3, null=True, verbose_name='devise paiement', blank=True)),
             ],
         ),
         migrations.CreateModel(
             name='Participant',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('genre', models.CharField(blank=True, max_length=1, verbose_name=b'civilit\xc3\xa9', choices=[(b'M', b'M.'), (b'F', b'Mme')])),
-                ('nom', models.CharField(help_text='tel que sur le passeport', max_length=100, verbose_name=b'nom')),
-                ('prenom', models.CharField(help_text='tel que sur le passeport', max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
-                ('nationalite', models.CharField(max_length=100, verbose_name=b'nationalit\xc3\xa9', blank=True)),
+                ('genre', models.CharField(blank=True, max_length=1, verbose_name=b'civilit\xc3\xa9', choices=[(b'M', 'M.'), (b'F', 'Mme')])),
+                ('nom', models.CharField(help_text='identique au passeport', max_length=100, verbose_name=b'nom')),
+                ('prenom', models.CharField(help_text='identique au passeport', max_length=100, verbose_name=b'pr\xc3\xa9nom(s)')),
+                ('nationalite', models.CharField(help_text='identique au passeport', max_length=100, verbose_name=b'nationalit\xc3\xa9', blank=True)),
                 ('date_naissance', models.DateField(help_text='format: jj/mm/aaaa', null=True, verbose_name=b'   Date de naissance', blank=True)),
                 ('poste', models.CharField(max_length=100, verbose_name=b'poste occup\xc3\xa9', blank=True)),
                 ('courriel', models.EmailField(max_length=254, blank=True)),
@@ -159,7 +171,6 @@ class Migration(migrations.Migration):
                 ('telecopieur', models.CharField(max_length=50, verbose_name=b't\xc3\xa9l\xc3\xa9copieur', blank=True)),
                 ('date_arrivee_hotel', models.DateField(null=True, verbose_name="Date d'arriv\xe9e", blank=True)),
                 ('date_depart_hotel', models.DateField(null=True, verbose_name='Date de d\xe9part', blank=True)),
-                ('paiement', models.CharField(blank=True, max_length=2, verbose_name=b'modalit\xc3\xa9s de paiement', choices=[(b'CB', b'Carte bancaire'), (b'VB', b'Virement bancaire'), (b'CE', b'Ch\xc3\xa8que en euros'), (b'DL', b'Devises locales')])),
                 ('utiliser_adresse_gde', models.BooleanField(default=False, verbose_name='Utiliser adresse GDE pour la facturation')),
                 ('notes', models.TextField(blank=True)),
                 ('notes_statut', models.TextField(blank=True)),
@@ -167,9 +178,6 @@ class Migration(migrations.Migration):
                 ('type_institution', models.CharField(max_length=1, verbose_name="Type de l'institution repr\xe9sent\xe9e", choices=[(b'E', '\xc9tablissement'), (b'I', "Instance de l'AUF"), (b'A', 'Autre')])),
                 ('instance_auf', models.CharField(max_length=1, verbose_name="Instance de l'AUF", choices=[(b'A', "Conseil d'administration"), (b'S', 'Conseil scientifique'), (b'C', 'Conseil associatif')])),
                 ('nom_autre_institution', models.CharField(max_length=64, null=True, verbose_name="Nom de l'institution")),
-                ('accompte', models.FloatField(default=0, verbose_name='paiement (\u20ac)', blank=True)),
-                ('montant_accompte_devise_locale', models.FloatField(default=0, null=True, verbose_name='paiement en devises locales', blank=True)),
-                ('accompte_devise_locale', models.CharField(max_length=3, null=True, verbose_name='devise paiement', blank=True)),
                 ('numero_facture', models.IntegerField(null=True, verbose_name='Num\xe9ro de facture')),
                 ('date_facturation', models.DateField(null=True, verbose_name='Date de facturation', blank=True)),
                 ('facturation_validee', models.BooleanField(default=False, verbose_name='Facturation valid\xe9e')),
@@ -178,7 +186,6 @@ class Migration(migrations.Migration):
                 ('prise_en_charge_transport', models.NullBooleanField(verbose_name='Prise en charge transport')),
                 ('prise_en_charge_sejour', models.NullBooleanField(verbose_name='Prise en charge s\xe9jour')),
                 ('prise_en_charge_activites', models.BooleanField(default=False, verbose_name='Prise en charge activit\xe9s')),
-                ('facturation_supplement_chambre_double', models.BooleanField(default=False, verbose_name='Facturer un suppl\xe9ment pour une chambre double')),
                 ('imputation', models.CharField(blank=True, max_length=32, choices=[(b'90002AG201', b'90002AG201'), (b'90002AG202', b'90002AG202'), (b'90002AG203', b'90002AG203')])),
                 ('modalite_versement_frais_sejour', models.CharField(blank=True, max_length=1, verbose_name='Modalit\xe9 de versement', choices=[(b'A', '\xc0 votre arriv\xe9e \xe0 Sao paulo'), (b'I', 'Par le bureau r\xe9gional')])),
                 ('transport_organise_par_auf', models.BooleanField(default=False, verbose_name="Transport organis\xe9 par l'AUF")),

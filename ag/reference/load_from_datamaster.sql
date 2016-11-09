@@ -4,9 +4,9 @@ INSERT INTO reference_pays (id, code, nom, sud)
     code,
     nom,
     IF(nord_sud = 'Sud', TRUE, FALSE)
-  FROM datamaster.ref_pays drp;
+  FROM datamaster.ref_pays drp
 ON DUPLICATE KEY UPDATE
-  code = drp.code, nom=drp.nom, sud= IF (drp.nord_sud='Sud', TRUE, FALSE );
+  code=drp.code, nom=drp.nom, sud=(IF (drp.nord_sud='Sud', TRUE, FALSE ));
 
 INSERT INTO reference_region (id, code, nom)
   SELECT
