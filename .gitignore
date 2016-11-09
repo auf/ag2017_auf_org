@@ -31,3 +31,5 @@
 /medias_participants
 
 .cache
+
+auth_user.json
