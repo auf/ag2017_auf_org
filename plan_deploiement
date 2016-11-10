@@ -1,3 +1,5 @@
+* créer virtualenv
+* pip install -r requirements.txt
 * git fetch   (master)
 * auth_user.json dans racine
 * conf.py (checker ATOMIC_REQUESTS et inno db)
@@ -9,4 +11,5 @@
 * synchro délinquants
 
 
-* test mailing ?
+* test mailing: setter MAILING_TEST_ADDRESS dans conf.py puis
+python manage.py envoyer_invitations
