@@ -50,7 +50,7 @@ margin:auto;
     background-color: white;
 }
 
-
+.bx-prev, .bx-next {display:none;}
 
 #diapo .note {
     position: absolute;
@@ -156,6 +156,9 @@ div.selectBox {
     right: 20px;
     height: 22px;
 }
+
+.edito {float:left;}
+.signature {float:left; width:170px; padding-top:30px;}
 
 div.selectBox2 {
     position: relative;
@@ -391,6 +394,7 @@ font-size:0.9em;
     padding: 20px;
     min-height: 600px;
     margin-top: 20px;
+        padding-bottom:50px;
 }
 
 #sid {
@@ -479,6 +483,19 @@ float: left;
     margin-bottom: 14px;
     padding-left: 20px;
 }
+
+
+
+.contents ul li.selected, .contents ul li.selected a {
+    color:#A90F30;
+    font-weight:bold;
+}
+
+.contents ul li a:hover {
+    color:#A90F30;
+
+}
+
 
 #smenu ul {
       margin: 0 0 22px 0;
@@ -646,6 +663,7 @@ h1{
 
     padding-bottom: 15px;
     margin-bottom: 21px;
+
 
 }
 
@@ -1083,6 +1101,7 @@ background-image:none;
 background-image:none;
 
 }
+#diapo, .image img {height:250px;}
 
 #corp {
 	padding-right:0px;
@@ -1090,6 +1109,7 @@ background-image:none;
     max-width:93%;
     margin-left: 20px;
     margin-right: 20px;
+
 }
 
 #sid {
@@ -1161,6 +1181,7 @@ margin-left:20px;
 background-image:none;
 
 }
+#diapo, .image img {height:250px;}
 
 #diapo .note {
     position: absolute;
@@ -1279,6 +1300,7 @@ left:4%;
 
 
 }
+
 
 #corp {
 	padding-right:0px;
