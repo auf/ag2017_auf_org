@@ -478,7 +478,8 @@ float: left;
 }
 
 .contents ul li {
-    background: url("img/puce.png") no-repeat scroll left center transparent;
+    background: url("img/puce.png") no-repeat scroll left top transparent;
+    background-position: 0px 1px ;
     line-height: 16px;
     margin-bottom: 14px;
     padding-left: 20px;
