@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*
+import os
+
 from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from django.conf import settings
@@ -40,5 +42,10 @@ if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # NOQA
     urlpatterns += patterns('',
         url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True})
-)
+            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}))
+
+    if os.environ.get('DJDT', '0') == '1':
+        import debug_toolbar
+        urlpatterns = patterns(
+            '', url(r'^__debug__/', include(debug_toolbar.urls)), ) \
+            + urlpatterns
