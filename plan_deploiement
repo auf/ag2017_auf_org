@@ -1,15 +1,12 @@
 * git fetch   (master)
-* synchro medias depuis test
-* collectstatic
 * auth_user.json dans racine
 * conf.py (checker ATOMIC_REQUESTS et inno db)
 * . ./init_db.sh
+* synchro medias depuis test
+* collectstatic
 
 * synchro datamaster
 * synchro délinquants
 
-* dump des données CMS -> github
-* dump de auth.User -> privé
 
 * test mailing ?
-* données MC depuis test
