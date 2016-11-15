@@ -1,7 +1,6 @@
 # encoding: utf-8
 import collections
 import datetime
-import json
 import time
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -9,7 +8,6 @@ from django.db import transaction
 from django.dispatch import Signal
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 import six
