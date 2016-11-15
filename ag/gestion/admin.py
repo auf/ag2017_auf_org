@@ -120,8 +120,9 @@ class InscriptionAdmin(ModelAdmin):
             request, extra_context=extra_context
         )
 
-    def queryset(self, request):
-        return Inscription.objects.filter(participant__id__isnull=True)
+    def get_queryset(self, request):
+        return Inscription.objects.filter(participant__id__isnull=True)\
+            .select_related('invitation__etablissement__region')
 
     # def get_paiement_list_display(self, obj):
     #
