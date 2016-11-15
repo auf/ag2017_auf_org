@@ -1,7 +1,6 @@
 # encoding: utf-8
 import collections
 import datetime
-import json
 import time
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -9,7 +8,6 @@ from django.db import transaction
 from django.dispatch import Signal
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 import six
@@ -45,8 +43,8 @@ def inscriptions_terminees():
 
 class Etape(object):
 
-    def __init__(self, processus, donnees_etape):
-        self.__dict__.update(donnees_etape)
+    def __init__(self, processus, **kwargs):
+        self.__dict__.update(kwargs)
         self.processus = processus
 
     def est_derniere_visible(self):
@@ -66,8 +64,8 @@ class EtapesProcessus(list):
 
     def __init__(self, donnees_etapes):
         super(EtapesProcessus, self).__init__(self)
-        for donnees_etape in donnees_etapes:
-            self.append(Etape(self, donnees_etape))
+        for n, donnees_etape in enumerate(donnees_etapes):
+            self.append(Etape(self, n=n, **donnees_etape))
 
     def etape_par_url(self, url_title):
         for etape in self:
@@ -146,24 +144,27 @@ AppelEtapeProcessus = collections.namedtuple(
      'inscription'))
 
 AppelEtapeResult = collections.namedtuple(
-    'AppelEtapeResult', ('redirect', 'template_context', 'form_kwargs',
-                         'etape_suivante'))
+    'AppelEtapeResult', ('redirect', 'template_context', 'form_kwargs', ))
 
 
 def redirect_etape(url_title):
     return redirect('processus_inscription', url_title)
 
 
-def redirect_etape_suivante(appel_etape_processus):
-    etapes_processus = appel_etape_processus.etapes_processus
-    etape_courante = appel_etape_processus.etape_courante
-    etape_suivante = etapes_processus.etape_suivante(etape_courante)
-    return redirect('processus_inscription', etape_suivante.url_title)
+def get_donnees_etapes(inscription):
+    """
+
+    :param inscription: Inscription
+    :return: dict
+    """
+    donnees_etapes = [d.copy() for d in ETAPES_INSCRIPTION]
+    if not inscription.prise_en_charge_possible():
+        donnees_etapes = [d for d in donnees_etapes
+                          if d['url_title'] != 'transport-hebergement']
+    return donnees_etapes
 
 
 def processus_inscription(request, url_title=None):
-    etapes_processus = EtapesProcessus(donnees_etapes=ETAPES_INSCRIPTION)
-    etape_courante = etapes_processus.etape_par_url(url_title)
     request.session['django_language'] = 'fr'
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
@@ -171,6 +172,10 @@ def processus_inscription(request, url_title=None):
     inscription = get_object_or_404(Inscription, id=inscription_id)
     if inscription.fermee:
         return redirect('dossier_inscription')
+
+    donnees_etapes = get_donnees_etapes(inscription)
+    etapes_processus = EtapesProcessus(donnees_etapes=donnees_etapes)
+    etape_courante = etapes_processus.etape_par_url(url_title)
 
     appel_etape_processus = AppelEtapeProcessus(
         etapes_processus=etapes_processus, etape_courante=etape_courante,
@@ -180,10 +185,9 @@ def processus_inscription(request, url_title=None):
         etape_result = etape_courante.func(appel_etape_processus)
     else:
         etape_result = AppelEtapeResult(template_context=None, redirect=None,
-                                        form_kwargs=None, etape_suivante=None)
+                                        form_kwargs=None)
 
-    etape_suivante = etape_result.etape_suivante or \
-        etapes_processus.etape_suivante(etape_courante)
+    etape_suivante = etapes_processus.etape_suivante(etape_courante)
 
     if etape_result.redirect:
         return etape_result.redirect
@@ -220,12 +224,12 @@ def apercu(appel_etape_processus):
                 inscription_confirmee.send_robust(inscription)
             redir = redirect('dossier_inscription')
         return AppelEtapeResult(redirect=redir, template_context=None,
-                                form_kwargs=None, etape_suivante=None)
+                                form_kwargs=None)
     else:
         context = get_paypal_context(appel_etape_processus.request)
         context['forfaits'] = get_forfaits()
         return AppelEtapeResult(redirect=None, template_context=context,
-                                form_kwargs=None, etape_suivante=None)
+                                form_kwargs=None)
 
 
 def renseignements_personnels(appel_etape_processus):
@@ -237,8 +241,7 @@ def renseignements_personnels(appel_etape_processus):
     inscription = appel_etape_processus.inscription
     initial = inscription.get_donnees_preremplir()
     return AppelEtapeResult(redirect=None, template_context=None,
-                            form_kwargs={'initial': initial},
-                            etape_suivante=None)
+                            form_kwargs={'initial': initial})
 
 
 # noinspection PyUnusedLocal
@@ -248,24 +251,17 @@ def programmation(appel_etape_processus):
         forfaits = get_forfaits()
         montant_inscription = forfaits[consts.CODE_FRAIS_INSCRIPTION]\
             .montant
-        if not inscription.prise_en_charge_possible():
-            etape_suivante = appel_etape_processus.etapes_processus\
-                .etape_par_url('apercu')
-        else:
-            etape_suivante = None
         return AppelEtapeResult(
             redirect=None,
             template_context={
                 'total_programmation': total_programmation,
                 'montant_frais_inscription': montant_inscription
             },
-            form_kwargs={'forfaits': forfaits},
-            etape_suivante=etape_suivante)
+            form_kwargs={'forfaits': forfaits})
 
 
 ETAPES_INSCRIPTION = (
     {
-        "n": 0,
         "url_title": "accueil",
         "label": u"Accueil",
         "template": "accueil.html",
@@ -274,7 +270,6 @@ ETAPES_INSCRIPTION = (
         "func": None,
     },
     {
-        "n": 1,
         "url_title": "participant",
         "label": u"Informations du participant",
         "template": "participant.html",
@@ -283,7 +278,6 @@ ETAPES_INSCRIPTION = (
         "func": renseignements_personnels,
     },
     {
-        "n": 2,
         "url_title": "programmation",
         "label": u"Frais de participation",
         "template": "programmation.html",
@@ -292,7 +286,6 @@ ETAPES_INSCRIPTION = (
         "func": programmation,
     },
     {
-        "n": 3,
         "url_title": "transport-hebergement",
         "label": u"Transport et hébergement",
         "template": "transport_hebergement.html",
@@ -301,7 +294,6 @@ ETAPES_INSCRIPTION = (
         "func": None,
     },
     {
-        "n": 4,
         "url_title": "apercu",
         "label": u"Aperçu",
         "template": "apercu.html",
@@ -328,6 +320,7 @@ def get_inscription_by_invoice_uid(invoice_uid):
     return invoice.inscription, invoice.invoice_uid
 
 
+@require_GET
 def paypal_return(request):
     # tx=9TN773664V3684442&st=Pending&amt=570.00&cc=EUR&cm=&item_number=
     tx = request.GET.get('tx')

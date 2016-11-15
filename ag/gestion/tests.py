@@ -8,7 +8,7 @@ from ag.gestion import transfert_inscription
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
 from ag.inscription.models import Inscription, Invitation, PaypalResponse, \
-    get_forfaits
+    get_forfaits, Forfait
 from ag.core.test_utils import (
     find_input_by_id,
     find_input_by_name,
@@ -808,107 +808,6 @@ class GestionTestCase(TestCase):
                 self.assertEqual(activite.nombre_pris_en_charge(), 2)
                 self.assertEqual(activite.nombre_invites(), 1)
 
-    def test_transfert_inscription(self):
-        invitation = Invitation()
-        invitation.etablissement = \
-            Etablissement.objects.get(pk=self.etablissement_id)
-        invitation.save()
-        i = Inscription()
-        i.genre = 'M'
-        i.nom = u'Moon'
-        i.prenom = u'Keith'
-        i.nationalite = u'UK'
-        i.date_naissance = datetime.date(1945, 2, 2)
-        i.poste = u'Recteur'
-        i.courriel = u'rd@who.net'
-        i.adresse = u'adresse...'
-        i.ville = u'London'
-        i.pays = u'UK'
-        i.code_postal = u'F3D 4P5'
-        i.telephone = u"+34 1 55 5555"
-        i.telecopieur = u"+34 1 55 5555"
-        i.date_arrivee_hotel = datetime.date(2013, 5, 6)
-        i.date_depart_hotel = datetime.date(2013, 5, 6)
-        i.paiement = 'CB'
-        i.invitation = invitation
-        i.identite_confirmee = True
-        i.conditions_acceptees = True
-        i.accompagnateur = True
-        i.accompagnateur_genre = 'M'
-        i.accompagnateur_nom = u'Townshend'
-        i.accompagnateur_prenom = u'Peter'
-        i.programmation_soiree_9_mai = True
-        i.programmation_soiree_9_mai_invite = True
-        i.programmation_soiree_10_mai = True
-        i.programmation_soiree_10_mai_invite_invite = False
-        i.programmation_gala = False
-        i.programmation_gala_invite = False
-        i.prise_en_charge_hebergement = False
-        i.prise_en_charge_transport = False
-        i.arrivee_date = datetime.date(2013, 5, 1)
-        i.arrivee_heure = datetime.time(10, 00)
-        i.arrivee_compagnie = u'cie arrivée'
-        i.arrivee_vol = u'CA111'
-        i.depart_de = 'sao-paolo'
-        i.depart_date = datetime.date(2013, 5, 6)
-        i.depart_heure = datetime.time(21, 00)
-        i.depart_compagnie = u'cie départ'
-        i.depart_vol = u'CD454'
-        i.fermee = True
-        i.date_fermeture = datetime.date(2012, 7, 23)
-        i.save()
-        statut = StatutParticipant.objects.get(code='repr_tit')
-        assert settings.DESTINATAIRES_NOTIFICATIONS['service_institutions']
-        nb_mails_before = len(mail.outbox)
-        p = transfert_inscription.transfere(i, statut, False, False, False)
-        self.assertEqual(len(mail.outbox), nb_mails_before + 1)
-        self.assertEqual(p.nom, i.nom)
-        self.assertEqual(p.pays, i.pays)
-        self.assertEqual(
-            ParticipationActivite.objects.filter(
-                participant=p, activite__code=consts.CODE_SOIREE_9_MAI,
-                avec_invites=True
-            ).count(),
-            1
-        )
-        self.assertEqual(
-            ParticipationActivite.objects.filter(
-                participant=p, activite__code=consts.CODE_SOIREE_10_MAI,
-                avec_invites=False
-            ).count(),
-            1
-        )
-        self.assertEqual(
-            ParticipationActivite.objects.filter(
-                participant=p, activite__code=consts.CODE_GALA
-            ).count(),
-            0
-        )
-        infos_arrivee = p.get_infos_arrivee()
-        self.assertEqual(infos_arrivee.compagnie, i.arrivee_compagnie)
-        self.assertEqual(infos_arrivee.numero_vol, i.arrivee_vol)
-        self.assertEqual(infos_arrivee.date_arrivee, i.arrivee_date)
-        self.assertEqual(infos_arrivee.heure_arrivee, i.arrivee_heure)
-        infos_depart = p.get_infos_depart()
-        self.assertEqual(infos_depart.compagnie, i.depart_compagnie)
-        self.assertEqual(infos_depart.numero_vol, i.depart_vol)
-        self.assertEqual(infos_depart.date_depart, i.depart_date)
-        self.assertEqual(infos_depart.heure_depart, i.depart_heure)
-        self.assertEqual(p.type_institution, 'E')
-        self.assertEqual(p.etablissement, i.get_etablissement())
-
-        self.assertEquals(len(Invite.objects.filter(participant=p)), 1)
-        self.assertFalse(p.transport_organise_par_auf)
-        self.assertFalse(p.reservation_hotel_par_auf)
-        p.delete()
-        i.prise_en_charge_hebergement = True
-        i.prise_en_charge_transport = True
-        p = transfert_inscription.transfere(i, statut, True, True, True)
-        self.assertTrue(p.transport_organise_par_auf)
-        self.assertTrue(p.prise_en_charge_transport)
-        self.assertTrue(p.prise_en_charge_sejour)
-        self.assertTrue(p.reservation_hotel_par_auf)
-
     def test_frais(self):
         participant = self.participant
         participant.set_frais(TypeFrais.AUTRES_FRAIS, 1, 99)
@@ -1285,6 +1184,118 @@ class GestionTestCase(TestCase):
 POINT_DE_SUIVI_1 = 'compl_paris'
 POINT_DE_SUIVI_2 = 'trans_complet'
 POINT_DE_SUIVI_3 = 'fact_transm'
+
+
+class TransfertInscription(TestCase):
+    fixtures = ['test_data.json']
+
+    def setUp(self):
+        create_fixtures(self)
+
+    def test_transfert_inscription(self):
+        invitation = Invitation()
+        invitation.etablissement = \
+            Etablissement.objects.get(pk=self.etablissement_id)
+        invitation.save()
+        i = Inscription()
+        i.genre = 'M'
+        i.nom = u'Moon'
+        i.prenom = u'Keith'
+        i.nationalite = u'UK'
+        i.date_naissance = datetime.date(1945, 2, 2)
+        i.poste = u'Recteur'
+        i.courriel = u'rd@who.net'
+        i.adresse = u'adresse...'
+        i.ville = u'London'
+        i.pays = u'UK'
+        i.code_postal = u'F3D 4P5'
+        i.telephone = u"+34 1 55 5555"
+        i.telecopieur = u"+34 1 55 5555"
+        i.date_arrivee_hotel = datetime.date(2013, 5, 6)
+        i.date_depart_hotel = datetime.date(2013, 5, 6)
+        i.paiement = 'CB'
+        i.invitation = invitation
+        i.identite_confirmee = True
+        i.conditions_acceptees = True
+        i.accompagnateur = True
+        i.accompagnateur_genre = 'M'
+        i.accompagnateur_nom = u'Townshend'
+        i.accompagnateur_prenom = u'Peter'
+        i.programmation_soiree_9_mai = True
+        i.programmation_soiree_9_mai_invite = True
+        i.programmation_soiree_10_mai = True
+        i.programmation_soiree_10_mai_invite_invite = False
+        i.programmation_gala = False
+        i.programmation_gala_invite = False
+        i.prise_en_charge_hebergement = False
+        i.prise_en_charge_transport = False
+        i.arrivee_date = datetime.date(2013, 5, 1)
+        i.arrivee_heure = datetime.time(10, 00)
+        i.arrivee_compagnie = u'cie arrivée'
+        i.arrivee_vol = u'CA111'
+        i.depart_de = 'sao-paolo'
+        i.depart_date = datetime.date(2013, 5, 6)
+        i.depart_heure = datetime.time(21, 00)
+        i.depart_compagnie = u'cie départ'
+        i.depart_vol = u'CD454'
+        i.fermee = True
+        i.date_fermeture = datetime.date(2012, 7, 23)
+        i.save()
+        statut = StatutParticipant.objects.get(code='repr_tit')
+        assert settings.DESTINATAIRES_NOTIFICATIONS['service_institutions']
+        nb_mails_before = len(mail.outbox)
+        p = transfert_inscription.transfere(i, statut, False, False, False)
+        self.assertEqual(len(mail.outbox), nb_mails_before + 1)
+        self.assertEqual(p.nom, i.nom)
+        self.assertEqual(p.pays, i.pays)
+        self.assertEqual(
+            ParticipationActivite.objects.filter(
+                participant=p, activite__code=consts.CODE_SOIREE_9_MAI,
+                avec_invites=True
+            ).count(),
+            1
+        )
+        self.assertEqual(
+            ParticipationActivite.objects.filter(
+                participant=p, activite__code=consts.CODE_SOIREE_10_MAI,
+                avec_invites=False
+            ).count(),
+            1
+        )
+        self.assertEqual(
+            ParticipationActivite.objects.filter(
+                participant=p, activite__code=consts.CODE_GALA
+            ).count(),
+            0
+        )
+        infos_arrivee = p.get_infos_arrivee()
+        self.assertEqual(infos_arrivee.compagnie, i.arrivee_compagnie)
+        self.assertEqual(infos_arrivee.numero_vol, i.arrivee_vol)
+        self.assertEqual(infos_arrivee.date_arrivee, i.arrivee_date)
+        self.assertEqual(infos_arrivee.heure_arrivee, i.arrivee_heure)
+        infos_depart = p.get_infos_depart()
+        self.assertEqual(infos_depart.compagnie, i.depart_compagnie)
+        self.assertEqual(infos_depart.numero_vol, i.depart_vol)
+        self.assertEqual(infos_depart.date_depart, i.depart_date)
+        self.assertEqual(infos_depart.heure_depart, i.depart_heure)
+        self.assertEqual(p.type_institution, 'E')
+        self.assertEqual(p.etablissement, i.get_etablissement())
+
+        self.assertEquals(len(Invite.objects.filter(participant=p)), 1)
+        self.assertFalse(p.transport_organise_par_auf)
+        self.assertFalse(p.reservation_hotel_par_auf)
+        forfait_chambre_double = Forfait.objects.get(
+            code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
+        assert forfait_chambre_double not in p.forfaits.all()
+        p.delete()
+        i.prise_en_charge_hebergement = True
+        i.prise_en_charge_transport = True
+        p = transfert_inscription.transfere(i, statut, True, True, True)
+        self.assertTrue(p.transport_organise_par_auf)
+        self.assertTrue(p.prise_en_charge_transport)
+        self.assertTrue(p.prise_en_charge_sejour)
+        self.assertTrue(p.reservation_hotel_par_auf)
+        assert forfait_chambre_double in p.forfaits.all()
 
 
 class TableauDeBordTestCase(TestCase):

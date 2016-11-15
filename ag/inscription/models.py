@@ -329,11 +329,13 @@ class Inscription(RenseignementsPersonnels):
         if getattr(self, champ.name):
             liste.append(CODES_CHAMPS_FORFAITS[champ.name])
 
+    def get_facturer_chambre_double(self):
+        return self.accompagnateur and self.prise_en_charge_hebergement
+
     # noinspection PyTypeChecker
     def get_liste_codes_frais(self):
         liste = [consts.CODE_FRAIS_INSCRIPTION]
-        if self.accompagnateur:
-            if self.prise_en_charge_hebergement:
+        if self.get_facturer_chambre_double():
                 liste.append(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
         if self.accompagnateur:
             for champ_membre, champ_invite in self.CHAMPS_PROGRAMMATION:

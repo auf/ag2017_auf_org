@@ -57,7 +57,7 @@ class InscriptionAdmin(ModelAdmin):
             'accompagnateur_prenom',
         )}),
         (u"Transport et hébergement", {'fields': (
-            'prise_en_charge_hebergement',
+            'prise_en_charge_hebergement', 'facturer_supplement_chambre_double',
             'date_arrivee_hotel', 'date_depart_hotel',
             'prise_en_charge_transport', 'arrivee_date', 'arrivee_heure',
             'arrivee_compagnie', 'arrivee_vol', 'depart_de', 'depart_date',
@@ -120,8 +120,9 @@ class InscriptionAdmin(ModelAdmin):
             request, extra_context=extra_context
         )
 
-    def queryset(self, request):
-        return Inscription.objects.filter(participant__id__isnull=True)
+    def get_queryset(self, request):
+        return Inscription.objects.filter(participant__id__isnull=True)\
+            .select_related('invitation__etablissement__region')
 
     # def get_paiement_list_display(self, obj):
     #
@@ -153,6 +154,10 @@ class InvitationAdmin(ModelAdmin):
         'sud',
         'statut',
     )
+
+    def __init__(self, *args, **kwargs):
+        super(InvitationAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None,)
 
     def has_add_permission(self, request):
         return False

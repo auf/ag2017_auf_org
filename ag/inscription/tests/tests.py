@@ -30,7 +30,6 @@ from ag.gestion import consts
 
 ETAPES_INSCRIPTION_TEST = (
     {
-        "n": 0,
         "url_title": "accueil",
         "label": u"Accueil",
         "template": "accueil.html",
@@ -38,7 +37,6 @@ ETAPES_INSCRIPTION_TEST = (
         "tab_visible": True,
     },
     {
-        "n": 1,
         "url_title": "participant",
         "label": u"Renseignements personnels",
         "template": "participant.html",
@@ -46,7 +44,6 @@ ETAPES_INSCRIPTION_TEST = (
         "tab_visible": True,
     },
     {
-        "n": 2,
         "url_title": "transport-hebergement",
         "label": u"Transport et hébergement",
         "template": "transport_hebergement.html",
@@ -158,15 +155,21 @@ class EtapesProcessusTestCase(unittest.TestCase):
 
     def test_derniere_visible(self):
         etapes = EtapesProcessus(donnees_etapes=(
-            {'n': 1, 'tab_visible': True},
-            {'n': 2, 'tab_visible': False}))
+            {'tab_visible': True},
+            {'tab_visible': False}))
         assert etapes[0].est_derniere_visible()
 
     def test_pas_derniere_visible(self):
         etapes = EtapesProcessus(donnees_etapes=(
-            {'n': 1, 'tab_visible': True},
-            {'n': 2, 'tab_visible': True}))
+            {'tab_visible': True},
+            {'tab_visible': True}))
         assert not etapes[0].est_derniere_visible()
+
+    def test_numerotation(self):
+        etapes = EtapesProcessus(donnees_etapes=(
+            {'tab_visible': True},
+            {'tab_visible': True}))
+        assert [e.n for e in etapes] == [0, 1]
 
     def test_derniere(self):
         assert self.etapes_processus[-1].est_derniere()
