@@ -57,7 +57,7 @@ class InscriptionAdmin(ModelAdmin):
             'accompagnateur_prenom',
         )}),
         (u"Transport et hébergement", {'fields': (
-            'prise_en_charge_hebergement',
+            'prise_en_charge_hebergement', 'facturer_supplement_chambre_double',
             'date_arrivee_hotel', 'date_depart_hotel',
             'prise_en_charge_transport', 'arrivee_date', 'arrivee_heure',
             'arrivee_compagnie', 'arrivee_vol', 'depart_de', 'depart_date',

@@ -2,6 +2,7 @@
 import re
 
 from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Div, MultiField, HTML, Submit
 from crispy_forms.layout import Field as crispy_Field
@@ -812,9 +813,11 @@ class ValidationInscriptionForm(ModelForm):
             montant_str(self.instance.paiement_paypal_total())
         self.fields['paiement_paypal_total_str'].help_text = mark_safe(
             u'Reçu par paypal : ' + u";".join(
-                [u"{}-{}-{}".format(p.date, p.montant, p.ref_paiement)
+                [u"{}-{}-{}".format(p.date, p.montant, escape(p.ref_paiement))
                  for p in self.instance.get_paiements_display()]))
         self.initial['statut'] = statut_par_defaut(self.instance).id
+        if self.instance.get_facturer_chambre_double():
+            self.initial['facturer_supplement_chambre_double'] = True
 
     inscription_validee = BooleanField(
         label=(
@@ -829,6 +832,8 @@ class ValidationInscriptionForm(ModelForm):
         label=u"Prise en charge transport acceptée", required=False)
     accepter_hebergement = BooleanField(
         label=u"Prise en charge hébergement acceptée", required=False)
+    facturer_supplement_chambre_double = BooleanField(
+        label=u"Facturer un supplément pour chambre double", required=False)
     paiement_paypal_total_str = CharField(
         label=u"Total des paiements par paypal", required=False,
         widget=forms.TextInput(attrs={'readonly': 'readonly'}))
