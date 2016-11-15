@@ -45,7 +45,7 @@
 #corp .message { background-color: aliceblue; margin-bottom: 20px; padding: 20px; }
 #corp .attention { background-color: #FFFF99; margin-bottom: 20px; padding: 20px; }
 #corp .erreur { background-color: #FFDFDF; margin-bottom: 20px; padding: 20px; }
-
+#corp .succes { background-color: #B2D58E; margin-bottom: 20px; padding: 20px; }
 #corp .attention h3 { padding: 0; margin: 5px 0 0 0; }
 
 .uniForm .inlineLabels ul {
@@ -61,6 +61,8 @@
 #holder_prise_en_charge_hebergement ul {
 	width: 100%;
 }
+
+#holder_identite_accompagnateur_confirmee label {font-weight: bold;}
 
 #corp .intro ul { width: 100%; }
 

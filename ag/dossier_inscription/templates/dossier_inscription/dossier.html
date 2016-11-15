@@ -94,8 +94,9 @@
 {% endif %}
 
 {% ifequal solde 0 %}
-  <p>
-	Vous avez acquitté tous vos frais de participation. Merci.
+  <p class="succes">
+	<strong>Vous avez acquitté tous vos frais de participation. Merci.</strong><br/>
+	Vous trouverez votre reçu de paiement dans la section "Documents" ci-haut.
   {% ifequal inscription.paiement "CB" %}
     <strong>Votre paiement a été effectué avec succès.</strong><br/>
     Un accusé de réception électronique vous sera transmis par courriel dans les
