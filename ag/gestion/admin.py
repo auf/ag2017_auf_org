@@ -73,7 +73,7 @@ class InscriptionAdmin(ModelAdmin):
         (u"Paiements", {'fields': ('paiement_paypal_total_str', )}),
         (u"Validation", {'fields': (
             'fermee', 'date_fermeture', 'inscription_validee', 'statut',
-            'accepter_hebergement', 'facturer_supplement_chambre_double',
+            'accepter_hebergement',
             'accepter_transport'
         )}),
     )
