@@ -328,6 +328,7 @@ def get_inscription_by_invoice_uid(invoice_uid):
     return invoice.inscription, invoice.invoice_uid
 
 
+@require_GET
 def paypal_return(request):
     # tx=9TN773664V3684442&st=Pending&amt=570.00&cc=EUR&cm=&item_number=
     tx = request.GET.get('tx')
