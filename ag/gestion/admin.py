@@ -60,8 +60,8 @@ class InscriptionAdmin(ModelAdmin):
             'prise_en_charge_hebergement', 'facturer_supplement_chambre_double',
             'date_arrivee_hotel', 'date_depart_hotel',
             'prise_en_charge_transport', 'arrivee_date', 'arrivee_heure',
-            'arrivee_compagnie', 'arrivee_vol', 'depart_de', 'depart_date',
-            'depart_heure', 'depart_compagnie', 'depart_vol',
+            'arrivee_vol', 'depart_de', 'depart_date',
+            'depart_heure', 'depart_vol',
         )}),
         (u"Programmation", {'fields': (
             'programmation_soiree_9_mai',
