@@ -188,8 +188,7 @@ paypal_signal = Signal()
 class Inscription(RenseignementsPersonnels):
 
     DEPART_DE_CHOICES = (
-        ('sao-paulo', u'São Paulo'),
-        ('rio', u'Rio de Janeiro'),
+        ('Marrakech', u'Marrakech'),
     )
 
     invitation = models.OneToOneField(Invitation)
@@ -265,30 +264,30 @@ class Inscription(RenseignementsPersonnels):
     )
 
     arrivee_date = models.DateField(
-        "date d'arrivée à São Paulo", blank=True, null=True,
+        "date d'arrivée à Marrakech", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
     )
     arrivee_heure = models.TimeField(
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
     arrivee_compagnie = models.CharField(
-        'compagnie', max_length=100, blank=True
+        'Compagnie', max_length=100, blank=True
     )
-    arrivee_vol = models.CharField('vol', max_length=100, blank=True)
+    arrivee_vol = models.CharField('Compagnie et Numéro de vol', max_length=100, blank=True)
     depart_de = models.CharField(
         'départ de', max_length=10, choices=DEPART_DE_CHOICES, blank=True
     )
     depart_date = models.DateField(
-        "date de départ de São Paulo", blank=True, null=True,
+        "date de départ de Marrakech", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
     )
     depart_heure = models.TimeField(
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
     depart_compagnie = models.CharField(
-        'compagnie', max_length=100, blank=True
+        'Compagnie', max_length=100, blank=True
     )
-    depart_vol = models.CharField('vol', max_length=100, blank=True)
+    depart_vol = models.CharField('Compagnie et Numéro de vol', max_length=100, blank=True)
 
     fermee = models.BooleanField(
         u"Confirmée par le participant", default=False

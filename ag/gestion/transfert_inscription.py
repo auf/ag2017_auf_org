@@ -7,7 +7,7 @@ from ag.inscription.models import Forfait
 
 inscription_transferee = Signal()
 
-VILLE_AEROPORT = u'São Paulo'
+VILLE_AEROPORT = u'Marrakech'
 
 
 def statut_par_defaut(inscription):

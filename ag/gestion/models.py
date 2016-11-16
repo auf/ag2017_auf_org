@@ -349,7 +349,7 @@ class Participant(RenseignementsPersonnels):
         ("C", u"Conseil associatif"),
     ]
     MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES = (
-        ('A', u"À votre arrivée à Sao paulo"),
+        ('A', u"À votre arrivée à Marrakech"),
         ('I', u"Par le bureau régional")
     )
     IMPUTATION_CHOICES = (
@@ -424,11 +424,11 @@ class Participant(RenseignementsPersonnels):
              u'Vos billets seront disponibles au '
              u'comptoir de la compagnie aérienne'),
             (BUREAU_REGION_TRAIN,
-             u"Vos bilets de train et d'avion vous "
+             u"Vos billets de train et d'avion vous "
              u"seront transmis par votre bureau "
              u"régional"),
             (COMPTOIR_COMPAGNIE_TRAIN,
-             u"Vos bilets de train et d'avion "
+             u"Vos billets de train et d'avion "
              u"seront disponibles aux comptoirs "
              u"de la compagnie aérienne et de la "
              u"SNCF"),
