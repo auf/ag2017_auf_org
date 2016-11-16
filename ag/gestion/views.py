@@ -219,6 +219,13 @@ def fiche_participant(request, id_participant):
     else:
         fichiers = participant.fichier_set.all()
 
+    if participant.inscription_id:
+        lien_dossier = reverse(
+            'connexion_inscription',
+            args=(participant.inscription.invitation.jeton, ))
+    else:
+        lien_dossier = None
+
     return render(request, 'gestion/fiche_participant.html', {
         'participant': participant,
         'participation_activites': participation_activites,
@@ -232,6 +239,7 @@ def fiche_participant(request, id_participant):
         'perms_dict': consts.PERMS_DICT,
         'problemes': problemes,
         'fichiers': fichiers,
+        'lien_dossier': lien_dossier,
     })
 
 
