@@ -437,6 +437,9 @@
                     {{ participant.get_region }}
                 </td></tr>
                 <tr><td>{% include "gestion/nombre_invites.html" %}</td></tr>
+                {% if lien_dossier %}
+                <tr><td><a href="{{ lien_dossier }}">Dossier n<sup>o</sup> {{ participant.inscription.numero_dossier }}</a></td></tr>
+                {% endif %}
                 </tbody></table>
         </div>
         <div id="status">
