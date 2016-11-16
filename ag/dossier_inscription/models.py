@@ -13,11 +13,18 @@ class InscriptionFermee(models_inscription.Inscription):
     class Meta:
         proxy = True
 
+    def __init__(self, *args, **kwargs):
+        super(InscriptionFermee, self).__init__(*args, **kwargs)
+
     def get_participant(self):
-        try:
-            return self.participant
-        except models_gestion.Participant.DoesNotExist:
-            return None
+        if not hasattr(self, '_participant'):
+            try:
+                self._participant = models_gestion.Participant.objects \
+                    .sql_extra_fields('total_facture')\
+                    .get(inscription__id=self.id)
+            except models_gestion.Participant.DoesNotExist:
+                return None
+        return self._participant
 
     def get_participant_or_self(self):
         return self.get_participant() or self

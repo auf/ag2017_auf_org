@@ -271,9 +271,6 @@ class Inscription(RenseignementsPersonnels):
     arrivee_heure = models.TimeField(
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
-    arrivee_compagnie = models.CharField(
-        'compagnie', max_length=100, blank=True
-    )
     arrivee_vol = models.CharField('vol', max_length=100, blank=True)
     depart_de = models.CharField(
         'départ de', max_length=10, choices=DEPART_DE_CHOICES, blank=True
@@ -284,9 +281,6 @@ class Inscription(RenseignementsPersonnels):
     )
     depart_heure = models.TimeField(
         'heure', blank=True, null=True, help_text='format: hh:mm'
-    )
-    depart_compagnie = models.CharField(
-        'compagnie', max_length=100, blank=True
     )
     depart_vol = models.CharField('vol', max_length=100, blank=True)
 

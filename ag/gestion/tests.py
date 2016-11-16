@@ -1231,12 +1231,10 @@ class TransfertInscription(TestCase):
         i.prise_en_charge_transport = False
         i.arrivee_date = datetime.date(2013, 5, 1)
         i.arrivee_heure = datetime.time(10, 00)
-        i.arrivee_compagnie = u'cie arrivée'
         i.arrivee_vol = u'CA111'
         i.depart_de = 'sao-paolo'
         i.depart_date = datetime.date(2013, 5, 6)
         i.depart_heure = datetime.time(21, 00)
-        i.depart_compagnie = u'cie départ'
         i.depart_vol = u'CD454'
         i.fermee = True
         i.date_fermeture = datetime.date(2012, 7, 23)
@@ -1269,12 +1267,10 @@ class TransfertInscription(TestCase):
             0
         )
         infos_arrivee = p.get_infos_arrivee()
-        self.assertEqual(infos_arrivee.compagnie, i.arrivee_compagnie)
         self.assertEqual(infos_arrivee.numero_vol, i.arrivee_vol)
         self.assertEqual(infos_arrivee.date_arrivee, i.arrivee_date)
         self.assertEqual(infos_arrivee.heure_arrivee, i.arrivee_heure)
         infos_depart = p.get_infos_depart()
-        self.assertEqual(infos_depart.compagnie, i.depart_compagnie)
         self.assertEqual(infos_depart.numero_vol, i.depart_vol)
         self.assertEqual(infos_depart.date_depart, i.depart_date)
         self.assertEqual(infos_depart.heure_depart, i.depart_heure)
