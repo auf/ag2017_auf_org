@@ -7,8 +7,6 @@ from ag.inscription.models import Forfait
 
 inscription_transferee = Signal()
 
-VILLE_AEROPORT = u'São Paulo'
-
 
 def statut_par_defaut(inscription):
     statut_etablissement = inscription.get_etablissement().statut
@@ -85,5 +83,3 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.save()
     inscription_transferee.send_robust(participant)
     return participant
-
-
