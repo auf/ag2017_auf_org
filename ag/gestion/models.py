@@ -18,7 +18,9 @@ from django.db.models.aggregates import Sum, Max, Min, Count
 from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
+from ag import reference
 from ag.core import models as core
+from ag.gestion import consts
 from ag.gestion.consts import *
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 from ag.inscription.models import (
@@ -58,6 +60,44 @@ class TypeInstitutionSupplementaire(core.TableReferenceOrdonnee):
         verbose_name = u"Type d'institution supplémentaire"
         verbose_name_plural = u"Types d'institutions supplémentaires"
         ordering = ['ordre']
+
+
+class TypeInstitution(core.TableReferenceOrdonnee):
+    class Meta:
+        verbose_name = u"Type d'institution"
+        verbose_name_plural = u"Types d'institutions"
+        ordering = ['ordre']
+
+    @property
+    def est_etablissement(self):
+        return self.code == consts.TYPE_INST_ETABLISSEMENT
+
+    @property
+    def est_aucune(self):
+        return self.code == consts.TYPE_INST_AUCUNE
+
+
+class CategorieFonction(core.TableReference):
+    class Meta:
+        verbose_name = u"Catégorie fonction participant"
+        verbose_name_plural = u"Catégories fonctions participants"
+
+
+class Fonction(core.TableReferenceOrdonnee):
+    class Meta:
+        verbose_name = u"Fonction participant"
+        verbose_name_plural = u"Fonctions participants"
+        ordering = ['ordre']
+
+    categorie = ForeignKey(CategorieFonction)
+    type_institution = ForeignKey(TypeInstitution)
+
+
+class Institution(Model):
+    nom = CharField(max_length=512, null=False, blank=False)
+    type_institution = ForeignKey(TypeInstitution)
+    pays = ForeignKey(reference.models.Pays)
+    region = ForeignKey(reference.models.Region)
 
 
 class StatutParticipant(core.TableReferenceOrdonnee):
@@ -321,6 +361,12 @@ class ParticipantsManager(Manager):
     def filter_region_vote(self, code_region_vote):
         return self.get_queryset().filter_region_vote(code_region_vote)
 
+    def represente_etablissement(self):
+        return self.get_queryset().represente_etablissement()
+
+    def represente_autre_institution(self):
+        return self.get_queryset().represente_autre_institution()
+
 
 class ParticipantsActifsManager(ParticipantsManager):
 
@@ -343,11 +389,15 @@ class Participant(RenseignementsPersonnels):
         (INSTANCE_AUF, u"Instance de l'AUF"),
         (AUTRE_INSTITUTION, u"Autre"),
     )
-    INSTANCES_AUF = [
+    INSTANCES_AUF = (
         ("A", u"Conseil d'administration"),
         ("S", u"Conseil scientifique"),
-        ("C", u"Conseil associatif"),
-    ]
+    )
+
+    MEMBRE_CA_REPRESENTE = (
+        ("E", u"Établissement"),
+        ("G", u"Gouvernement"),
+    )
     MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES = (
         ('A', u"À votre arrivée à Sao paulo"),
         ('I', u"Par le bureau régional")
@@ -374,8 +424,16 @@ class Participant(RenseignementsPersonnels):
     # renseignements sur l'institution représentée
     type_institution = CharField(u"Type de l'institution représentée",
                                  max_length=1, choices=TYPES_INSTITUTION)
+
+    ##################################################
+    fonction = ForeignKey(Fonction, null=True, blank=True)
+    institution = ForeignKey(Institution, null=True, blank=True)
     instance_auf = CharField(
         u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF)
+    membre_ca_represente = CharField(u"Ce membre du CA représente",
+                                     max_length=1, choices=MEMBRE_CA_REPRESENTE)
+    ###################################################
+
     type_autre_institution = ForeignKey(
         TypeInstitutionSupplementaire, null=True, on_delete=PROTECT)
     nom_autre_institution = CharField(
@@ -463,6 +521,11 @@ class Participant(RenseignementsPersonnels):
         self._reservations = None
 
     @property
+    def represente_etablissement(self):
+        return self.fonction and \
+               self.fonction.type_institution.est_etablissement
+
+    @property
     def numero(self):
         if self.inscription:
             return self.inscription.numero
@@ -502,7 +565,7 @@ class Participant(RenseignementsPersonnels):
         if hasattr(self, 'delinquant'):
             return self.delinquant
         else:
-            return self.type_institution == 'E' \
+            return self.represente_etablissement \
                 and core.EtablissementDelinquant.objects.filter(
                     id=self.etablissement_id
                 ).exists()
@@ -514,12 +577,12 @@ class Participant(RenseignementsPersonnels):
         chaque établissement
         """
         if not self.numero_facture:
-            if self.type_institution == 'E':
-                qs = Participant.objects.filter(
-                    type_institution='E',
-                    etablissement=self.etablissement)
+            if self.represente_etablissement:
+                qs = Participant.objects\
+                    .represente_etablissement()\
+                    .filter(etablissement=self.etablissement)
             else:
-                qs = Participant.objects.exclude(type_institution='E')
+                qs = Participant.objects.represente_autre_institution()
             numero_max = qs.aggregate(max=Max('numero_facture'))['max']
             self.numero_facture = (numero_max or 0) + 1
             self.date_facturation = datetime.datetime.now().date()
@@ -566,18 +629,12 @@ class Participant(RenseignementsPersonnels):
         """
         Renvoie le nom de l'institution à laquelle appartient le participant
         """
-        if self.type_institution == 'E':
+        if self.represente_etablissement:
             return self.etablissement.nom
-        elif self.type_institution == 'I':
-            return ''.join([u'AUF (', self.get_instance_auf_display(), u')'])
-        elif self.type_institution == 'A':
-            type_autre_institution = self.type_autre_institution.libelle
-            if self.nom_autre_institution:
-                return u''.join([type_autre_institution,
-                                 u', ',
-                                 self.nom_autre_institution])
-            else:
-                return type_autre_institution
+        elif self.institution_id:
+            return self.institution.nom
+        else:
+            return u"N/A"
 
     def inscrire_a_activite(self, activite, avec_invites=False):
         """ Permet d'inscrire le participant à une activité """
@@ -766,7 +823,7 @@ class Participant(RenseignementsPersonnels):
         }
 
     def get_region(self):
-        if self.type_institution == 'E':
+        if self.represente_etablissement:
             return self.etablissement.region
         else:
             return self.region

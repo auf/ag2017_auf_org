@@ -65,7 +65,7 @@ class RechercheParticipantForm(Form):
                    'class': 'recherche_etablissement_auto',
                    'size': 80}), required=False)
     instance_auf = ChoiceField(
-        label=u"Instance de l'AUF", choices=[('', u'------')] +
+        label=u"Instance de l'AUF", choices=(('', u'------'), ) +
         Participant.INSTANCES_AUF, required=False
     )
     autres_institutions = ModelChoiceField(

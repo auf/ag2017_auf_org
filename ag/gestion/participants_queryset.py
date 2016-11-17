@@ -67,6 +67,14 @@ class ParticipantsQuerySet(QuerySet):
     def actifs(self):
         return self.exclude(desactive=True)
 
+    def represente_etablissement(self):
+        return self.filter(fonction__type_institution__code=
+                           consts.TYPE_INST_ETABLISSEMENT)
+
+    def represente_autre_institution(self):
+        return self.exclude(fonction__type_institution__code=
+                            consts.TYPE_INST_ETABLISSEMENT)
+
     def sql_expr(self, name):
         if name == 'hotel_manquant':
             return """(
