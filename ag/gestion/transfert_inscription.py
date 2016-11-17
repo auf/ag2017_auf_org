@@ -46,6 +46,8 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.date_depart_hotel = inscription.date_depart_hotel
     participant.statut = statut
     participant.save()
+    participant.forfaits.add(Forfait.objects.get(
+        code=consts.CODE_FRAIS_INSCRIPTION))
     if inscription.accompagnateur:
         invite = Invite()
         invite.genre = inscription.accompagnateur_genre

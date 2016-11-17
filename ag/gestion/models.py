@@ -177,7 +177,7 @@ class Chambre(Model):
     )
     places = IntegerField()
     nb_total = IntegerField(null=True)
-    prix = FloatField()
+    prix = DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         unique_together = ('hotel', 'type_chambre')
@@ -988,7 +988,7 @@ class InfosVol(Model):
     heure_arrivee = TimeField(u"Heure d'arrivée", null=True, blank=True)
     numero_vol = CharField(u"N° vol", max_length=16, blank=True)
     compagnie = CharField(max_length=64, blank=True)
-    prix = FloatField(null=True, blank=True)
+    prix = DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     type_infos = IntegerField(choices=TYPE_VOL, default=VOL_ORGANISE)
 
     def participants(self):
@@ -1008,7 +1008,7 @@ class Frais(Model):
     participant = ForeignKey(Participant)
     type_frais = ForeignKey(TypeFrais)
     quantite = IntegerField(u"quantité", default=1)
-    montant = FloatField()
+    montant = DecimalField(max_digits=10, decimal_places=2)
 
     def total(self):
         return (self.quantite or 1) * (self.montant or 0)

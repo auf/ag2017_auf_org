@@ -13,6 +13,7 @@ from django.utils.formats import date_format, number_format
 
 from ag.gestion import consts
 from ag.gestion.consts import PAIEMENT_CHOICES_DICT
+from ag.inscription.templatetags.inscription import adresse_email_region
 from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -127,6 +128,9 @@ class RenseignementsPersonnels(models.Model):
     def get_solde_a_payer(self):
         return max(self.total_facture - self.total_deja_paye, 0)
 
+    def get_solde(self):
+        return self.total_facture - self.total_deja_paye
+
 
 class Invitation(models.Model):
     etablissement = models.ForeignKey(Etablissement)
@@ -158,10 +162,12 @@ class InvitationEnveloppe(models.Model):
         return self.invitation.get_adresse()
 
     def get_corps_context(self):
+        email_region = adresse_email_region(self.invitation.get_region().code)
         context = {
             'nom_destinataire': self.invitation.get_nom_destinataire(),
             'nom_etablissement': self.invitation.etablissement.nom,
             'jeton': self.invitation.jeton,
+            'email_region': email_region,
             'url': 'https://%s%s' % (
                 Site.objects.get(id=1).domain,
                 reverse('connexion_inscription', args=(self.invitation.jeton,))
@@ -378,9 +384,6 @@ class Inscription(RenseignementsPersonnels):
             if ligne.forfait.categorie == cat:
                 total += ligne.total()
         return total
-
-    def get_total_du(self):
-        return self.get_montant_total() - self.paiement_paypal_total()
 
     def get_frais_inscription(self):
         return self.get_total_categorie(consts.CODE_CAT_INSCRIPTION)

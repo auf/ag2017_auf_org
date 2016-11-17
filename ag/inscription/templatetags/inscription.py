@@ -21,14 +21,20 @@ def inline_radio(field):
     return {'field': field}
 
 
+def adresse_email_region(code_region):
+    return u"AG2017.B{}@auf.org".format(code_region)
+
+
 @register.simple_tag(takes_context=True)
 def email_region(context, subject=u""):
     if subject:
         subject = u"?subject={}".format(subject)
+    code_region = context["inscription"].get_region().code
+    adresse_region = adresse_email_region(code_region)
     return mark_safe(
-        u'<a href="mailto:AG2017.B{region}@auf.org{subject}">'
-        u'AG2017.B{region}@auf.org</a>'.format(
-            region=context["inscription"].get_region().code,
+        u'<a href="mailto:{adresse_region}{subject}">'
+        u'{adresse_region}</a>'.format(
+            adresse_region=adresse_region,
             subject=subject)
     )
 

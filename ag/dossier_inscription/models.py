@@ -20,8 +20,9 @@ class InscriptionFermee(models_inscription.Inscription):
         if not hasattr(self, '_participant'):
             try:
                 self._participant = models_gestion.Participant.objects \
-                    .sql_extra_fields('total_facture')\
+                    .sql_extra_fields('total_facture', 'total_deja_paye_sql')\
                     .get(inscription__id=self.id)
+                print('total_facture=' + str(self._participant.total_facture))
             except models_gestion.Participant.DoesNotExist:
                 return None
         return self._participant
@@ -69,3 +70,17 @@ class InscriptionFermee(models_inscription.Inscription):
     def a_televerse_passeport(self):
         participant = self.get_participant()
         return participant.a_televerse_passeport()
+
+    @property
+    def total_facture(self):
+        if self.get_participant():
+            return self.get_participant().total_facture
+        else:
+            return super(InscriptionFermee, self).total_facture
+
+    @property
+    def total_deja_paye(self):
+        if self.get_participant():
+            return self.get_participant().total_deja_paye
+        else:
+            return super(InscriptionFermee, self).total_deja_paye
