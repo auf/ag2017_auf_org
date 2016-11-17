@@ -13,6 +13,7 @@ from django.utils.formats import date_format, number_format
 
 from ag.gestion import consts
 from ag.gestion.consts import PAIEMENT_CHOICES_DICT
+from ag.inscription.templatetags.inscription import adresse_email_region
 from ag.reference.models import Etablissement
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -158,10 +159,12 @@ class InvitationEnveloppe(models.Model):
         return self.invitation.get_adresse()
 
     def get_corps_context(self):
+        email_region = adresse_email_region(self.invitation.get_region().code)
         context = {
             'nom_destinataire': self.invitation.get_nom_destinataire(),
             'nom_etablissement': self.invitation.etablissement.nom,
             'jeton': self.invitation.jeton,
+            'email_region': email_region,
             'url': 'https://%s%s' % (
                 Site.objects.get(id=1).domain,
                 reverse('connexion_inscription', args=(self.invitation.jeton,))
