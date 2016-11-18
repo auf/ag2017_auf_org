@@ -1,8 +1,19 @@
 /**
  * Created by benselme on 23/09/16.
  */
+
+
 $(function () {
-    $('.valider-payer-form').ajaxForm({
+    var form = $('.valider-payer-form');
+    form.find('input').removeAttr('disabled');
+    function disable_paypal_button() {
+        form.find('input').attr('disabled', 'disabled')
+            .css('background-color', '#DDDDDD')
+            .css('font-color', '#AAAAAA');
+    }
+
+    form.ajaxForm({
+        beforeSubmit: disable_paypal_button,
         success: go_to_paypal
     })
 });
