@@ -399,11 +399,11 @@ def make_paypal_invoice(request):
     if not inscription_id:
         return HttpResponse(status=401)
     inscription = Inscription.objects.get(id=inscription_id)
-    inscription.paiement = 'CB'
     if not inscription.fermee:
         inscription.fermer()
         inscription_confirmee.send_robust(inscription)
     inscription.save()
-    invoice = PaypalInvoice.objects.create(inscription=inscription,
-                                           montant=inscription.get_total_du())
+    invoice = PaypalInvoice.objects.create(
+        inscription=inscription,
+        montant=inscription.get_solde_a_payer())
     return HttpResponse(str(invoice.invoice_uid))
