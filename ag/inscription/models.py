@@ -128,6 +128,9 @@ class RenseignementsPersonnels(models.Model):
     def get_solde_a_payer(self):
         return max(self.total_facture - self.total_deja_paye, 0)
 
+    def get_solde(self):
+        return self.total_facture - self.total_deja_paye
+
 
 class Invitation(models.Model):
     etablissement = models.ForeignKey(Etablissement)
@@ -381,9 +384,6 @@ class Inscription(RenseignementsPersonnels):
             if ligne.forfait.categorie == cat:
                 total += ligne.total()
         return total
-
-    def get_total_du(self):
-        return self.get_montant_total() - self.paiement_paypal_total()
 
     def get_frais_inscription(self):
         return self.get_total_categorie(consts.CODE_CAT_INSCRIPTION)

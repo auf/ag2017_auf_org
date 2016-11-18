@@ -88,22 +88,7 @@ def create_fixtures(test_case):
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
-    forfaits_test = {
-        CODE_FRAIS_INSCRIPTION: (400, CODE_CAT_INSCRIPTION),
-        CODE_SOIREE_9_MAI_INVITE: (30, CODE_CAT_INVITE),
-        CODE_SOIREE_10_MAI_INVITE: (40, CODE_CAT_INVITE),
-        CODE_GALA_INVITE: (50, CODE_CAT_INVITE),
-        CODE_SUPPLEMENT_CHAMBRE_DOUBLE: (100, CODE_CAT_HEBERGEMENT),
-        CODE_TRANSFERT_AEROPORT: (20, CODE_CAT_INVITE),
-        CODE_DEJEUNERS: (10, CODE_CAT_INVITE),
-    }
-
-    forfaits = {}
-    for code_forfait in CODES_FORFAITS:
-        forfaits[code_forfait] = Forfait.objects.create(
-            code=code_forfait, libelle=code_forfait,
-            categorie=forfaits_test[code_forfait][1],
-            montant=forfaits_test[code_forfait][0])
+    forfaits = forfaits_fixture()
 
     codes_forfaits_activites = {
         CODE_SOIREE_9_MAI: CODE_SOIREE_9_MAI_INVITE,
@@ -116,6 +101,25 @@ def create_fixtures(test_case):
         forfait = forfaits.get(code_forfait, None)
         Activite.objects.create(code=code_activite, libelle=code_activite,
                                 forfait_invite=forfait)
+
+
+def forfaits_fixture():
+    forfaits_test = {
+        CODE_FRAIS_INSCRIPTION: (400, CODE_CAT_INSCRIPTION),
+        CODE_SOIREE_9_MAI_INVITE: (30, CODE_CAT_INVITE),
+        CODE_SOIREE_10_MAI_INVITE: (40, CODE_CAT_INVITE),
+        CODE_GALA_INVITE: (50, CODE_CAT_INVITE),
+        CODE_SUPPLEMENT_CHAMBRE_DOUBLE: (100, CODE_CAT_HEBERGEMENT),
+        CODE_TRANSFERT_AEROPORT: (20, CODE_CAT_INVITE),
+        CODE_DEJEUNERS: (10, CODE_CAT_INVITE),
+    }
+    forfaits = {}
+    for code_forfait in CODES_FORFAITS:
+        forfaits[code_forfait] = Forfait.objects.create(
+            code=code_forfait, libelle=code_forfait,
+            categorie=forfaits_test[code_forfait][1],
+            montant=forfaits_test[code_forfait][0])
+    return forfaits
 
 
 def make_modele_courriel_mandate():

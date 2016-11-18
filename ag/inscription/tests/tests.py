@@ -290,6 +290,21 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                              reverse('processus_inscription',
                                      kwargs={'url_title': 'apercu'}))
 
+    def test_make_paypal_invoice(self):
+        ModeleCourriel.objects.create(code='recu_ok', sujet=u"a", corps=u"b",
+                                      html=False)
+        i = self.create_inscription(['participant', 'transport-hebergement',
+                                     'programmation'])
+        nb_mail = len(mail.outbox)
+        response = self.client.post(reverse('make_paypal_invoice'))
+        assert response.status_code == 200
+        i = Inscription.objects.get(id=i.id)
+        assert i.fermee
+        invoice = PaypalInvoice.objects.get(inscription=i)
+        assert invoice.montant == i.get_solde_a_payer()
+        # un mail au participant et un au service
+        assert len(mail.outbox) == nb_mail + 2
+
     def test_transport_hebergement(self):
         inscription = self.create_inscription(('participant',))
         response = self.client.get(

@@ -106,7 +106,7 @@ def dossier(request):
         'participant': participant,
         'adresse': adresse,
         'suivi': inscription.get_suivi_dossier(),
-        'solde': inscription.get_total_du(),
+        'solde': inscription.get_solde(),
         'form_adresse': forms.AdresseForm(initial=adresse._asdict()),
         'info_virement': INFOS_VIREMENT.get(inscription.get_region().code),
         'region': inscription.get_region(),
