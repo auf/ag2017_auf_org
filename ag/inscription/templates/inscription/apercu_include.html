@@ -66,9 +66,9 @@
         {% if inscription.accompagnateur %}
           <br/>
           </div>
-          <div class="Data">(supplément accompagnateur personnel) :
+          <div class="Data">(supplément occupation double) :
           <span style="float:right;">
-            {{ forfaits.supplement_chambre_double.affiche }}</span>
+            {{ forfaits.supplement_chambre_double.affiche }}&nbsp;€</span>
         {% endif %}
       {% else %}
         Prise en charge par le participant
@@ -102,7 +102,7 @@
     <div class="Label">
       Forfaits sélectionnés
     </div>
-    <div class="Data"">
+    <div class="Data">
       <span style="float:right;">
         {{ inscription.get_total_forfaits_suppl }}&nbsp;€</span>
     </div>
