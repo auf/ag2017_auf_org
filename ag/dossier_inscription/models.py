@@ -84,3 +84,9 @@ class InscriptionFermee(models_inscription.Inscription):
             return self.get_participant().total_deja_paye
         else:
             return super(InscriptionFermee, self).total_deja_paye
+
+    def get_prise_en_charge_hebergement(self):
+        if self.get_participant():
+            return self.get_participant().prise_en_charge_sejour
+        else:
+            return super(InscriptionFermee, self).prise_en_charge_hebergement
