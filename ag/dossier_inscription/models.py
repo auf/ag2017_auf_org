@@ -89,4 +89,4 @@ class InscriptionFermee(models_inscription.Inscription):
         if self.get_participant():
             return self.get_participant().prise_en_charge_sejour
         else:
-            return super(InscriptionFermee, self).prise_en_charge_hebergement
+            return self.prise_en_charge_hebergement
