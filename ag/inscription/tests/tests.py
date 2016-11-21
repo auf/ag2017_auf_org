@@ -561,8 +561,9 @@ class EnvoiInvitationsTestCase(django.test.TestCase):
         from_emails = set(m.from_email for m in mail.outbox)
         region_codes = set(e.region.code for e in
                            self.etablissements_avec_courriel)
-        assert from_emails == set(adresse_email_region(code)
-                                  for code in region_codes)
+        assert from_emails == set(
+            "AUF AG2017 <{}>".format(adresse_email_region(code))
+            for code in region_codes)
 
 
 @mock.patch('ag.inscription.views.inscriptions_terminees', lambda: True)

@@ -162,7 +162,7 @@ class InvitationEnveloppe(models.Model):
         return self.invitation.get_adresse()
 
     def get_adresse_expediteur(self):
-        return self.get_email_region()
+        return "AUF AG2017 <{}>".format(self.get_email_region())
 
     def get_corps_context(self):
         email_region = self.get_email_region()
