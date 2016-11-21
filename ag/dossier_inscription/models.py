@@ -69,7 +69,10 @@ class InscriptionFermee(models_inscription.Inscription):
 
     def a_televerse_passeport(self):
         participant = self.get_participant()
-        return participant.a_televerse_passeport()
+        if participant:
+            return participant.a_televerse_passeport()
+        else:
+            return False
 
     @property
     def total_facture(self):
