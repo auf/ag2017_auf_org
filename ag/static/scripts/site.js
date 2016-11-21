@@ -21,7 +21,7 @@ $('#diapo').bxSlider({
 	mode: 'fade',
 	pause: 6500,
 	speed: 1600,
-	auto: true,
+	auto: true
 	//pager: true
 });
 
