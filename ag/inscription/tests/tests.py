@@ -14,6 +14,8 @@ from django.core.management import call_command
 
 
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
+
+from ag.inscription.templatetags.inscription import adresse_email_region
 from ag.reference.models import Etablissement, Pays
 from ag.inscription.views import paypal_ipn
 from ag.core.test_utils import find_input_by_id, InscriptionFactory, \
@@ -489,12 +491,6 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         self.assertNotEqual(invitation.jeton, None)
         self.assertNotEqual(invitation.jeton, "")
 
-    def test_commande_envoi_courriels(self):
-        call_command('generer_invitations_mandates')
-        call_command('envoyer_invitations')
-        self.assertEqual(len(mail.outbox),
-                         self.total_etablissements_membres_avec_courriel)
-
     def test_commande_generer_rappels(self):
         call_command('generer_invitations_mandates')
         call_command('envoyer_invitations')
@@ -549,6 +545,24 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         total_attendu = self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant
         self.assertEqual(inscription.get_montant_total(),
                          total_attendu)
+
+
+class EnvoiInvitationsTestCase(django.test.TestCase):
+    def setUp(self):
+        create_fixtures(self)
+
+    # noinspection PyUnresolvedReferences
+    def test_commande_envoi_courriels(self):
+        call_command('generer_invitations_mandates')
+        call_command('envoyer_invitations')
+        self.assertEqual(len(mail.outbox),
+                         self.total_etablissements_membres_avec_courriel)
+
+        from_emails = set(m.from_email for m in mail.outbox)
+        region_codes = set(e.region.code for e in
+                           self.etablissements_avec_courriel)
+        assert from_emails == set(adresse_email_region(code)
+                                  for code in region_codes)
 
 
 @mock.patch('ag.inscription.views.inscriptions_terminees', lambda: True)
