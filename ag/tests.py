@@ -57,6 +57,11 @@ def create_fixtures(test_case):
         membre=True, responsable_courriel='', pays=pays_nord)
     test_case.etablissement_pas_de_courriel_id = etablissement_sans_courriel.id
 
+    test_case.etablissements_avec_courriel = [
+        etablissement,
+        etablissement_nord,
+        etablissement_sud_associe,
+    ]
     test_case.total_etablissements_membres_avec_courriel = 3
 
     modele_courriel_mandate = make_modele_courriel_mandate()

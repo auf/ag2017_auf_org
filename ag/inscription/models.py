@@ -161,8 +161,11 @@ class InvitationEnveloppe(models.Model):
     def get_adresse(self):
         return self.invitation.get_adresse()
 
+    def get_adresse_expediteur(self):
+        return self.get_email_region()
+
     def get_corps_context(self):
-        email_region = adresse_email_region(self.invitation.get_region().code)
+        email_region = self.get_email_region()
         context = {
             'nom_destinataire': self.invitation.get_nom_destinataire(),
             'nom_etablissement': self.invitation.etablissement.nom,
@@ -177,6 +180,10 @@ class InvitationEnveloppe(models.Model):
             context['inscription_representant'] = \
                 get_inscription_representant(self.invitation.etablissement)
         return context
+
+    def get_email_region(self):
+        return adresse_email_region(self.invitation.get_region().code)
+
 
 # À certains champs correspondent des montants (ex:
 CODES_CHAMPS_FORFAITS = {
