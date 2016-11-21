@@ -413,7 +413,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription.prise_en_charge_hebergement = True
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertContains(response, u"supplément accompagnateur")
+        self.assertContains(response, u"supplément occupation double")
 
     def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',
