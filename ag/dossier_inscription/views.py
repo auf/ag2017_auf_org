@@ -141,8 +141,7 @@ def upload_passeport(request):
         id=request.session.get('inscription_id', None))
     if not inscription.a_televerse_passeport():
         fichier = gestion_models.Fichier(
-            participant=inscription.get_participant(),
-            cree_par=request.user)
+            participant=inscription.get_participant())
         form = forms.AjoutPasseportForm(
             request.POST, request.FILES, instance=fichier)
         if form.is_valid():
