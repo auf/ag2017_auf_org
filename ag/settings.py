@@ -133,7 +133,7 @@ LOGIN_REDIRECT_URL = '/gestion/'
 CRISPY_TEMPLATE_PACK = 'uni_form'
 
 PATH_FICHIERS_PARTICIPANTS = os.path.join(SITE_ROOT, 'medias_participants')
-GESTION_AG_SENDER = 'ressources-informatiques@auf.org'
+GESTION_AG_SENDER = 'ag2017@auf.org'
 
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
