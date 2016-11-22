@@ -7,8 +7,6 @@ from ag.inscription.models import Forfait
 
 inscription_transferee = Signal()
 
-VILLE_AEROPORT = u'São Paulo'
-
 
 def statut_par_defaut(inscription):
     statut_etablissement = inscription.get_etablissement().statut
@@ -46,6 +44,8 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.date_depart_hotel = inscription.date_depart_hotel
     participant.statut = statut
     participant.save()
+    participant.forfaits.add(Forfait.objects.get(
+        code=consts.CODE_FRAIS_INSCRIPTION))
     if inscription.accompagnateur:
         invite = Invite()
         invite.genre = inscription.accompagnateur_genre
@@ -83,5 +83,3 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.save()
     inscription_transferee.send_robust(participant)
     return participant
-
-

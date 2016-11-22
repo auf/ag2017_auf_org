@@ -84,7 +84,7 @@ def get_nouveau_participant_mail(participant):
     region = participant.get_region().nom if participant.get_region() else u"Région?"
     etablissement = participant.etablissement.nom if participant.etablissement else u"Établissement?"
     statut = participant.statut.libelle if participant.statut else u"Statut?"
-    subject = u"AG2013 Nouveau participant - " + region + u"-" + statut + u"-"\
+    subject = u"AG2017 Nouveau participant - " + region + u"-" + statut + u"-"\
               + etablissement
     # todo: rétablir paiement dans mail transfert
     # body = participant.get_paiement_display() + u"-"
@@ -136,7 +136,7 @@ def inscription_confirmee_handler(sender, **kwargs):
     type_inscription = u"mandaté" if sender.est_pour_mandate() \
         else u"accompagnateur"
 
-    subject = u"ag2013 nouvelle inscription web " + region + u"-" +\
+    subject = u"ag2017 nouvelle inscription web " + region + u"-" +\
               type_inscription + u"-" + sender.get_etablissement().nom
     body = u"" + format_url(
         reverse('admin:gestion_inscriptionweb_change', args=(sender.id,)))

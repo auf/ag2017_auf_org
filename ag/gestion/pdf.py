@@ -523,9 +523,8 @@ def generer_itineraires(output_file, participants):
                 styles['bold']))
 
         contenu.append(Paragraph(
-            u"Attention ! Veuillez tenir compte de l'heure du vol de départ de "
-            u"Sao paulo dans la sélection d'une excursion libre (le cas "
-            u"échéant).",
+            u"Présentez-vous à l'accueil de l'hotel avec votre "
+            u"passeport pour la sélection de votre chambre. ",
             styles['itineraire-header']
         ))
 

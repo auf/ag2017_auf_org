@@ -106,7 +106,7 @@ def dossier(request):
         'participant': participant,
         'adresse': adresse,
         'suivi': inscription.get_suivi_dossier(),
-        'solde': inscription.get_total_du(),
+        'solde': inscription.get_solde(),
         'form_adresse': forms.AdresseForm(initial=adresse._asdict()),
         'info_virement': INFOS_VIREMENT.get(inscription.get_region().code),
         'region': inscription.get_region(),
@@ -141,8 +141,7 @@ def upload_passeport(request):
         id=request.session.get('inscription_id', None))
     if not inscription.a_televerse_passeport():
         fichier = gestion_models.Fichier(
-            participant=inscription.get_participant(),
-            cree_par=request.user)
+            participant=inscription.get_participant())
         form = forms.AjoutPasseportForm(
             request.POST, request.FILES, instance=fichier)
         if form.is_valid():

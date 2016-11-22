@@ -28,12 +28,13 @@
     <form method="post">
       {% csrf_token %}
       <input type="submit" class="primaryAction" name="confirmer"
-             value="Soumettre et payer autrement">
+             value="Soumettre mon formulaire et accéder à mon dossier">
     </form>
-    <div style="float: right; padding: 20px 26px 0 26px;">&nbsp;-Ou-&nbsp;
+    <!-- Attendre de valider le payement <div style="float: right; padding: 20px 26px 0 26px;">&nbsp;-Ou-&nbsp;
     </div>
     {% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}
     {% include "inscription/paypal_include.html" %}
+     -->
   </div>
   <div class="buttonHolder formulaire" style="float: left; width: 32%; clear: none;">
   <p class="message"><strong>Modifier ces informations:</strong><br> Si vous souhaitez plus de temps, utilisez votre lien d'inscription pour revenir sur ce formulaire, vos informations ont été sauvegardées.</p>

@@ -14,6 +14,8 @@ from django.core.management import call_command
 
 
 from auf.django.mailing.models import Enveloppe, ModeleCourriel
+
+from ag.inscription.templatetags.inscription import adresse_email_region
 from ag.reference.models import Etablissement, Pays
 from ag.inscription.views import paypal_ipn
 from ag.core.test_utils import find_input_by_id, InscriptionFactory, \
@@ -290,6 +292,21 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                              reverse('processus_inscription',
                                      kwargs={'url_title': 'apercu'}))
 
+    def test_make_paypal_invoice(self):
+        ModeleCourriel.objects.create(code='recu_ok', sujet=u"a", corps=u"b",
+                                      html=False)
+        i = self.create_inscription(['participant', 'transport-hebergement',
+                                     'programmation'])
+        nb_mail = len(mail.outbox)
+        response = self.client.post(reverse('make_paypal_invoice'))
+        assert response.status_code == 200
+        i = Inscription.objects.get(id=i.id)
+        assert i.fermee
+        invoice = PaypalInvoice.objects.get(inscription=i)
+        assert invoice.montant == i.get_solde_a_payer()
+        # un mail au participant et un au service
+        assert len(mail.outbox) == nb_mail + 2
+
     def test_transport_hebergement(self):
         inscription = self.create_inscription(('participant',))
         response = self.client.get(
@@ -398,7 +415,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription.prise_en_charge_hebergement = True
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertContains(response, u"supplément accompagnateur")
+        self.assertContains(response, u"supplément occupation double")
 
     def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',
@@ -474,12 +491,6 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         self.assertNotEqual(invitation.jeton, None)
         self.assertNotEqual(invitation.jeton, "")
 
-    def test_commande_envoi_courriels(self):
-        call_command('generer_invitations_mandates')
-        call_command('envoyer_invitations')
-        self.assertEqual(len(mail.outbox),
-                         self.total_etablissements_membres_avec_courriel)
-
     def test_commande_generer_rappels(self):
         call_command('generer_invitations_mandates')
         call_command('envoyer_invitations')
@@ -534,6 +545,25 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         total_attendu = self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant
         self.assertEqual(inscription.get_montant_total(),
                          total_attendu)
+
+
+class EnvoiInvitationsTestCase(django.test.TestCase):
+    def setUp(self):
+        create_fixtures(self)
+
+    # noinspection PyUnresolvedReferences
+    def test_commande_envoi_courriels(self):
+        call_command('generer_invitations_mandates')
+        call_command('envoyer_invitations')
+        self.assertEqual(len(mail.outbox),
+                         self.total_etablissements_membres_avec_courriel)
+
+        from_emails = set(m.from_email for m in mail.outbox)
+        region_codes = set(e.region.code for e in
+                           self.etablissements_avec_courriel)
+        assert from_emails == set(
+            "AUF AG2017 <{}>".format(adresse_email_region(code))
+            for code in region_codes)
 
 
 @mock.patch('ag.inscription.views.inscriptions_terminees', lambda: True)

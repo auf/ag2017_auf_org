@@ -1,3 +1,19 @@
+.model-inscriptionweb #content-main fieldset {
+	background-color: aliceblue!important;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.model-inscriptionweb #content-main fieldset h2 {
+	background-color: #ccc;
+	font-weight: bold;
+}
+
+.field-prise_en_charge_hebergement label, .field-prise_en_charge_transport label {
+	font-weight: bold!important;
+	color: #333!important;
+}
+
 #changelist-filter {
     top: 260px;
 }

@@ -66,8 +66,8 @@
   	<li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
   	<li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
   	<li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
-  	{% if inscription.prise_en_charge_hebergement %}
-  	<li class="{% if participant.inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
+  	{% if inscription.get_prise_en_charge_hebergement %}
+  	<li class="{% if inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
   	{% endif %}
   </ul>
   <h3>Documents</h3>
@@ -124,7 +124,7 @@
  	<div class="intro">
  		<h3 style="padding: 0;">Options de paiement</h3>
  		 <div><strong>Le paiement en ligne par carte bancaire 
- 		 est à privilégier.</strong></br>Veuillez noter qu’il est de votre responsabilité 
+ 		 est à privilégier.</strong><br/>Veuillez noter qu’il est de votre responsabilité
  		 d'obtenir et de conserver votre preuve de paiement. (copie d’ordre de 
  		 virement bancaire, reçu de paiement dans une implantation AUF, etc.).</div>
  		 <div style="padding: 15px 0 0 0; width:45%; float: left;">Toute preuve de paiement doit mentionner :</div>
@@ -146,22 +146,24 @@
   	<div id="tab-cb">
   		<strong>Paiement en ligne par carte bancaire</strong><br/>
     {% if inscription.is_paiement_paypal_cancelled %}
-      	<p class="attention">
+      	<div class="attention">
       	Votre paiement en ligne n'a pas été complété!<br/>
       	Aucun montant n'a été débité de votre compte.<br/>
       	Recommencez ou choisissez une autre option de paiement.<br/>
       	Si vous éprouvez des difficultés, n'hésitez pas à nous contacter à
       	l'adresse suivante : {% email_region %}
     	<div id="butt-paypal">{% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}</div>
-      </p>
+        </div>
     {% else %}
-    	<p>En choisissant cette option, vous serez redirigé sur la solution sécurisée
+      <div>
+    	En choisissant cette option, vous serez redirigé sur la solution sécurisée
     	de paiement en ligne PayPal au compte de l'AUF.<br/>
     	Une fois votre paiement accepté par Paypal, vous devrez cliquer sur le lien
     	"Retour à AG2017" pour finaliser la transaction, obtenir votre numéro de
     	confirmation de paiement et vérifier que votre transaction apparait sur votre dossier.
-    	<div id="butt-paypal" class="clair">{% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}</div>
-    {% endif %}</p>
+      <div id="butt-paypal" class="clair">{% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}</div>
+   </div>
+    {% endif %}
   	</div>
   	<div id="tab-vb">
   		<strong>Paiement par virement bancaire</strong><br/>
@@ -323,7 +325,7 @@
       
       <div id="bloc-hebergement" class="bloc-hebergement">
   <h2>Hébergement</h2>
-{% if not inscription.prise_en_charge_hebergement %}
+{% if not inscription.get_prise_en_charge_hebergement %}
 
   <p>
     L'AUF a négocié un tarif préférentiel avec l'hôtel Ryad Mogador Agdal & 
