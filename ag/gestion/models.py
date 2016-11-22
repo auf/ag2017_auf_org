@@ -11,7 +11,7 @@ from django.core.files.storage import FileSystemStorage
 from django.db import connection
 from django.db.models import (
     Model, PROTECT, DecimalField,
-    CharField, DateField, EmailField, TextField, FloatField, IntegerField,
+    CharField, DateField, EmailField, TextField, IntegerField,
     BooleanField, TimeField, DateTimeField, NullBooleanField,
     ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
 from django.db.models.aggregates import Sum, Max, Min, Count
@@ -326,6 +326,7 @@ class ActiviteScientifique(core.TableReference):
         return self.nb_participants() >= self.max_participants
 
     def __unicode__(self):
+        # noinspection PyTypeChecker
         return self.libelle + (u' ** (COMPLET) **' if self.complet() else u'')
 
 
@@ -841,6 +842,7 @@ class Participant(RenseignementsPersonnels):
         return u'{0} {1}'.format(self.get_genre_display(),
                                  self.get_nom_prenom())
 
+    # noinspection PyTypeChecker
     def get_prenom_nom_poste(self):
         result = self.prenom + u" " + self.nom.upper()
         if self.poste:
@@ -913,6 +915,7 @@ class Participant(RenseignementsPersonnels):
     #     elif self.vol_groupe:
     #
 
+    # noinspection PyTypeChecker
     def __unicode__(self):
         return u"<Participant: " + self.get_nom_prenom() + \
                u" (" + str(self.id) + u")>"
@@ -1262,6 +1265,7 @@ class AGRole(Model, Role):
         verbose_name = u'Rôle utilisateur'
         verbose_name_plural = u'Rôles des utilisateurs'
 
+    # noinspection PyTypeChecker
     def __unicode__(self):
         s = self.get_type_role_display()
         if self.region:
