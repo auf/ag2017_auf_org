@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 import datetime
-from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory
+from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory, \
+    TypeInstitutionFactory, FonctionFactory
+from ag.gestion import consts
 from ag.gestion.consts import *
 
 from ag.gestion.models import (
@@ -106,6 +108,25 @@ def create_fixtures(test_case):
         forfait = forfaits.get(code_forfait, None)
         Activite.objects.create(code=code_activite, libelle=code_activite,
                                 forfait_invite=forfait)
+
+    test_case.type_inst_etablissement, \
+    test_case.fonction_repr_etablissement =\
+        fonction_fixture()
+
+
+def fonction_fixture():
+    type_inst_etablissement = TypeInstitutionFactory(
+        code=consts.TYPE_INST_ETABLISSEMENT,
+        libelle=u"Établissement")
+
+    fonction_repr_etablissement = FonctionFactory(
+        code=consts.FONCTION_REPR_UNIVERSITAIRE,
+        type_institution=type_inst_etablissement)
+
+    fonction_instance_seulement = FonctionFactory(
+        code=consts.FONCTION_INSTANCE_SEULEMENT)
+
+    return type_inst_etablissement, fonction_repr_etablissement
 
 
 def forfaits_fixture():

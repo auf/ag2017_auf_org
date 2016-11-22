@@ -21,7 +21,10 @@ from ag.inscription.views import paypal_ipn
 from ag.core.test_utils import find_input_by_id, InscriptionFactory, \
     find_input_by_name
 import mock
-from ag.gestion.models import Participant, StatutParticipant
+from ag.gestion.models import (
+    Participant,
+    StatutParticipant,
+    get_fonction_repr_universitaire)
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
@@ -502,7 +505,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         participant.nom = 'Inscrit manuellement'
         participant.prenom = 'Inscrit manuellement'
         participant.courriel = 'abc@ccc.com'
-        participant.type_institution = 'E'
+        participant.fonction = get_fonction_repr_universitaire()
         participant.etablissement = Etablissement.objects.get(
             id=self.etablissement_nord_id)
         participant.statut = StatutParticipant.objects.get(code='repr_tit')

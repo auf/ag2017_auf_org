@@ -90,7 +90,15 @@ class Fonction(core.TableReferenceOrdonnee):
         ordering = ['ordre']
 
     categorie = ForeignKey(CategorieFonction)
-    type_institution = ForeignKey(TypeInstitution)
+    type_institution = ForeignKey(TypeInstitution, null=True, blank=True)
+
+
+def get_fonction_repr_universitaire():
+    return Fonction.objects.get(code=consts.FONCTION_REPR_UNIVERSITAIRE)
+
+
+def get_fonction_instance_seulement():
+    return Fonction.objects.get(code=consts.FONCTION_INSTANCE_SEULEMENT)
 
 
 class Institution(Model):
@@ -1278,7 +1286,7 @@ class AGRole(Model, Role):
                    (perm, self.type_role) in ALLOWED)
         if allowed and obj and isinstance(obj, Participant):
             allowed = (allowed and
-                       ((obj.type_institution == Participant.ETABLISSEMENT and
+                       ((obj.represente_etablissement and
                          obj.etablissement.region == self.region) or
                         obj.region == self.region)
                        )

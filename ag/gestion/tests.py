@@ -7,6 +7,7 @@ from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
+from ag.gestion.models import get_fonction_repr_universitaire
 from ag.inscription.models import Inscription, Invitation, PaypalResponse, \
     get_forfaits, Forfait
 from ag.core.test_utils import (
@@ -65,7 +66,8 @@ class GestionTestCase(TestCase):
             datetime.date(1973, 07, 04)
         participant_etablissement_membre.statut \
             = StatutParticipant.objects.get(code='repr_tit')
-        participant_etablissement_membre.type_institution = 'E'
+        participant_etablissement_membre.fonction = \
+            self.fonction_repr_etablissement
         participant_etablissement_membre.etablissement \
             = Etablissement.objects.get(id=self.etablissement_id)
         participant_etablissement_membre.save()
@@ -84,7 +86,7 @@ class GestionTestCase(TestCase):
 
     def test_nom_institution(self):
         participant = self.participant
-        participant.type_institution = 'E'
+        participant.fonction = get_fonction_repr_universitaire()
         etablissement = Etablissement.objects.get(id=self.etablissement_id)
         participant.etablissement = etablissement
         self.assertEquals(participant.nom_institution(), etablissement.nom)
@@ -1274,7 +1276,7 @@ class TransfertInscription(TestCase):
         self.assertEqual(infos_depart.numero_vol, i.depart_vol)
         self.assertEqual(infos_depart.date_depart, i.depart_date)
         self.assertEqual(infos_depart.heure_depart, i.depart_heure)
-        self.assertEqual(p.type_institution, 'E')
+        self.assertEqual(p.fonction.code, consts.FONCTION_REPR_UNIVERSITAIRE)
         self.assertEqual(p.etablissement, i.get_etablissement())
 
         self.assertEquals(len(Invite.objects.filter(participant=p)), 1)

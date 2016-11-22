@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 from ag.gestion import consts
-from ag.gestion.models import Participant, Invite, Activite, StatutParticipant
+from ag.gestion.models import Participant, Invite, Activite, StatutParticipant, \
+    TypeInstitution, Fonction
 from django.dispatch.dispatcher import Signal
 
 from ag.inscription.models import Forfait
@@ -78,7 +79,8 @@ def transfere(inscription, statut, prise_en_charge_transport,
     if facturer_supplement_chambre_double:
         participant.forfaits.add(Forfait.objects.get(
             code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE))
-    participant.type_institution = 'E'
+    participant.fonction = Fonction.objects.get(
+        code=consts.FONCTION_REPR_UNIVERSITAIRE)
     participant.etablissement = inscription.get_etablissement()
     participant.save()
     inscription_transferee.send_robust(participant)

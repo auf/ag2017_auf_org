@@ -18,6 +18,22 @@ def find_checked_input_by_name(tree, html_name):
     return tree.find("//input[@name='{0}'][@checked='checked']".format(html_name))
 
 
+def create_table_ref_factory(table_reference_class, abbr, extra_fields=None):
+    class_name = table_reference_class.__name__
+    meta_class = type('Meta', (), {
+        'model': table_reference_class, })
+    class_dict = {'Meta': meta_class,
+                  'code': factory.Sequence(lambda n: u"{0}{1}".format(abbr, n)),
+                  'libelle': factory.LazyAttribute(
+                      lambda a: u"{0}{1}".format(class_name, a.code))}
+    if extra_fields:
+        class_dict.update(extra_fields)
+    if 'ordre' in table_reference_class._meta.get_all_field_names():
+        class_dict['ordre'] = factory.Sequence(lambda n: n)
+    return type(class_name + 'Factory',
+                (factory.DjangoModelFactory, ), class_dict)
+
+
 # noinspection PyUnresolvedReferences
 class PaysFactory(factory.DjangoModelFactory):
     class Meta:
@@ -90,3 +106,14 @@ class PaiementFactory(factory.DjangoModelFactory):
     date = datetime.date(2016, 10, 10)
     ref = factory.Sequence(lambda n: u"ref{0}".format(n))
     implantation = factory.SubFactory(ImplantationFactory)
+
+
+TypeInstitutionFactory = create_table_ref_factory(
+    gestion_models.TypeInstitution, u"TI")
+
+CategorieFonctionFactory = create_table_ref_factory(
+    gestion_models.CategorieFonction, u"CF")
+
+FonctionFactory = create_table_ref_factory(
+    gestion_models.Fonction, u"Fn",
+    {'categorie': factory.SubFactory(CategorieFonctionFactory)})
