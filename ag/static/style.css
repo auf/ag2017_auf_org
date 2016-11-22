@@ -46,8 +46,15 @@ margin:auto;
 }
 
 
+#diapoframe {
+max-width:1899px;
+margin:auto;
+
+}
+
 #diapo {
     background-color: white;
+    margin:auto;
 }
 
 .bx-prev, .bx-next {display:none;}
@@ -83,6 +90,25 @@ left:22%;
 
     font:  0.8em "Ubuntu","Open Sans",sans-serif;
     text-transform:none;
+}
+
+.bx-wrapper {
+
+    margin: auto;
+    max-width: 2150px;
+
+}
+
+.bx-wrapper .bx-viewport {
+
+    border: 0px;
+    left: 0px;
+
+}
+
+.bx-wrapper .bx-pager .bx-pager-item, .bx-wrapper .bx-controls-auto .bx-controls-auto-item {
+    display: none;
+
 }
 
 #top2-center {
@@ -661,9 +687,10 @@ h1{
     font-family: "Ubuntu","Open Sans",sans-serif;
     font-size: 2em;
     color: #A90F30;
+    line-height:35px;
 
     padding-bottom: 15px;
-    margin-bottom: 21px;
+    margin-bottom: 15px;
 
 
 }

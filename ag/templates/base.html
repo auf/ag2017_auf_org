@@ -2,13 +2,12 @@
 <!DOCTYPE HTML>
 <head>
   <meta charset="utf-8" />
-  <meta name="description" content="Ag 2013" />
+  <meta name="description" content="Assemblée générale 2017 | AUF" />
   <meta name="author" content="AUF" />
   <meta name="google-translate-customization" content="348cc25c484ffe60-c257e7d0f621ac72-gc4a750e733277c46-20"/>
   <title>Assemblée générale 2017 {% block title %}{% endblock %}</title>
   <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}favicon.ico">
-  <link href="{{ STATIC_URL }}style.css?v=1" rel="stylesheet" type="text/css" media="screen" />
-  <link href="{{ STATIC_URL }}style_print.css?v=1" rel="stylesheet" type="text/css" media="print" />
+
   {% render_block "css" %}
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
@@ -17,7 +16,7 @@
  <link href="{{ STATIC_URL }}scripts/jquery.bxslider.css" rel="stylesheet" />
   <script type="text/javascript" src="{{ STATIC_URL }}scripts/site.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}scripts/jquery.form.js"></script>
-  <script type="text/javascript"  src="{{ STATIC_URL }}js/activites_scientifiques.js"></script>
+  <!--<script type="text/javascript"  src="{{ STATIC_URL }}js/activites_scientifiques.js"></script>-->
   <!--[if lt IE 9]>
     <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <script src="{{ STATIC_URL }}scripts/innershiv.min.js"></script>
@@ -25,6 +24,10 @@
   <!--[if IE 6]><script type="text/javascript" src="scripts/DD_belatedPNG_0.0.8a-min.js"></script><![endif]-->
   <!--[if lt IE 8]><script src="{{ STATIC_URL }}scripts/font.js"></script><![endif]-->
   <!--[if lte IE 8]> <link type="text/css" href="{{ STATIC_URL }}styleIE.css" rel="stylesheet"><![endif]-->
+
+
+     <link href="{{ STATIC_URL }}style.css?v=1" rel="stylesheet" type="text/css" media="screen" />
+  <link href="{{ STATIC_URL }}style_print.css?v=1" rel="stylesheet" type="text/css" media="print" />
   {% render_block "js" %}
   {% block extrahead %}{% endblock %}
 </head>
