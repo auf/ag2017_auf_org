@@ -15,20 +15,21 @@
 </div>-->
 {% endblock %}
 
-{% block diapo %}     
-		<div id="diapo"> 
-        {% if  slider_list %}
-                {% for item in slider_list %}
-                    	<div class="image">
-                           <img src="{{ MEDIA_URL }}{{ item.image }}"  >
-                         <div class="note"> <a  href="{{ item.lien }}">{{ item.titre|safe }}</a></div>
-                	</div>
+{% block diapo %}
+  <ul id="diapo" class="bxslider">
+    {% if  slider_list %}
+      {% for item in slider_list %}
+        <li class="image">
+          <img src="{{ MEDIA_URL }}{{ item.image }}">
+          <div class="note"><a href="{{ item.lien }}">{{ item.titre|safe }}</a>
+          </div>
+        </li>
 
-                {% endfor %}
-        {% else %}
-                <p>Pas de slider</p>
-        {% endif %}               
-		</div>
+      {% endfor %}
+    {% else %}
+      <p>Pas de slider</p>
+    {% endif %}
+  </ul>
 {% endblock %}
 
 {% block content %}
