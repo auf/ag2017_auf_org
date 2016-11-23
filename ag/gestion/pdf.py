@@ -23,7 +23,7 @@ from ag.inscription.models import Inscription, montant_str
 PAGESIZE = letter
 
 Facture = namedtuple('Facture',
-                     ('titre', 'civilite', 'nom', 'prenom', 'numero_facture',
+                     ('titre', 'civilite', 'nom', 'prenom', 'numero_facture', 'numero',
                       'date_facturation', 'adresse', 'etablissement_id',
                       'numero_dossier', 'imputation', 'frais_inscription',
                       'frais_forfaits', 'frais_hebergement', 'total_frais',
@@ -69,6 +69,7 @@ def facture_from_inscription(inscription):
     return Facture(
         numero_facture=None,
         date_facturation=inscription.date_fermeture,
+        numero=inscription.numero,
         etablissement_id=inscription.get_etablissement().id,
         numero_dossier=inscription.numero_dossier,
         imputation=None,
@@ -120,7 +121,7 @@ def generer_factures(output_file, factures):
             facture.nom
         ))
         if facture.numero_facture:
-            numero_facture = u"000A09-%02d" % facture.numero_facture
+            numero_facture = u"-%02d" % facture.numero_facture
         else:
             numero_facture = None
         date_facturation = date_format(facture.date_facturation,
@@ -180,11 +181,14 @@ def generer_factures(output_file, factures):
         t = Table(
             [
                 [u"Date d'émission", date_facturation],
-                [u"# Facture", numero_facture] if numero_facture else [],
+                [u"# Facture", u"{}-{}".format(
+                        facture.numero,
+                        [numero_facture] if numero_facture else u"00")
+                ],
+                [u"# Dossier", facture.numero_dossier],
                 [
-                    u"# Dossier",
-                    u"{}-CGRM{}".format(
-                        facture.numero_dossier,
+                    u"# Membre",
+                    u"CGRM{}".format(
                         facture.etablissement_id)
                     if facture.etablissement_id else u""
                 ],
@@ -336,33 +340,26 @@ def generer_itineraires(output_file, participants):
             participant.nom
         ))
         # Logos
-        logo_height = 52
-        logo_width = 130 * logo_height / 91
+        logo_height = 80
+        logo_width = 300 * logo_height / 143
         canvas.drawImage(
-            os.path.join(APP_ROOT, 'images', 'logoaufnb.jpg'),
+            os.path.join(APP_ROOT, 'images', 'agauflogo2017.jpg'),
             margin_left, page_height - margin_top - logo_height,
-            logo_width, logo_height
-        )
-        logo_width = 195 * logo_height / 90
-        canvas.drawImage(
-            os.path.join(APP_ROOT, 'images', 'logoagN.jpg'),
-            page_width - margin_right - logo_width,
-            page_height - margin_top - logo_height,
             logo_width, logo_height
         )
 
         # Adresse de l'AUF
-        x = margin_left + 75
-        y = page_height - margin_top - 8
+        x = margin_left + logo_width
+        y = page_height - margin_top - 16
         canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawString(x, y, u"Agence universitaire de la Francophonie")
+        canvas.drawString(x, y, u"Secrétariat de l'assemblée générale")
         y -= 12
         canvas.setFont('Helvetica', 8)
         for s in [
-            u"Secrétariat de l'assemblée générale",
             u"Case postale du Musée C.P. 49714",
             u"Montréal (Québec), H3T 2A5, Canada",
-            u"Courriel : ag2013@auf.org  Site : www.ag2013.auf.org",
+            u"Courriel : ag2017@auf.org",
+            u"Site : www.ag2017.auf.org",
         ]:
             canvas.drawString(x, y, s)
             y -= 10
@@ -370,13 +367,13 @@ def generer_itineraires(output_file, participants):
 
         # Titre
         contenu.append(Paragraph(
-            u"Paris, le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
+            u"Imprimé le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
             styles['right-aligned']
         ))
 
         contenu.append(Paragraph(u"ITINÉRAIRE DE VOYAGE", styles['titre']))
         contenu.append(Paragraph(
-            u"(Assemblée générale AUF 2013)", styles['sous-titre']
+            u"(Assemblée générale AUF 2017)", styles['sous-titre']
         ))
         contenu.append(Spacer(0, 0.25 * cm))
 
@@ -384,6 +381,7 @@ def generer_itineraires(output_file, participants):
         contenu.append(Table(
             [
                 [u"Passager :", nom_participant],
+                [u"Dossier :", numero_dossier],
                 [u"Institution :", participant.nom_institution()],
                 [u"Téléphone :", participant.telephone],
                 [u"Télécopieur :", participant.telecopieur],
@@ -470,7 +468,7 @@ def generer_itineraires(output_file, participants):
             styles['bullet']
         ))
         contenu.append(Paragraph(
-            u"<bullet>&bull;</bullet>Visa d'entrée pour le Brésil",
+            u"<bullet>&bull;</bullet>Visa d'entrée pour le Maroc",
             styles['bullet']
         ))
         contenu.append(Spacer(0, 0.5 * cm))

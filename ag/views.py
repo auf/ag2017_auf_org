@@ -20,14 +20,14 @@ def contact(request):
         form = ContactForm(request.POST)
         if form.is_valid():
             message = EmailMessage()
-            message.subject = u"ag2013 web contact - "\
+            message.subject = u"ag2017 web contact - "\
                               + form.cleaned_data['subject']
             message.body = u"Nom: " + form.cleaned_data['username'] + u"\r" +\
                 u"Adresse E-Mail: " + form.cleaned_data['usermail'] + u"\r" +\
                 u"Site internet: " + form.cleaned_data['usersite'] + u"\r" +\
                 u"Sujet: " + form.cleaned_data['subject'] + u"\r" +\
                 u"Message: " + form.cleaned_data['message'] + u"\r"
-            message.to = ['ag2013@auf.org']
+            message.to = ['ag2017@auf.org']
             message.from_email = form.cleaned_data['usermail']
             message.send(fail_silently=True)
             return redirect('/')
