@@ -7,13 +7,17 @@ from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
-from ag.gestion.models import get_fonction_repr_universitaire
+from ag.gestion.models import get_fonction_repr_universitaire, \
+    get_fonction_instance_seulement
 from ag.inscription.models import Inscription, Invitation, PaypalResponse, \
     get_forfaits, Forfait
 from ag.core.test_utils import (
     find_input_by_id,
     find_input_by_name,
-    find_checked_input_by_name)
+    find_checked_input_by_name,
+    TypeInstitutionFactory,
+    FonctionFactory,
+    InstitutionFactory)
 from ag.tests import create_fixtures, creer_participant
 from ag.reference.models import Etablissement, Pays, Region, Implantation
 
@@ -84,25 +88,28 @@ class GestionTestCase(TestCase):
     def url_fiche_participant(self):
         return reverse('fiche_participant', args=[self.participant.id])
 
-    def test_nom_institution(self):
+    def test_nom_institution_etablissement(self):
         participant = self.participant
         participant.fonction = get_fonction_repr_universitaire()
         etablissement = Etablissement.objects.get(id=self.etablissement_id)
         participant.etablissement = etablissement
         self.assertEquals(participant.nom_institution(), etablissement.nom)
-        participant.type_institution = 'I'
-        participant.instance_auf = 'C'
+
+    def test_nom_institution_instance_seulement(self):
+        participant = self.participant
+        participant.fonction = get_fonction_instance_seulement()
+        participant.instance_auf = 'A'
+        assert u"administration" in participant.nom_institution()
+
+    def test_nom_autre_institution(self):
+        participant = self.participant
+        type_institution = TypeInstitutionFactory()
+        fonction = FonctionFactory(type_institution=type_institution)
+        institution = InstitutionFactory(type_institution=type_institution)
+        participant.fonction = fonction
+        participant.institution = institution
         self.assertEquals(participant.nom_institution(),
-                          u"AUF (Conseil associatif)")
-        participant.type_institution = 'A'
-        type_pers_auf = \
-            TypeInstitutionSupplementaire.objects.get(code='pers_auf')
-        participant.type_autre_institution = type_pers_auf
-        self.assertEquals(participant.nom_institution(),
-                          type_pers_auf.libelle)
-        participant.nom_autre_institution = 'ABC'
-        self.assertEquals(participant.nom_institution(),
-                          type_pers_auf.libelle + ', ABC')
+                          institution.nom)
 
     def test_recherche_participant(self):
         response = self.client.get(reverse('participants'))

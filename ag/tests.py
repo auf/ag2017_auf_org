@@ -110,7 +110,7 @@ def create_fixtures(test_case):
                                 forfait_invite=forfait)
 
     test_case.type_inst_etablissement, \
-    test_case.fonction_repr_etablissement =\
+        test_case.fonction_repr_etablissement =\
         fonction_fixture()
 
 

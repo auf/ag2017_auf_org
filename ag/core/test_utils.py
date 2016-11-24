@@ -117,3 +117,11 @@ CategorieFonctionFactory = create_table_ref_factory(
 FonctionFactory = create_table_ref_factory(
     gestion_models.Fonction, u"Fn",
     {'categorie': factory.SubFactory(CategorieFonctionFactory)})
+
+
+class InstitutionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = gestion_models.Institution
+    nom = factory.Sequence(lambda n: u"Inst{0}".format(n))
+    pays = factory.SubFactory(PaysFactory)
+    region = factory.SubFactory(RegionFactory)

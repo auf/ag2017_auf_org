@@ -531,8 +531,12 @@ class Participant(RenseignementsPersonnels):
 
     @property
     def represente_etablissement(self):
-        return self.fonction and \
+        return self.fonction and self.fonction.type_institution and \
                self.fonction.type_institution.est_etablissement
+
+    @property
+    def represente_instance_seulement(self):
+        return self.fonction == get_fonction_instance_seulement()
 
     @property
     def numero(self):
@@ -640,6 +644,11 @@ class Participant(RenseignementsPersonnels):
         """
         if self.represente_etablissement:
             return self.etablissement.nom
+        if self.represente_instance_seulement:
+            nom = u"{} AUF seulement".format(self.get_instance_auf_display())
+            if self.instance_auf == 'A':
+                nom += u"({})".format(self.get_membre_ca_represente_display())
+            return nom
         elif self.institution_id:
             return self.institution.nom
         else:
