@@ -10,7 +10,7 @@
 #corp .formulaire { text-align: left; background: #fff; border: none; padding:20px; margin-bottom: 20px; }
 #corp .uniForm .buttonHolder { background-color: #fff; border: none; }
 #corp .uniForm .buttonHolder label { margin: 4px; font-size: 1.1em; }
-#corp .formulaire input.primaryAction, #corp #butt-paypal input.primaryAction { 
+#corp .formulaire input.primaryAction, #corp #butt-paypal input.primaryAction, #corp #form-adresse input.primaryAction { 
 	float: right;    
 	text-decoration: none;
     background-color: #76C931;
@@ -352,7 +352,7 @@ border: 1px solid #CCC;
 	margin:5px;
 }
 
-#adresse-container .bouton_sub, #plan-vol-dossier .bouton_sub {
+#adresse .bouton_sub, #plan-vol-dossier .bouton_sub {
 	float: right;
 	position: relative;
 	bottom: 30px;

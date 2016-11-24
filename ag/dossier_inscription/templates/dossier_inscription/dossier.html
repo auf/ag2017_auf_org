@@ -4,11 +4,11 @@
 {% block sidemenu %}
 <nav class="site-navigation page-navigation">
   <ul class="menu">
-    <li><a href="#baseline">Informations</a></li>
-    <li><a href="#bloc-paiement">État de compte</a></li>
-    <li><a href="#bloc-accompagnateur">Accompagnateurs</a></li>
-    <li><a href="#bloc-activites">Activités</a></li>
-    <li><a href="#bloc-hebergement">Séjour</a></li>
+    <li><a href="#baseline" class="js-scrollTo">Informations</a></li>
+    <li><a href="#bloc-paiement" class="js-scrollTo">État de compte</a></li>
+    {% if inscription.est_pour_mandate %}<li><a href="#bloc-accompagnateur" class="js-scrollTo">Accompagnateurs</a></li>{% endif %}
+    <li><a href="#bloc-activites" class="js-scrollTo">Activités</a></li>
+    <li><a href="#bloc-hebergement" class="js-scrollTo">Séjour</a></li>
   </ul>
 </nav>
 {% endblock %}
@@ -62,17 +62,17 @@
 </p>
   <h3>Suivi du dossier</h3>
   <ul>
-  	<li class="{% if suivi.inscription_recue %}complet{% endif %}">Inscription reçue</li>
-  	<li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
-  	<li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
-  	<li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
-  	{% if inscription.get_prise_en_charge_hebergement %}
-  	<li class="{% if inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
-  	{% endif %}
+        <li class="{% if suivi.inscription_recue %}complet{% endif %}">Inscription reçue</li>
+        <li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
+        <li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
+        <li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
+        {% if inscription.get_prise_en_charge_hebergement %}
+        <li class="{% if inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
+        {% endif %}
   </ul>
   <h3>Documents</h3>
   <ul>
-	<li class="documentpdf"><a href="">Conditions générales</a></li>
+        <li class="documentpdf"><a href="">Conditions générales</a></li>
     <li class="documentpdf"><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
 <!-- à faire --> {#    <li><a href="">Itinéraire de voyage</a></li>#}
 <!-- à faire --> {#    <li><a href="">Coupons navette</a></li>#}
@@ -95,8 +95,8 @@
 
 {% ifequal solde 0 %}
   <p class="succes">
-	<strong>Vous avez acquitté tous vos frais de participation. Merci.</strong><br/>
-	Vous trouverez votre reçu de paiement dans la section "Documents" ci-haut.
+        <strong>Vous avez acquitté tous vos frais de participation. Merci.</strong><br/>
+        Vous trouverez votre reçu de paiement dans la section "Documents" ci-haut.
   {% ifequal inscription.paiement "CB" %}
     <strong>Votre paiement a été effectué avec succès.</strong><br/>
     Un accusé de réception électronique vous sera transmis par courriel dans les
@@ -121,88 +121,88 @@
   trop sera remboursé au compte
   de la transaction.</em></p>
 </div>
- 	<div class="intro">
- 		<h3 style="padding: 0;">Options de paiement</h3>
- 		 <div><strong>Le paiement en ligne par carte bancaire 
- 		 est à privilégier.</strong><br/>Veuillez noter qu’il est de votre responsabilité
- 		 d'obtenir et de conserver votre preuve de paiement. (copie d’ordre de 
- 		 virement bancaire, reçu de paiement dans une implantation AUF, etc.).</div>
- 		 <div style="padding: 15px 0 0 0; width:45%; float: left;">Toute preuve de paiement doit mentionner :</div>
- 		 <div style="padding: 20px 0 0 0; width:40%; display: flex;">
- 		 	<ul>
-      		<li><strong>le numéro de dossier</strong></li>
-      		<li><strong>le nom du participant</strong></li>
-      		<li><strong>le nom de son établissement.</strong></li>
-    		</ul>
-    	</div>
-  	</div>
+        <div class="intro">
+                <h3 style="padding: 0;">Options de paiement</h3>
+                 <div><strong>Le paiement en ligne par carte bancaire 
+                 est à privilégier.</strong><br/>Veuillez noter qu’il est de votre responsabilité
+                 d'obtenir et de conserver votre preuve de paiement. (copie d’ordre de 
+                 virement bancaire, reçu de paiement dans une implantation AUF, etc.).</div>
+                 <div style="padding: 15px 0 0 0; width:45%; float: left;">Toute preuve de paiement doit mentionner :</div>
+                 <div style="padding: 20px 0 0 0; width:40%; display: flex;">
+                        <ul>
+                <li><strong>le numéro de dossier</strong></li>
+                <li><strong>le nom du participant</strong></li>
+                <li><strong>le nom de son établissement.</strong></li>
+                </ul>
+        </div>
+        </div>
   <div id="tabs-paiement">
-  	<ul>
-    	<li><a href="#tab-cb" class="tabs-p"><span>Carte Bancaire</span></a></li>
-    	<li><a href="#tab-vb" class="tabs-p"><span>Virement bancaire</span></a></li>
-    	<li><a href="#tab-ce" class="tabs-p"><span>Chèque en Euros</span></a></li>
-    	<li><a href="#tab-dl" class="tabs-p"><span>Devise locale</span></a></li>
-  	</ul>
-  	<div id="tab-cb">
-  		<strong>Paiement en ligne par carte bancaire</strong><br/>
+        <ul>
+        <li><a href="#tab-cb" class="tabs-p" onclick="return false;"><span>Carte Bancaire</span></a></li>
+        <li><a href="#tab-vb" class="tabs-p" onclick="return false;"><span>Virement bancaire</span></a></li>
+        <li><a href="#tab-ce" class="tabs-p" onclick="return false;"><span>Chèque en Euros</span></a></li>
+        <li><a href="#tab-dl" class="tabs-p" onclick="return false;"><span>Devise locale</span></a></li>
+        </ul>
+        <div id="tab-cb">
+                <strong>Paiement en ligne par carte bancaire</strong><br/>
     {% if inscription.is_paiement_paypal_cancelled %}
-      	<div class="attention">
-      	Votre paiement en ligne n'a pas été complété!<br/>
-      	Aucun montant n'a été débité de votre compte.<br/>
-      	Recommencez ou choisissez une autre option de paiement.<br/>
-      	Si vous éprouvez des difficultés, n'hésitez pas à nous contacter à
-      	l'adresse suivante : {% email_region %}
-    	<div id="butt-paypal">{% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}</div>
+        <div class="attention">
+        Votre paiement en ligne n'a pas été complété!<br/>
+        Aucun montant n'a été débité de votre compte.<br/>
+        Recommencez ou choisissez une autre option de paiement.<br/>
+        Si vous éprouvez des difficultés, n'hésitez pas à nous contacter à
+        l'adresse suivante : {% email_region %}
+        <div id="butt-paypal" class="clair">{% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}</div>
         </div>
     {% else %}
       <div>
-    	En choisissant cette option, vous serez redirigé sur la solution sécurisée
-    	de paiement en ligne PayPal au compte de l'AUF.<br/>
-    	Une fois votre paiement accepté par Paypal, vous devrez cliquer sur le lien
-    	"Retour à AG2017" pour finaliser la transaction, obtenir votre numéro de
-    	confirmation de paiement et vérifier que votre transaction apparait sur votre dossier.
+        En choisissant cette option, vous serez redirigé sur la solution sécurisée
+        de paiement en ligne PayPal au compte de l'AUF.<br/>
+        Une fois votre paiement accepté par Paypal, vous devrez cliquer sur le lien
+        "Retour à AG2017" pour finaliser la transaction, obtenir votre numéro de
+        confirmation de paiement et vérifier que votre transaction apparait sur votre dossier.
       <div id="butt-paypal" class="clair">{% include "inscription/paypal_button_include.html" with button_label="Paiement en ligne" %}</div>
    </div>
     {% endif %}
-  	</div>
-  	<div id="tab-vb">
-  		<strong>Paiement par virement bancaire</strong><br/>
-    	<p><span class="important">IMPORTANT:</span> Votre numéro de dossier 
-    	<strong>{{ inscription.numero_dossier }}</strong> doit obligatoirement 
-    	figurer dans le libellé de la transaction bancaire.
-		À défaut, nous ne pourrons pas rapprocher votre paiement à votre dossier de 
-		participation à l'Assemblée générale.<br/><br/>
-		<strong>Pour obtenir les informations bancaires:</strong> <br/>Veuillez 
-		communiquer avec votre correspondant régional à l'adresse suivante : 
-		{% email_region %}.</p>
-  	</div>
-  	<div id="tab-ce">
-  		<strong>Paiement par chèque en Euros</strong><br/>
-  		<p>Si vous choisissez cette option, vous devez :</p>
-  		<ul> 
-  			<li>Libeller le chèque à l'ordre de: <strong>Agence universitaire de la
-      		Francophonie</strong></li>
-  			<li>Inscrire votre numéro de dossier 
-  			<strong>{{ inscription.numero_dossier }}</strong> sur le chèque</li>
-  			<li>Transmettre votre chèque signé et votre facture imprimée par la 
-  			poste à l’adresse suivante :</li>
-  		</ul>
-  		<div style="margin-left: 140px;">
-  		{% include "dossier_inscription/includes/adresse_region_cheque.html" with code_region=region.code%}
-  		</div>
-  	</div>
- 	 <div id="tab-dl">
-    	<strong>Paiement en devises locales</strong><br/>
-    	<p>Le paiement en devises locales (espèces, chèque, virement), peut
-     	 s'effectuer dans toutes les implantations de l’Agence universitaire de la
-     	 Francophonie.<br/>
-      	Rendez-vous dans une de nos implantation avec votre facture imprimée.
-    	</p>
-    	<p>
-      	<a href="https://www.auf.org/implantations/?region={{ region.id }}"
+        </div>
+        <div id="tab-vb">
+                <strong>Paiement par virement bancaire</strong><br/>
+        <p><span class="important">IMPORTANT:</span> Votre numéro de dossier 
+        <strong>{{ inscription.numero_dossier }}</strong> doit obligatoirement 
+        figurer dans le libellé de la transaction bancaire.
+                À défaut, nous ne pourrons pas rapprocher votre paiement à votre dossier de 
+                participation à l'Assemblée générale.<br/><br/>
+                <strong>Pour obtenir les informations bancaires:</strong> <br/>Veuillez 
+                communiquer avec votre correspondant régional à l'adresse suivante : 
+                {% email_region %}.</p>
+        </div>
+        <div id="tab-ce">
+                <strong>Paiement par chèque en Euros</strong><br/>
+                <p>Si vous choisissez cette option, vous devez :</p>
+                <ul> 
+                        <li>Libeller le chèque à l'ordre de: <strong>Agence universitaire de la
+                Francophonie</strong></li>
+                        <li>Inscrire votre numéro de dossier 
+                        <strong>{{ inscription.numero_dossier }}</strong> sur le chèque</li>
+                        <li>Transmettre votre chèque signé et votre facture imprimée par la 
+                        poste à l’adresse suivante :</li>
+                </ul>
+                <div style="margin-left: 140px;">
+                {% include "dossier_inscription/includes/adresse_region_cheque.html" with code_region=region.code%}
+                </div>
+        </div>
+         <div id="tab-dl">
+        <strong>Paiement en devises locales</strong><br/>
+        <p>Le paiement en devises locales (espèces, chèque, virement), peut
+         s'effectuer dans toutes les implantations de l’Agence universitaire de la
+         Francophonie.<br/>
+        Rendez-vous dans une de nos implantation avec votre facture imprimée.
+        </p>
+        <p>
+        <a href="https://www.auf.org/implantations/?region={{ region.id }}"
           target="_blank">
         Parcourir les Implantations de la région {{ region.nom }}</a></p>
-  	</div>
+        </div>
   </div>
 {% endifequal %}
 </div>
@@ -211,51 +211,51 @@
 <div id="bloc-accompagnateur" class="bloc-accompagnateur">
   <a id="invitations"></a>
   <h2>Accompagnateurs institutionels</h2>
-	<div class="intro">
-  		<p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur
-  		de votre établissement en indiquant leur Nom, Prénom et Adresse électronique.
-  		Revenez en tout temps pour envoyer d'autres invitations et suivre le statut de
-  		vos invitations.</p>
-  	{% if invitations_accompagnateurs %}
-    	<h3>Invitations envoyées:</h3>
-    	<ul>
-    	{% for invitation in invitations_accompagnateurs %}
-      		<li>{{ invitation.nom }}, {{ invitation.prenom }},
-        	{{ invitation.courriel }}
-      		</li>
-    	{% endfor %}
-    	</ul>
-  	{% endif %}
-  	{% if not inscriptions_terminees %}
-  		<h3>Formulaire d'invitation</h3>
-  		Saisissez un invité par ligne<br/><br/>
-  	</div>
-  	<form id="invitations" method="post" action="{% url "dossier_inscription" %}#invitations">
-  		{{ invites_formset.management_form }}
-  		{{ formset.non_form_errors.as_ul }}
-  		{% csrf_token %}
-  		<table>
-    		<thead>
-    		<tr><th>Nom</th><th>Prénom</th><th>Courriel</th></tr>
-    		</thead>
-    		<tfoot>
-    		<tr>
-    		<td></td><td></td><td><button class="bouton_sub" name="submit-invites-formset" type="submit">
-    	Envoyer les invitations</button></td>
-    		</tr>
-    		</tfoot>
-    		<tbody>
-    		{% for form in invites_formset %}
-    		<tr>
-    		<td>{{ form.nom }}{{ form.nom.errors }} </td>
-    		<td>{{ form.prenom }}{{ form.prenom.errors }}</td>
-    		<td>{{ form.courriel }}{{ form.courriel.errors }}</td>
-    		</tr>
-    		{% endfor %}
-    		</tbody>
-  		</table>
-  		</form>
-  	{% endif %}
+        <div class="intro">
+                <p>Vous pouvez transmettre le formulaire d'inscription à un membre accompagnateur
+                de votre établissement en indiquant leur Nom, Prénom et Adresse électronique.
+                Revenez en tout temps pour envoyer d'autres invitations et suivre le statut de
+                vos invitations.</p>
+        {% if invitations_accompagnateurs %}
+        <h3>Invitations envoyées:</h3>
+        <ul>
+        {% for invitation in invitations_accompagnateurs %}
+                <li>{{ invitation.nom }}, {{ invitation.prenom }},
+                {{ invitation.courriel }}
+                </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        {% if not inscriptions_terminees %}
+                <h3>Formulaire d'invitation</h3>
+                Saisissez un invité par ligne<br/><br/>
+        </div>
+        <form id="invitations" method="post" action="{% url "dossier_inscription" %}#invitations">
+                {{ invites_formset.management_form }}
+                {{ formset.non_form_errors.as_ul }}
+                {% csrf_token %}
+                <table>
+                <thead>
+                <tr><th>Nom</th><th>Prénom</th><th>Courriel</th></tr>
+                </thead>
+                <tfoot>
+                <tr>
+                <td></td><td></td><td><button class="bouton_sub" name="submit-invites-formset" type="submit">
+        Envoyer les invitations</button></td>
+                </tr>
+                </tfoot>
+                <tbody>
+                {% for form in invites_formset %}
+                <tr>
+                <td>{{ form.nom }}{{ form.nom.errors }} </td>
+                <td>{{ form.prenom }}{{ form.prenom.errors }}</td>
+                <td>{{ form.courriel }}{{ form.courriel.errors }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+                </form>
+        {% endif %}
 </div>
 {% endif %}
 
@@ -284,44 +284,44 @@
       <input name="refuse_reseautage" type="submit"
              value="Je ne veux plus partager mon adresse courriel"/>
     </form>
-	<div class="intro">
-    	<h3>Parcourez la liste des participants</h3>
-    	<p><em>Notez-bien que n'apparaissent dans la liste que les participants
+        <div class="intro">
+        <h3>Parcourez la liste des participants</h3>
+        <p><em>Notez-bien que n'apparaissent dans la liste que les participants
       confirmés, revenez plus tard pour un plus grand choix.</em></p>
-		</div>
+                </div>
     <div class="liste-reseautage">
       {% include "dossier_inscription/includes/liste_reseautage.html" %}
     </div>
-	{% endif %}
+        {% endif %}
 </div>
 -->
     
-	<div id="bloc-activites" class="bloc-activites">
-	<h2>Activités {% if inscription.accompagnateur %}et forfaits pour vous et votre invité{% endif %}</h2>
-	<div id="listes">
-		<div id="liste-activites">
-		<h3>Vos activités réservées</h3>
-		<ul>
-			<li {% if inscription.programmation_soiree_9_mai %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
-			<li {% if inscription.programmation_soiree_10_mai %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
-			<li {% if inscription.programmation_gala %}class="oui"{% endif %}>{{ activites.gala }}</li>
-			<li {% if inscription.inscription.programmation_soiree_12_mai %}class="oui"{% endif %}>{{ activites.cocktail_12_mai }}</li>
-		</ul>
-  		</div>
-  		{% if inscription.accompagnateur %}
-  			<div id="liste-forfaits">
-    		<h3>Forfaits sélectionnés</h3>
-    		<ul>
-				<li {% if inscription.programmation_soiree_9_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
-				<li {% if inscription.programmation_soiree_10_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
-				<li {% if inscription.programmation_gala_invite %}class="oui"{% endif %}>{{ activites.gala }}</li>
-				<li {% if inscription.forfait_invite_dejeuners %}class="oui"{% endif %}>Forfait 3 Déjeuners (9,10 et 11)</li>
-				<li {% if inscription.forfait_invite_transfert %}class="oui"{% endif %}>2 transferts entre l’aéroport et hôtel Mogador</li>
-			</ul>
-    		</div>
-  		{% endif %}
-  		</div>
-	</div>
+        <div id="bloc-activites" class="bloc-activites">
+        <h2>Activités {% if inscription.accompagnateur %}et forfaits pour vous et votre invité{% endif %}</h2>
+        <div id="listes">
+                <div id="liste-activites">
+                <h3>Vos activités réservées</h3>
+                <ul>
+                        <li {% if inscription.programmation_soiree_9_mai %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
+                        <li {% if inscription.programmation_soiree_10_mai %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
+                        <li {% if inscription.programmation_gala %}class="oui"{% endif %}>{{ activites.gala }}</li>
+                        <li {% if inscription.inscription.programmation_soiree_12_mai %}class="oui"{% endif %}>{{ activites.cocktail_12_mai }}</li>
+                </ul>
+                </div>
+                {% if inscription.accompagnateur %}
+                        <div id="liste-forfaits">
+                <h3>Forfaits sélectionnés</h3>
+                <ul>
+                                <li {% if inscription.programmation_soiree_9_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
+                                <li {% if inscription.programmation_soiree_10_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
+                                <li {% if inscription.programmation_gala_invite %}class="oui"{% endif %}>{{ activites.gala }}</li>
+                                <li {% if inscription.forfait_invite_dejeuners %}class="oui"{% endif %}>Forfait 3 Déjeuners (9,10 et 11)</li>
+                                <li {% if inscription.forfait_invite_transfert %}class="oui"{% endif %}>2 transferts entre l’aéroport et hôtel Mogador</li>
+                        </ul>
+                </div>
+                {% endif %}
+                </div>
+        </div>
       
       <div id="bloc-hebergement" class="bloc-hebergement">
   <h2>Hébergement</h2>
@@ -334,50 +334,50 @@
     Un nombre limité de chambres a été réservé pour les participants pour une 
     période limitée.</p>
     
-		{% if avant_31_decembre %}
-		<p class="attention">
-		<strong>Veuillez réserver avant le 31 décembre 2016 pour profiter 
-		du tarif préférentiel.</strong></p>
-		{% endif %}
+                {% if avant_31_decembre %}
+                <p class="attention">
+                <strong>Veuillez réserver avant le 31 décembre 2016 pour profiter 
+                du tarif préférentiel.</strong></p>
+                {% endif %}
   <p>
     La réservation de chambre doit se faire par courriel à l'adresse électronique 
-	suivante : <a href="mailto:hagdalresa@mogadorhotels.com?subject=AUF - Assemblée générale 2017 - réservation de 		chambre&body=Bonjour je suis invité(e) à participer à l'Assemblée générale de l'Agence universitaire de la Francophonie et je souhaite réserver une chambre (PRÉCISER OCCUPATION DOUBLE OU SIMPLE) au Ryad Mogador Agdal à Marrakech du (PRÉCISER DATE D'ARRIVÉE) au (PRÉCISER DATE DE DÉPART) au tarif préférentiel négocié. Voici mon code promotionnel (CODE : AG2017AUF)">hagdalresa@mogadorhotels.com</a></p>
+        suivante : <a href="mailto:hagdalresa@mogadorhotels.com?subject=AUF - Assemblée générale 2017 - réservation de 		chambre&body=Bonjour je suis invité(e) à participer à l'Assemblée générale de l'Agence universitaire de la Francophonie et je souhaite réserver une chambre (PRÉCISER OCCUPATION DOUBLE OU SIMPLE) au Ryad Mogador Agdal à Marrakech du (PRÉCISER DATE D'ARRIVÉE) au (PRÉCISER DATE DE DÉPART) au tarif préférentiel négocié. Voici mon code promotionnel (CODE : AG2017AUF)">hagdalresa@mogadorhotels.com</a></p>
   <p>
     Veillez à inclure dans le corps du message les informations suivantes:</p>
   <p class="message">
     "Bonjour, je suis invité(e) à participer à l'Assemblée générale de 
-	l'Agence universitaire de la Francophonie et je souhaite réserver une chambre 
-	<span style="color: #A90F30;">(préciser occupation double ou simple)</span> 
-	au Ryad Mogador Agdal à Marrakech du <span style="color: #A90F30;">(préciser 
-	date d'arrivée) au (préciser date de départ)</span> au tarif préférentiel négocié. 
-	Voici mon code promotionnel (CODE : AG2017AUF)."</p>
+        l'Agence universitaire de la Francophonie et je souhaite réserver une chambre 
+        <span style="color: #A90F30;">(préciser occupation double ou simple)</span> 
+        au Ryad Mogador Agdal à Marrakech du <span style="color: #A90F30;">(préciser 
+        date d'arrivée) au (préciser date de départ)</span> au tarif préférentiel négocié. 
+        Voici mon code promotionnel (CODE : AG2017AUF)."</p>
 
 {% else %}
-		<p>L’AUF se charge de réserver votre chambre à l'hôtel Ryad Mogador 
-		Agdal & Palais des Congrès Mogador, lieu de la tenue de l'Assemblée générale
-		{% if inscription.accompagnateur %}, pour vous et votre invité{% endif %}.
-	{% if participant %}
-   	 	<div id="passeport" class="message">
-    	{% if inscription.a_televerse_passeport %}
-      		<p>Passeport envoyé !</p>
-    	{% else %}
-    		<p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de 
-    		téléverser une <strong>capture de votre passeport</strong>.
-    		{% if inscription.accompagnateur %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
-      		<form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
-        	{% csrf_token %}
-        	{{ passeport_form }}
-        	<input type="submit" value="Envoyer"/>
-      		</form>
-    	{% endif %}
-    	</div>
-  	{% endif %}
+                <p>L’AUF se charge de réserver votre chambre à l'hôtel Ryad Mogador 
+                Agdal & Palais des Congrès Mogador, lieu de la tenue de l'Assemblée générale
+                {% if inscription.accompagnateur %}, pour vous et votre invité{% endif %}.
+        {% if participant %}
+                <div id="passeport" class="message">
+        {% if inscription.a_televerse_passeport %}
+                <p>Passeport envoyé !</p>
+        {% else %}
+                <p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de 
+                téléverser une <strong>capture de votre passeport</strong>.
+                {% if inscription.accompagnateur %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
+                <form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
+                {% csrf_token %}
+                {{ passeport_form }}
+                <input type="submit" value="Envoyer"/>
+                </form>
+        {% endif %}
+        </div>
+        {% endif %}
   {% endif %}
     </div>
     
     <div id="bloc-planvol" class="bloc-planvol">
-	<h2>Renseignements sur mon plan de vol</h2>
-	
+        <h2>Renseignements sur mon plan de vol</h2>
+        
   {% if not inscription.prise_en_charge_transport %}
   
     <p>L’AUF offre des navettes entre l'aéroport de Marrakech et l’hôtel Mogador.
@@ -394,57 +394,57 @@
       </thead>
         <tr>
           <td>Date d'arrivée<br/>
-          	<span style="color: #555; font-size: 11px; text-align: right;">
-          	<em>Exemple: 08/05/2017</em></span></td>
+                <span style="color: #555; font-size: 11px; text-align: right;">
+                <em>Exemple: 08/05/2017</em></span></td>
           <td>{{ plan_vol_form.arrivee_date }}
-          	{{ plan_vol_form.arrivee_date.errors }}</td>
+                {{ plan_vol_form.arrivee_date.errors }}</td>
           <td>Date de départ<br/>
-          	<span style="color: #555; font-size: 11px; text-align: right;">
-         	 <em>Exemple: 12/05/2017</em></span></td>
+                <span style="color: #555; font-size: 11px; text-align: right;">
+                 <em>Exemple: 12/05/2017</em></span></td>
           <td>{{ plan_vol_form.depart_date }}
-         	 {{ plan_vol_form.depart_date.errors }}</td>
+                 {{ plan_vol_form.depart_date.errors }}</td>
         </tr>
         <tr>
           <td>Heure d'arrivée<br/>
-          	<span style="color: #555; font-size: 11px; text-align: right;">
-          	<em>Exemple: 12:10</em></span></td>
+                <span style="color: #555; font-size: 11px; text-align: right;">
+                <em>Exemple: 12:10</em></span></td>
           <td>{{ plan_vol_form.arrivee_heure }}
-          	{{ plan_vol_form.arrivee_heure.errors }}</td>
+                {{ plan_vol_form.arrivee_heure.errors }}</td>
           <td>Heure de départ<br/>
-          	<span style="color: #555; font-size: 11px; text-align: right;">
-          	<em>Exemple: 23:45</em></span></td>
+                <span style="color: #555; font-size: 11px; text-align: right;">
+                <em>Exemple: 23:45</em></span></td>
           <td>{{ plan_vol_form.depart_heure }}
-          	{{ plan_vol_form.depart_heure.errors }}</td>
+                {{ plan_vol_form.depart_heure.errors }}</td>
         </tr>
         <tr>
           <td>Compagnie/N<sup>o</sup> de vol<br/>
-          	<span style="color: #555; font-size: 11px; text-align: right;">
-          	<em>Exemple: AF 5542</em></span></td>
+                <span style="color: #555; font-size: 11px; text-align: right;">
+                <em>Exemple: AF 5542</em></span></td>
           <td>{{ plan_vol_form.arrivee_vol }}
-          	{{ plan_vol_form.arrivee_vol.errors }}</td>
+                {{ plan_vol_form.arrivee_vol.errors }}</td>
           <td>Compagnie/N<sup>o</sup> de vol<br/>
-          	<span style="color: #555; font-size: 11px; text-align: right;">
-          	<em>Exemple: AT 224</em></span></td>
+                <span style="color: #555; font-size: 11px; text-align: right;">
+                <em>Exemple: AT 224</em></span></td>
           <td>{{ plan_vol_form.depart_vol }}
-          	{{ plan_vol_form.depart_vol.errors }}</td>
+                {{ plan_vol_form.depart_vol.errors }}</td>
         </tr>
       </table>
-  	<button class="bouton_sub" name="submit-plan-vol-form" type="submit">
+        <button class="bouton_sub" name="submit-plan-vol-form" type="submit">
     Enregistrer</button>
     </form>
     
   {% else %}
   
-		<p>L’AUF se charge de planifier votre vol.</p>
-		{% ifequal solde 0 %}
-		<p>Votre itinéraire est en cours de préparation. Votre plan de vol 
-		apparaîtra ici lorsqu’il sera complété.</p>
-		<!-- afficher ici le plan de vol organise par l'AUF -->	
-		{% else%}
-		<p>L’organisation de votre itinéraire est en attente de l’acquittement 
-		de vos frais de participation.</p>
-		{% endifequal %}
-		
+                <p>L’AUF se charge de planifier votre vol.</p>
+                {% ifequal solde 0 %}
+                <p>Votre itinéraire est en cours de préparation. Votre plan de vol 
+                apparaîtra ici lorsqu’il sera complété.</p>
+                <!-- afficher ici le plan de vol organise par l'AUF -->	
+                {% else%}
+                <p>L’organisation de votre itinéraire est en attente de l’acquittement 
+                de vos frais de participation.</p>
+                {% endifequal %}
+                
   {% endif %}
   
 </div>
