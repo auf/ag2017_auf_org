@@ -53,8 +53,7 @@ class InscriptionFermeeTests(django.test.TestCase):
     def test_get_solde_avec_participant(self):
         fonction_fixture()
         i = self.create_inscription_paiement()
-        p = transfert_inscription.transfere(i, StatutFactory(), False, False,
-                                            False)
+        p = transfert_inscription.transfere(i, False, False, False)
         i = InscriptionFermee.objects.get(id=i.id)
         assert i.get_solde() == (i.total_facture - i.total_deja_paye)
 

@@ -508,7 +508,6 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         participant.fonction = get_fonction_repr_universitaire()
         participant.etablissement = Etablissement.objects.get(
             id=self.etablissement_nord_id)
-        participant.statut = StatutParticipant.objects.get(code='repr_tit')
         participant.save()
 
         call_command('generer_rappels', destinataires='mandates')

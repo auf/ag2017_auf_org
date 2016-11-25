@@ -7,8 +7,7 @@ from django.db.models.query import QuerySet
 EXCEPT_DOM_TOM_SQL = "reference_etablissement.id in ({0})". \
     format(', '.join(map(str, EXCEPTIONS_DOM_TOM)))
 CONDITION_VOTE_SQL = """
-                    gestion_statutparticipant.droit_de_vote=1
-                    AND reference_etablissement.statut in ('T', 'A')
+                    reference_etablissement.statut in ('T', 'A')
                     AND gestion_typeinstitution.code = '{TYPE_ETAB}'
                     AND gestion_participant.desactive = 0
                     AND reference_etablissement.qualite in ('RES', 'CIR', 'ESR')
@@ -252,14 +251,14 @@ class ParticipantsQuerySet(QuerySet):
                 'region_vote': REGION_VOTE_SQL
             })
         return qs.select_related('etablissement', 'etablissement__region',
-                                 'statut', 'etablissement__pays',
+                                 'etablissement__pays',
                                  'fonction__type_institution')
 
     def filter_region_vote(self, code_region_vote):
         """ Voir commentaire avec_region_vote()
         """
         qs = self.select_related('etablissement', 'etablissement__region',
-                                 'statut')
+                                 'fonction')
         # Lors d'un count, django ne tient pas compte du select_related
         # ce qui fait échouer notre requête qui s'attend à ce que
         # certaines tables soient présentes. Pour cette raison, on est
@@ -267,7 +266,6 @@ class ParticipantsQuerySet(QuerySet):
         # dans CONDITION_VOTE_SQL
         qs = qs.filter_votants()
         qs = qs.filter(
-            statut__droit_de_vote=True,
             etablissement__statut__in=('T', 'A'),
             fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
             desactive=False,
@@ -288,7 +286,6 @@ class ParticipantsQuerySet(QuerySet):
         """ Voir commentaire avec_region_vote()
         """
         return self.filter(
-            statut__droit_de_vote=True,
             etablissement__statut__in=('T', 'A'),
             fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
             desactive=False,

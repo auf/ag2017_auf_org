@@ -68,8 +68,6 @@ class GestionTestCase(TestCase):
         participant_etablissement_membre.courriel = 'adr.courriel@test.org'
         participant_etablissement_membre.date_naissance = \
             datetime.date(1973, 07, 04)
-        participant_etablissement_membre.statut \
-            = StatutParticipant.objects.get(code='repr_tit')
         participant_etablissement_membre.fonction = \
             self.fonction_repr_etablissement
         participant_etablissement_membre.etablissement \
@@ -155,7 +153,6 @@ class GestionTestCase(TestCase):
             u'type_institution': u'E',
             u'etablissement': str(self.etablissement_id),
             u'etablissement_nom': u'',
-            u'statut': StatutParticipant.objects.get(code='repr_tit').id,
         }
 
     def test_nouveau_participant(self):
@@ -1203,6 +1200,7 @@ class TransfertInscription(TestCase):
 
     def test_transfert_inscription(self):
         invitation = Invitation()
+        invitation.pour_mandate = True
         invitation.etablissement = \
             Etablissement.objects.get(pk=self.etablissement_id)
         invitation.save()
@@ -1248,10 +1246,9 @@ class TransfertInscription(TestCase):
         i.fermee = True
         i.date_fermeture = datetime.date(2012, 7, 23)
         i.save()
-        statut = StatutParticipant.objects.get(code='repr_tit')
         assert settings.DESTINATAIRES_NOTIFICATIONS['service_institutions']
         nb_mails_before = len(mail.outbox)
-        p = transfert_inscription.transfere(i, statut, False, False, False)
+        p = transfert_inscription.transfere(i, False, False, False)
         self.assertEqual(len(mail.outbox), nb_mails_before + 1)
         self.assertEqual(p.nom, i.nom)
         self.assertEqual(p.pays, i.pays)
@@ -1262,6 +1259,7 @@ class TransfertInscription(TestCase):
             ).count(),
             1
         )
+        self.assertEqual(p.fonction.code, consts.FONCTION_REPR_UNIVERSITAIRE)
         self.assertEqual(
             ParticipationActivite.objects.filter(
                 participant=p, activite__code=consts.CODE_SOIREE_10_MAI,
@@ -1295,7 +1293,7 @@ class TransfertInscription(TestCase):
         p.delete()
         i.prise_en_charge_hebergement = True
         i.prise_en_charge_transport = True
-        p = transfert_inscription.transfere(i, statut, True, True, True)
+        p = transfert_inscription.transfere(i, True, True, True)
         self.assertTrue(p.transport_organise_par_auf)
         self.assertTrue(p.prise_en_charge_transport)
         self.assertTrue(p.prise_en_charge_sejour)
@@ -1519,14 +1517,12 @@ class PermissionsGestionTestCase(TestCase):
         participant_MO.nom = u'Khafagui'
         participant_MO.prenom = u'Nermo'
         participant_MO.etablissement = etablissement_MO
-        participant_MO.statut = StatutParticipant.objects.get(pk=1)
         participant_MO.fonction = get_fonction_repr_universitaire()
         participant_MO.save()
 
         participant_MO2 = Participant()
         participant_MO2.nom = u'Shokry'
         participant_MO2.prenom = u'Yasser'
-        participant_MO2.statut = StatutParticipant.objects.get(pk=1)
         participant_MO2.fonction = get_fonction_instance_seulement()
         participant_MO2.region = region_MO
         participant_MO2.save()

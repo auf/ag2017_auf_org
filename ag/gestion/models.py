@@ -52,6 +52,7 @@ __all__ = ('Participant',
            'TypeFrais',
            'Paiement',
            'ActiviteScientifique',
+           'Fonction',
            )
 
 
@@ -424,7 +425,7 @@ class Participant(RenseignementsPersonnels):
         u"Utiliser adresse GDE pour la facturation", default=False)
     notes = TextField(blank=True)
     # statut du membre (pour droit de vote entre autres)
-    statut = ForeignKey(StatutParticipant, on_delete=PROTECT)
+    # statut = ForeignKey(StatutParticipant, on_delete=PROTECT)
     notes_statut = TextField(blank=True)
     # desactivé
     desactive = BooleanField(u"Désactivé", default=False)
@@ -438,9 +439,11 @@ class Participant(RenseignementsPersonnels):
     fonction = ForeignKey(Fonction, null=True, blank=True)
     institution = ForeignKey(Institution, null=True, blank=True)
     instance_auf = CharField(
-        u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF)
-    membre_ca_represente = CharField(u"Ce membre du CA représente",
-                                     max_length=1, choices=MEMBRE_CA_REPRESENTE)
+        u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF,
+        null=True, blank=True)
+    membre_ca_represente = CharField(
+        u"Ce membre du CA représente", max_length=1,
+        choices=MEMBRE_CA_REPRESENTE, null=True, blank=True)
     ###################################################
 
     type_autre_institution = ForeignKey(
@@ -1229,7 +1232,8 @@ def get_donnees_activites():
 # noinspection PyTypeChecker
 def get_donnees_prise_en_charge():
     def representants(qs):
-        return qs.filter(statut__droit_de_vote=True)
+        return qs.filter(fonction__code=consts.FONCTION_REPR_UNIVERSITAIRE)
+        #return qs.filter(statut__droit_de_vote=True)
 
     qs_insc = Participant.actifs.filter(prise_en_charge_inscription=True)
     qs_trans = Participant.actifs.filter(prise_en_charge_transport=True)

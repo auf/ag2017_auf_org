@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import datetime
 from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory, \
-    TypeInstitutionFactory, FonctionFactory
+    TypeInstitutionFactory, FonctionFactory, CategorieFonctionFactory
 from ag.gestion import consts
 from ag.gestion.consts import *
 
@@ -123,8 +123,11 @@ def fonction_fixture():
         code=consts.FONCTION_REPR_UNIVERSITAIRE,
         type_institution=type_inst_etablissement)
 
-    fonction_instance_seulement = FonctionFactory(
-        code=consts.FONCTION_INSTANCE_SEULEMENT)
+    cat_obs = CategorieFonctionFactory(code=consts.CAT_FONCTION_OBSERVATEUR,
+                                       libelle=u"Observateur")
+    FonctionFactory(categorie=cat_obs, code="repr_presse")
+    FonctionFactory(code=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
+    FonctionFactory(code=consts.FONCTION_INSTANCE_SEULEMENT)
 
     return type_inst_etablissement, fonction_repr_etablissement
 
@@ -156,8 +159,7 @@ def make_modele_courriel_mandate():
     )
 
 
-def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
-                      **kwargs):
+def creer_participant(nom=None, prenom=None, **kwargs):
     defaults = {
         'nom': nom or u'Participant1',
         'prenom':  prenom or u'Test1',
@@ -165,7 +167,6 @@ def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
         'code_postal': u'HHH 333',
         'courriel': u'adr.courriel@test.org',
         'date_naissance': datetime.date(1973, 07, 04),
-        'statut': StatutParticipant.objects.get(code=code_statut),
         'fonction': get_fonction_instance_seulement(),
         'instance_auf': 'A',
     }

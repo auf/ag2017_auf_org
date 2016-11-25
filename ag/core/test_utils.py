@@ -97,8 +97,6 @@ class ParticipantFactory(factory.DjangoModelFactory):
     class Meta:
         model = gestion_models.Participant
 
-    statut = factory.SubFactory(StatutFactory)
-
 
 class PaiementFactory(factory.DjangoModelFactory):
     class Meta:

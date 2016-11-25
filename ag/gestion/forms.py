@@ -29,7 +29,6 @@ from ag.reference.models import Etablissement, Region
 from ag.gestion import transfert_inscription
 from ag.gestion.models import *
 from ag.gestion.consts import *
-from ag.gestion.transfert_inscription import statut_par_defaut
 from ag.inscription.models import Inscription, montant_str
 from django.utils import formats
 
@@ -87,8 +86,8 @@ class RechercheParticipantForm(Form):
     region = ModelChoiceField(
         label=u"Région", queryset=Region.objects.all(), required=False
     )
-    statut = ModelChoiceField(
-        label=u"Statut", queryset=StatutParticipant.objects.all(),
+    fonction = ModelChoiceField(
+        label=u"Fonction", queryset=Fonction.objects.all(),
         required=False
     )
     probleme = ChoiceField(
@@ -111,7 +110,7 @@ class RechercheParticipantForm(Form):
                 'nom', 'etablissement_nom', 'etablissement',
                 'instance_auf', 'autres_institutions', 'suivi',
                 'prise_en_charge_transport', 'prise_en_charge_sejour', 'pays',
-                'region', 'statut', 'probleme', 'hotel', 'desactive'
+                'region', 'fonction', 'probleme', 'hotel', 'desactive'
             ),
             Div(
                 Submit('chercher', 'Chercher', css_class='default'),
@@ -152,7 +151,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
             'etablissement', 'etablissement_nom', 'type_autre_institution',
             'nom_autre_institution', 'instance_auf', 'region',
             'pays_autre_institution', 'adresse', 'ville', 'code_postal',
-            'pays', 'telephone', 'telecopieur', 'notes', 'statut',
+            'pays', 'telephone', 'telecopieur', 'notes',
             'notes_statut')
 
     etablissement = IntegerField(
@@ -195,7 +194,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
                 ),
                 Fieldset(
                     u'Statut',
-                    'statut', 'notes_statut',
+                    'notes_statut',
                     css_id='rp_statut',
                 ),
                 Fieldset(
@@ -815,7 +814,6 @@ class ValidationInscriptionForm(ModelForm):
             u'Reçu par paypal : ' + u";".join(
                 [u"{}-{}-{}".format(p.date, p.montant, escape(p.ref_paiement))
                  for p in self.instance.get_paiements_display()]))
-        self.initial['statut'] = statut_par_defaut(self.instance).id
         if self.instance.get_facturer_chambre_double():
             self.initial['facturer_supplement_chambre_double'] = True
 
@@ -824,9 +822,6 @@ class ValidationInscriptionForm(ModelForm):
             u"Valider cette inscription et enregistrer le participant dans "
             u"le système de gestion"
         ), required=False
-    )
-    statut = ModelChoiceField(
-        queryset=StatutParticipant.objects.all(), required=False
     )
     accepter_transport = BooleanField(
         label=u"Prise en charge transport acceptée", required=False)
@@ -843,20 +838,11 @@ class ValidationInscriptionForm(ModelForm):
         if self.cleaned_data['inscription_validee']:
             transfert_inscription.transfere(
                 self.instance,
-                self.cleaned_data['statut'],
                 self.cleaned_data['accepter_transport'],
                 self.cleaned_data['accepter_hebergement'],
                 self.cleaned_data['facturer_supplement_chambre_double']
             )
         return obj
-
-    def clean_statut(self):
-        statut = self.cleaned_data['statut']
-        if self.cleaned_data['inscription_validee'] and not statut:
-            raise forms.ValidationError(
-                u"Le statut doit être renseigné pour transférer l'inscription"
-            )
-        return statut
 
 
 class AjoutFichierForm(ModelForm):

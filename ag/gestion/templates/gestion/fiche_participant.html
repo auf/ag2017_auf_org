@@ -54,7 +54,6 @@
 </tr>
         {% champ_fiche renseignements_personnels "poste" %}
         {% ifequal participant.type_institution "E" %}
-          {% champ_fiche renseignements_personnels "statut" %}
           <tr>
               <td class="tag">Établissement</td>
               <td>{{ participant.etablissement.nom }}</td>
