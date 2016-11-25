@@ -1289,17 +1289,34 @@ class AGRole(Model, Role):
             s += u' ' + self.region.nom
         return s
 
+    def check_participant_region(self, obj):
+        if isinstance(obj, Participant):
+            return (obj.represente_etablissement and
+                    (obj.etablissement.region == self.region)) or \
+                   (obj.region == self.region)
+        else:
+            return False
+
     def has_perm(self, perm, obj=None):
-        allowed = (self.type_role == ROLE_ADMIN or
-                   perm == PERM_LECTURE or
-                   (perm, self.type_role) in ALLOWED)
-        if allowed and obj and isinstance(obj, Participant):
-            allowed = (allowed and
-                       ((obj.represente_etablissement and
-                         obj.etablissement.region == self.region) or
-                        obj.region == self.region)
-                       )
-        return allowed
+        # les admins peuvent toujours tout faire
+        if self.type_role == ROLE_ADMIN:
+            return True
+        # tout le monde peut lire
+        if perm == PERM_LECTURE:
+            return True
+        if (perm, self.type_role) in ALLOWED:
+            # si la permission est globale, OK
+            if not self.region:
+                return True
+            else:
+                return self.check_participant_region(obj)
+        else:
+            if (perm, self.type_role) in ALLOWED_MEME_REGION:
+                if self.region:
+                    return self.check_participant_region(obj)
+                else:
+                    return False
+        return False
 
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
@@ -1307,10 +1324,7 @@ class AGRole(Model, Role):
         if ((perm, self.type_role) in ALLOWED or
                 (   # les lecteurs peuvent modifier les notes de frais et les
                     # fichiers des participants de leur région
-                    (perm, self.type_role) in (
-                        (PERM_MODIF_NOTES_DE_FRAIS, ROLE_LECTEUR),
-                        (PERM_MODIF_FICHIERS, ROLE_LECTEUR),
-                    )
+                    (perm, self.type_role) in ALLOWED_MEME_REGION
                     and self.region
                 )):
             if not self.region:

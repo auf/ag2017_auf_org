@@ -199,6 +199,8 @@ ROLE_LECTEUR = 'L'
 ROLE_ADMIN = 'A'
 ROLE_SEJOUR = 'S'
 
+# Permis si la permission est sans région ou si la région de la permission
+# est la même que celle du participant
 ALLOWED = (
     (PERM_MODIF_FACTURATION, ROLE_COMPTABLE),
     (PERM_MODIF_RENSEIGNEMENTS_PERSONNELS, ROLE_SAI),
@@ -212,6 +214,14 @@ ALLOWED = (
     (PERM_MODIF_FICHIERS, ROLE_SAI),
     (PERM_MODIF_FICHIERS, ROLE_SEJOUR),
     (PERM_MODIF_FICHIERS, ROLE_COMPTABLE),
+)
+
+# Interdit si permission ne contient pas de région,
+# permis si la région de la perm est la même que celle
+# du participant
+ALLOWED_MEME_REGION = (
+    (PERM_MODIF_NOTES_DE_FRAIS, ROLE_LECTEUR),
+    (PERM_MODIF_FICHIERS, ROLE_LECTEUR),
 )
 
 ARRIVEES = u'A'

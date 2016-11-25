@@ -11,7 +11,7 @@ from ag.gestion.models import (
     StatutParticipant,
     TypeInstitutionSupplementaire,
     Participant,
-    Activite)
+    Activite, get_fonction_instance_seulement, Fonction)
 from auf.django.mailing.models import ModeleCourriel
 from django.contrib.auth.models import User
 
@@ -157,7 +157,7 @@ def make_modele_courriel_mandate():
 
 
 def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
-                      code_type_autre_institution=None, **kwargs):
+                      **kwargs):
     defaults = {
         'nom': nom or u'Participant1',
         'prenom':  prenom or u'Test1',
@@ -166,14 +166,9 @@ def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
         'courriel': u'adr.courriel@test.org',
         'date_naissance': datetime.date(1973, 07, 04),
         'statut': StatutParticipant.objects.get(code=code_statut),
-        'type_institution': 'I',
+        'fonction': get_fonction_instance_seulement(),
         'instance_auf': 'A',
     }
-    if code_type_autre_institution:
-        type_autre_institution = TypeInstitutionSupplementaire.objects.get(
-            code=code_type_autre_institution)
-        defaults['type_autre_institution'] = type_autre_institution
-
     defaults.update(kwargs)
     participant = Participant(**defaults)
     participant.save()

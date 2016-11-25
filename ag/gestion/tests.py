@@ -1520,14 +1520,14 @@ class PermissionsGestionTestCase(TestCase):
         participant_MO.prenom = u'Nermo'
         participant_MO.etablissement = etablissement_MO
         participant_MO.statut = StatutParticipant.objects.get(pk=1)
-        participant_MO.type_institution = 'E'
+        participant_MO.fonction = get_fonction_repr_universitaire()
         participant_MO.save()
 
         participant_MO2 = Participant()
         participant_MO2.nom = u'Shokry'
         participant_MO2.prenom = u'Yasser'
         participant_MO2.statut = StatutParticipant.objects.get(pk=1)
-        participant_MO2.type_institution = 'I'
+        participant_MO2.fonction = get_fonction_instance_seulement()
         participant_MO2.region = region_MO
         participant_MO2.save()
 

@@ -1,11 +1,16 @@
 # -*- encoding: utf-8 -*-
 import StringIO
 import csv
+import pytest
 from django.core.management import call_command
 
+from ag.core.test_utils import TypeInstitutionFactory, FonctionFactory, \
+    InstitutionFactory
 from ag.gestion import consts
 from ag.gestion.donnees_etats import *
 from ag.gestion.models import *
+from ag.gestion.models import get_fonction_repr_universitaire, \
+    get_fonction_instance_seulement
 from ag.gestion.tests import CODE_HOTEL
 from ag.inscription.models import Invitation, Inscription
 from ag.tests import create_fixtures, creer_participant
@@ -15,61 +20,59 @@ from django.test import TestCase
 
 
 # noinspection PyUnresolvedReferences
+@pytest.mark.skip()
 class EtatParticipantsTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         call_command('loaddata', 'test_data.json')
         create_fixtures(cls)
+        type_institution_obs = TypeInstitutionFactory()
+        fonction_obs = FonctionFactory(type_institution=type_institution_obs)
+        fonction_repr_univ = get_fonction_repr_universitaire()
+        institution_oif = InstitutionFactory(
+            region=cls.region,
+            type_institution=type_institution_obs)
+        institution_onu = InstitutionFactory(
+            region=cls.region,
+            type_institution=type_institution_obs)
         cls.membre_nord = creer_participant(
             nom=u'DUNORD', prenom=u'Haggar',
-            type_institution=Participant.ETABLISSEMENT,
-            etablissement_id=cls.etablissement_nord_id,
-            code_statut='repr_tit')
+            fonction=fonction_repr_univ,
+            etablissement_id=cls.etablissement_nord_id)
         cls.membre_sud = creer_participant(
             nom=u'LESUD', prenom=u'Ganoub',
-            type_institution=Participant.ETABLISSEMENT,
-            etablissement_id=cls.etablissement_id,
-            code_statut='repr_tit')
+            fonction=fonction_repr_univ,
+            etablissement_id=cls.etablissement_id)
         cls.observateur1 = creer_participant(
             nom=u'OFTHESKIES', prenom=u'Watcher',
-            type_institution=Participant.AUTRE_INSTITUTION,
-            nom_autre_institution=u'OIF',
-            code_type_autre_institution=u'repr_pol',
-            code_statut='obs',
+            fonction=fonction_obs,
+            institution=institution_oif,
             region=cls.region)
         cls.observateur2 = creer_participant(
             nom=u'BLEU', prenom=u'Casque',
-            type_institution=Participant.AUTRE_INSTITUTION,
-            nom_autre_institution=u'ONU',
-            code_type_autre_institution=u'repr_pol',
-            code_statut='obs',
+            fonction=fonction_obs,
+            institution=institution_onu,
             region=cls.region)
         cls.observateur3 = creer_participant(
             nom=u'MOON', prenom=u'Ban Ki',
-            type_institution=Participant.AUTRE_INSTITUTION,
-            nom_autre_institution=u'ONU',
-            code_type_autre_institution=u'repr_pol',
-            code_statut='obs',
+            fonction=fonction_obs,
+            institution=institution_onu,
             region=cls.region)
         cls.observateur4_desactive = creer_participant(
             nom=u'BOUTROS GHALI', prenom=u'BOUTROS',
-            type_institution=Participant.AUTRE_INSTITUTION,
-            nom_autre_institution=u'ONU',
-            code_type_autre_institution=u'repr_pol',
-            code_statut='obs',
+            fonction=fonction_obs,
+            institution=institution_onu,
             desactive=True,
             region=cls.region)
         cls.instance_admin1 = creer_participant(
             nom=u'PRESIDENT', prenom=u'Francis',
-            type_institution=Participant.INSTANCE_AUF,
+            fonction=get_fonction_instance_seulement(),
             instance_auf="A",
-            code_statut='memb_inst',
             region=cls.region)
         cls.instance_admin2 = creer_participant(
             nom=u'SECRETAIRE', prenom=u'Albert',
-            type_institution=Participant.INSTANCE_AUF,
+            fonction=get_fonction_instance_seulement(),
             instance_auf="A",
-            code_statut='memb_inst',
             region=cls.region)
         cls.instance_scient1 = creer_participant(
             nom=u'REEVES', prenom=u'Hubert',
@@ -574,7 +577,7 @@ class VoteTestCase(TestCase):
             participant.etablissement = etablissement
             participant.inscription = inscription
             participant.statut = statuts[code_statut]
-            participant.type_institution = 'E'
+            participant.fonction = get_fonction_repr_universitaire()
             participant.save()
             return participant
 
@@ -587,7 +590,7 @@ class VoteTestCase(TestCase):
         participant_sans_invitation = Participant()
         participant_sans_invitation.nom = u"Sans-invit"
         participant_sans_invitation.prenom = u"Annie"
-        participant_sans_invitation.type_institution = Participant.ETABLISSEMENT
+        participant_sans_invitation.fonction = get_fonction_repr_universitaire()
         participant_sans_invitation.etablissement = etablissement_DE
         participant_sans_invitation.statut = statuts[u'repr_assoc']
         participant_sans_invitation.save()

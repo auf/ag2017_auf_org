@@ -9,10 +9,10 @@ EXCEPT_DOM_TOM_SQL = "reference_etablissement.id in ({0})". \
 CONDITION_VOTE_SQL = """
                     gestion_statutparticipant.droit_de_vote=1
                     AND reference_etablissement.statut in ('T', 'A')
-                    AND gestion_participant.type_institution = 'E'
+                    AND gestion_typeinstitution.code = '{TYPE_ETAB}'
                     AND gestion_participant.desactive = 0
                     AND reference_etablissement.qualite in ('RES', 'CIR', 'ESR')
-                    """
+                    """.format(TYPE_ETAB=consts.TYPE_INST_ETABLISSEMENT)
 CALCUL_REGION_VOTE_SQL = """
         IF(reference_etablissement.qualite = 'RES', '{REG_RESEAU}',
                           IF({EXCEPT_DOM_TOM}, '{REG_EUROPE_OUEST}',
@@ -252,7 +252,8 @@ class ParticipantsQuerySet(QuerySet):
                 'region_vote': REGION_VOTE_SQL
             })
         return qs.select_related('etablissement', 'etablissement__region',
-                                 'statut', 'etablissement__pays')
+                                 'statut', 'etablissement__pays',
+                                 'fonction__type_institution')
 
     def filter_region_vote(self, code_region_vote):
         """ Voir commentaire avec_region_vote()
@@ -265,13 +266,14 @@ class ParticipantsQuerySet(QuerySet):
         # obligés de dupliquer les conditions de vote exprimées
         # dans CONDITION_VOTE_SQL
         qs = qs.filter_votants()
-        qs = qs.filter(statut__droit_de_vote=True,
-                       etablissement__statut__in=('T', 'A'),
-                       type_institution='E',
-                       desactive=False,
-                       etablissement__qualite__in=('RES', 'CIR', 'ESR'),
-                       # cette dernière condition force la jointure sur region
-                       etablissement__region__nom__startswith='')
+        qs = qs.filter(
+            statut__droit_de_vote=True,
+            etablissement__statut__in=('T', 'A'),
+            fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
+            desactive=False,
+            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
+            # cette dernière condition force la jointure sur region
+            etablissement__region__nom__startswith='')
         if code_region_vote == REG_FRANCE:
             code_region_vote = REG_EUROPE_OUEST
             qs = qs.filter(Q(etablissement__pays__code='FR') |
@@ -285,11 +287,12 @@ class ParticipantsQuerySet(QuerySet):
     def filter_votants(self):
         """ Voir commentaire avec_region_vote()
         """
-        return self.filter(statut__droit_de_vote=True,
-                           etablissement__statut__in=('T', 'A'),
-                           type_institution='E',
-                           desactive=False,
-                           etablissement__qualite__in=('RES', 'CIR', 'ESR'),
-                           # cette dernière condition force la jointure sur
-                           # region
-                           etablissement__region__nom__startswith='')
+        return self.filter(
+            statut__droit_de_vote=True,
+            etablissement__statut__in=('T', 'A'),
+            fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
+            desactive=False,
+            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
+            # cette dernière condition force la jointure sur
+            # region
+            etablissement__region__nom__startswith='')
