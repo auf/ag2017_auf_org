@@ -284,3 +284,7 @@ FONCTION_INSTANCE_SEULEMENT = 'instance_seul'
 
 
 CAT_FONCTION_OBSERVATEUR = 'observ'
+
+
+CA = 'A'
+CS = 'S'

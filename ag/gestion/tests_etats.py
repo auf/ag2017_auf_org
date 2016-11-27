@@ -6,7 +6,6 @@ from django.core.management import call_command
 
 from ag.core.test_utils import TypeInstitutionFactory, FonctionFactory, \
     InstitutionFactory
-from ag.gestion import consts
 from ag.gestion.donnees_etats import *
 from ag.gestion.models import *
 from ag.gestion.models import get_fonction_repr_universitaire, \
@@ -83,7 +82,6 @@ class EtatParticipantsTestCase(TestCase):
         cls.personnel_auf1 = creer_participant(
             nom=u"PELLETIER", prenom=u'Marie-Claude',
             type_institution=Participant.AUTRE_INSTITUTION,
-            code_type_autre_institution=u'pers_auf',
             code_statut=u'pers_auf',
             nom_autre_institution=u'Bureau des Amériques',
             region=cls.region
@@ -140,9 +138,10 @@ class EtatParticipantsTestCase(TestCase):
         elements_pays_sud = elements_sud[0].elements
         etablissement_sud = Etablissement.objects.get(id=self.etablissement_id)
         self.assertEqual(elements_pays_sud[0].titre, etablissement_sud.nom)
-        statut_repr_tit = StatutParticipant.objects.get(code='repr_tit')
-        self.assertEqual(elements_pays_sud[0].elements,
-                         [(statut_repr_tit.libelle, [self.membre_sud])])
+        self.fail()
+        # statut_repr_tit = StatutParticipant.objects.get(code='repr_tit')
+        # self.assertEqual(elements_pays_sud[0].elements,
+        #                  [(statut_repr_tit.libelle, [self.membre_sud])])
 
     def test_donnees_observateurs(self):
         elements = self.donnees[1].elements

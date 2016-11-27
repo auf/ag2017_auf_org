@@ -8,8 +8,6 @@ from ag.gestion.consts import *
 from ag.gestion.models import (
     AGRole,
     ROLE_ADMIN,
-    StatutParticipant,
-    TypeInstitutionSupplementaire,
     Participant,
     Activite, get_fonction_instance_seulement, Fonction)
 from auf.django.mailing.models import ModeleCourriel
@@ -40,6 +38,7 @@ def create_fixtures(test_case):
         region=region
     )
     test_case.etablissement_id = etablissement.id
+    test_case.etablissement = etablissement
 
     etablissement_nord = EtablissementFactory(
         pays=pays_nord, membre=True, responsable_courriel='nord@test.org',

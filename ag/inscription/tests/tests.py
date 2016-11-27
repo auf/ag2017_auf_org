@@ -23,7 +23,6 @@ from ag.core.test_utils import find_input_by_id, InscriptionFactory, \
 import mock
 from ag.gestion.models import (
     Participant,
-    StatutParticipant,
     get_fonction_repr_universitaire)
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm

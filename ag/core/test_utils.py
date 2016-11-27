@@ -69,15 +69,6 @@ class ImplantationFactory(factory.DjangoModelFactory):
 
 
 # noinspection PyUnresolvedReferences
-class StatutFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = gestion_models.StatutParticipant
-    ordre = factory.Sequence(lambda n: n)
-    code = factory.Sequence(lambda n: 'SP{0}'.format(n))
-    libelle = factory.LazyAttribute(lambda a: 'StatutParticipant ' + a.code)
-
-
-# noinspection PyUnresolvedReferences
 class InvitationFactory(factory.DjangoModelFactory):
     class Meta:
         model = inscription_models.Invitation

@@ -26,7 +26,7 @@ from django.forms.widgets import (
 )
 
 from ag.reference.models import Etablissement, Region
-from ag.gestion import transfert_inscription
+from ag.gestion import transfert_inscription, consts
 from ag.gestion.models import *
 from ag.gestion.consts import *
 from ag.inscription.models import Inscription, montant_str
@@ -67,9 +67,9 @@ class RechercheParticipantForm(Form):
         label=u"Instance de l'AUF", choices=(('', u'------'), ) +
         Participant.INSTANCES_AUF, required=False
     )
-    autres_institutions = ModelChoiceField(
-        label=u'Autre institution', required=False,
-        queryset=TypeInstitutionSupplementaire.objects.all()
+    type_institution = ModelChoiceField(
+        label=u'Type institution', required=False,
+        queryset=TypeInstitution.objects.all()
     )
     suivi = ModelChoiceField(
         label=u'Suivi', queryset=PointDeSuivi.objects.all(), widget=Select,
@@ -147,11 +147,12 @@ class RenseignementsPersonnelsForm(GestionModelForm):
         model = Participant
         fields = (
             'genre', 'nom', 'prenom', 'desactive', 'nationalite',
-            'date_naissance', 'courriel', 'poste', 'type_institution',
-            'etablissement', 'etablissement_nom', 'type_autre_institution',
-            'nom_autre_institution', 'instance_auf', 'region',
-            'pays_autre_institution', 'adresse', 'ville', 'code_postal',
+            'date_naissance', 'courriel', 'poste',
+            'etablissement', 'etablissement_nom',
+            'region', 'adresse', 'ville', 'code_postal',
             'pays', 'telephone', 'telecopieur', 'notes',
+            'fonction', 'institution', 'instance_auf',
+            'membre_ca_represente',
             'notes_statut')
 
     etablissement = IntegerField(
@@ -199,10 +200,10 @@ class RenseignementsPersonnelsForm(GestionModelForm):
                 ),
                 Fieldset(
                     u'Institution représentée',
-                    'type_institution',
+                    'fonction', 'institution', 'instance_auf',
+                    'membre_ca_represente',
                     'etablissement', 'etablissement_nom', 'poste',
-                    'type_autre_institution', 'nom_autre_institution',
-                    'instance_auf', 'pays_autre_institution', 'region',
+                    'region',
                     css_id='rp_institution',
                 ), id='col2'),
             Div(css_class='clear'),
@@ -213,11 +214,9 @@ class RenseignementsPersonnelsForm(GestionModelForm):
         self.set_institution_fields_required(True)
 
     def set_institution_fields_required(self, required):
+        self.fields['fonction'].required = True
         self.fields['etablissement'].required = required
         self.fields['etablissement_nom'].required = required
-        self.fields['instance_auf'].required = required
-        self.fields['type_autre_institution'].required = required
-        self.fields['nom_autre_institution'].required = required
         self.fields['region'].required = required
 
     def is_valid(self):
@@ -231,41 +230,48 @@ class RenseignementsPersonnelsForm(GestionModelForm):
 
     def clean(self):
         cleaned_data = super(RenseignementsPersonnelsForm, self).clean()
-        type_institution = cleaned_data.get("type_institution")
-        if type_institution:
-            champs_selon_type = {
-                'E': ['etablissement'],
-                'I': ['instance_auf', 'region'],
-                'A': ['type_autre_institution', 'nom_autre_institution',
-                      'region'],
-            }
-            champs_obligatoires = champs_selon_type[type_institution]
-            for champ in champs_obligatoires:
-                if champ == 'etablissement':
-                    require_field(self, cleaned_data, champ,
-                                  'etablissement_nom')
-                else:
-                    require_field(self, cleaned_data, champ)
-            for key in filter(
-                lambda x: x != type_institution, champs_selon_type.iterkeys()
-            ):
-                for champ in champs_selon_type[key]:
-                    if (champ not in champs_obligatoires
-                            and champ in cleaned_data):
-                        del cleaned_data[champ]
+        fonction = cleaned_data['fonction']
+        champs_institution = {'etablissement', 'institution', 'instance_auf',
+                              'membre_ca_represente', }
+        champs_obligatoires = set()
+        if fonction.repr_etablissement:
+            try:
+                cleaned_data['etablissement'] = Etablissement.objects.get(
+                    pk=cleaned_data['etablissement'])
+            except Etablissement.DoesNotExist:
+                cleaned_data['etablissement'] = None
+            champs_obligatoires.add('etablissement')
+        elif fonction.type_institution:
+            champs_obligatoires.add('institution')
+        elif fonction.repr_instance_seulement:
+            champs_obligatoires.add('instance_auf')
+            if cleaned_data.get('instance_auf', None) == consts.CA:
+                champs_obligatoires.add('membre_ca_represente')
+        for champ in champs_obligatoires:
+            if champ == 'etablissement':
+                require_field(self, cleaned_data, champ,
+                              'etablissement_nom')
+            else:
+                require_field(self, cleaned_data, champ)
+        for champ in champs_institution - champs_obligatoires:
+            if champ in cleaned_data:
+                del cleaned_data[champ]
         return cleaned_data
 
-    def clean_etablissement(self):
-        if self.cleaned_data.get("type_institution", None) == 'E':
-            data = self.cleaned_data['etablissement']
-            if data:
-                try:
-                    instance = Etablissement.objects.get(id=data)
-                except Etablissement.DoesNotExist:
-                    raise forms.ValidationError(
-                        self.fields["etablissement"].error_messages['required']
-                    )
-                return instance
+    # def clean_etablissement(self):
+    #     print self.cleaned_data
+    #     fonction = self.cleaned_data.get("fonction", None)  # type: Fonction
+    #     print(fonction)
+    #     if fonction and fonction.repr_etablissement:
+    #         data = self.cleaned_data['etablissement']
+    #         if data:
+    #             try:
+    #                 instance = Etablissement.objects.get(id=data)
+    #             except Etablissement.DoesNotExist:
+    #                 raise forms.ValidationError(
+    #                     self.fields["etablissement"].error_messages['required']
+    #                 )
+    #             return instance
 
 
 class GestionForm(Form):

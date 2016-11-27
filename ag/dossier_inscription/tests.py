@@ -2,10 +2,12 @@
 import collections
 import datetime
 import django.test
-from ag.core.test_utils import InscriptionFactory, ParticipantFactory, \
-    StatutFactory
+from ag.core.test_utils import (
+    InscriptionFactory,
+    ParticipantFactory)
 from ag.dossier_inscription.models import (
-    InscriptionFermee, SuiviDossier)
+    InscriptionFermee,
+    SuiviDossier)
 from ag.gestion import transfert_inscription
 from ag.gestion.models import COMPLETE
 from ag.dossier_inscription import views

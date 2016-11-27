@@ -415,8 +415,7 @@ def get_donnees_paiements(actifs_seulement):
         'frais_autres', 'total_frais',
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
-                        'etablissement__region', 'region', 'fonction',
-                        'type_autre_institution')
+                        'etablissement__region', 'region', 'fonction')
     # on sépare le count car une annotation sur la requête principale
     # produit un SQL atroce.
     nombre_invites = dict(

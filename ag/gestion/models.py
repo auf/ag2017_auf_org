@@ -33,7 +33,6 @@ from ag.reference.models import Etablissement, Region, Pays, Implantation
 __all__ = ('Participant',
            'nouveau_participant',
            'ParticipationActivite',
-           'StatutParticipant',
            'Invite',
            'get_donnees_hotels',
            'get_nombre_votants_par_region',
@@ -47,20 +46,16 @@ __all__ = ('Participant',
            'InfosVol',
            'Activite',
            'AGRole',
-           'TypeInstitutionSupplementaire',
            'ReservationChambre',
            'TypeFrais',
            'Paiement',
            'ActiviteScientifique',
            'Fonction',
+           'TypeInstitution',
+           'Chambre',
+           'InscriptionWeb',
+           'Invitation',
            )
-
-
-class TypeInstitutionSupplementaire(core.TableReferenceOrdonnee):
-    class Meta:
-        verbose_name = u"Type d'institution supplémentaire"
-        verbose_name_plural = u"Types d'institutions supplémentaires"
-        ordering = ['ordre']
 
 
 class TypeInstitution(core.TableReferenceOrdonnee):
@@ -93,6 +88,15 @@ class Fonction(core.TableReferenceOrdonnee):
     categorie = ForeignKey(CategorieFonction)
     type_institution = ForeignKey(TypeInstitution, null=True, blank=True)
 
+    @property
+    def repr_etablissement(self):
+        return (self.type_institution and
+                self.type_institution.code == consts.TYPE_INST_ETABLISSEMENT)
+
+    @property
+    def repr_instance_seulement(self):
+        return self.code == consts.FONCTION_INSTANCE_SEULEMENT
+
 
 def get_fonction_repr_universitaire():
     return Fonction.objects.get(code=consts.FONCTION_REPR_UNIVERSITAIRE)
@@ -107,20 +111,6 @@ class Institution(Model):
     type_institution = ForeignKey(TypeInstitution)
     pays = ForeignKey(reference.models.Pays)
     region = ForeignKey(reference.models.Region)
-
-
-class StatutParticipant(core.TableReferenceOrdonnee):
-    class Meta:
-        verbose_name = u"Statut participant"
-        verbose_name_plural = u"Statuts participants"
-        ordering = ['ordre']
-    droit_de_vote = BooleanField(default=False)
-
-    def __unicode__(self):
-        libelle = self.libelle
-        if self.droit_de_vote:
-            libelle += u"(avec droit de vote)"
-        return libelle
 
 
 class PointDeSuiviManager(Manager):
@@ -391,17 +381,9 @@ COMPLETE = 'C'
 
 
 class Participant(RenseignementsPersonnels):
-    ETABLISSEMENT = "E"
-    INSTANCE_AUF = "I"
-    AUTRE_INSTITUTION = "A"
-    TYPES_INSTITUTION = (
-        (ETABLISSEMENT, u"Établissement"),
-        (INSTANCE_AUF, u"Instance de l'AUF"),
-        (AUTRE_INSTITUTION, u"Autre"),
-    )
     INSTANCES_AUF = (
-        ("A", u"Conseil d'administration"),
-        ("S", u"Conseil scientifique"),
+        (consts.CA, u"Conseil d'administration"),
+        (consts.CS, u"Conseil scientifique"),
     )
 
     MEMBRE_CA_REPRESENTE = (
@@ -424,16 +406,11 @@ class Participant(RenseignementsPersonnels):
     utiliser_adresse_gde = BooleanField(
         u"Utiliser adresse GDE pour la facturation", default=False)
     notes = TextField(blank=True)
-    # statut du membre (pour droit de vote entre autres)
-    # statut = ForeignKey(StatutParticipant, on_delete=PROTECT)
     notes_statut = TextField(blank=True)
     # desactivé
     desactive = BooleanField(u"Désactivé", default=False)
     # suivi
     suivi = ManyToManyField(PointDeSuivi)
-    # renseignements sur l'institution représentée
-    type_institution = CharField(u"Type de l'institution représentée",
-                                 max_length=1, choices=TYPES_INSTITUTION)
 
     ##################################################
     fonction = ForeignKey(Fonction, null=True, blank=True)
@@ -446,12 +423,6 @@ class Participant(RenseignementsPersonnels):
         choices=MEMBRE_CA_REPRESENTE, null=True, blank=True)
     ###################################################
 
-    type_autre_institution = ForeignKey(
-        TypeInstitutionSupplementaire, null=True, on_delete=PROTECT)
-    nom_autre_institution = CharField(
-        u"Nom de l'institution", max_length=64, null=True)
-    pays_autre_institution = ForeignKey(Pays, verbose_name=u"Pays", null=True,
-                                        blank=True, db_constraint=False)
     etablissement = ForeignKey(
         Etablissement, null=True, verbose_name=u"Établissement",
         db_constraint=False)
@@ -1322,6 +1293,12 @@ class AGRole(Model, Role):
                     return False
         return False
 
+    def region_q(self):
+        return Q(
+            (Q(fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
+             & Q(etablissement__region=self.region))
+            | Q(region=self.region))
+
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
             return True
@@ -1335,9 +1312,7 @@ class AGRole(Model, Role):
                 return True
             else:
                 if model == Participant:
-                    return Q((Q(type_institution=Participant.ETABLISSEMENT)
-                              & Q(etablissement__region=self.region))
-                             | Q(region=self.region))
+                    return self.region_q()
                 else:
                     return False
         else:

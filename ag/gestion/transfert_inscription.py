@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
 from ag.gestion import consts
-from ag.gestion.models import Participant, Invite, Activite, StatutParticipant, \
-    TypeInstitution, Fonction
+from ag.gestion.models import (
+    Participant,
+    Invite, Activite,
+    TypeInstitution,
+    Fonction)
 from django.dispatch.dispatcher import Signal
 
 from ag.inscription.models import Forfait

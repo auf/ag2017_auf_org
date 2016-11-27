@@ -150,15 +150,17 @@ class GestionTestCase(TestCase):
             u'nom': u'test_ajout_nom',
             u'prenom': u'test_prenom',
             u'courriel': u'test@test.com',
-            u'type_institution': u'E',
             u'etablissement': str(self.etablissement_id),
-            u'etablissement_nom': u'',
+            u'etablissement_nom': u"jkjhjhghj",
+            u'fonction': str(get_fonction_repr_universitaire().id),
         }
 
     def test_nouveau_participant(self):
         nb_participant_avant = Participant.objects.count()
         data = self.nouveau_participant_data()
+        print(data)
         response = self.client.post(reverse('ajout_participant'), data=data)
+        self.assertEquals(response.status_code, 302)
         self.assertEqual(Participant.objects.count(), nb_participant_avant + 1)
         participant = Participant.objects.get(nom=u'test_ajout_nom')
         self.assertRedirects(response, reverse('fiche_participant',
@@ -178,7 +180,21 @@ class GestionTestCase(TestCase):
 
     def test_nouveau_participant_sans_institution(self):
         data = self.nouveau_participant_data()
-        data[u'type_institution'] = u'I'
+        data[u'fonction'] = FonctionFactory(
+            type_institution=TypeInstitutionFactory()).id
+        response = self.client.post(reverse('ajout_participant'), data=data)
+        self.assertContains(response, 'errors')
+
+    def test_nouveau_participant_instance_seulement_pas_d_instance(self):
+        data = self.nouveau_participant_data()
+        data[u'fonction'] = get_fonction_instance_seulement().id
+        response = self.client.post(reverse('ajout_participant'), data=data)
+        self.assertContains(response, 'errors')
+
+    def test_nouveau_participant_instance_seulement_ca(self):
+        data = self.nouveau_participant_data()
+        data[u'fonction'] = get_fonction_instance_seulement().id
+        data[u'instance_auf'] = consts.CA
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertContains(response, 'errors')
 
@@ -256,9 +272,8 @@ class GestionTestCase(TestCase):
             'nom': u'nom_nouveau',
             'prenom': u'prenom_nouveau',
             'courriel': u'nouveau@nouveau.org',
-            'statut': u'1',
             'etablissement_nom': u'',
-            'type_institution': u'E',
+            'fonction': str(get_fonction_repr_universitaire().id),
         }
         response = self.client.post(reverse('ajout_participant'), data)
         self.assertEquals(response.status_code, 200)

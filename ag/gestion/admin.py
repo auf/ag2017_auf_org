@@ -6,10 +6,9 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User, Group
 from django.utils.formats import date_format
 
+from ag.gestion import consts
 from ag.gestion.forms import ValidationInscriptionForm
-from ag.gestion.models import Hotel, Chambre, PointDeSuivi,\
-    TypeInstitutionSupplementaire, Activite, InscriptionWeb, TypeFrais, \
-    AGRole, TYPE_CHAMBRE_CHOICES, Invitation, ActiviteScientifique
+from ag.gestion.models import *
 from ag.inscription.models import Inscription, Forfait
 
 
@@ -37,7 +36,7 @@ admin.site.unregister(Group)
 class ChambreInline(TabularInline):
     model = Chambre
     extra = 2
-    max_num = len(TYPE_CHAMBRE_CHOICES)
+    max_num = len(consts.TYPE_CHAMBRE_CHOICES)
 
 
 class HotelAdmin(ModelAdmin):
@@ -170,7 +169,6 @@ class InvitationAdmin(ModelAdmin):
 
 admin.site.register(Hotel, HotelAdmin)
 admin.site.register(PointDeSuivi)
-admin.site.register(TypeInstitutionSupplementaire)
 admin.site.register(Activite)
 admin.site.register(TypeFrais)
 admin.site.register(ActiviteScientifique)

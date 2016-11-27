@@ -54,7 +54,7 @@ def participants_view(request):
             etablissement = form.cleaned_data['etablissement']
             suivi = form.cleaned_data['suivi']
             instance_auf = form.cleaned_data['instance_auf']
-            autres_institutions = form.cleaned_data['autres_institutions']
+            type_institution = form.cleaned_data['type_institution']
             prise_en_charge_transport = \
                 form.cleaned_data['prise_en_charge_transport']
             prise_en_charge_sejour = \
@@ -71,8 +71,7 @@ def participants_view(request):
                 .sql_extra_fields('delinquant')\
                 .select_related('region', 'etablissement',
                                 'etablissement__region', 'etablissement__pays',
-                                'fonction', 'inscription',
-                                'type_autre_institution')
+                                'fonction', 'inscription')
             if nom:
                 participants = participants.filter(
                     Q(nom__icontains=nom) | Q(prenom__icontains=nom)
@@ -87,9 +86,9 @@ def participants_view(request):
                 participants = participants.filter(suivi=suivi)
             if instance_auf:
                 participants = participants.filter(instance_auf=instance_auf)
-            if autres_institutions:
+            if type_institution:
                 participants = participants.filter(
-                    type_autre_institution=autres_institutions
+                    fonction__type_institution=type_institution
                 )
             if prise_en_charge_transport:
                 participants = participants.filter(
