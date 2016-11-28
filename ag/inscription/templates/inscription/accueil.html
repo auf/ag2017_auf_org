@@ -5,87 +5,87 @@
 <form class="uniForm" method="post">
   {% csrf_token %}
       
-	<div class="intro">
-	<h2>Participer à l'Assemblée générale</h2>
+        <div class="intro">
+        <h2>Participer à l'Assemblée générale</h2>
 
-	<p><strong>Aux temps forts institutionnels </strong>(ouverture de l'Assemblée 
-	générale, modification des statuts, adoption des rapports d'activité, élection 
-	des membres des instances de gouvernance).</p>
-	
-	<p><strong>À l'ensemble des activités scientifiques </strong>(tables rondes, 
-	rencontres académiques expresse, présentations, colloques et autres activités 
-	organisées par l'AUF)</p>
-	
-	<p><strong>Aux moments de détente ménagés dans le programme </strong>Dîner du 
-	9 mai à l’hôtel Mogador, Soirée Fantasia "Chez Ali" du 10 mai, Soirée de gala 
-	de clôture de l'Assemblée générale le 11 mai, Cocktail dînatoire de clôture le 
-	12 mai.</p>
-	</div>	
-	
-	<div class="message">
-	<h2>Processus d'inscription</h2>
-	<p><strong>L'inscription s'effectue en étapes successives.</strong> Chaque 
-	étape que vous complétez sera sauvegardée, vous pourrez donc y revenir à tout 
-	moment. À la fin du processus, un récapitulatif vous sera soumis pour validation. 
-	Il vous sera alors possible de modifier les informations que vous aurez saisies 
-	avant de soumettre votre formulaire d'inscription.</p>
+        <p><strong>Aux temps forts institutionnels </strong>(ouverture de l'Assemblée 
+        générale, modification des statuts, adoption des rapports d'activité, élection 
+        des membres des instances de gouvernance).</p>
+        
+        <p><strong>À l'ensemble des activités scientifiques </strong>(tables rondes, 
+        rencontres académiques expresse, présentations, colloques et autres activités 
+        organisées par l'AUF)</p>
+        
+        <p><strong>Aux moments de détente ménagés dans le programme </strong>Dîner du 
+        9 mai à l’hôtel Mogador, Soirée Fantasia "Chez Ali" du 10 mai, Soirée de gala 
+        de clôture de l'Assemblée générale le 11 mai, Cocktail dînatoire de clôture le 
+        12 mai.</p>
+        </div>	
+        
+        <div class="message">
+        <h2>Processus d'inscription</h2>
+        <p><strong>L'inscription s'effectue en étapes successives.</strong> Chaque 
+        étape que vous complétez sera sauvegardée, vous pourrez donc y revenir à tout 
+        moment. À la fin du processus, un récapitulatif vous sera soumis pour validation. 
+        Il vous sera alors possible de modifier les informations que vous aurez saisies 
+        avant de soumettre votre formulaire d'inscription.</p>
 
-	<p><strong>Ne perdez pas le lien!</strong><br />Le lien qui vous a été envoyé 
-	par courriel et qui vous a conduit sur ce formulaire, vous permet de consulter 
-	en tout temps <strong>votre dossier</strong> d'inscription, où vous pourrez : 
-	ajouter des informations, demander des modifications et imprimer vos documents 
-	de participation. <strong>Gardez-le précieusement!</strong></p>
-	
-	<p>Pour toute information, écrivez-nous à 
-	{% email_region "AG%202013%20-Formulaire%20en%20ligne" %}</p>
-	</div>
-	
-	<div class="attention">
-	<p><strong>Date limite d'inscription : <span style="color: #A90F30;">1er mars 
-	2017</span></strong></p>
-	</div>
+        <p><strong>Ne perdez pas le lien!</strong><br />Le lien qui vous a été envoyé 
+        par courriel et qui vous a conduit sur ce formulaire, vous permet de consulter 
+        en tout temps <strong>votre dossier</strong> d'inscription, où vous pourrez : 
+        ajouter des informations, demander des modifications et imprimer vos documents 
+        de participation. <strong>Gardez-le précieusement!</strong></p>
+        
+        <p>Pour toute information, écrivez-nous à 
+        {% email_region %}</p>
+        </div>
+        
+        <div class="attention">
+        <p><strong>Date limite d'inscription : <span style="color: #A90F30;">1er mars 
+        2017</span></strong></p>
+        </div>
 
-	<div class="formulaire">
-	
-		<h2>Débuter l'inscription en ligne</h2>
-		{% if inscription.est_pour_mandate %}
+        <div class="formulaire">
+        
+                <h2>Débuter l'inscription en ligne</h2>
+                {% if inscription.est_pour_mandate %}
 
-  		<p><strong>Ce formulaire s'adresse au <span style="color:#A90F30; font-weight: bold; font-size: medium;">représentant mandaté</span> de
-  		l'établissement: <span style="color:#A90F30; font-weight: bold; font-size: medium;">{{ inscription.get_etablissement.nom }}</span></strong></p>
-  		<div class="message">
-  			Conformément aux dispositions des statuts: <br>- Les représentants mandatés 
-  			représentent officiellement un établissement ou un réseau membre de l'AUF 
-  			(titulaire ou associé). <br>
-  			- Chaque établissement ou réseau membre de l'AUF ne compte qu'un seul 
-  			représentant mandaté. <br>- Les autres personnes issues du même établissement
-  			/réseau s'inscrivent en tant qu' « accompagnateur(s) universitaire(s) ». <br>
-    		<em>Une fois votre formulaire complété, vous pourrez inviter vos accompagnateurs.
-  			Un formulaire vous sera fourni à cet effet. Ils recevront à leur tour une 
-  			invitation à remplir leur formulaire de participation. </em>
-  		</div>
-  		<div>
-  			<p><strong>Si la plus haute autorité de votre établissement ne participe pas 
-  			à l’Assemblée générale, il est impératif qu’il désigne un représentant mandaté 
-  			pour le remplacer lors de l'Assemblée générale, à défaut de quoi, l’établissement 
-  			ne sera pas représenté lors des élections et des autres activités statutaires.
-  			</strong></p>
-  		</div>
+                <p><strong>Ce formulaire s'adresse au <span style="color:#A90F30; font-weight: bold; font-size: medium;">représentant mandaté</span> de
+                l'établissement: <span style="color:#A90F30; font-weight: bold; font-size: medium;">{{ inscription.get_etablissement.nom }}</span></strong></p>
+                <div class="message">
+                        Conformément aux dispositions des statuts: <br>- Les représentants mandatés 
+                        représentent officiellement un établissement ou un réseau membre de l'AUF 
+                        (titulaire ou associé). <br>
+                        - Chaque établissement ou réseau membre de l'AUF ne compte qu'un seul 
+                        représentant mandaté. <br>- Les autres personnes issues du même établissement
+                        /réseau s'inscrivent en tant qu' « accompagnateur(s) universitaire(s) ». <br>
+                <em>Une fois votre formulaire complété, vous pourrez inviter vos accompagnateurs.
+                        Un formulaire vous sera fourni à cet effet. Ils recevront à leur tour une 
+                        invitation à remplir leur formulaire de participation. </em>
+                </div>
+                <div>
+                        <p><strong>Si la plus haute autorité de votre établissement ne participe pas 
+                        à l’Assemblée générale, il est impératif qu’il désigne un représentant mandaté 
+                        pour le remplacer lors de l'Assemblée générale, à défaut de quoi, l’établissement 
+                        ne sera pas représenté lors des élections et des autres activités statutaires.
+                        </strong></p>
+                </div>
 
-	{% else %}
+        {% else %}
 
-  		<p><strong>Ce formulaire s'adresse à <span style="color:#A90F30; font-size: medium;">l'Accompagnateur institutionnel</span> 
-  		de l'établissement : <span style="color:#A90F30; font-size: medium;">{{ inscription.get_etablissement.nom }}</span></strong></p>
-  		<div class="message">
-  			Conformément aux dispositions des statuts : <br>Les accompagnateurs issus du 
-  			même établissement que le représentant mandaté peuvent s'inscrire à l'Assemblée 
-  			générale. Ils sont admis à l'ensemble des travaux, sauf disposition contraire, 
-  			mais ils ne peuvent s'exprimer que par la voix du représentant mandaté et 
-  			n'ont pas droit de vote.
-  			<p><em>Pour information, les accompagnateurs ne peuvent pas demander une prise
-      		en charge. Les frais de leur mission doivent être entièrement pris en
-      		charge par leur institution de rattachement.</em></p>
-    	</div>
-	{% endif %}
+                <p><strong>Ce formulaire s'adresse à <span style="color:#A90F30; font-size: medium;">l'Accompagnateur institutionnel</span> 
+                de l'établissement : <span style="color:#A90F30; font-size: medium;">{{ inscription.get_etablissement.nom }}</span></strong></p>
+                <div class="message">
+                        Conformément aux dispositions des statuts : <br>Les accompagnateurs issus du 
+                        même établissement que le représentant mandaté peuvent s'inscrire à l'Assemblée 
+                        générale. Ils sont admis à l'ensemble des travaux, sauf disposition contraire, 
+                        mais ils ne peuvent s'exprimer que par la voix du représentant mandaté et 
+                        n'ont pas droit de vote.
+                        <p><em>Pour information, les accompagnateurs ne peuvent pas demander une prise
+                en charge. Les frais de leur mission doivent être entièrement pris en
+                charge par leur institution de rattachement.</em></p>
+        </div>
+        {% endif %}
 
     {% if inscription.est_pour_mandate %}
       {% with field=form.atteste_pha %}
@@ -119,21 +119,21 @@
     {% checkbox form.conditions_acceptees %}
   </div>
   {% if inscription.etablissement_delinquant %}
-		<div class="attention">
-			<p><span class="important">Attention :</span> D'après les informations 
-			en notre possession, votre établissement n'est pas à jour de sa cotisation à 
-			l'AUF.</p>
-			<p>Selon l’article 3.1.2 des statuts de l’AUF :<br />Lorsqu’un membre a cessé 
-			de payer sa cotisation pendant plus de deux années consécutives, il est 
-			considéré comme démissionnaire et ne peut plus être représenté à l’Assemblée 
-			générale.</p>
-			<p><em>Vous pouvez remplir le présent formulaire d'inscription, mais votre 
-			inscription ne sera validée qu'après règlement de l'année ou des années de 
-			cotisation impayées. Pour nous contacter à ce sujet, merci d'écrire à 
-    		{% email_region "AG%202013%20-Formulaire%20en%20ligne%20-%20cotisation" %} 
-    		en rappelant votre nom ainsi que celui de votre établissement.</em></p>
-    	</div>
-	{% endif %}
+        <div class="attention">
+                        <p><span class="important">Attention :</span> D'après les informations 
+                        en notre possession, votre établissement n'est pas à jour de sa cotisation à 
+                        l'AUF.</p>
+                        <p>Selon l’article 3.1.2 des statuts de l’AUF :<br />Lorsqu’un membre a cessé 
+                        de payer sa cotisation pendant plus de deux années consécutives, il est 
+                        considéré comme démissionnaire et ne peut plus être représenté à l’Assemblée 
+                        générale.</p>
+                        <p><em>Vous pouvez remplir le présent formulaire d'inscription, mais votre 
+                        inscription ne sera validée qu'après règlement de l'année ou des années de 
+                        cotisation impayées. Pour nous contacter à ce sujet, merci d'écrire à 
+                {% email_region %} 
+                en rappelant votre nom ainsi que celui de votre établissement.</em></p>
+        </div>
+        {% endif %}
   <div class="buttonHolder formulaire"><input type="submit" value="Sauvegarder et continuer"
            class="primaryAction"/>
   </div>

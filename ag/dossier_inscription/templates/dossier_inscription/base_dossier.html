@@ -8,21 +8,15 @@
 
 <script type="text/javascript" src="{{ STATIC_URL }}uni-form/js/uni-form.jquery.min.js"></script>
 
-<script>
-$(function() {
-  $('a[href*="#"]:not([class*="tabs-p"],:not[href="#"])').click(function() {
-    if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
-      var target = $(this.hash);
-      target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
-      if (target.length) {
-        $('html, body').stop().animate({
-          scrollTop: target.offset().top - 200
-        }, 1000);
-        return false;
-      }
-    }
-  });
-});
+<script> // Smoothscroll v2
+        $(document).ready(function() {
+                $('.js-scrollTo').on('click', function(z) { // Au clic sur un element
+                        var page = $(this).attr('href'); // Page cible
+                        var speed = 750; // Duree de l'animation (en ms)
+                        $('html, body').stop().animate( { scrollTop: $(page).offset().top  - 100 }, speed ); // Go
+                        return false;
+                });
+        });
 </script>
 
 {% endblock %}
@@ -35,7 +29,7 @@ $(function() {
 
 {% block sidebar %} {% endblock %}
 {% block footer %}
-  	<!-- PARTIE FOOTER-->
+        <!-- PARTIE FOOTER-->
         <footer id="footer">
             <p> © AUF 2012 Tous droits réservés <span><a href="#">Plan du site</a> - <a href="http://www.auf.org" target="_blank">Visiter le site institutionnel de l'AUF</a> - <a href="#">Mentions légales</a> - <a href="#" >Contact</a></span></p>
         </footer>
