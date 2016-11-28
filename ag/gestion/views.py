@@ -16,6 +16,7 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.datastructures import SortedDict
+from django.utils.safestring import mark_safe
 from sendfile import sendfile
 from django.conf import settings
 
@@ -140,7 +141,8 @@ def modifier_renseignements_personnels(request, id_participant=None,
                        consts.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS,
                        obj=participant)
     if request.method == 'GET':
-        form = forms.RenseignementsPersonnelsForm(instance=participant)
+        form = forms.RenseignementsPersonnelsForm(instance=participant,
+                                                  initial=request.GET)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
@@ -160,9 +162,24 @@ def modifier_renseignements_personnels(request, id_participant=None,
             else:
                 return redirect(reverse('fiche_participant',
                                         args=[participant.id]))
+    fonctions = Fonction.objects.select_related('type_institution').all()
+    institutions = Institution.objects\
+        .select_related('type_institution')\
+        .all()
+    fonctions_json = json.dumps(
+        {f.id: {'etablissement': f.repr_etablissement,
+                'instance_seulement': f.repr_instance_seulement,
+                'type_institution_id': f.type_institution_id}
+         for f in fonctions}).replace('"', '\\"')
+    institutions_json = json.dumps(
+        {i.type_institution_id: {'id': i.id, 'nom': i.nom}
+         for i in institutions}).replace('"', '\\"')
     return render(request, 'gestion/renseignements_personnels.html',
                   {'participant': participant, 'form': form,
-                   'show_save_and_add_new_button': participant is None})
+                   'show_save_and_add_new_button': participant is None,
+                   'fonctions': mark_safe(fonctions_json),
+                   'institutions': mark_safe(institutions_json),
+                   })
 
 
 def ajout_participant(request):

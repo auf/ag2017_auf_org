@@ -55,6 +55,8 @@ __all__ = ('Participant',
            'Chambre',
            'InscriptionWeb',
            'Invitation',
+           'Institution',
+           'CategorieFonction',
            )
 
 
@@ -107,10 +109,16 @@ def get_fonction_instance_seulement():
 
 
 class Institution(Model):
+    class Meta:
+        ordering = ('nom',)
+
     nom = CharField(max_length=512, null=False, blank=False)
     type_institution = ForeignKey(TypeInstitution)
     pays = ForeignKey(reference.models.Pays)
     region = ForeignKey(reference.models.Region)
+
+    def __unicode__(self):
+        return self.nom
 
 
 class PointDeSuiviManager(Manager):
@@ -413,8 +421,9 @@ class Participant(RenseignementsPersonnels):
     suivi = ManyToManyField(PointDeSuivi)
 
     ##################################################
-    fonction = ForeignKey(Fonction, null=True, blank=True)
-    institution = ForeignKey(Institution, null=True, blank=True)
+    fonction = ForeignKey(Fonction, null=True, blank=True, on_delete=PROTECT)
+    institution = ForeignKey(Institution, null=True, blank=True,
+                             on_delete=PROTECT)
     instance_auf = CharField(
         u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF,
         null=True, blank=True)

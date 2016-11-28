@@ -108,7 +108,7 @@ class RechercheParticipantForm(Form):
             Fieldset(
                 '',
                 'nom', 'etablissement_nom', 'etablissement',
-                'instance_auf', 'autres_institutions', 'suivi',
+                'instance_auf', 'suivi',
                 'prise_en_charge_transport', 'prise_en_charge_sejour', 'pays',
                 'region', 'fonction', 'probleme', 'hotel', 'desactive'
             ),
@@ -257,21 +257,6 @@ class RenseignementsPersonnelsForm(GestionModelForm):
             if champ in cleaned_data:
                 del cleaned_data[champ]
         return cleaned_data
-
-    # def clean_etablissement(self):
-    #     print self.cleaned_data
-    #     fonction = self.cleaned_data.get("fonction", None)  # type: Fonction
-    #     print(fonction)
-    #     if fonction and fonction.repr_etablissement:
-    #         data = self.cleaned_data['etablissement']
-    #         if data:
-    #             try:
-    #                 instance = Etablissement.objects.get(id=data)
-    #             except Etablissement.DoesNotExist:
-    #                 raise forms.ValidationError(
-    #                     self.fields["etablissement"].error_messages['required']
-    #                 )
-    #             return instance
 
 
 class GestionForm(Form):

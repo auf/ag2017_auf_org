@@ -1,6 +1,52 @@
 [
   {
     "pk": 1,
+    "model": "gestion.categoriefonction",
+    "fields": {
+      "code": "repr",
+      "libelle": "Repr\u00e9sentant"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "gestion.categoriefonction",
+    "fields": {
+      "code": "obs",
+      "libelle": "Observateur"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "gestion.typeinstitution",
+    "fields": {
+      "code": "etablissement",
+      "libelle": "\u00C9tablissement",
+      "ordre": 1
+    }
+  },
+  {
+    "pk": 1,
+    "model": "gestion.fonction",
+    "fields": {
+      "code": "repr_uni",
+      "libelle": "Repr\u00e9sentant universitaire",
+      "ordre": 1,
+      "type_institution": 1,
+      "categorie": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "gestion.fonction",
+    "fields": {
+      "code": "instance_seul",
+      "libelle": "Membre instance AUF seulement",
+      "ordre": 2,
+      "categorie": 2
+    }
+  },
+  {
+    "pk": 1,
     "model": "gestion.pointdesuivi",
     "fields": {
       "ordre": 1,
