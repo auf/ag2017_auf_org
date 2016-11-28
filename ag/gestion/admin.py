@@ -65,16 +65,21 @@ class InscriptionAdmin(ModelAdmin):
         )}),
         (u"Programmation", {'fields': (
             'programmation_soiree_9_mai',
-            'programmation_soiree_9_mai_invite',
             'programmation_soiree_10_mai',
-            'programmation_soiree_10_mai_invite',
-            'programmation_gala', 'programmation_gala_invite',
+            'programmation_gala', 
+            'programmation_soiree_12_mai'
         )}),
-        (u"Paiements", {'fields': ('paiement_paypal_total_str', )}),
+        (u"Forfaits supplémentaires pour accompagnateurs personnels", {'fields': (
+            'programmation_soiree_9_mai_invite',
+            'programmation_soiree_10_mai_invite',
+            'programmation_gala_invite',
+            'forfait_invite_dejeuners', 'forfait_invite_transfert'
+        )}),
+        (u"Paiement par Paypal", {'fields': ('paiement_paypal_total_str', )}),
         (u"Validation", {'fields': (
-            'fermee', 'date_fermeture', 'inscription_validee', 'statut',
+            'fermee', 'date_fermeture', 'statut',
             'accepter_hebergement',
-            'accepter_transport'
+            'accepter_transport', 'inscription_validee',
         )}),
     )
     list_filter = ('fermee', 'invitation__etablissement__region')
