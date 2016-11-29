@@ -153,6 +153,26 @@ class Invitation(models.Model):
     def get_nom_destinataire(self):
         return self.etablissement.nom
 
+    def get_courriel_template_context(self):
+        email_region = self.get_email_region()
+        context = {
+            'nom_destinataire': self.get_nom_destinataire(),
+            'nom_etablissement': self.etablissement.nom,
+            'jeton': self.jeton,
+            'email_region': email_region,
+            'url': 'https://%s%s' % (
+                Site.objects.get(id=1).domain,
+                reverse('connexion_inscription', args=(self.jeton,))
+            )
+        }
+        if not self.pour_mandate:
+            context['inscription_representant'] = \
+                get_inscription_representant(self.etablissement)
+        return context
+
+    def get_email_region(self):
+        return adresse_email_region(self.get_region().code)
+
 
 class InvitationEnveloppe(models.Model):
     enveloppe = models.OneToOneField(Enveloppe)
@@ -165,24 +185,10 @@ class InvitationEnveloppe(models.Model):
         return "AUF AG2017 <{}>".format(self.get_email_region())
 
     def get_corps_context(self):
-        email_region = self.get_email_region()
-        context = {
-            'nom_destinataire': self.invitation.get_nom_destinataire(),
-            'nom_etablissement': self.invitation.etablissement.nom,
-            'jeton': self.invitation.jeton,
-            'email_region': email_region,
-            'url': 'https://%s%s' % (
-                Site.objects.get(id=1).domain,
-                reverse('connexion_inscription', args=(self.invitation.jeton,))
-            )
-        }
-        if not self.invitation.pour_mandate:
-            context['inscription_representant'] = \
-                get_inscription_representant(self.invitation.etablissement)
-        return context
+        return self.invitation.get_courriel_template_context()
 
     def get_email_region(self):
-        return adresse_email_region(self.invitation.get_region().code)
+        return self.invitation.get_email_region()
 
 
 # À certains champs correspondent des montants (ex:
