@@ -379,11 +379,11 @@ width: 276px;
     overflow:auto;
     width: 100%;
     padding: 30px 0 40px 0;
-margin-top: 25px;
+
 }
 
 #footer {
-    width: 950px;
+    width: 1024px;
     margin: auto;
 }
 
@@ -452,7 +452,7 @@ font-size:0.9em;
 
 
 .partenaire {
-    width: 950px;
+    width: 1024px;
 margin: auto;
 }
 
