@@ -149,7 +149,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
             'genre', 'nom', 'prenom', 'desactive', 'nationalite',
             'date_naissance', 'courriel', 'poste',
             'etablissement', 'etablissement_nom',
-            'region', 'adresse', 'ville', 'code_postal',
+            'adresse', 'ville', 'code_postal',
             'pays', 'telephone', 'telecopieur', 'notes',
             'fonction', 'institution', 'instance_auf',
             'membre_ca_represente',
@@ -200,10 +200,11 @@ class RenseignementsPersonnelsForm(GestionModelForm):
                 ),
                 Fieldset(
                     u'Institution représentée',
-                    'fonction', 'institution', 'instance_auf',
+                    'fonction', 'institution',
+                    'etablissement', 'etablissement_nom',
+                    'instance_auf',
                     'membre_ca_represente',
-                    'etablissement', 'etablissement_nom', 'poste',
-                    'region',
+                    'poste',
                     css_id='rp_institution',
                 ), id='col2'),
             Div(css_class='clear'),
@@ -217,7 +218,6 @@ class RenseignementsPersonnelsForm(GestionModelForm):
         self.fields['fonction'].required = True
         self.fields['etablissement'].required = required
         self.fields['etablissement_nom'].required = required
-        self.fields['region'].required = required
 
     def is_valid(self):
         """ les champs affichés comme obligatoires ne le sont parfois
@@ -231,8 +231,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
     def clean(self):
         cleaned_data = super(RenseignementsPersonnelsForm, self).clean()
         fonction = cleaned_data['fonction']
-        champs_institution = {'etablissement', 'institution', 'instance_auf',
-                              'membre_ca_represente', }
+        champs_institution = {'etablissement', 'institution', }
         champs_obligatoires = set()
         if fonction.repr_etablissement:
             try:
