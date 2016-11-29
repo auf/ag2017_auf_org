@@ -1,10 +1,12 @@
 # -*- encoding: utf-8 -*-
 import csv
+import operator
 import json
 import os
 import urllib
 from datetime import datetime
 
+import itertools
 from auf.django.permissions import require_permission
 from collections import defaultdict
 from django.contrib import messages
@@ -163,23 +165,27 @@ def modifier_renseignements_personnels(request, id_participant=None,
                 return redirect(reverse('fiche_participant',
                                         args=[participant.id]))
     fonctions = Fonction.objects.select_related('type_institution').all()
-    institutions = Institution.objects\
-        .select_related('type_institution')\
-        .all()
     fonctions_json = json.dumps(
         {f.id: {'etablissement': f.repr_etablissement,
                 'instance_seulement': f.repr_instance_seulement,
                 'type_institution_id': f.type_institution_id}
          for f in fonctions}).replace('"', '\\"')
-    institutions_json = json.dumps(
-        {i.type_institution_id: {'id': i.id, 'nom': i.nom}
-         for i in institutions}).replace('"', '\\"')
+    institutions_json = json.dumps(get_institutions_group_by_type())
+    institutions_json = institutions_json.replace('"', '\\"')
     return render(request, 'gestion/renseignements_personnels.html',
                   {'participant': participant, 'form': form,
                    'show_save_and_add_new_button': participant is None,
                    'fonctions': mark_safe(fonctions_json),
                    'institutions': mark_safe(institutions_json),
                    })
+
+
+def get_institutions_group_by_type():
+    institutions = Institution.objects \
+        .order_by('type_institution_id', 'nom').all()
+    key_func = operator.attrgetter('type_institution_id')
+    return {type_id: [{'id': i.id, 'nom': i.nom} for i in insts]
+            for type_id, insts in itertools.groupby(institutions, key=key_func)}
 
 
 def ajout_participant(request):
