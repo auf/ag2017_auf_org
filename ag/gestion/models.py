@@ -826,8 +826,10 @@ class Participant(RenseignementsPersonnels):
     def get_region(self):
         if self.represente_etablissement:
             return self.etablissement.region
+        elif not self.represente_instance_seulement:
+            return self.institution and self.institution.region
         else:
-            return self.region
+            return None
 
     def get_nom_bureau_regional(self):
         return self.get_region().implantation_bureau.nom
