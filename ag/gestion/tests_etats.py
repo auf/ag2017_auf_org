@@ -63,22 +63,21 @@ class EtatParticipantsTestCase(TestCase):
             institution=institution_onu,
             desactive=True,
             region=cls.region)
+        fonction_instance_seulement = get_fonction_instance_seulement()
         cls.instance_admin1 = creer_participant(
             nom=u'PRESIDENT', prenom=u'Francis',
-            fonction=get_fonction_instance_seulement(),
+            fonction=fonction_instance_seulement,
             instance_auf="A",
             region=cls.region)
         cls.instance_admin2 = creer_participant(
             nom=u'SECRETAIRE', prenom=u'Albert',
-            fonction=get_fonction_instance_seulement(),
+            fonction=fonction_instance_seulement,
             instance_auf="A",
             region=cls.region)
         cls.instance_scient1 = creer_participant(
             nom=u'REEVES', prenom=u'Hubert',
-            type_institution=Participant.INSTANCE_AUF,
             instance_auf="S",
-            code_statut='memb_inst',
-            region=cls.region)
+            fonction=fonction_instance_seulement)
         cls.personnel_auf1 = creer_participant(
             nom=u"PELLETIER", prenom=u'Marie-Claude',
             type_institution=Participant.AUTRE_INSTITUTION,

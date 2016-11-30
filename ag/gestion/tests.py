@@ -1535,12 +1535,23 @@ class PermissionsGestionTestCase(TestCase):
         participant_MO.fonction = get_fonction_repr_universitaire()
         participant_MO.save()
 
+        type_autre = TypeInstitutionFactory()
+        fonction_autre = FonctionFactory(type_institution=type_autre)
+        institution_MO = InstitutionFactory(type_institution=type_autre,
+                                            region=region_MO)
+
         participant_MO2 = Participant()
-        participant_MO2.nom = u'Shokry'
-        participant_MO2.prenom = u'Yasser'
-        participant_MO2.fonction = get_fonction_instance_seulement()
-        participant_MO2.region = region_MO
+        participant_MO2.nom = u'Hussein'
+        participant_MO2.prenom = u'Taha'
+        participant_MO2.fonction = fonction_autre
+        participant_MO2.institution = institution_MO
         participant_MO2.save()
+
+        participant_inst_seulement = Participant()
+        participant_inst_seulement.nom = u'Shokry'
+        participant_inst_seulement.prenom = u'Yasser'
+        participant_inst_seulement.fonction = get_fonction_instance_seulement()
+        participant_inst_seulement.save()
 
         user_mo = User.objects.create_user(username='mo', password='abc')
         user_mo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_MO))
@@ -1556,6 +1567,9 @@ class PermissionsGestionTestCase(TestCase):
         self.try_url(reverse('renseignements_personnels',
                              args=[participant_MO2.id]), [user_mo],
                      [user_eo])
+        self.try_url(reverse('renseignements_personnels',
+                             args=[participant_inst_seulement.id]), [],
+                     [user_eo, user_mo])
 
         user_mo_lecteur = User.objects.create_user(username='mol',
                                                    password='abc')
@@ -1567,6 +1581,9 @@ class PermissionsGestionTestCase(TestCase):
             AGRole(type_role=consts.ROLE_LECTEUR, region=region_EO))
         self.try_url(reverse('notes_de_frais',
                              args=[self.participant.id]), [],
+                     [user_mo_lecteur, user_eo_lecteur])
+        self.try_url(reverse('notes_de_frais',
+                             args=[participant_inst_seulement.id]), [],
                      [user_mo_lecteur, user_eo_lecteur])
         self.try_url(reverse('notes_de_frais',
                              args=[participant_MO.id]), [user_mo_lecteur],

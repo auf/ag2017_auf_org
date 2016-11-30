@@ -72,9 +72,10 @@ def participants_view(request):
             participants = Participant.objects.filter(desactive=desactive) \
                 .order_by('nom', 'prenom')\
                 .sql_extra_fields('delinquant')\
-                .select_related('region', 'etablissement',
+                .select_related('etablissement',
                                 'etablissement__region', 'etablissement__pays',
-                                'fonction', 'inscription')
+                                'fonction', 'institution',
+                                'institution__region')
             if nom:
                 participants = participants.filter(
                     Q(nom__icontains=nom) | Q(prenom__icontains=nom)
@@ -108,11 +109,8 @@ def participants_view(request):
                 )
             if region:
                 participants = participants.filter(
-                    Q(
-                        etablissement__isnull=False,
-                        etablissement__region=region
-                    ) |
-                    Q(region=region)
+                    Q(etablissement__region=region) |
+                    Q(institution__region=region)
                 )
             if fonction:
                 participants = participants.filter(fonction=fonction)
@@ -848,7 +846,7 @@ def export_donnees_csv(request):
     participants = Participant.objects.order_by('nom', 'prenom') \
         .avec_region_vote()\
         .select_related('fonction', 'etablissement', 'etablissement__region',
-                        'etablissement__pays', 'region', 'hotel', 'vol_groupe')
+                        'etablissement__pays', 'hotel', 'vol_groupe')
     # Écriture des en-têtes
     writer.writerow(fields)
     arrivees_vols_groupes = dict(

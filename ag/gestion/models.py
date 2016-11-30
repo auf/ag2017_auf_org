@@ -435,8 +435,6 @@ class Participant(RenseignementsPersonnels):
     etablissement = ForeignKey(
         Etablissement, null=True, verbose_name=u"Établissement",
         db_constraint=False)
-    region = ForeignKey(Region, verbose_name=u"Région", null=True,
-                        db_constraint=False)
     numero_facture = IntegerField(u"Numéro de facture", null=True)
     date_facturation = DateField(u"Date de facturation", null=True, blank=True)
     facturation_validee = BooleanField(u"Facturation validée", default=False)
@@ -1016,7 +1014,7 @@ class VolGroupe(Model):
 
     def get_participants(self):
         return Participant.objects.filter(vol_groupe=self)\
-            .select_related('etablissement', 'region', 'etablissement__region')\
+            .select_related('etablissement', 'etablissement__region')\
             .filter(desactive=False)\
             .order_by('nom', 'prenom')
 
@@ -1277,9 +1275,7 @@ class AGRole(Model, Role):
 
     def check_participant_region(self, obj):
         if isinstance(obj, Participant):
-            return (obj.represente_etablissement and
-                    (obj.etablissement.region == self.region)) or \
-                   (obj.region == self.region)
+            return obj.get_region() == self.region
         else:
             return False
 
@@ -1308,7 +1304,7 @@ class AGRole(Model, Role):
         return Q(
             (Q(fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
              & Q(etablissement__region=self.region))
-            | Q(region=self.region))
+            | Q(institution__region=self.region))
 
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
