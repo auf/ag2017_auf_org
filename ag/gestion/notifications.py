@@ -1,12 +1,14 @@
 # -*- encoding: utf-8 -*-
 import sys
-from ag import settings
-from ag.gestion.transfert_inscription import inscription_transferee
-from ag.inscription.views import inscription_confirmee
-from auf.django.mailing.models import ModeleCourriel
+
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.dispatch import receiver
+from django.template import Template, Context
+from auf.django.mailing.models import ModeleCourriel
+from ag import settings
+from ag.gestion.transfert_inscription import inscription_transferee
+from ag.inscription.views import inscription_confirmee
 from ag.gestion.models import facturation_validee, nouveau_participant
 from ag.inscription.models import paypal_signal
 
@@ -105,19 +107,25 @@ def nouveau_participant_handler(sender, **kwargs):
     envoyer_a_service('gestion', subject, body)
 
 
-@receiver(inscription_confirmee)
-def inscription_confirmee_handler(sender, **kwargs):
-    modele_courriel = ModeleCourriel.objects.get(code="recu_ok")
+def send_courriel_inscrit(modele_code, inscription):
+    modele_courriel = ModeleCourriel.objects.get(code=modele_code)
     message = EmailMessage()
     message.subject = modele_courriel.sujet
-    message.body = modele_courriel.corps
+    modele_corps = Template(modele_courriel.corps)
+    context = inscription.invitation.get_courriel_template_context()
+    message.body = modele_corps.render(Context(context))
     if hasattr(settings, 'MAILING_TEST_ADDRESS'):
-        message.to = [settings.MAILING_TEST_ADDRESS,]
+        message.to = [settings.MAILING_TEST_ADDRESS, ]
     else:
-        message.to = [sender.courriel, ]
+        message.to = [inscription.courriel, ]
     message.from_email = settings.GESTION_AG_SENDER
     message.content_subtype = "html" if modele_courriel.html else "text"
     message.send(fail_silently=True)
+
+
+@receiver(inscription_confirmee)
+def inscription_confirmee_handler(sender, **kwargs):
+    send_courriel_inscrit("recu_ok", sender)
 
 #    if sender.etablissement_delinquant():
 #        modele_courriel = ModeleCourriel.objects.get(code="coti_rel")
