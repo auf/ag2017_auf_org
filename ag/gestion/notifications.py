@@ -85,9 +85,10 @@ def facturation_validee_handler(sender, **kwargs):
 def get_nouveau_participant_mail(participant):
     region = participant.get_region().nom if participant.get_region() else u"Région?"
     etablissement = participant.etablissement.nom if participant.etablissement else u"Établissement?"
-    statut = participant.statut.libelle if participant.statut else u"Statut?"
-    subject = u"AG2017 Nouveau participant - " + region + u"-" + statut + u"-"\
-              + etablissement
+    fonction = participant.fonction.libelle if participant.fonction else \
+        u"Fonction?"
+    subject = u"AG2017 Nouveau participant - " + region + u"-" + fonction +\
+              u"-" + etablissement
     # todo: rétablir paiement dans mail transfert
     # body = participant.get_paiement_display() + u"-"
     body = u"Prise en charge transport:" +\

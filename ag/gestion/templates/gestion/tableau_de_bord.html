@@ -80,9 +80,9 @@
             <th>Dossiers incomplets</th>
         <th>Total</th></tr></thead>
         <tbody>
-        {% for statut, nombre_clos, nombre_ouverts, total in par_statut %}
+        {% for fonction, nombre_clos, nombre_ouverts, total in par_fonction %}
             <tr>
-                <td>{{ statut.libelle }}</td>
+                <td>{{ fonction.libelle }}</td>
                 <td>{{ nombre_clos }}</td>
                 <td>{{ nombre_ouverts }}</td>
                 <td>{{ total }}</td>

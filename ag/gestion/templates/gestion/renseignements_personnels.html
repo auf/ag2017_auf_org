@@ -5,49 +5,77 @@
 {% block form_fields %}<h1>Modifier Renseignements personnels</h1>{% crispy form %}{% endblock %}
 {% block js_initializations %}
     {{ block.super }}
-    <script type="text/javascript">
-        $(document).ready( function() {
-            function manage_controls_institution() {
-                var type_institution = $("#id_type_institution").val();
-                var controls_to_show;
-                var managed_controls = [
-                    'recherche_etablissement',
-                    'id_type_autre_institution',
-                    'id_nom_autre_institution',
-                    'id_instance_auf',
-                    'id_region',
-                    'id_pays_autre_institution'
-                ];
-                switch (type_institution) {
-                    case 'E':
-                        controls_to_show = [ 'recherche_etablissement' ];
-                        break;
-                    case 'I':
-                        controls_to_show = [ 'id_instance_auf', 'id_region',
-                            'id_pays_autre_institution'];
-                        break;
-                    case 'A':
-                        controls_to_show = [ 'id_type_autre_institution',
-                            'id_nom_autre_institution', 'id_region',
-                            'id_pays_autre_institution'];
-                        break;
-                    default:
-                        controls_to_show = [];
+<script type="text/javascript">
+    var fonctions = JSON.parse("{{ fonctions }}");
+    var institutions = JSON.parse("{{ institutions }}");
+
+    function filter_institutions(fonction_data) {
+        var select_institutions = $('#id_institution');
+        select_institutions.empty();
+        var type_institution_id = fonction_data['type_institution_id'];
+        var institutions_to_show = institutions[type_institution_id];
+        if (institutions_to_show) {
+            for (var i = 0; i < institutions_to_show.length; i++) {
+                var inst = institutions_to_show[i];
+                select_institutions.append($("<option></option>")
+                    .attr("value", inst['id']).text(inst['nom']));
+            }
+        }
+    }
+
+    $(document).ready(function () {
+        function manage_controls_institution() {
+            $('#id_institution').addClass('required');
+            var fonction_id = $("#id_fonction").val();
+            var controls_to_show;
+            var managed_controls = [
+                'recherche_etablissement',
+                'id_institution',
+                'id_membre_ca_represente',
+                'id_instance_auf'
+            ];
+            var fonction_data = fonctions[fonction_id];
+            if (fonction_data) {
+                if (fonction_data['etablissement']) {
+                    controls_to_show = ['recherche_etablissement'];
+                } else if (fonction_data['instance_seulement']) {
+                    controls_to_show = [];
                 }
-                for (var i = 0; i < managed_controls.length; i++) {
-                    var control_name = managed_controls[i];
-                    if (controls_to_show.indexOf(control_name) > -1) {
-                        $('#' + control_name).closest('div.form-row').show();
-                    } else {
-                        $('#' + control_name).closest('div.form-row').hide();
-                    }
+                else {
+                    controls_to_show = ['id_institution'];
+                    filter_institutions(fonction_data);
                 }
+
+                controls_to_show.push('id_instance_auf');
+                var instance_control = $('#id_instance_auf');
+                var instance_label = instance_control.siblings('label');
+                if (fonction_data['instance_seulement']) {
+                    instance_label.addClass('required');
+                } else {
+                    instance_label.removeClass('required');
+                }
+                if (instance_control.val() === "A") {
+                    controls_to_show.push('id_membre_ca_represente')
+                }
+
+            } else {
+                controls_to_show = [];
             }
 
-            $("#id_type_institution").change(function() {
-                manage_controls_institution();
-            });
+            for (var i = 0; i < managed_controls.length; i++) {
+                var control_name = managed_controls[i];
+                if (controls_to_show.indexOf(control_name) > -1) {
+                    $('#' + control_name).closest('div.form-row').show();
+                } else {
+                    $('#' + control_name).closest('div.form-row').hide();
+                }
+            }
+        }
+
+        $("#id_fonction,#id_instance_auf").change(function () {
             manage_controls_institution();
         });
-    </script>
+        manage_controls_institution();
+    });
+</script>
 {% endblock js_initializations %}

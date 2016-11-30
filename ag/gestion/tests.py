@@ -7,12 +7,17 @@ from ag.gestion import transfert_inscription
 # noinspection PyUnresolvedReferences
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
+from ag.gestion.models import get_fonction_repr_universitaire, \
+    get_fonction_instance_seulement
 from ag.inscription.models import Inscription, Invitation, PaypalResponse, \
     get_forfaits, Forfait
 from ag.core.test_utils import (
     find_input_by_id,
     find_input_by_name,
-    find_checked_input_by_name)
+    find_checked_input_by_name,
+    TypeInstitutionFactory,
+    FonctionFactory,
+    InstitutionFactory)
 from ag.tests import create_fixtures, creer_participant
 from ag.reference.models import Etablissement, Pays, Region, Implantation
 
@@ -63,9 +68,8 @@ class GestionTestCase(TestCase):
         participant_etablissement_membre.courriel = 'adr.courriel@test.org'
         participant_etablissement_membre.date_naissance = \
             datetime.date(1973, 07, 04)
-        participant_etablissement_membre.statut \
-            = StatutParticipant.objects.get(code='repr_tit')
-        participant_etablissement_membre.type_institution = 'E'
+        participant_etablissement_membre.fonction = \
+            self.fonction_repr_etablissement
         participant_etablissement_membre.etablissement \
             = Etablissement.objects.get(id=self.etablissement_id)
         participant_etablissement_membre.save()
@@ -82,25 +86,28 @@ class GestionTestCase(TestCase):
     def url_fiche_participant(self):
         return reverse('fiche_participant', args=[self.participant.id])
 
-    def test_nom_institution(self):
+    def test_nom_institution_etablissement(self):
         participant = self.participant
-        participant.type_institution = 'E'
+        participant.fonction = get_fonction_repr_universitaire()
         etablissement = Etablissement.objects.get(id=self.etablissement_id)
         participant.etablissement = etablissement
         self.assertEquals(participant.nom_institution(), etablissement.nom)
-        participant.type_institution = 'I'
-        participant.instance_auf = 'C'
+
+    def test_nom_institution_instance_seulement(self):
+        participant = self.participant
+        participant.fonction = get_fonction_instance_seulement()
+        participant.instance_auf = 'A'
+        assert u"administration" in participant.nom_institution()
+
+    def test_nom_autre_institution(self):
+        participant = self.participant
+        type_institution = TypeInstitutionFactory()
+        fonction = FonctionFactory(type_institution=type_institution)
+        institution = InstitutionFactory(type_institution=type_institution)
+        participant.fonction = fonction
+        participant.institution = institution
         self.assertEquals(participant.nom_institution(),
-                          u"AUF (Conseil associatif)")
-        participant.type_institution = 'A'
-        type_pers_auf = \
-            TypeInstitutionSupplementaire.objects.get(code='pers_auf')
-        participant.type_autre_institution = type_pers_auf
-        self.assertEquals(participant.nom_institution(),
-                          type_pers_auf.libelle)
-        participant.nom_autre_institution = 'ABC'
-        self.assertEquals(participant.nom_institution(),
-                          type_pers_auf.libelle + ', ABC')
+                          institution.nom)
 
     def test_recherche_participant(self):
         response = self.client.get(reverse('participants'))
@@ -143,16 +150,17 @@ class GestionTestCase(TestCase):
             u'nom': u'test_ajout_nom',
             u'prenom': u'test_prenom',
             u'courriel': u'test@test.com',
-            u'type_institution': u'E',
             u'etablissement': str(self.etablissement_id),
-            u'etablissement_nom': u'',
-            u'statut': StatutParticipant.objects.get(code='repr_tit').id,
+            u'etablissement_nom': u"jkjhjhghj",
+            u'fonction': str(get_fonction_repr_universitaire().id),
         }
 
     def test_nouveau_participant(self):
         nb_participant_avant = Participant.objects.count()
         data = self.nouveau_participant_data()
+        print(data)
         response = self.client.post(reverse('ajout_participant'), data=data)
+        self.assertEquals(response.status_code, 302)
         self.assertEqual(Participant.objects.count(), nb_participant_avant + 1)
         participant = Participant.objects.get(nom=u'test_ajout_nom')
         self.assertRedirects(response, reverse('fiche_participant',
@@ -172,7 +180,21 @@ class GestionTestCase(TestCase):
 
     def test_nouveau_participant_sans_institution(self):
         data = self.nouveau_participant_data()
-        data[u'type_institution'] = u'I'
+        data[u'fonction'] = FonctionFactory(
+            type_institution=TypeInstitutionFactory()).id
+        response = self.client.post(reverse('ajout_participant'), data=data)
+        self.assertContains(response, 'errors')
+
+    def test_nouveau_participant_instance_seulement_pas_d_instance(self):
+        data = self.nouveau_participant_data()
+        data[u'fonction'] = get_fonction_instance_seulement().id
+        response = self.client.post(reverse('ajout_participant'), data=data)
+        self.assertContains(response, 'errors')
+
+    def test_nouveau_participant_instance_seulement_ca(self):
+        data = self.nouveau_participant_data()
+        data[u'fonction'] = get_fonction_instance_seulement().id
+        data[u'instance_auf'] = consts.CA
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertContains(response, 'errors')
 
@@ -250,9 +272,8 @@ class GestionTestCase(TestCase):
             'nom': u'nom_nouveau',
             'prenom': u'prenom_nouveau',
             'courriel': u'nouveau@nouveau.org',
-            'statut': u'1',
             'etablissement_nom': u'',
-            'type_institution': u'E',
+            'fonction': str(get_fonction_repr_universitaire().id),
         }
         response = self.client.post(reverse('ajout_participant'), data)
         self.assertEquals(response.status_code, 200)
@@ -1194,6 +1215,7 @@ class TransfertInscription(TestCase):
 
     def test_transfert_inscription(self):
         invitation = Invitation()
+        invitation.pour_mandate = True
         invitation.etablissement = \
             Etablissement.objects.get(pk=self.etablissement_id)
         invitation.save()
@@ -1239,10 +1261,9 @@ class TransfertInscription(TestCase):
         i.fermee = True
         i.date_fermeture = datetime.date(2012, 7, 23)
         i.save()
-        statut = StatutParticipant.objects.get(code='repr_tit')
         assert settings.DESTINATAIRES_NOTIFICATIONS['service_institutions']
         nb_mails_before = len(mail.outbox)
-        p = transfert_inscription.transfere(i, statut, False, False, False)
+        p = transfert_inscription.transfere(i, False, False, False)
         self.assertEqual(len(mail.outbox), nb_mails_before + 1)
         self.assertEqual(p.nom, i.nom)
         self.assertEqual(p.pays, i.pays)
@@ -1253,6 +1274,7 @@ class TransfertInscription(TestCase):
             ).count(),
             1
         )
+        self.assertEqual(p.fonction.code, consts.FONCTION_REPR_UNIVERSITAIRE)
         self.assertEqual(
             ParticipationActivite.objects.filter(
                 participant=p, activite__code=consts.CODE_SOIREE_10_MAI,
@@ -1274,7 +1296,7 @@ class TransfertInscription(TestCase):
         self.assertEqual(infos_depart.numero_vol, i.depart_vol)
         self.assertEqual(infos_depart.date_depart, i.depart_date)
         self.assertEqual(infos_depart.heure_depart, i.depart_heure)
-        self.assertEqual(p.type_institution, 'E')
+        self.assertEqual(p.fonction.code, consts.FONCTION_REPR_UNIVERSITAIRE)
         self.assertEqual(p.etablissement, i.get_etablissement())
 
         self.assertEquals(len(Invite.objects.filter(participant=p)), 1)
@@ -1286,7 +1308,7 @@ class TransfertInscription(TestCase):
         p.delete()
         i.prise_en_charge_hebergement = True
         i.prise_en_charge_transport = True
-        p = transfert_inscription.transfere(i, statut, True, True, True)
+        p = transfert_inscription.transfere(i, True, True, True)
         self.assertTrue(p.transport_organise_par_auf)
         self.assertTrue(p.prise_en_charge_transport)
         self.assertTrue(p.prise_en_charge_sejour)
@@ -1510,17 +1532,26 @@ class PermissionsGestionTestCase(TestCase):
         participant_MO.nom = u'Khafagui'
         participant_MO.prenom = u'Nermo'
         participant_MO.etablissement = etablissement_MO
-        participant_MO.statut = StatutParticipant.objects.get(pk=1)
-        participant_MO.type_institution = 'E'
+        participant_MO.fonction = get_fonction_repr_universitaire()
         participant_MO.save()
 
+        type_autre = TypeInstitutionFactory()
+        fonction_autre = FonctionFactory(type_institution=type_autre)
+        institution_MO = InstitutionFactory(type_institution=type_autre,
+                                            region=region_MO)
+
         participant_MO2 = Participant()
-        participant_MO2.nom = u'Shokry'
-        participant_MO2.prenom = u'Yasser'
-        participant_MO2.statut = StatutParticipant.objects.get(pk=1)
-        participant_MO2.type_institution = 'I'
-        participant_MO2.region = region_MO
+        participant_MO2.nom = u'Hussein'
+        participant_MO2.prenom = u'Taha'
+        participant_MO2.fonction = fonction_autre
+        participant_MO2.institution = institution_MO
         participant_MO2.save()
+
+        participant_inst_seulement = Participant()
+        participant_inst_seulement.nom = u'Shokry'
+        participant_inst_seulement.prenom = u'Yasser'
+        participant_inst_seulement.fonction = get_fonction_instance_seulement()
+        participant_inst_seulement.save()
 
         user_mo = User.objects.create_user(username='mo', password='abc')
         user_mo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_MO))
@@ -1536,6 +1567,9 @@ class PermissionsGestionTestCase(TestCase):
         self.try_url(reverse('renseignements_personnels',
                              args=[participant_MO2.id]), [user_mo],
                      [user_eo])
+        self.try_url(reverse('renseignements_personnels',
+                             args=[participant_inst_seulement.id]), [],
+                     [user_eo, user_mo])
 
         user_mo_lecteur = User.objects.create_user(username='mol',
                                                    password='abc')
@@ -1547,6 +1581,9 @@ class PermissionsGestionTestCase(TestCase):
             AGRole(type_role=consts.ROLE_LECTEUR, region=region_EO))
         self.try_url(reverse('notes_de_frais',
                              args=[self.participant.id]), [],
+                     [user_mo_lecteur, user_eo_lecteur])
+        self.try_url(reverse('notes_de_frais',
+                             args=[participant_inst_seulement.id]), [],
                      [user_mo_lecteur, user_eo_lecteur])
         self.try_url(reverse('notes_de_frais',
                              args=[participant_MO.id]), [user_mo_lecteur],

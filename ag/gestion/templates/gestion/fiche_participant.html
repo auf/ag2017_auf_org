@@ -50,31 +50,31 @@
         {% champ_fiche renseignements_personnels "date_naissance" %}
         {% champ_fiche renseignements_personnels "courriel" %}
 <tr>
-    <td colspan="2"><h2 style="background: #bad0e7;">Établissement représenté</h2></td>
+    <td colspan="2"><h2 style="background: #bad0e7;">Fonction, Institution</h2></td>
 </tr>
         {% champ_fiche renseignements_personnels "poste" %}
-        {% ifequal participant.type_institution "E" %}
-          {% champ_fiche renseignements_personnels "statut" %}
+        {% if participant.fonction.repr_etablissement %}
           <tr>
-              <td class="tag">Établissement</td>
-              <td>{{ participant.etablissement.nom }}</td>
+            <td class="tag">Établissement</td>
+            <td>{{ participant.etablissement.nom }}</td>
           </tr>
-            <tr>
-                <td class="tag">Région</td>
-                <td>{{ participant.get_region.nom }}</td>
-            </tr>
-        {% endifequal %}
-        {% ifequal participant.type_institution "A" %}
-        {% champ_fiche renseignements_personnels "type_autre_institution" %}
-        {% champ_fiche renseignements_personnels "nom_autre_institution" %}
-        {% champ_fiche renseignements_personnels "pays_autre_institution" %}
-        {% champ_fiche renseignements_personnels "region" %}
-        {% endifequal %}
-        {% ifequal participant.type_institution "I" %}
-        {% champ_fiche renseignements_personnels "instance_auf" %}
-        {% champ_fiche renseignements_personnels "region" %}
-        {% champ_fiche renseignements_personnels "pays_autre_institution" %}
-        {% endifequal %}
+          <tr>
+            <td class="tag">Région</td>
+            <td>{{ participant.get_region.nom }}</td>
+          </tr>
+        {% elif not participant.fonction.repr_instance_seulement %}
+          {% champ_fiche renseignements_personnels "institution" %}
+          <tr>
+            <td class="tag">Région</td>
+            <td>{{ participant.get_region.nom }}</td>
+          </tr>
+        {% endif %}
+        {% if participant.instance_auf %}
+          {% champ_fiche renseignements_personnels "instance_auf" %}
+          {% ifequal participant.instance_auf "A" %}
+            {% champ_fiche renseignements_personnels "membre_ca_represente" %}
+          {% endifequal %}
+        {% endif %}
 <tr>
     <td colspan="2"><h2 style="background: #bad0e7;">Adresse de facturation</h2></td>
 </tr>
@@ -423,18 +423,21 @@
                 {% endif %}
 
                 <tr><td>{{ participant.poste }}</td></tr>
-                <tr><td>{{ participant.statut }}</td></tr>
-                <tr><td>{{ participant.nom_institution }}</td></tr>
-                <tr><td>{{ participant.get_type_institution_display }}
-                    {% ifequal participant.type_institution "E" %}
+                <tr><td>{{ participant.fonction }}</td></tr>
+                {% if participant.fonction.type_institution %}
+                <tr><td>{{ participant.fonction.type_institution.libelle }}
+                    {% if participant.represente_etablissement %}
                         -&nbsp;{{ participant.etablissement.get_statut_display }}
                         {% if participant.get_etablissement_sud %}
                         -&nbsp;Sud
                         {% endif %}
-                    {% endifequal %}
-                </td></tr>
+                    {% endif %}
+                </td>
+                </tr>
+                {% endif %}
+                <tr><td>{{ participant.nom_institution }}</td></tr>
                 <tr><td>
-                    {{ participant.get_region }}
+                    {{ participant.get_region|default_if_none:"(sans région)" }}
                 </td></tr>
                 <tr><td>{% include "gestion/nombre_invites.html" %}</td></tr>
                 {% if lien_dossier %}

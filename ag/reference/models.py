@@ -4,6 +4,9 @@ from django.db import models
 
 
 class Pays(models.Model):
+    class Meta:
+        ordering = ('nom',)
+
     code = models.CharField(max_length=2, unique=True)
     nom = models.CharField(max_length=255)
     sud = models.BooleanField()
@@ -19,6 +22,9 @@ class Pays(models.Model):
 
 
 class Region(models.Model):
+    class Meta:
+        ordering = ('nom',)
+
     code = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255)
     adresse = models.TextField(null=True)
@@ -31,6 +37,9 @@ class Region(models.Model):
 
 
 class Etablissement(models.Model):
+    class Meta:
+        ordering = ('nom', )
+
     STATUT_CHOICES = (
         ('T', 'Titulaire'),
         ('A', 'Associé'),

@@ -1,6 +1,10 @@
 # -*- encoding: utf-8 -*-
 from ag.gestion import consts
-from ag.gestion.models import Participant, Invite, Activite, StatutParticipant
+from ag.gestion.models import (
+    Participant,
+    Invite, Activite,
+    TypeInstitution,
+    Fonction)
 from django.dispatch.dispatcher import Signal
 
 from ag.inscription.models import Forfait
@@ -8,20 +12,7 @@ from ag.inscription.models import Forfait
 inscription_transferee = Signal()
 
 
-def statut_par_defaut(inscription):
-    statut_etablissement = inscription.get_etablissement().statut
-    if inscription.est_pour_mandate():
-        if statut_etablissement == 'T':
-            code_statut = 'repr_tit'
-        else:
-            assert statut_etablissement == 'A'
-            code_statut = 'repr_assoc'
-    else:
-        code_statut = 'accomp'
-    return StatutParticipant.objects.get(code=code_statut)
-
-
-def transfere(inscription, statut, prise_en_charge_transport,
+def transfere(inscription, prise_en_charge_transport,
               prise_en_charge_hebergement, facturer_supplement_chambre_double):
     if Participant.objects.filter(inscription=inscription).count():
         raise Exception(u"Cette inscription a déjà été transférée")
@@ -42,7 +33,12 @@ def transfere(inscription, statut, prise_en_charge_transport,
     participant.courriel = inscription.courriel
     participant.date_arrivee_hotel = inscription.date_arrivee_hotel
     participant.date_depart_hotel = inscription.date_depart_hotel
-    participant.statut = statut
+    if inscription.est_pour_mandate():
+        participant.fonction = Fonction.objects.get(
+            code=consts.FONCTION_REPR_UNIVERSITAIRE)
+    else:
+        participant.fonction = Fonction.objects.get(
+            code=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
     participant.save()
     participant.forfaits.add(Forfait.objects.get(
         code=consts.CODE_FRAIS_INSCRIPTION))
@@ -78,7 +74,6 @@ def transfere(inscription, statut, prise_en_charge_transport,
     if facturer_supplement_chambre_double:
         participant.forfaits.add(Forfait.objects.get(
             code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE))
-    participant.type_institution = 'E'
     participant.etablissement = inscription.get_etablissement()
     participant.save()
     inscription_transferee.send_robust(participant)

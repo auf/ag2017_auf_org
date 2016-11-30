@@ -6,10 +6,9 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User, Group
 from django.utils.formats import date_format
 
+from ag.gestion import consts
 from ag.gestion.forms import ValidationInscriptionForm
-from ag.gestion.models import Hotel, Chambre, PointDeSuivi,\
-    TypeInstitutionSupplementaire, Activite, InscriptionWeb, TypeFrais, \
-    AGRole, TYPE_CHAMBRE_CHOICES, Invitation, ActiviteScientifique
+from ag.gestion.models import *
 from ag.inscription.models import Inscription, Forfait
 
 
@@ -37,7 +36,7 @@ admin.site.unregister(Group)
 class ChambreInline(TabularInline):
     model = Chambre
     extra = 2
-    max_num = len(TYPE_CHAMBRE_CHOICES)
+    max_num = len(consts.TYPE_CHAMBRE_CHOICES)
 
 
 class HotelAdmin(ModelAdmin):
@@ -49,7 +48,7 @@ class InscriptionAdmin(ModelAdmin):
     fieldsets = (
         (u"Participant", {'fields': (
             'genre', 'nom', 'prenom', 'nationalite', 'date_naissance',
-            'poste', 'courriel', 'adresse', 'ville',  'pays', 'code_postal',
+            'poste', 'courriel', 'adresse', 'ville', 'pays', 'code_postal',
             'telephone', 'telecopieur',
         )}),
         (u"Invité", {'fields': (
@@ -66,18 +65,19 @@ class InscriptionAdmin(ModelAdmin):
         (u"Programmation", {'fields': (
             'programmation_soiree_9_mai',
             'programmation_soiree_10_mai',
-            'programmation_gala', 
+            'programmation_gala',
             'programmation_soiree_12_mai'
         )}),
-        (u"Forfaits supplémentaires pour accompagnateurs personnels", {'fields': (
-            'programmation_soiree_9_mai_invite',
-            'programmation_soiree_10_mai_invite',
-            'programmation_gala_invite',
-            'forfait_invite_dejeuners', 'forfait_invite_transfert'
-        )}),
-        (u"Paiement par Paypal", {'fields': ('paiement_paypal_total_str', )}),
+        (u"Forfaits supplémentaires pour accompagnateurs personnels",
+         {'fields': (
+             'programmation_soiree_9_mai_invite',
+             'programmation_soiree_10_mai_invite',
+             'programmation_gala_invite',
+             'forfait_invite_dejeuners', 'forfait_invite_transfert'
+         )}),
+        (u"Paiement par Paypal", {'fields': ('paiement_paypal_total_str',)}),
         (u"Validation", {'fields': (
-            'fermee', 'date_fermeture', 'statut',
+            'fermee', 'date_fermeture',
             'accepter_hebergement',
             'accepter_transport', 'inscription_validee',
         )}),
@@ -175,10 +175,13 @@ class InvitationAdmin(ModelAdmin):
 
 admin.site.register(Hotel, HotelAdmin)
 admin.site.register(PointDeSuivi)
-admin.site.register(TypeInstitutionSupplementaire)
 admin.site.register(Activite)
 admin.site.register(TypeFrais)
 admin.site.register(ActiviteScientifique)
 admin.site.register(InscriptionWeb, InscriptionAdmin)
 admin.site.register(Invitation, InvitationAdmin)
 admin.site.register(Forfait)
+admin.site.register(Fonction)
+admin.site.register(TypeInstitution)
+admin.site.register(Institution)
+admin.site.register(CategorieFonction)
