@@ -1,10 +1,12 @@
 # -*- encoding: utf-8 -*-
 import csv
+import operator
 import json
 import os
 import urllib
 from datetime import datetime
 
+import itertools
 from auf.django.permissions import require_permission
 from collections import defaultdict
 from django.contrib import messages
@@ -16,6 +18,7 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.datastructures import SortedDict
+from django.utils.safestring import mark_safe
 from sendfile import sendfile
 from django.conf import settings
 
@@ -54,14 +57,14 @@ def participants_view(request):
             etablissement = form.cleaned_data['etablissement']
             suivi = form.cleaned_data['suivi']
             instance_auf = form.cleaned_data['instance_auf']
-            autres_institutions = form.cleaned_data['autres_institutions']
+            type_institution = form.cleaned_data['type_institution']
             prise_en_charge_transport = \
                 form.cleaned_data['prise_en_charge_transport']
             prise_en_charge_sejour = \
                 form.cleaned_data['prise_en_charge_sejour']
             pays = form.cleaned_data['pays']
             region = form.cleaned_data['region']
-            statut = form.cleaned_data['statut']
+            fonction = form.cleaned_data['fonction']
             probleme = form.cleaned_data['probleme']
             hotel = form.cleaned_data['hotel']
             desactive = form.cleaned_data['desactive']
@@ -71,8 +74,7 @@ def participants_view(request):
                 .sql_extra_fields('delinquant')\
                 .select_related('region', 'etablissement',
                                 'etablissement__region', 'etablissement__pays',
-                                'statut', 'inscription',
-                                'type_autre_institution')
+                                'fonction', 'inscription')
             if nom:
                 participants = participants.filter(
                     Q(nom__icontains=nom) | Q(prenom__icontains=nom)
@@ -87,9 +89,9 @@ def participants_view(request):
                 participants = participants.filter(suivi=suivi)
             if instance_auf:
                 participants = participants.filter(instance_auf=instance_auf)
-            if autres_institutions:
+            if type_institution:
                 participants = participants.filter(
-                    type_autre_institution=autres_institutions
+                    fonction__type_institution=type_institution
                 )
             if prise_en_charge_transport:
                 participants = participants.filter(
@@ -112,8 +114,8 @@ def participants_view(request):
                     ) |
                     Q(region=region)
                 )
-            if statut:
-                participants = participants.filter(statut=statut)
+            if fonction:
+                participants = participants.filter(fonction=fonction)
             if hotel:
                 participants = participants.filter(hotel=hotel)
             if probleme:
@@ -141,7 +143,8 @@ def modifier_renseignements_personnels(request, id_participant=None,
                        consts.PERM_MODIF_RENSEIGNEMENTS_PERSONNELS,
                        obj=participant)
     if request.method == 'GET':
-        form = forms.RenseignementsPersonnelsForm(instance=participant)
+        form = forms.RenseignementsPersonnelsForm(instance=participant,
+                                                  initial=request.GET)
     else:
         assert request.method == 'POST'
         if 'annuler' in request.POST:
@@ -161,9 +164,28 @@ def modifier_renseignements_personnels(request, id_participant=None,
             else:
                 return redirect(reverse('fiche_participant',
                                         args=[participant.id]))
+    fonctions = Fonction.objects.select_related('type_institution').all()
+    fonctions_json = json.dumps(
+        {f.id: {'etablissement': f.repr_etablissement,
+                'instance_seulement': f.repr_instance_seulement,
+                'type_institution_id': f.type_institution_id}
+         for f in fonctions}).replace('"', '\\"')
+    institutions_json = json.dumps(get_institutions_group_by_type())
+    institutions_json = institutions_json.replace('"', '\\"')
     return render(request, 'gestion/renseignements_personnels.html',
                   {'participant': participant, 'form': form,
-                   'show_save_and_add_new_button': participant is None})
+                   'show_save_and_add_new_button': participant is None,
+                   'fonctions': mark_safe(fonctions_json),
+                   'institutions': mark_safe(institutions_json),
+                   })
+
+
+def get_institutions_group_by_type():
+    institutions = Institution.objects \
+        .order_by('type_institution_id', 'nom').all()
+    key_func = operator.attrgetter('type_institution_id')
+    return {type_id: [{'id': i.id, 'nom': i.nom} for i in insts]
+            for type_id, insts in itertools.groupby(institutions, key=key_func)}
 
 
 def ajout_participant(request):
@@ -186,7 +208,7 @@ def fiche_participant(request, id_participant):
         .sql_extra_fields(*extrafields) \
         .select_related('etablissement', 'etablissement__region',
                         'etablissement__pays', 'inscription',
-                        'statut', 'hotel') \
+                        'fonction', 'hotel') \
         .get(pk=id_participant)
     renseignements_personnels = forms.RenseignementsPersonnelsForm(
         instance=participant)
@@ -266,14 +288,14 @@ def tableau_de_bord(request):
         }
         for code, probleme in consts.PROBLEMES.items()
     ]
-    par_statut = []
-    for statut in StatutParticipant.objects.all():
+    par_fonction = []
+    for fonction in Fonction.objects.all():
         nombre_clos = Participant.actifs.filter(
-            statut=statut, suivi__code='doss_complet').count()
-        nombre_ouverts = Participant.actifs.filter(statut=statut)\
+            fonction=fonction, suivi__code='doss_complet').count()
+        nombre_ouverts = Participant.actifs.filter(fonction=fonction)\
             .exclude(suivi__code='doss_complet').count()
-        par_statut.append((
-            statut, nombre_clos, nombre_ouverts, nombre_clos + nombre_ouverts
+        par_fonction.append((
+            fonction, nombre_clos, nombre_ouverts, nombre_clos + nombre_ouverts
         ))
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
@@ -290,7 +312,7 @@ def tableau_de_bord(request):
             'par_probleme': par_probleme,
             'points_de_suivi':
             PointDeSuivi.objects.avec_nombre_participants().all(),
-            'par_statut': par_statut,
+            'par_fonction': par_fonction,
             'nb_invites': nb_invites,
             'hotels': hotels,
             'types_chambres': types_chambres,
@@ -304,7 +326,7 @@ def tableau_de_bord(request):
                 suivi__code="frais_payes"
             ).count(),
             'nb_tout_paye_droit_de_vote': Participant.actifs.filter(
-                suivi__code="frais_payes", statut__droit_de_vote=True
+                suivi__code="frais_payes", # statut__droit_de_vote=True
             ).count(),
         })
 
@@ -699,7 +721,7 @@ def votants_csv(request):
     participants = Participant.objects.avec_region_vote().filter_votants()
     writer.writerow([
         'participant_id', 'civilite', 'nom', 'prenom', 'courriel',
-        'poste', 'statut_id', 'etablissement_id', 'qualite', 'statut',
+        'poste', 'fonction', 'etablissement_id', 'qualite', 'statut',
         'pays', 'region', 'region_vote', 'etablissement_nom'
     ])
     for participant in participants:
@@ -708,7 +730,7 @@ def votants_csv(request):
             participant.id, participant.get_genre_display(),
             participant.nom, participant.prenom,
             participant.courriel, participant.poste,
-            participant.statut.libelle, participant.etablissement_id,
+            participant.fonction.libelle, participant.etablissement_id,
             etablissement.qualite, etablissement.statut,
             etablissement.pays.nom, etablissement.region.nom,
             participant.region_vote, etablissement.nom
@@ -825,7 +847,7 @@ def export_donnees_csv(request):
     # attention l'ordre de avec_region_vote et select_related est important !
     participants = Participant.objects.order_by('nom', 'prenom') \
         .avec_region_vote()\
-        .select_related('statut', 'etablissement', 'etablissement__region',
+        .select_related('fonction', 'etablissement', 'etablissement__region',
                         'etablissement__pays', 'region', 'hotel', 'vol_groupe')
     # Écriture des en-têtes
     writer.writerow(fields)
@@ -861,7 +883,7 @@ def export_donnees_csv(request):
         row['P_nom'] = p.nom
         row['P_prenom'] = p.prenom
         row['P_poste'] = p.poste
-        row['P_statut'] = p.statut.code
+        row['P_fonction'] = p.fonction.code
         row['E_vote'] = bool_to_01(p.region_vote)
         row['E_vote_region'] = p.region_vote
         row['I_type'] = p.type_institution
@@ -957,7 +979,7 @@ def etat_paiements_csv(request):
     fields = (
         'P_actif', 'P_id', 'P_genre', 'P_nom', 'P_prenom', 'P_poste',
         'P_courriel', 'P_adresse', 'P_ville', 'P_pays', 'P_code_postal',
-        'P_telephone', 'P_telecopieur', 'P_statut', 'E_cgrm', 'E_nom',
+        'P_telephone', 'P_telecopieur', 'P_fonction', 'E_cgrm', 'E_nom',
         'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I', 'f_fact_I',
         'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S', 'f_AUF_S',
         'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 'f_fact_A',

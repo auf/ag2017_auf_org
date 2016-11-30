@@ -23,20 +23,20 @@ def get_donnees_etat_participants():
         participants = Participant.actifs\
             .filter(type_institution=Participant.ETABLISSEMENT)\
             .select_related('etablissement', 'etablissement__pays',
-                            'statut')\
+                            'fonction')\
             .order_by('etablissement__pays__nom', 'etablissement__nom',
                       'statut__ordre', 'nom', 'prenom')
         return recursive_group_by(
             list(participants),
             keys=[lambda p:p.etablissement.pays,
                   lambda p: p.etablissement,
-                  lambda p:p.statut],
+                  lambda p:p.fonction],
             titles=[lambda p: p.nom, lambda e: e.nom, lambda s: s.libelle])
 
     def get_observateurs():
         participants = Participant.actifs \
             .filter(type_institution=Participant.AUTRE_INSTITUTION,
-                    statut__code='obs') \
+                    fonction__code=consts.CAT_FONCTION_OBSERVATEUR) \
             .select_related('region') \
             .order_by('nom_autre_institution', 'nom', 'prenom')
         return recursive_group_by(
@@ -415,8 +415,7 @@ def get_donnees_paiements(actifs_seulement):
         'frais_autres', 'total_frais',
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
-                        'etablissement__region', 'region', 'statut',
-                        'type_autre_institution')
+                        'etablissement__region', 'region', 'fonction')
     # on sépare le count car une annotation sur la requête principale
     # produit un SQL atroce.
     nombre_invites = dict(
@@ -442,7 +441,7 @@ def get_donnees_paiements(actifs_seulement):
             P_code_postal=p.code_postal,
             P_telephone=p.telephone,
             P_telecopieur=p.telecopieur,
-            P_statut=p.statut.libelle,
+            P_fonction=p.fonction.libelle,
             E_cgrm=p.etablissement.id if p.etablissement else u"",
             E_nom=p.nom_institution(),
             E_delinquant=bool_ON(p.delinquant) if p.etablissement else u"n/a",

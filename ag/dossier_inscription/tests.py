@@ -2,15 +2,17 @@
 import collections
 import datetime
 import django.test
-from ag.core.test_utils import InscriptionFactory, ParticipantFactory, \
-    StatutFactory
+from ag.core.test_utils import (
+    InscriptionFactory,
+    ParticipantFactory)
 from ag.dossier_inscription.models import (
-    InscriptionFermee, SuiviDossier)
+    InscriptionFermee,
+    SuiviDossier)
 from ag.gestion import transfert_inscription
 from ag.gestion.models import COMPLETE
 from ag.dossier_inscription import views
 from ag.inscription.models import Adresse, PaypalResponse
-from ag.tests import forfaits_fixture
+from ag.tests import forfaits_fixture, fonction_fixture
 
 
 class InscriptionFermeeTests(django.test.TestCase):
@@ -51,9 +53,9 @@ class InscriptionFermeeTests(django.test.TestCase):
         assert i.get_solde() == (i.total_facture - i.total_deja_paye)
 
     def test_get_solde_avec_participant(self):
+        fonction_fixture()
         i = self.create_inscription_paiement()
-        p = transfert_inscription.transfere(i, StatutFactory(), False, False,
-                                            False)
+        p = transfert_inscription.transfere(i, False, False, False)
         i = InscriptionFermee.objects.get(id=i.id)
         assert i.get_solde() == (i.total_facture - i.total_deja_paye)
 
