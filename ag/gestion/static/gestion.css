@@ -1,3 +1,5 @@
+/* validation */
+
 .model-inscriptionweb #content-main fieldset {
 	background-color: aliceblue!important;
 	padding: 20px;
@@ -17,6 +19,23 @@
 #changelist-filter {
     top: 260px;
 }
+
+.field-programmation_soiree_9_mai .vCheckboxLabel, .field-programmation_soiree_10_mai .vCheckboxLabel,
+.field-programmation_gala .vCheckboxLabel, .field-programmation_soiree_12_mai .vCheckboxLabel {
+    font-weight: bolder !important;
+}
+
+.field-inscription_validee {
+    border-top: 1px solid black;
+    padding-top: 20px !important;
+}
+
+.field-inscription_validee .vCheckboxLabel {
+    font-weight: bolder !important;
+}
+
+
+/* gestion */
 
 h1 {
     font-size: 18px;
