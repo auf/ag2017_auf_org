@@ -110,7 +110,8 @@ def participants_view(request):
             if region:
                 participants = participants.filter(
                     Q(etablissement__region=region) |
-                    Q(institution__region=region)
+                    Q(institution__region=region) |
+                    Q(implantation__region=region)
                 )
             if fonction:
                 participants = participants.filter(fonction=fonction)
@@ -166,6 +167,7 @@ def modifier_renseignements_personnels(request, id_participant=None,
     fonctions_json = json.dumps(
         {f.id: {'etablissement': f.repr_etablissement,
                 'instance_seulement': f.repr_instance_seulement,
+                'personnel_auf': f.repr_auf,
                 'type_institution_id': f.type_institution_id}
          for f in fonctions}).replace('"', '\\"')
     institutions_json = json.dumps(get_institutions_group_by_type())

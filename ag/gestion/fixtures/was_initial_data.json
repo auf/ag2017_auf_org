@@ -16,6 +16,14 @@
     }
   },
   {
+    "pk": 3,
+    "model": "gestion.categoriefonction",
+    "fields": {
+      "code": "org",
+      "libelle": "Organisateur"
+    }
+  },
+  {
     "pk": 1,
     "model": "gestion.typeinstitution",
     "fields": {
@@ -43,6 +51,16 @@
       "libelle": "Membre instance AUF seulement",
       "ordre": 2,
       "categorie": 2
+    }
+  },
+  {
+    "pk": 3,
+    "model": "gestion.fonction",
+    "fields": {
+      "code": "personnel_auf",
+      "libelle": "Personnel AUF",
+      "ordre": 3,
+      "categorie": 3
     }
   },
   {

@@ -99,6 +99,10 @@ class Fonction(core.TableReferenceOrdonnee):
     def repr_instance_seulement(self):
         return self.code == consts.FONCTION_INSTANCE_SEULEMENT
 
+    @property
+    def repr_auf(self):
+        return self.code == consts.FONCTION_PERSONNEL_AUF
+
 
 def get_fonction_repr_universitaire():
     return Fonction.objects.get(code=consts.FONCTION_REPR_UNIVERSITAIRE)
@@ -106,6 +110,10 @@ def get_fonction_repr_universitaire():
 
 def get_fonction_instance_seulement():
     return Fonction.objects.get(code=consts.FONCTION_INSTANCE_SEULEMENT)
+
+
+def get_fonction_personnel_auf():
+    return Fonction.objects.get(code=consts.FONCTION_PERSONNEL_AUF)
 
 
 class Institution(Model):
@@ -430,6 +438,8 @@ class Participant(RenseignementsPersonnels):
     membre_ca_represente = CharField(
         u"Ce membre du CA représente", max_length=1,
         choices=MEMBRE_CA_REPRESENTE, null=True, blank=True)
+    implantation = ForeignKey(Implantation, null=True, blank=True,
+                              on_delete=PROTECT)
     ###################################################
 
     etablissement = ForeignKey(
@@ -517,7 +527,13 @@ class Participant(RenseignementsPersonnels):
 
     @property
     def represente_instance_seulement(self):
-        return self.fonction == get_fonction_instance_seulement()
+        return (self.fonction and
+                self.fonction.code == consts.FONCTION_INSTANCE_SEULEMENT)
+
+    @property
+    def est_personnel_auf(self):
+        return (self.fonction and
+                self.fonction.code == consts.FONCTION_PERSONNEL_AUF)
 
     @property
     def numero(self):
@@ -624,12 +640,15 @@ class Participant(RenseignementsPersonnels):
         Renvoie le nom de l'institution à laquelle appartient le participant
         """
         if self.represente_etablissement:
-            return self.etablissement.nom
-        if self.represente_instance_seulement:
+            return self.etablissement.nom if self.etablissement_id else u"???"
+        elif self.represente_instance_seulement:
             nom = u"{} AUF seulement".format(self.get_instance_auf_display())
             if self.instance_auf == 'A':
                 nom += u"({})".format(self.get_membre_ca_represente_display())
             return nom
+        elif self.est_personnel_auf:
+            return u"AUF ({})".format(self.implantation.nom) \
+                if self.implantation_id else u"???"
         elif self.institution_id:
             return self.institution.nom
         else:
@@ -824,6 +843,8 @@ class Participant(RenseignementsPersonnels):
     def get_region(self):
         if self.represente_etablissement:
             return self.etablissement.region
+        elif self.est_personnel_auf:
+            return self.implantation.region if self.implantation else u""
         elif not self.represente_instance_seulement:
             return self.institution and self.institution.region
         else:
@@ -1304,7 +1325,9 @@ class AGRole(Model, Role):
         return Q(
             (Q(fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
              & Q(etablissement__region=self.region))
-            | Q(institution__region=self.region))
+            | (Q(institution__region=self.region))
+            | (Q(fonction__code=consts.FONCTION_PERSONNEL_AUF) &
+               Q(implantation__region=self.region)))
 
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
