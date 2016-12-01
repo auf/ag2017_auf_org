@@ -93,6 +93,7 @@ class Implantation(models.Model):
 
     nom = models.CharField(max_length=255)
     nom_court = models.CharField(max_length=255, blank=True)
+    region = models.ForeignKey(Region, null=True)
 
     def __unicode__(self):
         return self.nom_court

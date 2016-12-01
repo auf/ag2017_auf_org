@@ -127,6 +127,7 @@ def fonction_fixture():
     FonctionFactory(categorie=cat_obs, code="repr_presse")
     FonctionFactory(code=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
     FonctionFactory(code=consts.FONCTION_INSTANCE_SEULEMENT)
+    FonctionFactory(code=consts.FONCTION_PERSONNEL_AUF)
 
     return type_inst_etablissement, fonction_repr_etablissement
 

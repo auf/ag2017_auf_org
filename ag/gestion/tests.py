@@ -8,7 +8,7 @@ from ag.gestion import transfert_inscription
 from ag.gestion import notifications  # NOQA
 from ag.gestion.models import *
 from ag.gestion.models import get_fonction_repr_universitaire, \
-    get_fonction_instance_seulement
+    get_fonction_instance_seulement, get_fonction_personnel_auf
 from ag.inscription.models import Inscription, Invitation, PaypalResponse, \
     get_forfaits, Forfait
 from ag.core.test_utils import (
@@ -17,7 +17,7 @@ from ag.core.test_utils import (
     find_checked_input_by_name,
     TypeInstitutionFactory,
     FonctionFactory,
-    InstitutionFactory)
+    InstitutionFactory, ImplantationFactory)
 from ag.tests import create_fixtures, creer_participant
 from ag.reference.models import Etablissement, Pays, Region, Implantation
 
@@ -98,6 +98,12 @@ class GestionTestCase(TestCase):
         participant.fonction = get_fonction_instance_seulement()
         participant.instance_auf = 'A'
         assert u"administration" in participant.nom_institution()
+
+    def test_nom_institution_personnel_auf(self):
+        participant = self.participant
+        participant.fonction = get_fonction_personnel_auf()
+        participant.implantation = ImplantationFactory(nom=u"impltest")
+        assert participant.implantation.nom in participant.nom_institution()
 
     def test_nom_autre_institution(self):
         participant = self.participant
@@ -1553,6 +1559,12 @@ class PermissionsGestionTestCase(TestCase):
         participant_inst_seulement.fonction = get_fonction_instance_seulement()
         participant_inst_seulement.save()
 
+        participant_pers_auf_MO = Participant.objects.create(
+            nom=u"El-Badry", prenom=u"Selim",
+            fonction=get_fonction_personnel_auf(),
+            implantation=ImplantationFactory(region=region_MO)
+        )
+
         user_mo = User.objects.create_user(username='mo', password='abc')
         user_mo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_MO))
         user_eo = User.objects.create_user(username='eo', password='abc')
@@ -1570,6 +1582,9 @@ class PermissionsGestionTestCase(TestCase):
         self.try_url(reverse('renseignements_personnels',
                              args=[participant_inst_seulement.id]), [],
                      [user_eo, user_mo])
+        self.try_url(reverse('renseignements_personnels',
+                             args=[participant_pers_auf_MO.id]), [user_mo],
+                     [user_eo])
 
         user_mo_lecteur = User.objects.create_user(username='mol',
                                                    password='abc')

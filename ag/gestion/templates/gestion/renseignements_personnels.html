@@ -32,7 +32,8 @@
                 'recherche_etablissement',
                 'id_institution',
                 'id_membre_ca_represente',
-                'id_instance_auf'
+                'id_instance_auf',
+                'id_implantation'
             ];
             var fonction_data = fonctions[fonction_id];
             if (fonction_data) {
@@ -40,6 +41,9 @@
                     controls_to_show = ['recherche_etablissement'];
                 } else if (fonction_data['instance_seulement']) {
                     controls_to_show = [];
+                }
+                else if (fonction_data['personnel_auf']) {
+                    controls_to_show = ['id_implantation'];
                 }
                 else {
                     controls_to_show = ['id_institution'];

@@ -66,6 +66,7 @@ class ImplantationFactory(factory.DjangoModelFactory):
         model = ref_models.Implantation
     nom = factory.Sequence(lambda n: u"Impl{0}".format(n))
     nom_court = factory.Sequence(lambda n: u"Impl{0}".format(n))
+    region = factory.SubFactory(RegionFactory)
 
 
 # noinspection PyUnresolvedReferences

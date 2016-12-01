@@ -151,7 +151,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
             'etablissement', 'etablissement_nom',
             'adresse', 'ville', 'code_postal',
             'pays', 'telephone', 'telecopieur', 'notes',
-            'fonction', 'institution', 'instance_auf',
+            'fonction', 'institution', 'instance_auf', 'implantation',
             'membre_ca_represente',
             'notes_statut')
 
@@ -202,7 +202,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
                     u'Institution représentée',
                     'fonction', 'institution',
                     'etablissement', 'etablissement_nom',
-                    'instance_auf',
+                    'implantation', 'instance_auf',
                     'membre_ca_represente',
                     'poste',
                     css_id='rp_institution',
@@ -218,6 +218,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
         self.fields['fonction'].required = True
         self.fields['etablissement'].required = required
         self.fields['etablissement_nom'].required = required
+        self.fields['implantation'].required = required
 
     def is_valid(self):
         """ les champs affichés comme obligatoires ne le sont parfois
@@ -231,7 +232,7 @@ class RenseignementsPersonnelsForm(GestionModelForm):
     def clean(self):
         cleaned_data = super(RenseignementsPersonnelsForm, self).clean()
         fonction = cleaned_data['fonction']
-        champs_institution = {'etablissement', 'institution', }
+        champs_institution = {'etablissement', 'institution', 'implantation'}
         champs_obligatoires = set()
         if fonction.repr_etablissement:
             try:
@@ -240,6 +241,8 @@ class RenseignementsPersonnelsForm(GestionModelForm):
             except Etablissement.DoesNotExist:
                 cleaned_data['etablissement'] = None
             champs_obligatoires.add('etablissement')
+        elif fonction.repr_auf:
+            champs_obligatoires.add('implantation')
         elif fonction.type_institution:
             champs_obligatoires.add('institution')
         elif fonction.repr_instance_seulement:
