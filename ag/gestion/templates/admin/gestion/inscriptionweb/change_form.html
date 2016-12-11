@@ -67,16 +67,18 @@ django.jQuery(function() {
 {% endblock %}
 {% block content_title %}
 <h3>{{ adminform.form.instance.nom }}, {{ adminform.form.instance.prenom }}</h3>
-  <p>
+  <p>Représentant universitaire participant : <strong>
     {% if adminform.form.instance.est_pour_mandate %}
       (mandaté)
     {% else %}
       (accompagnateur)
-    {% endif %} - {{ adminform.form.instance.get_etablissement.statut }}
+    {% endif %} - {{ adminform.form.instance.get_etablissement.statut }} 
     - {{ adminform.form.instance.get_etablissement.pays.get_sud_display }} <br/>
-    {{ adminform.form.instance.get_etablissement.nom }}
+    {{ adminform.form.instance.get_etablissement.nom }} </strong> 
+    CGRM{{ adminform.form.instance.get_etablissement.id }} - {{ adminform.form.instance.get_etablissement.pays }} - {{ adminform.form.instance.get_etablissement.region }}
 
   </p>
+  <p id="pec">Prises en charge possibles : <strong><span class="{% if adminform.form.instance.est_pour_mandate %}mandate{% else %}accompagnateur{% endif %}{{ adminform.form.instance.get_etablissement.statut }}{{ adminform.form.instance.get_etablissement.pays.get_sud_display }}"><span></strong></p>
 
 
 {% endblock %}
