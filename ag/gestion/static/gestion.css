@@ -60,6 +60,10 @@
 #content .mandateAnord span:after { 
     content: "aucune";
 }
+#content .accompagnateur {color:red;}
+#content .accompagnateur span:after { 
+    content: "aucune";
+}
 
 /* gestion */
 
