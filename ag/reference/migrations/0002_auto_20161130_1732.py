@@ -23,4 +23,9 @@ class Migration(migrations.Migration):
             name='region',
             options={'ordering': ('nom',)},
         ),
+        migrations.AddField(
+            model_name='implantation',
+            name='region',
+            field=models.ForeignKey(to='reference.Region', null=True),
+        ),
     ]

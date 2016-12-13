@@ -20,14 +20,25 @@ class Migration(migrations.Migration):
             model_name='participant',
             name='region',
         ),
+        migrations.AddField(
+            model_name='participant',
+            name='implantation',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,
+                                    blank=True, to='reference.Implantation',
+                                    null=True),
+        ),
         migrations.AlterField(
             model_name='participant',
             name='fonction',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, to='gestion.Fonction', null=True),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,
+                                    blank=True, to='gestion.Fonction',
+                                    null=True),
         ),
         migrations.AlterField(
             model_name='participant',
             name='institution',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, to='gestion.Institution', null=True),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,
+                                    blank=True, to='gestion.Institution',
+                                    null=True),
         ),
     ]
