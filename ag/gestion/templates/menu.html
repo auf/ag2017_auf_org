@@ -1,14 +1,12 @@
 {% load permissions %}
 <ul id="navigation-menu">
-    <li class="menu-item"><a href="{% url "tableau_de_bord" %}">Tableau de bord</a></li>
-    <li class="menu-item"><a href="{% url "participants" %}">Participants</a></li>
-    {% if user.is_staff %}
-        <li class="menu-item"><a href="{% url "admin:gestion_inscriptionweb_changelist" %}">Inscriptions web</a></li>
-    {% endif %}
-    <li class="menu-item"><a href="{% url "regles" %}">Règles de gestion</a></li>
     {% if user.is_staff %}
     <li class="menu-item"><a href="{% url "admin:index" %}">Administration</a></li>
+    <li class="menu-item"><a href="{% url "admin:gestion_inscriptionweb_changelist" %}">Inscriptions web</a></li>
     {% endif %}
+    <li class="menu-item"><a href="{% url "tableau_de_bord" %}">Tableau de bord</a></li>
+    <li class="menu-item"><a href="{% url "participants" %}">Participants</a></li>
+    <li class="menu-item"><a href="{% url "regles" %}">Règles de gestion</a></li>
     <li class="menu-item"><a href="{% url "liste_vols_groupes" %}">Vol groupés</a></li>
     <li class="menu-item"><a href="{% url "etats_listes" %}">États et listes</a></li>
 </ul>

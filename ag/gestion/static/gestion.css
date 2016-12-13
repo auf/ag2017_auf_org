@@ -33,7 +33,37 @@
 .field-inscription_validee .vCheckboxLabel {
     font-weight: bolder !important;
 }
+#content #pec {
+    z-index: 1;
+    padding: 5px;
+    float: right;
+    position: fixed;
+    top: 220px;
+    right: 3%;
+    width: 182px;
+    border: 3px solid #ccc;
+}
 
+#content .mandateTsud {color:green;}
+#content .mandateTsud span:after { 
+    content: "PEC transport + PEC hotel";
+}
+#content .mandateAsud {color:blue;}
+#content .mandateAsud span:after { 
+    content: "PEC hotel";
+}
+#content .mandateTnord {color:red;}
+#content .mandateTnord span:after { 
+    content: "aucune";
+}
+#content .mandateAnord {color:red;}
+#content .mandateAnord span:after { 
+    content: "aucune";
+}
+#content .accompagnateur {color:red;}
+#content .accompagnateur span:after { 
+    content: "aucune";
+}
 
 /* gestion */
 
