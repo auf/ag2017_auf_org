@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from auf.django.permissions import user_has_perm, queryset_with_perm
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.options import TabularInline
@@ -113,6 +114,19 @@ class InscriptionAdmin(ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def has_module_permission(self, request):
+        return request.user.is_superuser or\
+               user_has_perm(request.user, consts.PERM_LECTURE)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        elif obj:
+            return user_has_perm(request.user,
+                                 consts.PERM_TRANSFERT_INSCRIPTION, obj)
+        else:
+            return user_has_perm(request.user, consts.PERM_LECTURE)
+
     def changelist_view(self, request, extra_context=None):
         ref = request.META.get('HTTP_REFERER', '')
         path = request.META.get('PATH_INFO', '')
@@ -126,8 +140,10 @@ class InscriptionAdmin(ModelAdmin):
         )
 
     def get_queryset(self, request):
-        return Inscription.objects.filter(participant__id__isnull=True)\
+        qs = Inscription.objects.filter(participant__id__isnull=True)\
             .select_related('invitation__etablissement__region')
+        return queryset_with_perm(qs, request.user,
+                                  consts.PERM_TRANSFERT_INSCRIPTION)
 
     # def get_paiement_list_display(self, obj):
     #

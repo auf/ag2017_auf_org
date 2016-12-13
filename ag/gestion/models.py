@@ -1295,7 +1295,7 @@ class AGRole(Model, Role):
         return s
 
     def check_participant_region(self, obj):
-        if isinstance(obj, Participant):
+        if hasattr(obj, 'get_region'):
             return obj.get_region() == self.region
         else:
             return False
@@ -1321,7 +1321,7 @@ class AGRole(Model, Role):
                     return False
         return False
 
-    def region_q(self):
+    def participant_region_q(self):
         return Q(
             (Q(fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
              & Q(etablissement__region=self.region))
@@ -1342,7 +1342,9 @@ class AGRole(Model, Role):
                 return True
             else:
                 if model == Participant:
-                    return self.region_q()
+                    return self.participant_region_q()
+                elif model == Inscription:
+                    return Q(invitation__etablissement__region=self.region)
                 else:
                     return False
         else:
