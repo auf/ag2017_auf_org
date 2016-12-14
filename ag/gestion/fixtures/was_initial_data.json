@@ -24,6 +24,14 @@
     }
   },
   {
+    "pk": 4,
+    "model": "gestion.categoriefonction",
+    "fields": {
+      "code": "acc",
+      "libelle": "Accompagnateur"
+    }
+  },
+  {
     "pk": 1,
     "model": "gestion.typeinstitution",
     "fields": {
@@ -61,6 +69,16 @@
       "libelle": "Personnel AUF",
       "ordre": 3,
       "categorie": 3
+    }
+  },
+  {
+    "pk": 4,
+    "model": "gestion.fonction",
+    "fields": {
+      "code": "accomp_uni",
+      "libelle": "Accompagnateur universitaire",
+      "ordre": 4,
+      "categorie": 4
     }
   },
   {
