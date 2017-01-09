@@ -86,8 +86,8 @@
     "model": "gestion.pointdesuivi",
     "fields": {
       "ordre": 1,
-      "code": "compl_paris",
-      "libelle": "Le dossier doit \u00eatre compl\u00e9t\u00e9 par le bureau des missions \u00e0 Paris pour le suivi du transport"
+      "code": "trans_incomplet",
+      "libelle": "Le dossier doit \u00eatre compl\u00e9t\u00e9 pour le suivi du transport"
     }
   },
   {
@@ -96,7 +96,7 @@
     "fields": {
       "ordre": 2,
       "code": "trans_complet",
-      "libelle": "Le bureau des missions a compl\u00e9t\u00e9 l\u2019organisation du transport du participant"
+      "libelle": "Le bureau r\u00e9gional a compl\u00e9t\u00e9 l\u2019organisation du transport du participant"
     }
   },
   {
@@ -122,8 +122,8 @@
     "model": "gestion.pointdesuivi",
     "fields": {
       "ordre": 5,
-      "code": "inst_delinquant",
-      "libelle": "L\u2019institution dont le participant est issu est en d\u00e9faut de cotisations depuis trois ann\u00e9es cons\u00e9cutives ou plus."
+      "code": "delinquant_paye",
+      "libelle": "L\u2019institution dont le participant est issu a pay\u00e9 sa cotisation"
     }
   },
   {
@@ -139,20 +139,20 @@
     "pk": 1,
     "model": "gestion.hotel",
     "fields": {
-      "code": "gtulip",
-      "libelle": "Golden Tulip Belas Artes (4*)",
-      "adresse": "Rua Frei Caneca, 1199\r\nCEP 01307-003, Sao Paulo",
-      "telephone": "",
-      "courriel": ""
+      "code": "mogador",
+      "libelle": "Mogador Palace AGDAL",
+      "adresse": "Zone Touristique Agdal, 40000, Marrakech, Maroc",
+      "telephone": "+ 212 530 530 530",
+      "courriel": "hagdalresa@mogadorhotels.com"
     }
   },
   {
     "pk": 2,
     "model": "gestion.hotel",
     "fields": {
-      "code": "holinn",
-      "libelle": "Holiday Inn",
-      "adresse": "Rua Professor Milton Rodrigues, 100 - Parque Anhembi\r\nCEP 02009-040\r\n",
+      "code": "autre",
+      "libelle": "Autre",
+      "adresse": "",
       "telephone": "",
       "courriel": ""
     }
@@ -161,88 +161,22 @@
     "pk": 1,
     "model": "gestion.chambre",
     "fields": {
-      "prix": 338.0,
-      "hotel": 2,
+      "prix": 65.0,
+      "hotel": 1,
       "type_chambre": "S",
       "places": 1,
-      "nb_total": 63
+      "nb_total": 200
     }
   },
   {
     "pk": 2,
     "model": "gestion.chambre",
     "fields": {
-      "prix": 411.0,
-      "hotel": 2,
-      "type_chambre": "D",
-      "places": 2,
-      "nb_total": 100
-    }
-  },
-  {
-    "pk": 3,
-    "model": "gestion.chambre",
-    "fields": {
-      "prix": 359.0,
-      "hotel": 1,
-      "type_chambre": "1",
-      "places": 1,
-      "nb_total": 128
-    }
-  },
-  {
-    "pk": 4,
-    "model": "gestion.chambre",
-    "fields": {
-      "prix": 432.0,
-      "hotel": 1,
-      "type_chambre": "2",
-      "places": 2,
-      "nb_total": 60
-    }
-  },
-  {
-    "pk": 5,
-    "model": "gestion.chambre",
-    "fields": {
-      "prix": 380.0,
-      "hotel": 1,
-      "type_chambre": "L",
-      "places": 1,
-      "nb_total": 65
-    }
-  },
-  {
-    "pk": 6,
-    "model": "gestion.chambre",
-    "fields": {
-      "prix": 401.0,
-      "hotel": 1,
-      "type_chambre": "A",
-      "places": 1,
-      "nb_total": 34
-    }
-  },
-  {
-    "pk": 7,
-    "model": "gestion.chambre",
-    "fields": {
-      "prix": 338.0,
-      "hotel": 1,
-      "type_chambre": "S",
-      "places": 1,
-      "nb_total": 63
-    }
-  },
-  {
-    "pk": 8,
-    "model": "gestion.chambre",
-    "fields": {
-      "prix": 411.0,
+      "prix": 70.0,
       "hotel": 1,
       "type_chambre": "D",
       "places": 2,
-      "nb_total": 100
+      "nb_total": 200
     }
   },
   {
@@ -412,7 +346,7 @@
     "model": "inscription.forfait",
     "fields": {
       "code": "gala_invite",
-      "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 11 mai 2013 (invit\u00E9)",
+      "libelle": "Soir\u00e9e de gala le 11 mai (invit\u00E9)",
       "montant": 55,
       "categorie": "invi"
     }
@@ -470,7 +404,7 @@
     "model": "gestion.activite",
     "fields": {
       "code": "gala",
-      "libelle": "Soir\u00e9e de gala de cl\u00f4ture le 11 mai 2013",
+      "libelle": "Soir\u00e9e de gala le 11 mai",
       "forfait_invite_id": 4
     }
   },

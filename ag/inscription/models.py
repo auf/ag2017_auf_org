@@ -85,8 +85,8 @@ class RenseignementsPersonnels(models.Model):
     telephone = models.CharField('téléphone', max_length=50, blank=True)
     telecopieur = models.CharField('télécopieur', max_length=50, blank=True)
 
-    DATE_HOTEL_MIN = datetime.date(2013, 5, 6)
-    DATE_HOTEL_MAX = datetime.date(2013, 5, 8)
+    DATE_HOTEL_MIN = datetime.date(2017, 5, 9)
+    DATE_HOTEL_MAX = datetime.date(2017, 5, 12)
 
     date_arrivee_hotel = models.DateField(
         u"Date d'arrivée", null=True, blank=True
@@ -207,8 +207,8 @@ paypal_signal = Signal()
 class Inscription(RenseignementsPersonnels):
 
     DEPART_DE_CHOICES = (
-        ('sao-paulo', u'São Paulo'),
-        ('rio', u'Rio de Janeiro'),
+        ('marrakech', u'Marrakech'),
+        ('casa', u'Casablanca'),
     )
 
     invitation = models.OneToOneField(Invitation)
@@ -227,9 +227,9 @@ class Inscription(RenseignementsPersonnels):
     conditions_acceptees = models.BooleanField(
         mark_safe(
             u'J\'ai lu et j\'accepte les '
-            u'<a href="/inscription/conditions-generales/" '
+            u'<a href="https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf" '
             u'onclick="javascript:window.open'
-            u'(\'/inscription/conditions-generales/\');return false;" '
+            u'(\'https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf\');return false;" '
             u'target="_blank">conditions générales d\'inscription</a>'
         ),
         default=False
@@ -262,10 +262,10 @@ class Inscription(RenseignementsPersonnels):
     programmation_soiree_10_mai_invite = models.BooleanField(
         u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_gala = models.BooleanField(
-        u"Soirée de gala de clôture de l'Assemblée générale le 11 mai.",
+        u"Soirée de gala de l'Assemblée générale le 11 mai.",
         default=False)
     programmation_gala_invite = models.BooleanField(
-        u"Soirée de gala de clôture de l'Assemblée générale le 11 mai.",
+        u"Soirée de gala de l'Assemblée générale le 11 mai.",
         default=False)
     programmation_soiree_12_mai = models.BooleanField(
         u"Cocktail dînatoire de clôture le 12 mai.", default=False)
@@ -284,7 +284,7 @@ class Inscription(RenseignementsPersonnels):
     )
 
     arrivee_date = models.DateField(
-        "date d'arrivée à São Paulo", blank=True, null=True,
+        "date d'arrivée à Marrakech", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
     )
     arrivee_heure = models.TimeField(
@@ -295,7 +295,7 @@ class Inscription(RenseignementsPersonnels):
         'départ de', max_length=10, choices=DEPART_DE_CHOICES, blank=True
     )
     depart_date = models.DateField(
-        "date de départ de São Paulo", blank=True, null=True,
+        "date de départ de Marrakech", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
     )
     depart_heure = models.TimeField(
