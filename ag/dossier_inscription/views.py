@@ -102,6 +102,7 @@ def dossier(request):
 
     # noinspection PyProtectedMember
     context = {
+        'dossier': inscription.dossier,
         'inscription': inscription,
         'participant': participant,
         'adresse': adresse,
