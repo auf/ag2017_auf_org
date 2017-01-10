@@ -14,11 +14,14 @@ class InscriptionFermee(models_inscription.Inscription):
         proxy = True
 
     def load_participant(self):
+        print('load-participant')
         try:
             self._participant = models_gestion.Participant.objects \
-                .sql_extra_fields('total_facture', 'total_deja_paye_sql') \
+                .sql_extra_fields('total_facture', 'total_deja_paye_sql',
+                                  'frais_inscription_facture',
+                                  'forfaits_invites',
+                                  'frais_hebergement_facture') \
                 .get(inscription__id=self.id)
-            print('total_facture=' + str(self._participant.total_facture))
         except models_gestion.Participant.DoesNotExist:
             self._participant = None
 

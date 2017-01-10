@@ -492,7 +492,8 @@ def facture_pdf(request, id_participant):
         participant = Participant.objects \
             .sql_extra_fields(
                 'frais_inscription_facture', 'frais_transport_facture',
-                'frais_hebergement_facture', 'total_facture', 'solde'
+                'frais_hebergement_facture', 'total_facture', 'solde',
+                'forfaits_invites', 'total_deja_paye_sql',
             ).get(id=id_participant)
     except Participant.DoesNotExist:
         raise Http404
