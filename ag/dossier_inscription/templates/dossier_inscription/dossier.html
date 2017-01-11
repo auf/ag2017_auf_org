@@ -26,12 +26,11 @@
       T:{{ inscription.telephone }}<br/>
       F:{{ inscription.telecopieur }}<br/>
     </p>
-      {% if inscription.accompagnateur %}
+      {% if dossier.invites %}
         <h3>Accompagnateur personnel</h3>
-        <p>
-        {{ inscription.get_accompagnateur_genre_display }}
-        {{ inscription.accompagnateur_nom }},
-        {{ inscription.accompagnateur_prenom }}</p>
+        {% for invite in dossier.invites %}
+        <p>{{ invite.genre }} {{ invite.nom }}, {{ invite.prenom }}</p>
+        {% endfor %}
       {% endif %}
 
       <h3>Type d'inscription</h3>
@@ -297,7 +296,7 @@
 -->
     
         <div id="bloc-activites" class="bloc-activites">
-        <h2>Activités {% if inscription.accompagnateur %}et forfaits pour vous et votre invité{% endif %}</h2>
+        <h2>Activités {% if dossier.invites %}et forfaits pour vous et votre invité{% endif %}</h2>
         <div id="listes">
                 <div id="liste-activites">
                 <h3>Vos activités réservées</h3>
@@ -308,7 +307,7 @@
                         <li {% if inscription.programmation_soiree_12_mai %}class="oui"{% endif %}>{{ activites.cocktail_12_mai }}</li>
                 </ul>
                 </div>
-                {% if inscription.accompagnateur %}
+                {% if dossier.invites %}
                         <div id="liste-forfaits">
                 <h3>Forfaits sélectionnés</h3>
                 <ul>
@@ -355,7 +354,7 @@
 {% else %}
                 <p>L’AUF se charge de réserver votre chambre à l'hôtel Ryad Mogador 
                 Agdal & Palais des Congrès Mogador, lieu de la tenue de l'Assemblée générale
-                {% if inscription.accompagnateur %}, pour vous et votre invité{% endif %}.
+                {% if dossier.invites %}, pour vous et votre invité{% endif %}.
         {% if participant %}
                 <div id="passeport" class="message">
         {% if inscription.a_televerse_passeport %}
@@ -363,7 +362,7 @@
         {% else %}
                 <p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de 
                 téléverser une <strong>capture de votre passeport</strong>.
-                {% if inscription.accompagnateur %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
+                {% if dossier.invites %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
                 <form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
                 {% csrf_token %}
                 {{ passeport_form }}

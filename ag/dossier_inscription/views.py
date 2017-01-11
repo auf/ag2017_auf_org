@@ -102,6 +102,7 @@ def dossier(request):
 
     # noinspection PyProtectedMember
     context = {
+        'dossier': inscription.dossier,
         'inscription': inscription,
         'participant': participant,
         'adresse': adresse,
@@ -275,4 +276,4 @@ INFOS_VIREMENT = {
 def facture_dossier(request):
     inscription_id = request.session.get('inscription_id', None)
     inscription = get_object_or_404(InscriptionFermee, id=inscription_id)
-    return pdf.facture_response(inscription)
+    return pdf.facture_response(inscription.get_participant() or inscription)

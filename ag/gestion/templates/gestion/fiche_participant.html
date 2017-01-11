@@ -101,10 +101,10 @@
         <a href="{% url "invites" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
-				<table cellspacing="0">
+        <table cellspacing="0">
         <tr>
             <td class="tag">{% include "gestion/nombre_invites.html" %}</td>
-						<td>
+            <td>
         {% if participant.nombre_invites %}
             <ul>
                 {% for invite in participant.invite_set.all %}
@@ -114,7 +114,7 @@
         {% else %}
             <ul><li class="vide">------</li></ul>
         {% endif %}
- 				</td>
+        </td>
         </tr>
         </table>
     </div>
@@ -201,10 +201,10 @@
         <tr>
             <td class="tag">Itinéraire</td>
                 {% if participant.transport_organise_par_auf %}
- 						<td style="font-weight: bolder;">
+            <td style="font-weight: bolder;">
                     Organisé par l'AUF
                 {% else %}
- 						<td>
+            <td>
                     Organisé par le participant lui-même
                 {% endif %}
             </td>
@@ -238,7 +238,7 @@
         </tbody></table>
     </div>
 
-		<div class="module">
+    <div class="module">
         <h2 class="vert">Notes de frais</h2>
         <div class="actions">
             {% ifhasperm perms_dict.PERM_MODIF_NOTES_DE_FRAIS participant %}
@@ -250,13 +250,13 @@
             <tr>
                 <td class="tag">{{ frais.type_frais.libelle }}</td>
                 <td><div class="frais-montant">{{ frais.quantite }}x{{ frais.montant|floatformat:2 }}
-								&nbsp;&euro;</div></td>
+                &nbsp;&euro;</div></td>
             </tr>
             {% if forloop.last %}
                 <tr>
                     <td class="tag">Total</td>
                     <td><div class="frais-montant">{{ participant.frais_autres|floatformat:2 }}
-										&nbsp;&euro;</div></td>
+                    &nbsp;&euro;</div></td>
                 </tr>
                 <tr>
                     <td class="tag">Modalité de versement</td>
@@ -284,7 +284,7 @@
             <td class="tag">Prise en charge</td>
             <td>{% spaceless %}
                 {% for prise_en_charge in prises_en_charge %}
-                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}à
+                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}
                   {% empty %}
                   Aucune
                 {% endfor %}{% endspaceless %}
@@ -366,7 +366,7 @@
                     <td class='align-left'>Forfaits invités</td>
                     <td>{{ participant.forfaits_invites|floatformat:2 }}&nbsp;&euro;</td>
                     <th></th>
-                    <td></td>
+                    <td>{{ participant.forfaits_invites|floatformat:2 }}&nbsp;&euro;</td>
                 </tr>
                 {% for frais in participant.get_all_frais %}
                     <tr>
@@ -437,8 +437,8 @@
                         -&nbsp;{{ participant.etablissement.get_statut_display }}
                         {% if participant.get_etablissement_sud %}
                         -&nbsp;Sud
-			{% else %}
-			 -&nbsp;Nord
+      {% else %}
+       -&nbsp;Nord
                         {% endif %}
                     {% endif %}
                 </td>
