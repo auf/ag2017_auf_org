@@ -78,6 +78,7 @@
       "code": "accomp_uni",
       "libelle": "Accompagnateur universitaire",
       "ordre": 4,
+      "type_institution": 1,
       "categorie": 4
     }
   },
