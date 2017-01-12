@@ -27,7 +27,7 @@ from ag.gestion.models import (
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
-    InvitationEnveloppe, PaypalInvoice, PaypalResponse, get_forfaits
+    InvitationEnveloppe, PaypalInvoice, PaypalResponse, get_forfaits, Forfait
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
 from ag.gestion import consts
@@ -418,6 +418,8 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
         self.assertContains(response, u"supplément occupation double")
+        self.assertContains(response, Forfait.objects.get(
+            code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE).affiche())
 
     def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',
