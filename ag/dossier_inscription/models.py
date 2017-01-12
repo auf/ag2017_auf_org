@@ -14,7 +14,6 @@ class InscriptionFermee(models_inscription.Inscription):
         proxy = True
 
     def load_participant(self):
-        print('load-participant')
         try:
             self._participant = models_gestion.Participant.objects \
                 .sql_extra_fields('total_facture', 'total_deja_paye_sql',

@@ -164,7 +164,6 @@ class GestionTestCase(TestCase):
     def test_nouveau_participant(self):
         nb_participant_avant = Participant.objects.count()
         data = self.nouveau_participant_data()
-        print(data)
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertEquals(response.status_code, 302)
         self.assertEqual(Participant.objects.count(), nb_participant_avant + 1)
@@ -574,7 +573,6 @@ class GestionTestCase(TestCase):
             reverse('facturation', args=[participant.id]),
             data=data
         )
-        print(response)
         self.assertRedirects(response, self.url_fiche_participant())
         participant = Participant.objects.get(pk=participant.id)
         response = self.client.get(
@@ -981,8 +979,6 @@ class GestionTestCase(TestCase):
 
         id_participant = self.participant.id
         participant = get_participant()
-        print(participant.total_facture)
-        print(participant.frais_inscription)
         self.assertTrue(participant.problematique)
         self.assertTrue(participant.solde_a_payer)
         self.assertFalse(participant.paiement_en_trop)
