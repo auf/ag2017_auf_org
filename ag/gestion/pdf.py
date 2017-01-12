@@ -405,7 +405,7 @@ def generer_itineraires(output_file, participants):
         contenu.append(Table(
             [
                 [u"Passager :", nom_participant],
-                [u"Dossier :", numero_dossier],
+                [u"Dossier :", participant.inscription.numero_dossier],
                 [u"Institution :", participant.nom_institution()],
                 [u"Téléphone :", participant.telephone],
                 [u"Télécopieur :", participant.telecopieur],
