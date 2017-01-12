@@ -4,6 +4,7 @@
 	background-color: aliceblue!important;
 	padding: 20px;
 	margin-bottom: 20px;
+	max-width: 75%;
 }
 
 .model-inscriptionweb #content-main fieldset h2 {
@@ -33,24 +34,26 @@
 .field-inscription_validee .vCheckboxLabel {
     font-weight: bolder !important;
 }
+
 #content #pec {
     z-index: 1;
     padding: 5px;
     float: right;
     position: fixed;
-    top: 220px;
+    top: 170px;
     right: 3%;
-    width: 182px;
+    width: 20%;
     border: 3px solid #ccc;
+    margin: 15px;
 }
 
 #content .mandateTsud {color:green;}
 #content .mandateTsud span:after { 
-    content: "PEC transport + PEC hotel";
+    content: "Transport + Hotel";
 }
 #content .mandateAsud {color:blue;}
 #content .mandateAsud span:after { 
-    content: "PEC hotel";
+    content: "Hotel";
 }
 #content .mandateTnord {color:red;}
 #content .mandateTnord span:after { 

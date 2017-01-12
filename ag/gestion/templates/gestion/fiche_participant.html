@@ -428,7 +428,6 @@
                         Désactivé
                     </td></tr>
                 {% endif %}
-
                 <tr><td>{{ participant.poste }}</td></tr>
                 <tr><td>{{ participant.fonction }} {% if  adminform.form.instance.attest_pha = P %} (PHA) {% elif adminform.form.instance.attest_pha = R %} (DELEGUE) {% else %}{% endif %}</td></tr>
                 {% if participant.fonction.type_institution %}
@@ -437,10 +436,10 @@
                         -&nbsp;{{ participant.etablissement.get_statut_display }}
                         {% if participant.get_etablissement_sud %}
                         -&nbsp;Sud
-      {% else %}
-       -&nbsp;Nord
-                        {% endif %}
+                    {% else %}
+                       -&nbsp;Nord
                     {% endif %}
+                {% endif %}
                 </td>
                 </tr>
                 {% endif %}

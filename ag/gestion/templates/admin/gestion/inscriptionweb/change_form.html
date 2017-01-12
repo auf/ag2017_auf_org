@@ -66,18 +66,21 @@ django.jQuery(function() {
 </script>
 {% endblock %}
 {% block content_title %}
-<h3>{{ adminform.form.instance.nom }}, {{ adminform.form.instance.prenom }}</h3>
-  <p>Représentant universitaire participant : <strong>
-    {% if adminform.form.instance.est_pour_mandate %}
-      (mandaté) {% if  adminform.form.instance.attest_pha = P %} PHA {% elif adminform.form.instance.attest_pha = R %} DELEGUE {% else %}{% endif %}
-    {% else %}
-      (accompagnateur)
-    {% endif %} <br/>
-    {{ adminform.form.instance.get_etablissement.nom }} - {{ adminform.form.instance.get_etablissement.statut }} 
-    - {{ adminform.form.instance.get_etablissement.pays.get_sud_display }} </strong> 
-    CGRM{{ adminform.form.instance.get_etablissement.id }} - {{ adminform.form.instance.get_etablissement.pays }} - {{ adminform.form.instance.get_etablissement.region }}
+  <div id="pec">
+  <h3>{{ adminform.form.instance.nom }}, {{ adminform.form.instance.prenom }}</h3>
+  <p>CGRM {{ adminform.form.instance.get_etablissement.id }} - <strong>{{ adminform.form.instance.get_etablissement.nom }} </strong> <br/>
+    {{ adminform.form.instance.get_etablissement.pays }}<br/> {{ adminform.form.instance.get_etablissement.region }}
   </p>
-  <p id="pec">Prises en charge possibles : <strong><span class="{% if adminform.form.instance.est_pour_mandate %}mandate{{ adminform.form.instance.get_etablissement.statut }}{{ adminform.form.instance.get_etablissement.pays.get_sud_display }}{% else %}accompagnateur{% endif %}"><span></strong></p>
-
-
+<strong>
+  {% if adminform.form.instance.est_pour_mandate %}
+      Représentant universitaire{% if  adminform.form.instance.atteste_pha = "P" %} (PHA) {% elif adminform.form.instance.atteste_pha = "R" %} (DELEGUE) {% else %}{% endif %}
+    {% else %}
+      Accompagnateur universitaire
+    {% endif %} </strong> <br/>
+<strong>
+    {% if  adminform.form.instance.get_etablissement.statut = "T" %} TITULAIRE {% elif adminform.form.instance.get_etablissement.statut = "A" %} Associé {% else %}{% endif %}
+    - {{ adminform.form.instance.get_etablissement.pays.get_sud_display }}</strong> <br/>
+    Prises en charge disponibles :<strong><br/>
+  <span class="{% if adminform.form.instance.est_pour_mandate %}mandate{{ adminform.form.instance.get_etablissement.statut }}{{ adminform.form.instance.get_etablissement.pays.get_sud_display }}{% else %}accompagnateur{% endif %}"><span></strong>
+  </div>
 {% endblock %}
