@@ -94,6 +94,9 @@ def create_fixtures(test_case):
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
+    ModeleCourriel.objects.create(
+        sujet=u'reçu', code='recu_ok', corps=u"inscriptionreçue", html=False)
+
     forfaits = forfaits_fixture()
 
     codes_forfaits_activites = {

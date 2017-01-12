@@ -443,6 +443,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(('participant',
                                                'transport-hebergement',
                                                'programmation', ))
+        outbox_len = len(mail.outbox)
         response = self.client.post(url_etape(inscription, 'apercu'),
                                     data={u'confirmer': u'on'})
         self.assertRedirects(
@@ -451,6 +452,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription = Inscription.objects.get(id=inscription.id)
         self.assertTrue(inscription.fermee)
         self.assertTrue(inscription.prise_en_charge_transport)
+        self.assertEqual(outbox_len + 3, len(mail.outbox))
 
     def test_confirmation_prise_en_charge_interdite(self):
         inscription = self.create_inscription(
@@ -629,7 +631,7 @@ def test_inscription_terminee():
 
 
 class PreremplirTest(unittest.TestCase):
-    
+
     def setUp(self):
         p = Pays(nom=u"pppp")
         self.etablissement = Etablissement(
