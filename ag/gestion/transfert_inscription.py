@@ -64,6 +64,10 @@ def transfere(inscription, prise_en_charge_transport,
     if inscription.programmation_soiree_12_mai:
         activite = Activite.objects.get(code=consts.CODE_COCKTAIL_12_MAI)
         participant.inscrire_a_activite(activite, False)
+    if inscription.forfait_invite_dejeuners:
+        participant.ajouter_forfait(consts.CODE_DEJEUNERS)
+    if inscription.forfait_invite_transfert:
+        participant.ajouter_forfait(consts.CODE_TRANSFERT_AEROPORT)
     participant.set_infos_depart_arrivee(inscription)
     participant.prise_en_charge_transport = prise_en_charge_transport
     if prise_en_charge_transport:

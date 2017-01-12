@@ -1257,6 +1257,8 @@ class TransfertInscription(TestCase):
         i.programmation_gala_invite = False
         i.prise_en_charge_hebergement = False
         i.prise_en_charge_transport = False
+        i.forfait_invite_transfert = True
+        i.forfait_invite_dejeuners = True
         i.arrivee_date = datetime.date(2013, 5, 1)
         i.arrivee_heure = datetime.time(10, 00)
         i.arrivee_vol = u'CA111'
@@ -1304,7 +1306,8 @@ class TransfertInscription(TestCase):
         self.assertEqual(infos_depart.heure_depart, i.depart_heure)
         self.assertEqual(p.fonction.code, consts.FONCTION_REPR_UNIVERSITAIRE)
         self.assertEqual(p.etablissement, i.get_etablissement())
-
+        self.assertTrue(p.a_forfait(consts.CODE_DEJEUNERS))
+        self.assertTrue(p.a_forfait(consts.CODE_TRANSFERT_AEROPORT))
         self.assertEquals(len(Invite.objects.filter(participant=p)), 1)
         self.assertFalse(p.transport_organise_par_auf)
         self.assertFalse(p.reservation_hotel_par_auf)
