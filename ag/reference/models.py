@@ -28,6 +28,8 @@ class Region(models.Model):
     code = models.CharField(max_length=255, unique=True)
     nom = models.CharField(max_length=255)
     adresse = models.TextField(null=True)
+    implantation_bureau = models.ForeignKey('Implantation', null=True,
+                                            related_name='gere_region')
 
     def __unicode__(self):
         return self.nom
