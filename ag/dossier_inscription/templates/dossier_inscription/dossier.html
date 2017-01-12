@@ -73,7 +73,9 @@
   <ul>
         <li class="documentpdf"><a href="https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf">Conditions générales</a></li>
     <li class="documentpdf"><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
-<!-- à faire --> {#    <li><a href="">Itinéraire de voyage</a></li>#}
+    {% if dossier.itineraire_disponible %}
+    <li class="documentpdf"><a href="{% url "itineraire_pdf" dossier.participant.id %}">Itinéraire de voyage</a></li>
+    {% endif %}
 <!-- à faire --> {#    <li><a href="">Coupons navette</a></li>#}
   </ul>
 </div>
@@ -436,8 +438,11 @@
   
                 <p>L’AUF se charge de planifier votre vol.</p>
                 {% ifequal solde 0 %}
+                  {% if dossier.itineraire_disponible %}
+                  {% else %}
                 <p>Votre itinéraire est en cours de préparation. Votre plan de vol 
                 apparaîtra ici lorsqu’il sera complété.</p>
+                  {% endif %}
                 <!-- afficher ici le plan de vol organise par l'AUF -->	
                 {% else%}
                 <p>L’organisation de votre itinéraire est en attente de l’acquittement 
