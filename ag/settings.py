@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'auf.django.permissions',
     'auf.django.mailing',
+    'auf.django.saml',
     'ag.reference',
     'ag.core',
     'ag.inscription',
@@ -94,6 +95,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'auf.django.saml.middleware.SPMiddleware',
     'auf.django.piwik.middleware.TrackMiddleware',
     'auf.django.permissions.PermissionDeniedMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -125,6 +127,7 @@ MAILING_TEMPORISATION = 2
 AUTH_PROFILE_MODULE = 'core.UserProfile'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    'auf.django.saml.backends.SPBackend',
     'auf.django.permissions.AuthenticationBackend',
     )
 LOGIN_URL = '/connexion/'

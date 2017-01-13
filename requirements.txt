@@ -15,6 +15,7 @@ django-sendfile==0.3.10
 
 -e git://github.com/auf/auf_django_permissions.git#egg=auf.django.permissions
 -e git://github.com/auf/auf_django_piwik.git#egg=auf.django.piwik
+-e git://github.com/auf/auf_django_saml.git#egg=auf.django.saml
 
 python-memcached==1.48
 django-tinymce==2.3.0
