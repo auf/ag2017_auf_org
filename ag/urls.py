@@ -34,6 +34,11 @@ urlpatterns += patterns(
     (r'^actualites/(?P<slug>[-\w]+)/$', 'actualite_detail'),
 )
 
+urlpatterns += patterns(
+    '',
+    (r'^', include('auf.django.saml.urls')),
+)
+
 if settings.SAML_AUTH:
     urlpatterns += patterns(
         '',
