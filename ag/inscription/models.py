@@ -514,7 +514,8 @@ class Inscription(RenseignementsPersonnels):
     def get_paiements(self):
         paiements = []
         for reponse in self.get_unique_paypal_responses():
-            paiement = Paiement(date=reponse.received_at.date(),
+            paiement = Paiement(date=reponse.received_at.date()
+                                if reponse.received_at else None,
                                 moyen='CB',
                                 montant=reponse.montant,
                                 ref_paiement=reponse.txn_id,
