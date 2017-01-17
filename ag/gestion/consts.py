@@ -180,6 +180,8 @@ PERM_MODIF_SUIVI = 'suivi'
 PERM_LECTURE = 'lecture'
 PERM_MODIF_NOTES_DE_FRAIS = 'notes_de_frais'
 PERM_SUPPRESSION = 'suppression'
+PERM_TRANSFERT_INSCRIPTION = 'transfert_inscription'
+
 
 PERMS_DICT = {
     'PERM_MODIF_RENSEIGNEMENTS_PERSONNELS':
@@ -191,6 +193,7 @@ PERMS_DICT = {
     'PERM_MODIF_SUIVI': PERM_MODIF_SUIVI,
     'PERM_LECTURE': PERM_LECTURE,
     'PERM_SUPPRESSION': PERM_SUPPRESSION,
+    'PERM_TRANSFERT_INSCRIPTION': PERM_TRANSFERT_INSCRIPTION,
     }
 
 ROLE_COMPTABLE = 'C'
@@ -199,6 +202,8 @@ ROLE_LECTEUR = 'L'
 ROLE_ADMIN = 'A'
 ROLE_SEJOUR = 'S'
 
+# Permis si la permission est sans région ou si la région de la permission
+# est la même que celle du participant
 ALLOWED = (
     (PERM_MODIF_FACTURATION, ROLE_COMPTABLE),
     (PERM_MODIF_RENSEIGNEMENTS_PERSONNELS, ROLE_SAI),
@@ -212,6 +217,15 @@ ALLOWED = (
     (PERM_MODIF_FICHIERS, ROLE_SAI),
     (PERM_MODIF_FICHIERS, ROLE_SEJOUR),
     (PERM_MODIF_FICHIERS, ROLE_COMPTABLE),
+    (PERM_TRANSFERT_INSCRIPTION, ROLE_SAI),
+)
+
+# Interdit si permission ne contient pas de région,
+# permis si la région de la perm est la même que celle
+# du participant
+ALLOWED_MEME_REGION = (
+    (PERM_MODIF_NOTES_DE_FRAIS, ROLE_LECTEUR),
+    (PERM_MODIF_FICHIERS, ROLE_LECTEUR),
 )
 
 ARRIVEES = u'A'
@@ -264,3 +278,17 @@ CODES_FORFAITS = (
     CODE_TRANSFERT_AEROPORT,
     CODE_DEJEUNERS,
 )
+
+TYPE_INST_AUCUNE = 'aucune'
+TYPE_INST_ETABLISSEMENT = 'etablissement'
+
+FONCTION_REPR_UNIVERSITAIRE = 'repr_uni'
+FONCTION_ACCOMP_UNIVERSITAIRE = 'accomp_uni'
+FONCTION_INSTANCE_SEULEMENT = 'instance_seul'
+FONCTION_PERSONNEL_AUF = 'personnel_auf'
+
+CAT_FONCTION_OBSERVATEUR = 'observ'
+
+
+CA = 'A'
+CS = 'S'

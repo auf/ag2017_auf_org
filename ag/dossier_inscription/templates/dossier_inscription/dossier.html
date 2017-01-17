@@ -26,12 +26,11 @@
       T:{{ inscription.telephone }}<br/>
       F:{{ inscription.telecopieur }}<br/>
     </p>
-      {% if inscription.accompagnateur %}
+      {% if dossier.invites %}
         <h3>Accompagnateur personnel</h3>
-        <p>
-        {{ inscription.get_accompagnateur_genre_display }}
-        {{ inscription.accompagnateur_nom }},
-        {{ inscription.accompagnateur_prenom }}</p>
+        {% for invite in dossier.invites %}
+        <p>{{ invite.genre }} {{ invite.nom }}, {{ invite.prenom }}</p>
+        {% endfor %}
       {% endif %}
 
       <h3>Type d'inscription</h3>
@@ -72,9 +71,11 @@
   </ul>
   <h3>Documents</h3>
   <ul>
-        <li class="documentpdf"><a href="">Conditions générales</a></li>
+        <li class="documentpdf"><a href="https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf">Conditions générales</a></li>
     <li class="documentpdf"><a href="{% url "facture_dossier" %}">{{ titre_facture }}</a></li>
-<!-- à faire --> {#    <li><a href="">Itinéraire de voyage</a></li>#}
+    {% if dossier.itineraire_disponible %}
+    <li class="documentpdf"><a href="{% url "itineraire_pdf" dossier.participant.id %}">Itinéraire de voyage</a></li>
+    {% endif %}
 <!-- à faire --> {#    <li><a href="">Coupons navette</a></li>#}
   </ul>
 </div>
@@ -297,7 +298,7 @@
 -->
     
         <div id="bloc-activites" class="bloc-activites">
-        <h2>Activités {% if inscription.accompagnateur %}et forfaits pour vous et votre invité{% endif %}</h2>
+        <h2>Activités {% if dossier.invites %}et forfaits pour vous et votre invité{% endif %}</h2>
         <div id="listes">
                 <div id="liste-activites">
                 <h3>Vos activités réservées</h3>
@@ -308,7 +309,7 @@
                         <li {% if inscription.programmation_soiree_12_mai %}class="oui"{% endif %}>{{ activites.cocktail_12_mai }}</li>
                 </ul>
                 </div>
-                {% if inscription.accompagnateur %}
+                {% if dossier.invites %}
                         <div id="liste-forfaits">
                 <h3>Forfaits sélectionnés</h3>
                 <ul>
@@ -336,7 +337,7 @@
     
                 {% if avant_31_decembre %}
                 <p class="attention">
-                <strong>Veuillez réserver avant le 31 décembre 2016 pour profiter 
+                <strong>Veuillez réserver avant le 31 janvier 2017 pour profiter 
                 du tarif préférentiel.</strong></p>
                 {% endif %}
   <p>
@@ -355,7 +356,7 @@
 {% else %}
                 <p>L’AUF se charge de réserver votre chambre à l'hôtel Ryad Mogador 
                 Agdal & Palais des Congrès Mogador, lieu de la tenue de l'Assemblée générale
-                {% if inscription.accompagnateur %}, pour vous et votre invité{% endif %}.
+                {% if dossier.invites %}, pour vous et votre invité{% endif %}.
         {% if participant %}
                 <div id="passeport" class="message">
         {% if inscription.a_televerse_passeport %}
@@ -363,7 +364,7 @@
         {% else %}
                 <p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de 
                 téléverser une <strong>capture de votre passeport</strong>.
-                {% if inscription.accompagnateur %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
+                {% if dossier.invites %}<br/><em>(1 seul fichier image avec tous les passeports)</em>{% endif %}</p>
                 <form method="post" enctype="multipart/form-data" action="{% url "upload_passeport" %}">
                 {% csrf_token %}
                 {{ passeport_form }}
@@ -437,8 +438,11 @@
   
                 <p>L’AUF se charge de planifier votre vol.</p>
                 {% ifequal solde 0 %}
+                  {% if dossier.itineraire_disponible %}
+                  {% else %}
                 <p>Votre itinéraire est en cours de préparation. Votre plan de vol 
                 apparaîtra ici lorsqu’il sera complété.</p>
+                  {% endif %}
                 <!-- afficher ici le plan de vol organise par l'AUF -->	
                 {% else%}
                 <p>L’organisation de votre itinéraire est en attente de l’acquittement 

@@ -11,14 +11,16 @@ from django.core.files.storage import FileSystemStorage
 from django.db import connection
 from django.db.models import (
     Model, PROTECT, DecimalField,
-    CharField, DateField, EmailField, TextField, FloatField, IntegerField,
+    CharField, DateField, EmailField, TextField, IntegerField,
     BooleanField, TimeField, DateTimeField, NullBooleanField,
     ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
 from django.db.models.aggregates import Sum, Max, Min, Count
 from django.dispatch.dispatcher import Signal
 from django.utils.datastructures import SortedDict
 
+from ag import reference
 from ag.core import models as core
+from ag.gestion import consts
 from ag.gestion.consts import *
 from ag.gestion.participants_queryset import ParticipantsQuerySet
 from ag.inscription.models import (
@@ -31,7 +33,6 @@ from ag.reference.models import Etablissement, Region, Pays, Implantation
 __all__ = ('Participant',
            'nouveau_participant',
            'ParticipationActivite',
-           'StatutParticipant',
            'Invite',
            'get_donnees_hotels',
            'get_nombre_votants_par_region',
@@ -45,33 +46,87 @@ __all__ = ('Participant',
            'InfosVol',
            'Activite',
            'AGRole',
-           'TypeInstitutionSupplementaire',
            'ReservationChambre',
            'TypeFrais',
            'Paiement',
            'ActiviteScientifique',
+           'Fonction',
+           'TypeInstitution',
+           'Chambre',
+           'InscriptionWeb',
+           'Invitation',
+           'Institution',
+           'CategorieFonction',
            )
 
 
-class TypeInstitutionSupplementaire(core.TableReferenceOrdonnee):
+class TypeInstitution(core.TableReferenceOrdonnee):
     class Meta:
-        verbose_name = u"Type d'institution supplémentaire"
-        verbose_name_plural = u"Types d'institutions supplémentaires"
+        verbose_name = u"Type d'institution"
+        verbose_name_plural = u"Types d'institutions"
         ordering = ['ordre']
 
+    @property
+    def est_etablissement(self):
+        return self.code == consts.TYPE_INST_ETABLISSEMENT
 
-class StatutParticipant(core.TableReferenceOrdonnee):
+    @property
+    def est_aucune(self):
+        return self.code == consts.TYPE_INST_AUCUNE
+
+
+class CategorieFonction(core.TableReference):
     class Meta:
-        verbose_name = u"Statut participant"
-        verbose_name_plural = u"Statuts participants"
+        verbose_name = u"Catégorie fonction participant"
+        verbose_name_plural = u"Catégories fonctions participants"
+
+
+class Fonction(core.TableReferenceOrdonnee):
+    class Meta:
+        verbose_name = u"Fonction participant"
+        verbose_name_plural = u"Fonctions participants"
         ordering = ['ordre']
-    droit_de_vote = BooleanField(default=False)
+
+    categorie = ForeignKey(CategorieFonction)
+    type_institution = ForeignKey(TypeInstitution, null=True, blank=True)
+
+    @property
+    def repr_etablissement(self):
+        return (self.type_institution and
+                self.type_institution.code == consts.TYPE_INST_ETABLISSEMENT)
+
+    @property
+    def repr_instance_seulement(self):
+        return self.code == consts.FONCTION_INSTANCE_SEULEMENT
+
+    @property
+    def repr_auf(self):
+        return self.code == consts.FONCTION_PERSONNEL_AUF
+
+
+def get_fonction_repr_universitaire():
+    return Fonction.objects.get(code=consts.FONCTION_REPR_UNIVERSITAIRE)
+
+
+def get_fonction_instance_seulement():
+    return Fonction.objects.get(code=consts.FONCTION_INSTANCE_SEULEMENT)
+
+
+def get_fonction_personnel_auf():
+    return Fonction.objects.get(code=consts.FONCTION_PERSONNEL_AUF)
+
+
+class Institution(Model):
+    class Meta:
+        ordering = ('nom',)
+
+    nom = CharField(max_length=512, null=False, blank=False)
+    type_institution = ForeignKey(TypeInstitution)
+    pays = ForeignKey(reference.models.Pays)
+    region = ForeignKey(reference.models.Region)
 
     def __unicode__(self):
-        libelle = self.libelle
-        if self.droit_de_vote:
-            libelle += u"(avec droit de vote)"
-        return libelle
+        return self.nom
 
 
 class PointDeSuiviManager(Manager):
@@ -286,6 +341,7 @@ class ActiviteScientifique(core.TableReference):
         return self.nb_participants() >= self.max_participants
 
     def __unicode__(self):
+        # noinspection PyTypeChecker
         return self.libelle + (u' ** (COMPLET) **' if self.complet() else u'')
 
 
@@ -321,6 +377,12 @@ class ParticipantsManager(Manager):
     def filter_region_vote(self, code_region_vote):
         return self.get_queryset().filter_region_vote(code_region_vote)
 
+    def represente_etablissement(self):
+        return self.get_queryset().represente_etablissement()
+
+    def represente_autre_institution(self):
+        return self.get_queryset().represente_autre_institution()
+
 
 class ParticipantsActifsManager(ParticipantsManager):
 
@@ -335,19 +397,15 @@ COMPLETE = 'C'
 
 
 class Participant(RenseignementsPersonnels):
-    ETABLISSEMENT = "E"
-    INSTANCE_AUF = "I"
-    AUTRE_INSTITUTION = "A"
-    TYPES_INSTITUTION = (
-        (ETABLISSEMENT, u"Établissement"),
-        (INSTANCE_AUF, u"Instance de l'AUF"),
-        (AUTRE_INSTITUTION, u"Autre"),
+    INSTANCES_AUF = (
+        (consts.CA, u"Conseil d'administration"),
+        (consts.CS, u"Conseil scientifique"),
     )
-    INSTANCES_AUF = [
-        ("A", u"Conseil d'administration"),
-        ("S", u"Conseil scientifique"),
-        ("C", u"Conseil associatif"),
-    ]
+
+    MEMBRE_CA_REPRESENTE = (
+        ("E", u"Établissement"),
+        ("G", u"Gouvernement"),
+    )
     MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES = (
         ('A', u"À votre arrivée à Marrakech"),
         ('I', u"Par le bureau régional")
@@ -364,29 +422,29 @@ class Participant(RenseignementsPersonnels):
     utiliser_adresse_gde = BooleanField(
         u"Utiliser adresse GDE pour la facturation", default=False)
     notes = TextField(blank=True)
-    # statut du membre (pour droit de vote entre autres)
-    statut = ForeignKey(StatutParticipant, on_delete=PROTECT)
     notes_statut = TextField(blank=True)
     # desactivé
     desactive = BooleanField(u"Désactivé", default=False)
     # suivi
     suivi = ManyToManyField(PointDeSuivi)
-    # renseignements sur l'institution représentée
-    type_institution = CharField(u"Type de l'institution représentée",
-                                 max_length=1, choices=TYPES_INSTITUTION)
+
+    ##################################################
+    fonction = ForeignKey(Fonction, null=True, blank=True, on_delete=PROTECT)
+    institution = ForeignKey(Institution, null=True, blank=True,
+                             on_delete=PROTECT)
     instance_auf = CharField(
-        u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF)
-    type_autre_institution = ForeignKey(
-        TypeInstitutionSupplementaire, null=True, on_delete=PROTECT)
-    nom_autre_institution = CharField(
-        u"Nom de l'institution", max_length=64, null=True)
-    pays_autre_institution = ForeignKey(Pays, verbose_name=u"Pays", null=True,
-                                        blank=True, db_constraint=False)
+        u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF,
+        null=True, blank=True)
+    membre_ca_represente = CharField(
+        u"Ce membre du CA représente", max_length=1,
+        choices=MEMBRE_CA_REPRESENTE, null=True, blank=True)
+    implantation = ForeignKey(Implantation, null=True, blank=True,
+                              on_delete=PROTECT)
+    ###################################################
+
     etablissement = ForeignKey(
         Etablissement, null=True, verbose_name=u"Établissement",
         db_constraint=False)
-    region = ForeignKey(Region, verbose_name=u"Région", null=True,
-                        db_constraint=False)
     numero_facture = IntegerField(u"Numéro de facture", null=True)
     date_facturation = DateField(u"Date de facturation", null=True, blank=True)
     facturation_validee = BooleanField(u"Facturation validée", default=False)
@@ -463,6 +521,21 @@ class Participant(RenseignementsPersonnels):
         self._reservations = None
 
     @property
+    def represente_etablissement(self):
+        return self.fonction and self.fonction.type_institution and \
+               self.fonction.type_institution.est_etablissement
+
+    @property
+    def represente_instance_seulement(self):
+        return (self.fonction and
+                self.fonction.code == consts.FONCTION_INSTANCE_SEULEMENT)
+
+    @property
+    def est_personnel_auf(self):
+        return (self.fonction and
+                self.fonction.code == consts.FONCTION_PERSONNEL_AUF)
+
+    @property
     def numero(self):
         if self.inscription:
             return self.inscription.numero
@@ -502,7 +575,7 @@ class Participant(RenseignementsPersonnels):
         if hasattr(self, 'delinquant'):
             return self.delinquant
         else:
-            return self.type_institution == 'E' \
+            return self.represente_etablissement \
                 and core.EtablissementDelinquant.objects.filter(
                     id=self.etablissement_id
                 ).exists()
@@ -514,12 +587,12 @@ class Participant(RenseignementsPersonnels):
         chaque établissement
         """
         if not self.numero_facture:
-            if self.type_institution == 'E':
-                qs = Participant.objects.filter(
-                    type_institution='E',
-                    etablissement=self.etablissement)
+            if self.represente_etablissement:
+                qs = Participant.objects\
+                    .represente_etablissement()\
+                    .filter(etablissement=self.etablissement)
             else:
-                qs = Participant.objects.exclude(type_institution='E')
+                qs = Participant.objects.represente_autre_institution()
             numero_max = qs.aggregate(max=Max('numero_facture'))['max']
             self.numero_facture = (numero_max or 0) + 1
             self.date_facturation = datetime.datetime.now().date()
@@ -566,18 +639,20 @@ class Participant(RenseignementsPersonnels):
         """
         Renvoie le nom de l'institution à laquelle appartient le participant
         """
-        if self.type_institution == 'E':
-            return self.etablissement.nom
-        elif self.type_institution == 'I':
-            return ''.join([u'AUF (', self.get_instance_auf_display(), u')'])
-        elif self.type_institution == 'A':
-            type_autre_institution = self.type_autre_institution.libelle
-            if self.nom_autre_institution:
-                return u''.join([type_autre_institution,
-                                 u', ',
-                                 self.nom_autre_institution])
-            else:
-                return type_autre_institution
+        if self.represente_etablissement:
+            return self.etablissement.nom if self.etablissement_id else u"???"
+        elif self.represente_instance_seulement:
+            nom = u"{} AUF seulement".format(self.get_instance_auf_display())
+            if self.instance_auf == 'A':
+                nom += u"({})".format(self.get_membre_ca_represente_display())
+            return nom
+        elif self.est_personnel_auf:
+            return u"AUF ({})".format(self.implantation.nom) \
+                if self.implantation_id else u"???"
+        elif self.institution_id:
+            return self.institution.nom
+        else:
+            return u"N/A"
 
     def inscrire_a_activite(self, activite, avec_invites=False):
         """ Permet d'inscrire le participant à une activité """
@@ -766,10 +841,14 @@ class Participant(RenseignementsPersonnels):
         }
 
     def get_region(self):
-        if self.type_institution == 'E':
+        if self.represente_etablissement:
             return self.etablissement.region
+        elif self.est_personnel_auf:
+            return self.implantation.region if self.implantation else u""
+        elif not self.represente_instance_seulement:
+            return self.institution and self.institution.region
         else:
-            return self.region
+            return None
 
     def get_nom_bureau_regional(self):
         return self.get_region().implantation_bureau.nom
@@ -784,6 +863,7 @@ class Participant(RenseignementsPersonnels):
         return u'{0} {1}'.format(self.get_genre_display(),
                                  self.get_nom_prenom())
 
+    # noinspection PyTypeChecker
     def get_prenom_nom_poste(self):
         result = self.prenom + u" " + self.nom.upper()
         if self.poste:
@@ -856,6 +936,7 @@ class Participant(RenseignementsPersonnels):
     #     elif self.vol_groupe:
     #
 
+    # noinspection PyTypeChecker
     def __unicode__(self):
         return u"<Participant: " + self.get_nom_prenom() + \
                u" (" + str(self.id) + u")>"
@@ -954,7 +1035,7 @@ class VolGroupe(Model):
 
     def get_participants(self):
         return Participant.objects.filter(vol_groupe=self)\
-            .select_related('etablissement', 'region', 'etablissement__region')\
+            .select_related('etablissement', 'etablissement__region')\
             .filter(desactive=False)\
             .order_by('nom', 'prenom')
 
@@ -1152,7 +1233,8 @@ def get_donnees_activites():
 # noinspection PyTypeChecker
 def get_donnees_prise_en_charge():
     def representants(qs):
-        return qs.filter(statut__droit_de_vote=True)
+        return qs.filter(fonction__code=consts.FONCTION_REPR_UNIVERSITAIRE)
+        #return qs.filter(statut__droit_de_vote=True)
 
     qs_insc = Participant.actifs.filter(prise_en_charge_inscription=True)
     qs_trans = Participant.actifs.filter(prise_en_charge_transport=True)
@@ -1205,23 +1287,47 @@ class AGRole(Model, Role):
         verbose_name = u'Rôle utilisateur'
         verbose_name_plural = u'Rôles des utilisateurs'
 
+    # noinspection PyTypeChecker
     def __unicode__(self):
         s = self.get_type_role_display()
         if self.region:
             s += u' ' + self.region.nom
         return s
 
+    def check_participant_region(self, obj):
+        if hasattr(obj, 'get_region'):
+            return obj.get_region() == self.region
+        else:
+            return False
+
     def has_perm(self, perm, obj=None):
-        allowed = (self.type_role == ROLE_ADMIN or
-                   perm == PERM_LECTURE or
-                   (perm, self.type_role) in ALLOWED)
-        if allowed and obj and isinstance(obj, Participant):
-            allowed = (allowed and
-                       ((obj.type_institution == Participant.ETABLISSEMENT and
-                         obj.etablissement.region == self.region) or
-                        obj.region == self.region)
-                       )
-        return allowed
+        # les admins peuvent toujours tout faire
+        if self.type_role == ROLE_ADMIN:
+            return True
+        # tout le monde peut lire
+        if perm == PERM_LECTURE:
+            return True
+        if (perm, self.type_role) in ALLOWED:
+            # si la permission est globale, OK
+            if not self.region:
+                return True
+            else:
+                return self.check_participant_region(obj)
+        else:
+            if (perm, self.type_role) in ALLOWED_MEME_REGION:
+                if self.region:
+                    return self.check_participant_region(obj)
+                else:
+                    return False
+        return False
+
+    def participant_region_q(self):
+        return Q(
+            (Q(fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
+             & Q(etablissement__region=self.region))
+            | (Q(institution__region=self.region))
+            | (Q(fonction__code=consts.FONCTION_PERSONNEL_AUF) &
+               Q(implantation__region=self.region)))
 
     def get_filter_for_perm(self, perm, model):
         if self.type_role == ROLE_ADMIN or perm == PERM_LECTURE:
@@ -1229,19 +1335,16 @@ class AGRole(Model, Role):
         if ((perm, self.type_role) in ALLOWED or
                 (   # les lecteurs peuvent modifier les notes de frais et les
                     # fichiers des participants de leur région
-                    (perm, self.type_role) in (
-                        (PERM_MODIF_NOTES_DE_FRAIS, ROLE_LECTEUR),
-                        (PERM_MODIF_FICHIERS, ROLE_LECTEUR),
-                    )
+                    (perm, self.type_role) in ALLOWED_MEME_REGION
                     and self.region
                 )):
             if not self.region:
                 return True
             else:
                 if model == Participant:
-                    return Q((Q(type_institution=Participant.ETABLISSEMENT)
-                              & Q(etablissement__region=self.region))
-                             | Q(region=self.region))
+                    return self.participant_region_q()
+                elif model == Inscription:
+                    return Q(invitation__etablissement__region=self.region)
                 else:
                     return False
         else:

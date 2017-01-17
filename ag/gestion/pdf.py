@@ -56,7 +56,31 @@ def titre_facture(inscription_ou_participant):
 
 
 def facture_from_participant(participant):
-    pass
+    """
+
+    :param participant:
+    :return:
+    """
+    rp_dict = get_renseignement_personnels_fields(participant)
+    inscription = participant.inscription
+    return Facture(
+        numero_facture=None,
+        date_facturation=participant.inscription.date_fermeture
+        if inscription else None,
+        numero=participant.numero,
+        etablissement_id=participant.etablissement_id,
+        numero_dossier=inscription.numero_dossier if inscription else None,
+        imputation=None,
+        frais_inscription=participant.frais_inscription_facture,
+        frais_forfaits=participant.forfaits_invites,
+        frais_hebergement=participant.frais_hebergement_facture,
+        total_frais=participant.total_facture,
+        paiements=participant.get_paiements_display(),
+        verse_en_trop=participant.get_verse_en_trop(),
+        solde_a_payer=participant.get_solde_a_payer(),
+        validee=False,
+        **rp_dict
+    )
 
 
 def facture_from_inscription(inscription):
@@ -381,7 +405,7 @@ def generer_itineraires(output_file, participants):
         contenu.append(Table(
             [
                 [u"Passager :", nom_participant],
-                [u"Dossier :", numero_dossier],
+                [u"Dossier :", participant.inscription.numero_dossier],
                 [u"Institution :", participant.nom_institution()],
                 [u"Téléphone :", participant.telephone],
                 [u"Télécopieur :", participant.telecopieur],

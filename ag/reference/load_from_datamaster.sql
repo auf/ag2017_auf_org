@@ -56,10 +56,16 @@ ON DUPLICATE KEY UPDATE
   membre               = e.membre;
 
 
-INSERT INTO reference_implantation (id, nom, nom_court)
+INSERT INTO reference_implantation (id, nom, nom_court, region_id)
   SELECT
     id,
     nom,
-    nom_court
+    nom_court,
+    region
   FROM datamaster.ref_implantation dri
-ON DUPLICATE KEY UPDATE nom = dri.nom, nom_court = dri.nom_court;
+ON DUPLICATE KEY UPDATE nom = dri.nom, nom_court = dri.nom_court,
+region_id = dri.region;
+
+UPDATE reference_region r1, datamaster.ref_region rd
+SET r1.implantation_bureau_id = rd.implantation_bureau
+WHERE r1.id = rd.id

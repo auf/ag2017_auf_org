@@ -50,31 +50,38 @@
         {% champ_fiche renseignements_personnels "date_naissance" %}
         {% champ_fiche renseignements_personnels "courriel" %}
 <tr>
-    <td colspan="2"><h2 style="background: #bad0e7;">Établissement représenté</h2></td>
+    <td colspan="2"><h2 style="background: #bad0e7;">Fonction, Institution</h2></td>
 </tr>
-        {% champ_fiche renseignements_personnels "poste" %}
-        {% ifequal participant.type_institution "E" %}
-          {% champ_fiche renseignements_personnels "statut" %}
-          <tr>
-              <td class="tag">Établissement</td>
-              <td>{{ participant.etablissement.nom }}</td>
-          </tr>
-            <tr>
-                <td class="tag">Région</td>
-                <td>{{ participant.get_region.nom }}</td>
-            </tr>
-        {% endifequal %}
-        {% ifequal participant.type_institution "A" %}
-        {% champ_fiche renseignements_personnels "type_autre_institution" %}
-        {% champ_fiche renseignements_personnels "nom_autre_institution" %}
-        {% champ_fiche renseignements_personnels "pays_autre_institution" %}
-        {% champ_fiche renseignements_personnels "region" %}
-        {% endifequal %}
-        {% ifequal participant.type_institution "I" %}
-        {% champ_fiche renseignements_personnels "instance_auf" %}
-        {% champ_fiche renseignements_personnels "region" %}
-        {% champ_fiche renseignements_personnels "pays_autre_institution" %}
-        {% endifequal %}
+{% champ_fiche renseignements_personnels "fonction" %}
+{% if participant.fonction.repr_etablissement %}
+  <tr>
+    <td class="tag">Établissement</td>
+    <td>{{ participant.etablissement.nom }}</td>
+  </tr>
+  <tr>
+    <td class="tag">Région</td>
+    <td>{{ participant.get_region.nom }}</td>
+  </tr>
+{% elif participant.est_personnel_auf %}
+  {% champ_fiche renseignements_personnels "implantation" %}
+  <tr>
+    <td class="tag">Région</td>
+    <td>{{ participant.get_region.nom }}</td>
+  </tr>
+{% elif not participant.fonction.repr_instance_seulement %}
+  {% champ_fiche renseignements_personnels "institution" %}
+  <tr>
+    <td class="tag">Région</td>
+    <td>{{ participant.get_region.nom }}</td>
+  </tr>
+{% endif %}
+{% if participant.instance_auf %}
+  {% champ_fiche renseignements_personnels "instance_auf" %}
+  {% ifequal participant.instance_auf "A" %}
+    {% champ_fiche renseignements_personnels "membre_ca_represente" %}
+  {% endifequal %}
+{% endif %}
+{% champ_fiche renseignements_personnels "poste" %}
 <tr>
     <td colspan="2"><h2 style="background: #bad0e7;">Adresse de facturation</h2></td>
 </tr>
@@ -94,10 +101,10 @@
         <a href="{% url "invites" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}
         </div>
-				<table cellspacing="0">
+        <table cellspacing="0">
         <tr>
             <td class="tag">{% include "gestion/nombre_invites.html" %}</td>
-						<td>
+            <td>
         {% if participant.nombre_invites %}
             <ul>
                 {% for invite in participant.invite_set.all %}
@@ -107,7 +114,7 @@
         {% else %}
             <ul><li class="vide">------</li></ul>
         {% endif %}
- 				</td>
+        </td>
         </tr>
         </table>
     </div>
@@ -194,10 +201,10 @@
         <tr>
             <td class="tag">Itinéraire</td>
                 {% if participant.transport_organise_par_auf %}
- 						<td style="font-weight: bolder;">
+            <td style="font-weight: bolder;">
                     Organisé par l'AUF
                 {% else %}
- 						<td>
+            <td>
                     Organisé par le participant lui-même
                 {% endif %}
             </td>
@@ -219,19 +226,19 @@
         {% else %}
             {% champ_fiche transport_arrdep "date_arrivee" %}
             {% champ_fiche transport_arrdep "heure_arrivee" %}
-            {% champ_fiche transport_arrdep "compagnie_arrivee" %}
+            <!--{% champ_fiche transport_arrdep "compagnie_arrivee" %}-->
             {% champ_fiche transport_arrdep "numero_vol_arrivee" %}
             {% champ_fiche transport_arrdep "ville_arrivee" %}
             {% champ_fiche transport_arrdep "date_depart" %}
             {% champ_fiche transport_arrdep "heure_depart" %}
-            {% champ_fiche transport_arrdep "compagnie_depart" %}
+            <!--{% champ_fiche transport_arrdep "compagnie_depart" %}-->
             {% champ_fiche transport_arrdep "numero_vol_depart" %}
             {% champ_fiche transport_arrdep "ville_depart" %}
         {% endif %}
         </tbody></table>
     </div>
 
-		<div class="module">
+    <div class="module">
         <h2 class="vert">Notes de frais</h2>
         <div class="actions">
             {% ifhasperm perms_dict.PERM_MODIF_NOTES_DE_FRAIS participant %}
@@ -243,13 +250,13 @@
             <tr>
                 <td class="tag">{{ frais.type_frais.libelle }}</td>
                 <td><div class="frais-montant">{{ frais.quantite }}x{{ frais.montant|floatformat:2 }}
-								&nbsp;&euro;</div></td>
+                &nbsp;&euro;</div></td>
             </tr>
             {% if forloop.last %}
                 <tr>
                     <td class="tag">Total</td>
                     <td><div class="frais-montant">{{ participant.frais_autres|floatformat:2 }}
-										&nbsp;&euro;</div></td>
+                    &nbsp;&euro;</div></td>
                 </tr>
                 <tr>
                     <td class="tag">Modalité de versement</td>
@@ -277,7 +284,7 @@
             <td class="tag">Prise en charge</td>
             <td>{% spaceless %}
                 {% for prise_en_charge in prises_en_charge %}
-                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}à
+                    {{ prise_en_charge }}{% if not forloop.last %},&nbsp;{% endif %}
                   {% empty %}
                   Aucune
                 {% endfor %}{% endspaceless %}
@@ -359,7 +366,7 @@
                     <td class='align-left'>Forfaits invités</td>
                     <td>{{ participant.forfaits_invites|floatformat:2 }}&nbsp;&euro;</td>
                     <th></th>
-                    <td></td>
+                    <td>{{ participant.forfaits_invites|floatformat:2 }}&nbsp;&euro;</td>
                 </tr>
                 {% for frais in participant.get_all_frais %}
                     <tr>
@@ -421,20 +428,25 @@
                         Désactivé
                     </td></tr>
                 {% endif %}
-
                 <tr><td>{{ participant.poste }}</td></tr>
-                <tr><td>{{ participant.statut }}</td></tr>
-                <tr><td>{{ participant.nom_institution }}</td></tr>
-                <tr><td>{{ participant.get_type_institution_display }}
-                    {% ifequal participant.type_institution "E" %}
+                <tr><td>{{ participant.fonction }} {% if  adminform.form.instance.attest_pha = P %} (PHA) {% elif adminform.form.instance.attest_pha = R %} (DELEGUE) {% else %}{% endif %}</td></tr>
+                {% if participant.fonction.type_institution %}
+                <tr><td>{{ participant.fonction.type_institution.libelle }}
+                    {% if participant.represente_etablissement %} 
                         -&nbsp;{{ participant.etablissement.get_statut_display }}
                         {% if participant.get_etablissement_sud %}
                         -&nbsp;Sud
-                        {% endif %}
-                    {% endifequal %}
+                    {% else %}
+                       -&nbsp;Nord
+                    {% endif %}
+                {% endif %}
+                </td>
+                </tr>
+                {% endif %}
+                <tr><td>{{ participant.nom_institution }}
                 </td></tr>
                 <tr><td>
-                    {{ participant.get_region }}
+                    {{ participant.get_region|default_if_none:"(sans région)" }}
                 </td></tr>
                 <tr><td>{% include "gestion/nombre_invites.html" %}</td></tr>
                 {% if lien_dossier %}

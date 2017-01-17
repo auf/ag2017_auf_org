@@ -1,7 +1,10 @@
+/* validation */
+
 .model-inscriptionweb #content-main fieldset {
 	background-color: aliceblue!important;
 	padding: 20px;
 	margin-bottom: 20px;
+	max-width: 75%;
 }
 
 .model-inscriptionweb #content-main fieldset h2 {
@@ -17,6 +20,55 @@
 #changelist-filter {
     top: 260px;
 }
+
+.field-programmation_soiree_9_mai .vCheckboxLabel, .field-programmation_soiree_10_mai .vCheckboxLabel,
+.field-programmation_gala .vCheckboxLabel, .field-programmation_soiree_12_mai .vCheckboxLabel {
+    font-weight: bolder !important;
+}
+
+.field-inscription_validee {
+    border-top: 1px solid black;
+    padding-top: 20px !important;
+}
+
+.field-inscription_validee .vCheckboxLabel {
+    font-weight: bolder !important;
+}
+
+#content #pec {
+    z-index: 1;
+    padding: 5px;
+    float: right;
+    position: fixed;
+    top: 170px;
+    right: 3%;
+    width: 20%;
+    border: 3px solid #ccc;
+    margin: 15px;
+}
+
+#content .mandateTsud {color:green;}
+#content .mandateTsud span:after { 
+    content: "Transport + Hotel";
+}
+#content .mandateAsud {color:blue;}
+#content .mandateAsud span:after { 
+    content: "Hotel";
+}
+#content .mandateTnord {color:red;}
+#content .mandateTnord span:after { 
+    content: "aucune";
+}
+#content .mandateAnord {color:red;}
+#content .mandateAnord span:after { 
+    content: "aucune";
+}
+#content .accompagnateur {color:red;}
+#content .accompagnateur span:after { 
+    content: "aucune";
+}
+
+/* gestion */
 
 h1 {
     font-size: 18px;

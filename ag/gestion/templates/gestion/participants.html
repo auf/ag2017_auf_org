@@ -1,6 +1,6 @@
 {% extends "gestion/base_form.html" %}
 {% load crispy_forms_tags %}
-{% block title %}Liste participants - AG2013{% endblock %}
+{% block title %}Liste participants - AG2017{% endblock %}
 {% block breadcrumbs %}
 <div class="breadcrumbs">
   <a href="{% url "tableau_de_bord" %}">Accueil</a> &rsaquo;
@@ -29,8 +29,8 @@
       <th rowspan="2">Institution représentée</th>
       <th rowspan="2">Pays</th>
       <th rowspan="2">Région</th>
-      <th rowspan="2">Statut</th>
-      <th rowspan="2">Numéro</th>
+      <th rowspan="2">Fonction</th>
+      <th rowspan="2">Facture</th>
       <th colspan="2">Prise en charge</th>
       <th rowspan="2">Date inscription</th>
       <th rowspan="2">Cotisations</th>
@@ -48,7 +48,7 @@
     <td>{{ participant.nom_institution }}</td>
     <td>{{ participant.pays }}</td>
     <td>{{ participant.get_region }}</td>
-    <td>{{ participant.statut.libelle }}</td>
+    <td>{{ participant.fonction.libelle }}</td>
     <td>{{ participant.numero }}</td>
     <td>{{ participant.get_prise_en_charge_transport_text }}</td>
     <td>{{ participant.get_prise_en_charge_sejour_text }}</td>

@@ -7,12 +7,11 @@ from django.db.models.query import QuerySet
 EXCEPT_DOM_TOM_SQL = "reference_etablissement.id in ({0})". \
     format(', '.join(map(str, EXCEPTIONS_DOM_TOM)))
 CONDITION_VOTE_SQL = """
-                    gestion_statutparticipant.droit_de_vote=1
-                    AND reference_etablissement.statut in ('T', 'A')
-                    AND gestion_participant.type_institution = 'E'
+                    reference_etablissement.statut in ('T', 'A')
+                    AND gestion_typeinstitution.code = '{TYPE_ETAB}'
                     AND gestion_participant.desactive = 0
                     AND reference_etablissement.qualite in ('RES', 'CIR', 'ESR')
-                    """
+                    """.format(TYPE_ETAB=consts.TYPE_INST_ETABLISSEMENT)
 CALCUL_REGION_VOTE_SQL = """
         IF(reference_etablissement.qualite = 'RES', '{REG_RESEAU}',
                           IF({EXCEPT_DOM_TOM}, '{REG_EUROPE_OUEST}',
@@ -66,6 +65,14 @@ def somme_forfaits_categorie(categorie):
 class ParticipantsQuerySet(QuerySet):
     def actifs(self):
         return self.exclude(desactive=True)
+
+    def represente_etablissement(self):
+        return self.filter(fonction__type_institution__code=
+                           consts.TYPE_INST_ETABLISSEMENT)
+
+    def represente_autre_institution(self):
+        return self.exclude(fonction__type_institution__code=
+                            consts.TYPE_INST_ETABLISSEMENT)
 
     def sql_expr(self, name):
         if name == 'hotel_manquant':
@@ -244,26 +251,27 @@ class ParticipantsQuerySet(QuerySet):
                 'region_vote': REGION_VOTE_SQL
             })
         return qs.select_related('etablissement', 'etablissement__region',
-                                 'statut', 'etablissement__pays')
+                                 'etablissement__pays',
+                                 'fonction__type_institution')
 
     def filter_region_vote(self, code_region_vote):
         """ Voir commentaire avec_region_vote()
         """
         qs = self.select_related('etablissement', 'etablissement__region',
-                                 'statut')
+                                 'fonction')
         # Lors d'un count, django ne tient pas compte du select_related
         # ce qui fait échouer notre requête qui s'attend à ce que
         # certaines tables soient présentes. Pour cette raison, on est
         # obligés de dupliquer les conditions de vote exprimées
         # dans CONDITION_VOTE_SQL
         qs = qs.filter_votants()
-        qs = qs.filter(statut__droit_de_vote=True,
-                       etablissement__statut__in=('T', 'A'),
-                       type_institution='E',
-                       desactive=False,
-                       etablissement__qualite__in=('RES', 'CIR', 'ESR'),
-                       # cette dernière condition force la jointure sur region
-                       etablissement__region__nom__startswith='')
+        qs = qs.filter(
+            etablissement__statut__in=('T', 'A'),
+            fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
+            desactive=False,
+            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
+            # cette dernière condition force la jointure sur region
+            etablissement__region__nom__startswith='')
         if code_region_vote == REG_FRANCE:
             code_region_vote = REG_EUROPE_OUEST
             qs = qs.filter(Q(etablissement__pays__code='FR') |
@@ -277,11 +285,11 @@ class ParticipantsQuerySet(QuerySet):
     def filter_votants(self):
         """ Voir commentaire avec_region_vote()
         """
-        return self.filter(statut__droit_de_vote=True,
-                           etablissement__statut__in=('T', 'A'),
-                           type_institution='E',
-                           desactive=False,
-                           etablissement__qualite__in=('RES', 'CIR', 'ESR'),
-                           # cette dernière condition force la jointure sur
-                           # region
-                           etablissement__region__nom__startswith='')
+        return self.filter(
+            etablissement__statut__in=('T', 'A'),
+            fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
+            desactive=False,
+            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
+            # cette dernière condition force la jointure sur
+            # region
+            etablissement__region__nom__startswith='')

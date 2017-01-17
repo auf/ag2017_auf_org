@@ -1,15 +1,15 @@
 # -*- encoding: utf-8 -*-
 import datetime
-from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory
+from ag.core.test_utils import RegionFactory, PaysFactory, EtablissementFactory, \
+    TypeInstitutionFactory, FonctionFactory, CategorieFonctionFactory
+from ag.gestion import consts
 from ag.gestion.consts import *
 
 from ag.gestion.models import (
     AGRole,
     ROLE_ADMIN,
-    StatutParticipant,
-    TypeInstitutionSupplementaire,
     Participant,
-    Activite)
+    Activite, get_fonction_instance_seulement, Fonction)
 from auf.django.mailing.models import ModeleCourriel
 from django.contrib.auth.models import User
 
@@ -38,6 +38,7 @@ def create_fixtures(test_case):
         region=region
     )
     test_case.etablissement_id = etablissement.id
+    test_case.etablissement = etablissement
 
     etablissement_nord = EtablissementFactory(
         pays=pays_nord, membre=True, responsable_courriel='nord@test.org',
@@ -93,6 +94,9 @@ def create_fixtures(test_case):
     modele_courriel_rappel.html = False
     modele_courriel_rappel.save()
 
+    ModeleCourriel.objects.create(
+        sujet=u'reçu', code='recu_ok', corps=u"inscriptionreçue", html=False)
+
     forfaits = forfaits_fixture()
 
     codes_forfaits_activites = {
@@ -106,6 +110,29 @@ def create_fixtures(test_case):
         forfait = forfaits.get(code_forfait, None)
         Activite.objects.create(code=code_activite, libelle=code_activite,
                                 forfait_invite=forfait)
+
+    test_case.type_inst_etablissement, \
+        test_case.fonction_repr_etablissement =\
+        fonction_fixture()
+
+
+def fonction_fixture():
+    type_inst_etablissement = TypeInstitutionFactory(
+        code=consts.TYPE_INST_ETABLISSEMENT,
+        libelle=u"Établissement")
+
+    fonction_repr_etablissement = FonctionFactory(
+        code=consts.FONCTION_REPR_UNIVERSITAIRE,
+        type_institution=type_inst_etablissement)
+
+    cat_obs = CategorieFonctionFactory(code=consts.CAT_FONCTION_OBSERVATEUR,
+                                       libelle=u"Observateur")
+    FonctionFactory(categorie=cat_obs, code="repr_presse")
+    FonctionFactory(code=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
+    FonctionFactory(code=consts.FONCTION_INSTANCE_SEULEMENT)
+    FonctionFactory(code=consts.FONCTION_PERSONNEL_AUF)
+
+    return type_inst_etablissement, fonction_repr_etablissement
 
 
 def forfaits_fixture():
@@ -135,8 +162,7 @@ def make_modele_courriel_mandate():
     )
 
 
-def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
-                      code_type_autre_institution=None, **kwargs):
+def creer_participant(nom=None, prenom=None, **kwargs):
     defaults = {
         'nom': nom or u'Participant1',
         'prenom':  prenom or u'Test1',
@@ -144,15 +170,9 @@ def creer_participant(nom=None, prenom=None, code_statut='memb_inst',
         'code_postal': u'HHH 333',
         'courriel': u'adr.courriel@test.org',
         'date_naissance': datetime.date(1973, 07, 04),
-        'statut': StatutParticipant.objects.get(code=code_statut),
-        'type_institution': 'I',
+        'fonction': get_fonction_instance_seulement(),
         'instance_auf': 'A',
     }
-    if code_type_autre_institution:
-        type_autre_institution = TypeInstitutionSupplementaire.objects.get(
-            code=code_type_autre_institution)
-        defaults['type_autre_institution'] = type_autre_institution
-
     defaults.update(kwargs)
     participant = Participant(**defaults)
     participant.save()

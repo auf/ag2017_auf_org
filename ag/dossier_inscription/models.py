@@ -13,18 +13,26 @@ class InscriptionFermee(models_inscription.Inscription):
     class Meta:
         proxy = True
 
+    def load_participant(self):
+        try:
+            self._participant = models_gestion.Participant.objects \
+                .sql_extra_fields('total_facture', 'total_deja_paye_sql',
+                                  'frais_inscription_facture',
+                                  'forfaits_invites',
+                                  'frais_hebergement_facture') \
+                .get(inscription__id=self.id)
+        except models_gestion.Participant.DoesNotExist:
+            self._participant = None
+
     def __init__(self, *args, **kwargs):
         super(InscriptionFermee, self).__init__(*args, **kwargs)
+        self.load_participant()
+        if self._participant:
+            self.dossier = DossierGestion(self._participant)
+        else:
+            self.dossier = DossierInscription(self)
 
     def get_participant(self):
-        if not hasattr(self, '_participant'):
-            try:
-                self._participant = models_gestion.Participant.objects \
-                    .sql_extra_fields('total_facture', 'total_deja_paye_sql')\
-                    .get(inscription__id=self.id)
-                print('total_facture=' + str(self._participant.total_facture))
-            except models_gestion.Participant.DoesNotExist:
-                return None
         return self._participant
 
     def get_participant_or_self(self):
@@ -93,3 +101,39 @@ class InscriptionFermee(models_inscription.Inscription):
             return self.get_participant().prise_en_charge_sejour
         else:
             return self.prise_en_charge_hebergement
+
+
+Invite = collections.namedtuple('Invite', ('genre', 'nom', 'prenom'))
+
+
+class DossierInscription:
+    def __init__(self, inscription):
+        self.inscription = inscription  # type: models_inscription.Inscription
+        self.itineraire_disponible = False
+
+    def invites(self):
+        if self.inscription.accompagnateur:
+            return [Invite(
+                genre=self.inscription.get_accompagnateur_genre_display(),
+                nom=self.inscription.accompagnateur_nom,
+                prenom=self.inscription.accompagnateur_prenom)]
+
+    def get_prise_en_charge_hebergement(self):
+        return self.inscription.prise_en_charge_hebergement
+
+
+class DossierGestion:
+    def __init__(self, participant):
+        self.participant = participant  # type: models_gestion.Participant
+
+    def invites(self):
+        return [Invite(genre=i.get_genre_display(), nom=i.nom, prenom=i.prenom)
+                for i in self.participant.invite_set.all()]
+
+    def get_prise_en_charge_hebergement(self):
+        return self.participant.prise_en_charge_sejour
+
+    @property
+    def itineraire_disponible(self):
+        return (self.participant.statut_dossier_transport ==
+                models_gestion.COMPLETE)

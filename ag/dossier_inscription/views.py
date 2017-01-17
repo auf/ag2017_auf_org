@@ -102,6 +102,7 @@ def dossier(request):
 
     # noinspection PyProtectedMember
     context = {
+        'dossier': inscription.dossier,
         'inscription': inscription,
         'participant': participant,
         'adresse': adresse,
@@ -115,7 +116,7 @@ def dossier(request):
         'invites_formset': handle_invites_formset(request, inscription),
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
         'avant_31_decembre': (datetime.datetime.today() <
-                              datetime.datetime(2016, 12, 31)),
+                              datetime.datetime(2017, 1, 31)),
         'plan_vol_form': handle_plan_vol_form(request, inscription),
         'activites': activites,
         'titre_facture': pdf.titre_facture(participant or inscription)
@@ -204,9 +205,7 @@ def reseautage_on_off(request):
     if not inscription_id:
         return redirect('connexion_inscription')
     inscription = InscriptionFermee.objects.get(id=inscription_id)
-    print(request.POST)
     if request.POST.get('accepte_reseautage'):
-        print('reseautage!')
         inscription.reseautage = True
         inscription.save()
     if request.POST.get('refuse_reseautage'):
@@ -275,4 +274,4 @@ INFOS_VIREMENT = {
 def facture_dossier(request):
     inscription_id = request.session.get('inscription_id', None)
     inscription = get_object_or_404(InscriptionFermee, id=inscription_id)
-    return pdf.facture_response(inscription)
+    return pdf.facture_response(inscription.get_participant() or inscription)
