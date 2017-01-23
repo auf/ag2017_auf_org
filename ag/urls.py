@@ -28,6 +28,10 @@ urlpatterns += patterns('',
     (r'^tinymce/', include('tinymce.urls')),
 )
 
+urlpatterns += patterns('',
+    url(r'^filer/', include('filer.urls')),
+)
+
 urlpatterns += patterns(
     'ag.views',
     url(r'^$', 'accueil', name='accueil'),

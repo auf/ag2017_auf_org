@@ -140,6 +140,8 @@ GESTION_AG_SENDER = 'ag2017@auf.org'
 
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
+FILER_CANONICAL_URL = 'permanent/'
+
 ROLE_PROVIDERS = ('ag.gestion.role_provider', )
 
 from conf import *  # NOQA
