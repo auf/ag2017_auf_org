@@ -105,20 +105,6 @@
                     <iframe width="280"  src="https://www.youtube.com/embed/Ky-eNm7Ie8U" frameborder="0" allowfullscreen></iframe>
 
                   </div>
- <div class="box">
-                     <h2>Témoignages</h2>
-                     {% if  mot_list2 %}
-                        {% for item in mot_list2 %}
-                            <p><a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}"><img class="flott" src="{{ MEDIA_URL }}{{ item.image }}" width="94" height="122" alt="{{ item.recteur }}"></a>
-                            <a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}">“{{ item.message|striptags|safe|truncatewords_html:60 }}”</a></p>
-                            <p><a href="{% page_url "paroles" %}#{{ item.recteur|truncatewords_html:1 }}"><strong>{{ item.recteur }}</strong> <br>{{ item.fonction }}</a></p>
-                        {% endfor %}
-                    {% else %}
-                        <p>Pas de mot</p>
-                    {% endif %}
-                </div>
-
-
 
                   <div class="box">
 
