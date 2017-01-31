@@ -429,7 +429,7 @@
                     </td></tr>
                 {% endif %}
                 <tr><td>{{ participant.poste }}</td></tr>
-                <tr><td>{{ participant.fonction }} {% if  adminform.form.instance.attest_pha = P %} (PHA) {% elif adminform.form.instance.attest_pha = R %} (DELEGUE) {% else %}{% endif %}</td></tr>
+                <tr><td>{{ participant.fonction }} {% if participant.inscription.atteste_pha = "P" %} (PHA) {% elif participant.inscription.atteste_pha = "R" %} (DELEGUE) {% else %}{% endif %}</td></tr>
                 {% if participant.fonction.type_institution %}
                 <tr><td>{{ participant.fonction.type_institution.libelle }}
                     {% if participant.represente_etablissement %} 
