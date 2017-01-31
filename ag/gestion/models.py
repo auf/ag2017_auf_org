@@ -398,8 +398,9 @@ COMPLETE = 'C'
 
 class Participant(RenseignementsPersonnels):
     INSTANCES_AUF = (
-        (consts.CA, u"Conseil d'administration"),
+        (consts.CA, u"Conseil associatif"),
         (consts.CS, u"Conseil scientifique"),
+        (consts.COS, u"Conseil d'orientation stratégique"),
     )
 
     MEMBRE_CA_REPRESENTE = (
@@ -411,9 +412,8 @@ class Participant(RenseignementsPersonnels):
         ('I', u"Par le bureau régional")
     )
     IMPUTATION_CHOICES = (
-        ('90002AG201', '90002AG201'),
-        ('90002AG202', '90002AG202'),
-        ('90002AG203', '90002AG203'),
+        ('A0394DRI017B3', 'A0394DRI017B3'),
+        ('A0394DRI016A3', 'A0394DRI016A3'),
     )
 
     # référence à l'inscription effectuée par le web, si applicable
@@ -880,7 +880,7 @@ class Participant(RenseignementsPersonnels):
             text = u"Refusée"
         if value_demande:
             text += u" (demandée)"
-        return text
+        return text 
 
     def get_prise_en_charge_transport_text(self):
         return self.get_prise_en_charge_text(

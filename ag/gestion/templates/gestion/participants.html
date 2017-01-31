@@ -26,10 +26,11 @@
   <thead>
     <tr>
       <th rowspan="2">Participant</th>
+      <th rowspan="2">Fonction AG</th>
       <th rowspan="2">Institution représentée</th>
+      <th rowspan="2">Type Institution</th>
       <th rowspan="2">Pays</th>
       <th rowspan="2">Région</th>
-      <th rowspan="2">Fonction</th>
       <th rowspan="2">Facture</th>
       <th colspan="2">Prise en charge</th>
       <th rowspan="2">Date inscription</th>
@@ -45,17 +46,17 @@
       <a href="{% url "fiche_participant" participant.id %}">
         {{ participant.get_nom_prenom }}</a>
     </td>
+    <td>{{ participant.fonction.libelle }}{% if participant.inscription.atteste_pha = "P" %} <br> (PHA) {% elif participant.inscription.atteste_pha = "R" %} <br> (DELEGUE) {% else %}{% endif %}</td>
     <td>{{ participant.nom_institution }}</td>
+    <td>{{ participant.fonction.type_institution.libelle }}</td>
     <td>{{ participant.pays }}</td>
     <td>{{ participant.get_region }}</td>
-    <td>{{ participant.fonction.libelle }}</td>
     <td>{{ participant.numero }}</td>
     <td>{{ participant.get_prise_en_charge_transport_text }}</td>
     <td>{{ participant.get_prise_en_charge_sejour_text }}</td>
-
     <td>{% if participant.inscription %}{{ participant.inscription.date_fermeture }}{% else %}N/A{% endif %}</td>
-    <td>{% if participant.type_institution == 'E' %}
-      {% if participant.est_delinquant  %}Délinquant{% else %}À jour{% endif %}
+    <td>{% if participant.fonction.type_institution.code == 'etablissement' %}
+      {% if participant.est_delinquant %}Délinquant{% else %}À jour{% endif %}
       {% else %}N/A{% endif %}</td>
 
     <td>{{ participant.get_paiement_string }}</td>
