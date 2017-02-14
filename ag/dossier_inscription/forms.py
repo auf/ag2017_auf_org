@@ -39,7 +39,7 @@ class FiltreReseautageForm(forms.Form):
 class PlanVolForm(forms.ModelForm):
     class Meta:
         model = ag.inscription.models.Inscription
-        fields = ('depart_date', 'depart_heure', 'depart_vol',
+        fields = ('depart_de', 'depart_date', 'depart_heure', 'depart_vol',
                   'arrivee_date', 'arrivee_heure', 'arrivee_vol')
 
 

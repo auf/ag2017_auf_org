@@ -854,19 +854,19 @@ def export_donnees_csv(request):
     writer.writerow(fields)
     arrivees_vols_groupes = dict(
         (info.vol_groupe_id, info) for info in
-        InfosVol.objects.filter(ville_arrivee='Marrakech',
+        InfosVol.objects.filter(
                                 type_infos=consts.VOL_GROUPE))
     departs_vols_groupes = dict(
         (info.vol_groupe_id, info) for info in
-        InfosVol.objects.filter(ville_depart='Marrakech',
+        InfosVol.objects.filter(
                                 type_infos=consts.VOL_GROUPE))
     arrivees_autres = dict(
         (info.participant_id, info) for info in
-        InfosVol.objects.filter(ville_arrivee='Marrakech')
+        InfosVol.objects.filter()
         .exclude(type_infos=consts.VOL_GROUPE))
     departs_autres = dict(
         (info.participant_id, info) for info in
-        InfosVol.objects.filter(ville_depart='Marrakech')
+        InfosVol.objects.filter()
         .exclude(type_infos=consts.VOL_GROUPE))
     invites_participants = defaultdict(list)
     for invite in Invite.objects.all():
