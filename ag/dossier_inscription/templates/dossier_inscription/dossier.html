@@ -378,8 +378,7 @@
     
     <div id="bloc-planvol" class="bloc-planvol">
         <h2>Renseignements sur mon plan de vol</h2>
-{% if not participant.transport_organise_par_auf %}
-  {% if not inscription.prise_en_charge_transport %}
+{% if not participant.transport_organise_par_auf or not inscription.prise_en_charge_transport %}
   
     <p>L’AUF offre des navettes entre l'aéroport de Marrakech ou de Casablanca et l’hôtel Mogador.
     <br/>Pour bénéficier de ce service, veuillez remplir le formulaire ci dessous.</p>
@@ -440,7 +439,6 @@
         <button class="bouton_sub" name="submit-plan-vol-form" type="submit">
     Enregistrer</button>
     </form>
-    {% endif %}
   {% else %}
   
                 <p>L’AUF se charge de planifier votre vol.</p>
