@@ -86,7 +86,7 @@ def handle_reseautage(request, inscription):
     return form_filtre_reseautage, liste_reseautage
 
 
-def dossier(request):
+def vue_dossier(request):
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
         return redirect('connexion_inscription')
@@ -94,7 +94,8 @@ def dossier(request):
     if not inscription.fermee:
         return redirect(reverse('connexion_inscription'))
 
-    adresse = inscription.get_adresse()
+    dossier = inscription.dossier
+    adresse = dossier.get_adresse()
     participant = inscription.get_participant()
 
     activites = {a.code: a.libelle
@@ -102,7 +103,7 @@ def dossier(request):
 
     # noinspection PyProtectedMember
     context = {
-        'dossier': inscription.dossier,
+        'dossier': dossier,
         'inscription': inscription,
         'participant': participant,
         'adresse': adresse,
@@ -155,18 +156,17 @@ def set_adresse(request):
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
         return redirect('connexion_inscription')
-    inscription = InscriptionFermee.objects.get(id=inscription_id)
+    dossier = InscriptionFermee.objects.get(id=inscription_id).dossier
     form_adresse = forms.AdresseForm(request.POST)
     if form_adresse.is_valid():
-        adresse_courante = inscription.get_adresse()
-        inscription.set_adresse(
-            Adresse(
-                telephone=adresse_courante.telephone,
-                telecopieur=adresse_courante.telecopieur,
-                **form_adresse.cleaned_data))
-        inscription.save()
+        adresse_courante = dossier.get_adresse()
+        nouvelle_adresse = Adresse(
+            telephone=adresse_courante.telephone,
+            telecopieur=adresse_courante.telecopieur,
+            **form_adresse.cleaned_data)
+        dossier.set_adresse(nouvelle_adresse)
     return render(request, 'dossier_inscription/includes/adresse.html',
-                  {'adresse': inscription.get_adresse(),
+                  {'adresse': dossier.get_adresse(),
                    'form_adresse': form_adresse})
 
 

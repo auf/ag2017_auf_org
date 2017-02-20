@@ -2,6 +2,8 @@
 import collections
 import datetime
 import django.test
+from django.core.urlresolvers import reverse
+
 from ag.core.test_utils import (
     InscriptionFactory,
     ParticipantFactory)
@@ -9,7 +11,7 @@ from ag.dossier_inscription.models import (
     InscriptionFermee,
     SuiviDossier)
 from ag.gestion import transfert_inscription
-from ag.gestion.models import COMPLETE
+from ag.gestion.models import COMPLETE, Participant
 from ag.dossier_inscription import views
 from ag.inscription.models import Adresse, PaypalResponse
 from ag.tests import forfaits_fixture, fonction_fixture
@@ -25,20 +27,6 @@ class InscriptionFermeeTests(django.test.TestCase):
                           telecopieur='123-222-2222')
         i = InscriptionFermee(**adresse.__dict__)
         assert i.get_adresse() == adresse
-
-    def test_get_adresse_participant(self):
-        """Si l'inscription a été validée, un objet participant a été créé
-        pour elle, et c'est l'adresse contenue dans Participant que get_adresse
-        doit retourner.
-        """
-        adresse_part = Adresse(adresse="adrpart", code_postal="98765",
-                               ville="lavillepart", pays="unpays",
-                               telephone='123-222-2222',
-                               telecopieur='123-222-2222')
-        i = InscriptionFactory()
-        ParticipantFactory(inscription=i, **adresse_part.__dict__)
-        i = InscriptionFermee.objects.get(id=i.id)
-        assert i.get_adresse() == adresse_part
 
     def create_inscription_paiement(self):
         forfaits_fixture()
@@ -155,3 +143,37 @@ class PlanVolFormTest(django.test.TestCase):
         assert i.arrivee_vol == 'AF123'
         assert i.depart_date == datetime.date(2017, 5, 5)
         assert i.depart_heure == datetime.time(12, 12)
+
+
+class SetAdresseTestCase(django.test.TestCase):
+    DATA = {'adresse': u"Nouvelle adresse", 'code_postal': u"1234",
+            'ville': u"neuf", 'pays': u"un pays"}
+
+    def get_expected_adresse(self, rp):
+        adresse = rp.get_adresse()
+        return adresse._replace(**self.DATA)
+
+    def post(self, inscription):
+        session = self.client.session
+        session['inscription_id'] = inscription.id
+        session.save()
+        self.client.post(reverse('set_adresse'), data=self.DATA)
+
+    def test_sans_participant(self):
+        i = InscriptionFactory(fermee=True, telephone='1234',
+                               telecopieur='4567')
+        i = InscriptionFermee.objects.get(id=i.id)
+        self.post(i)
+        i = InscriptionFermee.objects.get(id=i.id)
+        self.assertEqual(i.get_adresse(),
+                         self.get_expected_adresse(i))
+
+    def test_avec_participant(self):
+        i = InscriptionFactory(fermee=True)
+        p = ParticipantFactory(inscription=i, telephone='1234',
+                               telecopieur='4567')
+        i = InscriptionFermee.objects.get(pk=i.id)
+        self.post(i)
+        p = Participant.objects.get(pk=p.id)
+        self.assertEqual(p.get_adresse(),
+                         self.get_expected_adresse(p))

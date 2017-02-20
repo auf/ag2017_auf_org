@@ -38,25 +38,6 @@ class InscriptionFermee(models_inscription.Inscription):
     def get_participant_or_self(self):
         return self.get_participant() or self
 
-    def get_adresse(self):
-        participant = self.get_participant()
-        if participant:
-            return participant.get_adresse()
-        else:
-            return super(InscriptionFermee, self).get_adresse()
-
-    def set_adresse(self, adresse):
-        """Fixe l'adresse du participant si l'inscription a été validée, sinon
-        fixe l'adresse de l'inscription
-
-        :param adresse: Adresse
-        """
-        dest = self.get_participant_or_self()
-        dest.adresse = adresse.adresse
-        dest.code_postal = adresse.code_postal
-        dest.ville = adresse.ville
-        dest.pays = adresse.pays
-
     def is_participation_confirmee(self):
         participant = self.get_participant()
         return bool(participant and participant.facturation_validee)
@@ -106,6 +87,13 @@ class InscriptionFermee(models_inscription.Inscription):
 Invite = collections.namedtuple('Invite', ('genre', 'nom', 'prenom'))
 
 
+def set_adresse(dest, adresse):
+    dest.adresse = adresse.adresse
+    dest.code_postal = adresse.code_postal
+    dest.ville = adresse.ville
+    dest.pays = adresse.pays
+
+
 class DossierInscription:
     def __init__(self, inscription):
         self.inscription = inscription  # type: models_inscription.Inscription
@@ -120,6 +108,13 @@ class DossierInscription:
 
     def get_prise_en_charge_hebergement(self):
         return self.inscription.prise_en_charge_hebergement
+
+    def get_adresse(self):
+        return self.inscription.get_adresse()
+
+    def set_adresse(self, adresse):
+        self.inscription.set_adresse(adresse)
+        self.inscription.save()
 
 
 class DossierGestion:
@@ -137,3 +132,10 @@ class DossierGestion:
     def itineraire_disponible(self):
         return (self.participant.statut_dossier_transport ==
                 models_gestion.COMPLETE)
+
+    def get_adresse(self):
+        return self.participant.get_adresse()
+
+    def set_adresse(self, adresse):
+        self.participant.set_adresse(adresse)
+        self.participant.save()

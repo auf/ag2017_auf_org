@@ -122,6 +122,18 @@ class RenseignementsPersonnels(models.Model):
                        pays=self.pays, telephone=self.telephone,
                        telecopieur=self.telecopieur)
 
+    def set_adresse(self, adresse):
+        """
+
+        :param adresse: Adresse
+        """
+        self.adresse = adresse.adresse
+        self.code_postal = adresse.code_postal
+        self.ville = adresse.ville
+        self.pays = adresse.pays
+        self.telephone = adresse.telephone
+        self.telecopieur = adresse.telecopieur
+
     def get_verse_en_trop(self):
         return -min(self.total_facture - self.total_deja_paye, 0)
 
