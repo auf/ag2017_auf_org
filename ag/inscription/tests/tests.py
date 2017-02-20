@@ -27,7 +27,7 @@ from ag.gestion.models import (
 from ag.inscription.forms import AccueilForm, RenseignementsPersonnelsForm, \
     TransportHebergementForm
 from ag.inscription.models import Inscription, Invitation, \
-    InvitationEnveloppe, PaypalInvoice, PaypalResponse, get_forfaits
+    InvitationEnveloppe, PaypalInvoice, PaypalResponse, get_forfaits, Forfait
 from ag.inscription.views import EtapesProcessus, inscriptions_terminees
 from ag.tests import create_fixtures
 from ag.gestion import consts
@@ -295,8 +295,8 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                                      kwargs={'url_title': 'apercu'}))
 
     def test_make_paypal_invoice(self):
-        ModeleCourriel.objects.create(code='recu_ok', sujet=u"a", corps=u"b",
-                                      html=False)
+        # ModeleCourriel.objects.create(code='recu_ok', sujet=u"a", corps=u"b",
+        #                               html=False)
         i = self.create_inscription(['participant', 'transport-hebergement',
                                      'programmation'])
         nb_mail = len(mail.outbox)
@@ -306,8 +306,8 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         assert i.fermee
         invoice = PaypalInvoice.objects.get(inscription=i)
         assert invoice.montant == i.get_solde_a_payer()
-        # un mail au participant et un au service
-        assert len(mail.outbox) == nb_mail + 2
+        # un mail au participant et un au service et un au bureau régional
+        assert len(mail.outbox) == nb_mail + 3
 
     def test_transport_hebergement(self):
         inscription = self.create_inscription(('participant',))
@@ -418,6 +418,8 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
         self.assertContains(response, u"supplément occupation double")
+        self.assertContains(response, Forfait.objects.get(
+            code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE).affiche())
 
     def test_apercu_pas_de_supplement(self):
         inscription = self.create_inscription(('participant',
@@ -441,6 +443,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription = self.create_inscription(('participant',
                                                'transport-hebergement',
                                                'programmation', ))
+        outbox_len = len(mail.outbox)
         response = self.client.post(url_etape(inscription, 'apercu'),
                                     data={u'confirmer': u'on'})
         self.assertRedirects(
@@ -449,6 +452,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription = Inscription.objects.get(id=inscription.id)
         self.assertTrue(inscription.fermee)
         self.assertTrue(inscription.prise_en_charge_transport)
+        self.assertEqual(outbox_len + 3, len(mail.outbox))
 
     def test_confirmation_prise_en_charge_interdite(self):
         inscription = self.create_inscription(
@@ -627,7 +631,7 @@ def test_inscription_terminee():
 
 
 class PreremplirTest(unittest.TestCase):
-    
+
     def setUp(self):
         p = Pays(nom=u"pppp")
         self.etablissement = Etablissement(

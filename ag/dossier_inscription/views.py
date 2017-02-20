@@ -205,9 +205,7 @@ def reseautage_on_off(request):
     if not inscription_id:
         return redirect('connexion_inscription')
     inscription = InscriptionFermee.objects.get(id=inscription_id)
-    print(request.POST)
     if request.POST.get('accepte_reseautage'):
-        print('reseautage!')
         inscription.reseautage = True
         inscription.save()
     if request.POST.get('refuse_reseautage'):

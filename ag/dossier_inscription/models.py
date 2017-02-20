@@ -14,7 +14,6 @@ class InscriptionFermee(models_inscription.Inscription):
         proxy = True
 
     def load_participant(self):
-        print('load-participant')
         try:
             self._participant = models_gestion.Participant.objects \
                 .sql_extra_fields('total_facture', 'total_deja_paye_sql',
@@ -110,6 +109,7 @@ Invite = collections.namedtuple('Invite', ('genre', 'nom', 'prenom'))
 class DossierInscription:
     def __init__(self, inscription):
         self.inscription = inscription  # type: models_inscription.Inscription
+        self.itineraire_disponible = False
 
     def invites(self):
         if self.inscription.accompagnateur:
@@ -132,3 +132,8 @@ class DossierGestion:
 
     def get_prise_en_charge_hebergement(self):
         return self.participant.prise_en_charge_sejour
+
+    @property
+    def itineraire_disponible(self):
+        return (self.participant.statut_dossier_transport ==
+                models_gestion.COMPLETE)

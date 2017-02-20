@@ -164,7 +164,6 @@ class GestionTestCase(TestCase):
     def test_nouveau_participant(self):
         nb_participant_avant = Participant.objects.count()
         data = self.nouveau_participant_data()
-        print(data)
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertEquals(response.status_code, 302)
         self.assertEqual(Participant.objects.count(), nb_participant_avant + 1)
@@ -574,7 +573,6 @@ class GestionTestCase(TestCase):
             reverse('facturation', args=[participant.id]),
             data=data
         )
-        print(response)
         self.assertRedirects(response, self.url_fiche_participant())
         participant = Participant.objects.get(pk=participant.id)
         response = self.client.get(
@@ -981,8 +979,6 @@ class GestionTestCase(TestCase):
 
         id_participant = self.participant.id
         participant = get_participant()
-        print(participant.total_facture)
-        print(participant.frais_inscription)
         self.assertTrue(participant.problematique)
         self.assertTrue(participant.solde_a_payer)
         self.assertFalse(participant.paiement_en_trop)
@@ -1257,6 +1253,8 @@ class TransfertInscription(TestCase):
         i.programmation_gala_invite = False
         i.prise_en_charge_hebergement = False
         i.prise_en_charge_transport = False
+        i.forfait_invite_transfert = True
+        i.forfait_invite_dejeuners = True
         i.arrivee_date = datetime.date(2013, 5, 1)
         i.arrivee_heure = datetime.time(10, 00)
         i.arrivee_vol = u'CA111'
@@ -1304,7 +1302,8 @@ class TransfertInscription(TestCase):
         self.assertEqual(infos_depart.heure_depart, i.depart_heure)
         self.assertEqual(p.fonction.code, consts.FONCTION_REPR_UNIVERSITAIRE)
         self.assertEqual(p.etablissement, i.get_etablissement())
-
+        self.assertTrue(p.a_forfait(consts.CODE_DEJEUNERS))
+        self.assertTrue(p.a_forfait(consts.CODE_TRANSFERT_AEROPORT))
         self.assertEquals(len(Invite.objects.filter(participant=p)), 1)
         self.assertFalse(p.transport_organise_par_auf)
         self.assertFalse(p.reservation_hotel_par_auf)
