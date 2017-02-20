@@ -97,7 +97,7 @@ class GestionTestCase(TestCase):
         participant = self.participant
         participant.fonction = get_fonction_instance_seulement()
         participant.instance_auf = 'A'
-        assert u"administration" in participant.nom_institution()
+        assert u"associatif" in participant.nom_institution()
 
     def test_nom_institution_personnel_auf(self):
         participant = self.participant
@@ -556,7 +556,7 @@ class GestionTestCase(TestCase):
             u'prise_en_charge_sejour': u'on',
             u'facturation_validee': u'',
             u'date_facturation': u'',
-            u'imputation': u'90002AG201',
+            u'imputation': u'A0394DRI017B3',
             u'notes_facturation': u'',
             u'paiement_set-TOTAL_FORMS': u'1',
             u'paiement_set-INITIAL_FORMS': u'0',
