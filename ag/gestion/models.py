@@ -398,9 +398,8 @@ COMPLETE = 'C'
 
 class Participant(RenseignementsPersonnels):
     INSTANCES_AUF = (
-        (consts.CA, u"Conseil associatif"),
+        (consts.CA, u"Conseil d'administration"),
         (consts.CS, u"Conseil scientifique"),
-        (consts.COS, u"Conseil d'orientation stratégique"),
     )
 
     MEMBRE_CA_REPRESENTE = (

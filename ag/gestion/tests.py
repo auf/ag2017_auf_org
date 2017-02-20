@@ -97,7 +97,7 @@ class GestionTestCase(TestCase):
         participant = self.participant
         participant.fonction = get_fonction_instance_seulement()
         participant.instance_auf = 'A'
-        assert u"associatif" in participant.nom_institution()
+        assert u"administration" in participant.nom_institution()
 
     def test_nom_institution_personnel_auf(self):
         participant = self.participant
