@@ -6,7 +6,7 @@ mock
 lxml
 pytest-django
 factory_boy==2.7.0
-
+fake-factory==0.6.0
 MySQL-python==1.2.3
 Pillow==3.3.1
 reportlab==3.3.0
