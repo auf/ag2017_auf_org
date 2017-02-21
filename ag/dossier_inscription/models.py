@@ -94,8 +94,36 @@ def set_adresse(dest, adresse):
     dest.pays = adresse.pays
 
 
-class DossierInscription:
+class Dossier(object):
+
+    def __init__(self, renseignements_personnels):
+        self.rp = renseignements_personnels
+        # type: models_inscription.RenseignementsPersonnels
+
+    @property
+    def genre(self):
+        return self.rp.get_genre_display()
+
+    @property
+    def nom(self):
+        return self.rp.nom
+
+    @property
+    def prenom(self):
+        return self.rp.prenom
+
+    @property
+    def poste(self):
+        return self.rp.poste
+
+    @property
+    def courriel(self):
+        return self.rp.courriel
+
+
+class DossierInscription(Dossier):
     def __init__(self, inscription):
+        super(DossierInscription, self).__init__(inscription)
         self.inscription = inscription  # type: models_inscription.Inscription
         self.itineraire_disponible = False
 
@@ -106,9 +134,6 @@ class DossierInscription:
                 nom=self.inscription.accompagnateur_nom,
                 prenom=self.inscription.accompagnateur_prenom)]
 
-    def get_prise_en_charge_hebergement(self):
-        return self.inscription.prise_en_charge_hebergement
-
     def get_adresse(self):
         return self.inscription.get_adresse()
 
@@ -116,17 +141,19 @@ class DossierInscription:
         self.inscription.set_adresse(adresse)
         self.inscription.save()
 
+    @property
+    def prise_en_charge_hebergement(self):
+        return self.inscription.prise_en_charge_hebergement
 
-class DossierGestion:
+
+class DossierGestion(Dossier):
     def __init__(self, participant):
+        super(DossierGestion, self).__init__(participant)
         self.participant = participant  # type: models_gestion.Participant
 
     def invites(self):
         return [Invite(genre=i.get_genre_display(), nom=i.nom, prenom=i.prenom)
                 for i in self.participant.invite_set.all()]
-
-    def get_prise_en_charge_hebergement(self):
-        return self.participant.prise_en_charge_sejour
 
     @property
     def itineraire_disponible(self):
@@ -139,3 +166,7 @@ class DossierGestion:
     def set_adresse(self, adresse):
         self.participant.set_adresse(adresse)
         self.participant.save()
+
+    @property
+    def prise_en_charge_hebergement(self):
+        return self.participant.prise_en_charge_sejour

@@ -19,10 +19,10 @@
 <div id="bloc-info-participant" class="info-participant">
    <h2> Informations du participant</h2>
       <p>
-      {{ inscription.get_genre_display }} {{ inscription.nom }}
-      {{ inscription.prenom }}<br/>
-      {{ inscription.poste }}<br/>
-      {{ inscription.courriel }}<br/>
+      {{ dossier.genre }} {{ dossier.nom }}
+      {{ dossier.prenom }}<br/>
+      {{ dossier.poste }}<br/>
+      {{ dossier.courriel }}<br/>
       T:{{ adresse.telephone }}<br/>
       F:{{ adresse.telecopieur }}<br/>
     </p>
@@ -65,7 +65,7 @@
         <li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
         <li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
         <li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
-        {% if inscription.get_prise_en_charge_hebergement %}
+        {% if dossier.prise_en_charge_hebergement %}
         <li class="{% if inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
         {% endif %}
   </ul>
@@ -326,7 +326,7 @@
 
       <div id="bloc-hebergement" class="bloc-hebergement">
   <h2>Hébergement</h2>
-{% if not inscription.get_prise_en_charge_hebergement %}
+{% if not dossier.prise_en_charge_hebergement %}
 
   <p>
     L'AUF a négocié un tarif préférentiel avec l'hôtel Ryad Mogador Agdal & 
