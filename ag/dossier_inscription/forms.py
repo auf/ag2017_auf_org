@@ -40,7 +40,9 @@ class PlanVolForm(forms.ModelForm):
     class Meta:
         model = ag.inscription.models.Inscription
         fields = ('depart_date', 'depart_heure', 'depart_vol',
-                  'arrivee_date', 'arrivee_heure', 'arrivee_vol')
+                  'depart_compagnie', 'depart_de',
+                  'arrivee_date', 'arrivee_heure', 'arrivee_vol',
+                  'arrivee_compagnie', 'arrivee_a')
 
 
 class AjoutPasseportForm(forms.ModelForm):
