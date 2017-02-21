@@ -295,6 +295,10 @@ class Inscription(RenseignementsPersonnels):
         "Je demande la prise en charge de mon transport."
     )
 
+    arrivee_a = models.CharField(
+        'arrivée à', max_length=10, choices=DEPART_DE_CHOICES, blank=True
+    )
+
     arrivee_date = models.DateField(
         "date d'arrivée à Marrakech", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
@@ -303,6 +307,8 @@ class Inscription(RenseignementsPersonnels):
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
     arrivee_vol = models.CharField('vol', max_length=100, blank=True)
+    arrivee_compagnie = models.CharField('compagnie', max_length=64, blank=True,
+                                         null=True)
     depart_de = models.CharField(
         'départ de', max_length=10, choices=DEPART_DE_CHOICES, blank=True
     )
@@ -314,6 +320,8 @@ class Inscription(RenseignementsPersonnels):
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
     depart_vol = models.CharField('vol', max_length=100, blank=True)
+    depart_compagnie = models.CharField('compagnie', max_length=64, blank=True,
+                                        null=True)
 
     fermee = models.BooleanField(
         u"Confirmée par le participant", default=False
