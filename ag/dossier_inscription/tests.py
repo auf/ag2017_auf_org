@@ -106,8 +106,8 @@ class PlanVolFormTest(django.test.TestCase):
             'depart_date': '05/05/2017',
             'depart_heure': '12:12',
             'depart_vol': 'AF456',
-            'depart_de': 'marrakech',
-            'arrivee_a': 'casa',
+            'depart_de': 'Marrakech',
+            'arrivee_a': 'Casablanca',
             'submit-plan-vol-form': '1',
         }, 'POST')
         form = views.handle_plan_vol_form(request, dossier)

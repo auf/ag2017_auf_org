@@ -407,8 +407,9 @@ class Participant(RenseignementsPersonnels):
         ("G", u"Gouvernement"),
     )
     MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES = (
-        ('A', u"À votre arrivée à Marrakech"),
-        ('I', u"Par le bureau régional")
+        ('A', u"Lors de votre enregistrement à l'assemblée à Marrakech"),
+        ('I', u"Au bureau AUF le plus proche"),
+        ('V', u"Par virement bancaire")
     )
     IMPUTATION_CHOICES = (
         ('A0394DRI017B3', 'A0394DRI017B3'),
@@ -475,20 +476,10 @@ class Participant(RenseignementsPersonnels):
         u"Modalité de retrait du billet",
         choices=(
             (BUREAU_REGION,
-             u'Vos billets vous seront transmis par votre '
-             u'bureau régional'),
+             u"Vos billets vous seront transmis par l'AUF"),
             (COMPTOIR_COMPAGNIE,
              u'Vos billets seront disponibles au '
              u'comptoir de la compagnie aérienne'),
-            (BUREAU_REGION_TRAIN,
-             u"Vos billets de train et d'avion vous "
-             u"seront transmis par votre bureau "
-             u"régional"),
-            (COMPTOIR_COMPAGNIE_TRAIN,
-             u"Vos billets de train et d'avion "
-             u"seront disponibles aux comptoirs "
-             u"de la compagnie aérienne et de la "
-             u"SNCF"),
         ),
         max_length=1, blank=True)
     numero_dossier_transport = CharField(u"numéro de dossier", max_length=32,

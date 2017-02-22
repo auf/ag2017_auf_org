@@ -100,3 +100,5 @@ SENDFILE_BACKEND="sendfile.backends.development"
 #        },
 #    },
 #}
+
+SAML_AUTH = False

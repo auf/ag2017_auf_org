@@ -338,15 +338,17 @@ def generer_itineraires(output_file, participants):
 
     # Styles
     styles = StyleSheet()
-    styles.add_style('normal', fontName='Helvetica', fontSize=8)
-    styles.add_style('bold', fontName='Helvetica-bold', fontSize=8)
+    styles.add_style('normal', fontName='Helvetica', fontSize=11)
+    styles.add_style('petit', fontName='Helvetica', fontSize=10)
+    styles.add_style('bold', fontName='Helvetica-bold', fontSize=11)
     styles.add_style('titre', fontName='Helvetica-Bold', fontSize=15)
     styles.add_style('sous-titre', fontName='Helvetica-Bold', fontSize=11)
     styles.add_style('right-aligned', alignment=TA_RIGHT)
-    styles.add_style('section', fontName='Helvetica-Bold', fontSize=10)
-    styles.add_style('itineraire-header', fontName='Helvetica-Bold', fontSize=7)
+    styles.add_style('section', fontName='Helvetica-Bold', fontSize=12)
+    styles.add_style('itineraire-header', fontName='Helvetica-Bold', fontSize=8)
     styles.add_style('itineraire', fontSize=8)
-    styles.add_style('bullet', bulletIndent=18, fontSize=8)
+    styles.add_style('remarque', fontName='Helvetica-Oblique', fontSize=10)
+    styles.add_style('bullet', bulletIndent=18, fontSize=11)
     styles.add_style(
         'important', borderWidth=1, borderRadius=3, borderColor=black,
         borderPadding=3, alignment=TA_CENTER, fontName='Helvetica-Bold',
@@ -387,19 +389,17 @@ def generer_itineraires(output_file, participants):
         ]:
             canvas.drawString(x, y, s)
             y -= 10
-        contenu.append(Spacer(0, 2 * cm))
+        contenu.append(Spacer(0, 2.5 * cm))
 
         # Titre
         contenu.append(Paragraph(
             u"Imprimé le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
-            styles['right-aligned']
-        ))
+            styles['right-aligned']))
+        contenu.append(Spacer(0, 0.5 * cm))
 
-        contenu.append(Paragraph(u"ITINÉRAIRE DE VOYAGE", styles['titre']))
-        contenu.append(Paragraph(
-            u"(Assemblée générale AUF 2017)", styles['sous-titre']
-        ))
-        contenu.append(Spacer(0, 0.25 * cm))
+        contenu.append(Paragraph(u"VOTRE ITINÉRAIRE DE VOYAGE - "
+        u"Assemblée générale AUF 2017", styles['titre']))
+        contenu.append(Spacer(0, 0.5 * cm))
 
         # Coordonnées
         contenu.append(Table(
@@ -413,177 +413,149 @@ def generer_itineraires(output_file, participants):
                 #[u"Bureau régional AUF :",
                  #participant.get_nom_bureau_regional()],
             ],
-            colWidths=(4 * cm, 14.5 * cm),
+            colWidths=(5 * cm, 13.5 * cm),
+
             style=TableStyle([
-                ('GRID', (0, 0), (-1, -1), 0.5, black),
+                ('BOX', (0, 0), (-1, -1), 0, black),
                 ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
-                ('TOPPADDING', (0, 0), (-1, -1), 2),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('BACKGROUND', (0, 0), (0, -1), lightgrey),
+                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
             ])
-        ))
+            ))
         contenu.append(Spacer(0, 0.5 * cm))
 
         # Itinéraire
-        contenu.append(Paragraph(u"Itinéraire :", styles['section']))
+        contenu.append(Paragraph(u"Plan de vol :", styles['section']))
         contenu.append(Spacer(0, 0.25 * cm))
         contenu.append(Table(
             [[
                  Paragraph(header, styles['itineraire-header'])
                  for header in [
-                     u"Date de départ", u"Ville de départ",
-                     u"Ville d'arrivée", u"Compagnie aérienne",
-                     u"Numéro de vol", u"Heure de départ",
-                     u"Heure d'arrivée", u"Date d'arrivée"
+                     u"Compagnie aérienne", u"Numéro de vol",
+                     u"Ville de départ", u"Date de départ",
+                     u"Heure départ", u"Ville d'arrivée",
+                     u"Date arrivée", u"Heure d'arrivée"
                  ]
                  ]] +
             [
                 [
                     Paragraph(s, styles['itineraire'])
                     for s in [
-                        date_format(vol.date_depart, 'SHORT_DATE_FORMAT')
-                        if vol.date_depart else u'',
-                        vol.ville_depart,
-                        vol.ville_arrivee,
                         vol.compagnie,
                         vol.numero_vol,
+                        vol.ville_depart,
+                        date_format(vol.date_depart, 'SHORT_DATE_FORMAT')
+                        if vol.date_depart else u'',
                         time_format(vol.heure_depart, 'H:i')
                         if vol.heure_depart else u'',
-                        time_format(vol.heure_arrivee, 'H:i')
-                        if vol.heure_arrivee else u'',
+                        vol.ville_arrivee,
                         date_format(vol.date_arrivee, 'SHORT_DATE_FORMAT')
                         if vol.date_arrivee else u'',
+                        time_format(vol.heure_arrivee, 'H:i')
+                        if vol.heure_arrivee else u'',
                     ]
                     ]
                 for vol in vols
                 ],
             colWidths=(
-                2.5 * cm, 3 * cm, 3 * cm, 2.5 * cm, 2 * cm, 1.5 * cm,
-                1.5 * cm, 2.5 * cm
+                2.5 * cm, 2 * cm, 3 * cm, 2 * cm, 2 * cm, 3 * cm,
+                2 * cm, 2 * cm
             ),
             style=TableStyle([
                 ('BOX', (0, 0), (-1, -1), 0.5, black),
                 ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
                 ('VALIGN', (0, 1), (-1, -1), 'TOP'),
                 ('ALIGN', (1, 2), (1, -1), 'RIGHT'),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
             ])
 
-        ))
-        contenu.append(Spacer(0, 0.5 * cm))
-
-        # Retrait du billet
-        contenu.append(Paragraph(u"Retrait des titres de transport:",
-                                 styles['section']))
-
-        contenu.append(Paragraph(
-            participant.get_modalite_retrait_billet_display(),
-            styles['normal']
-        ))
-        contenu.append(Spacer(0, 0.5 * cm))
-
-        # Documents requis
-        contenu.append(Paragraph(u"Documents requis :", styles['section']))
-
-        contenu.append(Paragraph(
-            u"<bullet>&bull;</bullet>Passeport en cours de validité",
-            styles['bullet']
-        ))
-        contenu.append(Paragraph(
-            u"<bullet>&bull;</bullet>Visa de transit",
-            styles['bullet']
-        ))
-        contenu.append(Paragraph(
-            u"<bullet>&bull;</bullet>Visa d'entrée pour le Maroc",
-            styles['bullet']
-        ))
-        contenu.append(Spacer(0, 0.5 * cm))
-
-        # Remarques
-        if participant.remarques_transport:
-            contenu.append(Paragraph(u"Remarques :", styles['section']))
-
-            contenu.append(Paragraph(
-                participant.remarques_transport, styles['normal']
             ))
-            contenu.append(Spacer(0, 0.5 * cm))
-
-        # Prise en charge dans ville de transit
-        if participant.frais_autres:
-            contenu.append(Paragraph(u"Prise en charge de votre séjour dans la "
-                                     u"(les) ville(s) de transit :",
-                                     styles['section']))
-            contenu.append(Spacer(0, 0.25 * cm))
-            contenu.append(Table([
-                [u"Montant:", u"%.2d €" % participant.frais_autres],
-                [u"Versement:",
-                 participant.get_modalite_versement_frais_sejour_display()],
+        contenu.append(Table(
+            [
+                [u"Retrait des titres de transport :", 
+                participant.get_modalite_retrait_billet_display()],
+                [u"Documents requis :",
+                Paragraph(u"&bull; Passeport en cours de validité <br/>"
+                u"&bull; Visa d'entrée pour le Maroc", styles['petit'])],
+                [u"Remarques :", 
+                Paragraph(participant.remarques_transport, styles['remarque'])],
             ],
-                colWidths=(
-                    2 * cm, 8 * cm,
-                ),
-                style=TableStyle([
-                    ('BOX', (0, 0), (-1, -1), 0.5, black),
-                    ('LINEBELOW', (0, 0), (-1, -1), 0.5, black),
-                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
-                    ('VALIGN', (0, 1), (-1, -1), 'TOP'),
-                ]),
-                hAlign='LEFT', ))
-
-            contenu.append(Spacer(0, 0.5 * cm))
-
+            colWidths=(5 * cm, 13.5 * cm),
+            style=TableStyle([
+                ('BOX', (0, 0), (-1, -1), 0.5, black),
+                ('TOPPADDING', (0, 0), (-1, -1), 3),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+                ('VALIGN', (0, 1), (-1, -1), 'TOP'),
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
+                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                ('BACKGROUND', (0, 0), (0, -1), lightgrey),
+            ])
+            ))     
+        contenu.append(Spacer(0, 0.5 * cm))
+        
+        # Note de frais
+        if participant.frais_autres:
+            contenu.append(Paragraph(u"Note de frais :", styles['section']))
+            contenu.append(Spacer(0, 0.25 * cm))
+            contenu.append(Table(
+            [
+                [u"Montant :", u"%.2d €" % participant.frais_autres],
+                [u"Versement :", participant.get_modalite_versement_frais_sejour_display()]
+            ],
+            colWidths=(5 * cm, 13.5 * cm),
+            style=TableStyle([
+                ('BOX', (0, 0), (-1, -1), 0, black),
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('BACKGROUND', (0, 0), (0, -1), lightgrey),
+                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
+            ])
+            ))
+        contenu.append(Spacer(0, 0.5 * cm))
         # Hôtel
         if participant.hotel:
-            contenu.append(Paragraph(u"Hôtel réservé:", styles['section']))
-
-            contenu.append(Paragraph(participant.hotel.libelle, styles['bold']))
-            contenu.append(Paragraph(participant.hotel.adresse,
-                                     styles['normal']))
-            contenu.append(Paragraph("du {0} au {1}".format(
+            contenu.append(Paragraph(u"Séjour :", styles['section']))
+            contenu.append(Spacer(0, 0.25 * cm))
+            contenu.append(Table(
+            [
+                [u"Dates du séjour :", Paragraph("du {0} au {1}".format(
                 date_format(participant.date_arrivee_hotel,
                             'SHORT_DATE_FORMAT'),
                 date_format(participant.date_depart_hotel,
                             'SHORT_DATE_FORMAT')),
-                styles['bold']))
-
-        contenu.append(Paragraph(
-            u"Présentez-vous à l'accueil de l'hotel avec votre "
-            u"passeport pour la sélection de votre chambre. ",
-            styles['itineraire-header']
-        ))
-
-        contenu.append(Paragraph(
-            u"N.B. Les départs de votre hotel sont prévus 4 heures avant le "
-            u"décollage de votre avion.",
-            styles['itineraire-header']
-        ))
-        contenu.append(Spacer(0, 0.5 * cm))
-
-        # Instructions
-        contenu.append(Paragraph(u"IMPORTANT", styles['important']))
-        contenu.append(Spacer(0, 0.25 * cm))
-        contenu.append(Paragraph(
-            u"Document signé avec la mention "
-            u"« bon pour accord », à retourner impérativement dans les 48 "
-            u"heures suivant la réception",
-            styles['bold']
-        ))
-        contenu.append(Spacer(0, 0.75 * cm))
-
-        # Signature
-        contenu.append(Table(
-            [
-                [u"Bon pour accord", u"", u"Signature obligatoire"],
-                [u"", u"", u""],
+                styles['normal'])],
+                [u"Hôtel :", Paragraph(participant.hotel.libelle, styles['bold'])],
+                [u"Adresse :", Paragraph(participant.hotel.adresse, styles['petit'])],
+                [u"Remarques:", Paragraph(
+                      u"<i>Présentez-vous à l'accueil de l'hôtel avec votre "
+                      u"passeport <br/>pour l'attribution de votre chambre.</i>",
+                      styles['remarque'])],
+                [u"", Paragraph(
+                      u"N.B. Prévoyez de libérer votre chambre avant midi, le "
+                      u"jour de votre départ.",
+                      styles['remarque'])]
             ],
-            colWidths=[7 * cm, 4.5 * cm, 7 * cm],
-            rowHeights=[None, 1.5 * cm],
+            colWidths=(5 * cm, 13.5 * cm),
             style=TableStyle([
-                ('BOX', (0, 1), (0, 1), 0.5, black),
-                ('BOX', (2, 1), (2, 1), 0.5, black),
-                ('FONT', (0, 0), (-1, -1), 'Helvetica', 8),
-                ('LEFTPADDING', (0, 0), (-1, -1), 0),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('BOX', (0, 0), (-1, -1), 0, black),
+                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('BACKGROUND', (0, 0), (0, -1), lightgrey),
+                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
+                ('VALIGN', (0, 0), (0, -1), 'TOP'),
             ])
-        ))
+            ))
+        contenu.append(Spacer(0, 0.5 * cm))
+       
 
         # Rendu
         frame = Frame(margin_left, margin_bottom, frame_width, frame_height)

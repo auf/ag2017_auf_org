@@ -219,8 +219,8 @@ paypal_signal = Signal()
 class Inscription(RenseignementsPersonnels):
 
     DEPART_DE_CHOICES = (
-        ('marrakech', u'Marrakech'),
-        ('casa', u'Casablanca'),
+        ('Marrakech', u'Marrakech'),
+        ('Casablanca', u'Casablanca'),
     )
 
     invitation = models.OneToOneField(Invitation)
@@ -313,7 +313,7 @@ class Inscription(RenseignementsPersonnels):
         'départ de', max_length=10, choices=DEPART_DE_CHOICES, blank=True
     )
     depart_date = models.DateField(
-        "date de départ de Marrakech", blank=True, null=True,
+        "date de départ", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
     )
     depart_heure = models.TimeField(
