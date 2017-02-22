@@ -414,6 +414,9 @@ class Participant(RenseignementsPersonnels):
     IMPUTATION_CHOICES = (
         ('A0394DRI017B3', 'A0394DRI017B3'),
         ('A0394DRI016A3', 'A0394DRI016A3'),
+        ('S0255DRI017E1', 'S0255DRI017E1'),
+        ('S0256DRI017E1', 'S0256DRI017E1'),
+        ('A0394MGP017B1', 'A0394MGP017B1'),
     )
 
     # référence à l'inscription effectuée par le web, si applicable
