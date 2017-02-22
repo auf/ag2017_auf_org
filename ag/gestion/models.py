@@ -742,13 +742,13 @@ class Participant(RenseignementsPersonnels):
             self.set_infos_arrivee(inscription.arrivee_date,
                                    inscription.arrivee_heure,
                                    inscription.arrivee_vol,
-                                   inscription.arrivee_compagnie,
+                                   inscription.arrivee_compagnie or u"",
                                    inscription.arrivee_a)
         if inscription.depart_date:
             self.set_infos_depart(inscription.depart_date,
                                   inscription.depart_heure,
                                   inscription.depart_vol,
-                                  inscription.depart_compagnie,
+                                  inscription.depart_compagnie or u"",
                                   inscription.depart_de)
 
     def set_infos_depart(self, date, heure, numero_vol, compagnie,

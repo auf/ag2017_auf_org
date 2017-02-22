@@ -14,7 +14,7 @@ from ag.inscription.models import (
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
-from ag.dossier_inscription.models import InscriptionFermee
+from ag.dossier_inscription.models import InscriptionFermee, InfosDepartArrivee
 from ag.reference.models import Region, Pays
 
 InfoVirement = collections.namedtuple(
@@ -35,16 +35,15 @@ def handle_invites_formset(request, inscription):
     return invites_formset
 
 
-def handle_plan_vol_form(request, inscription):
+def handle_plan_vol_form(request, dossier):
     if request.method == 'POST' and 'submit-plan-vol-form' in request.POST:
-        form = forms.PlanVolForm(request.POST, instance=inscription)
+        form = forms.PlanVolForm(request.POST)
         if form.is_valid():
-            form.save()
-            participant = inscription.get_participant()
-            if participant:
-                participant.set_infos_depart_arrivee(inscription)
+            infos = InfosDepartArrivee(**form.cleaned_data)
+            dossier.set_infos_depart_arrivee(infos)
     else:
-        form = forms.PlanVolForm(instance=inscription)
+        infos = dossier.get_infos_depart_arrivee()
+        form = forms.PlanVolForm(initial=infos._asdict())
     return form
 
 
@@ -118,7 +117,7 @@ def vue_dossier(request):
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
         'avant_31_decembre': (datetime.datetime.today() <
                               datetime.datetime(2017, 1, 31)),
-        'plan_vol_form': handle_plan_vol_form(request, inscription),
+        'plan_vol_form': handle_plan_vol_form(request, dossier),
         'activites': activites,
         'titre_facture': pdf.titre_facture(participant or inscription)
     }

@@ -98,6 +98,7 @@ FakeRequest = collections.namedtuple('FakeRequest', ('POST', 'method'))
 
 class PlanVolFormTest(django.test.TestCase):
     def handle_plan_vol_form(self, inscription):
+        dossier = inscription.dossier
         request = FakeRequest({
             'arrivee_date': '01/05/2017',
             'arrivee_heure': '11:11',
@@ -105,9 +106,13 @@ class PlanVolFormTest(django.test.TestCase):
             'depart_date': '05/05/2017',
             'depart_heure': '12:12',
             'depart_vol': 'AF456',
+            'depart_de': 'marrakech',
+            'arrivee_a': 'casa',
             'submit-plan-vol-form': '1',
         }, 'POST')
-        return views.handle_plan_vol_form(request, inscription)
+        form = views.handle_plan_vol_form(request, dossier)
+        assert not form.errors
+        return form
 
     def test_avec_participant(self):
         """Le plan de vol est enregistré dans l'inscription et le participant,
@@ -122,12 +127,11 @@ class PlanVolFormTest(django.test.TestCase):
         infos_arrivee = p.get_infos_arrivee()
         infos_depart = p.get_infos_depart()
         date_arrivee = datetime.date(2017, 05, 01)
-        assert infos_arrivee.date_arrivee == i.arrivee_date == date_arrivee
-        assert infos_arrivee.heure_arrivee == i.arrivee_heure == \
-            datetime.time(11, 11)
-        assert infos_arrivee.numero_vol == i.arrivee_vol == 'AF123'
-        assert infos_depart.date_depart == i.depart_date
-        assert infos_depart.heure_depart == i.depart_heure
+        date_depart = datetime.date(2017, 05, 05)
+        assert infos_arrivee.date_arrivee == date_arrivee
+        assert infos_arrivee.heure_arrivee == datetime.time(11, 11)
+        assert infos_arrivee.numero_vol == 'AF123'
+        assert infos_depart.date_depart == date_depart
 
     def test_sans_participant(self):
         """Le plan de vol est enregistré dans l'inscription seulement,

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 from django import forms
-import ag.inscription.models
 from ag.gestion import models as gestion_models
+from ag.inscription import models as inscription_models
 
 
 class AdresseForm(forms.Form):
@@ -36,13 +36,19 @@ class FiltreReseautageForm(forms.Form):
         self.fields['pays'].choices = pays
 
 
-class PlanVolForm(forms.ModelForm):
-    class Meta:
-        model = ag.inscription.models.Inscription
-        fields = ('depart_date', 'depart_heure', 'depart_vol',
-                  'depart_compagnie', 'depart_de',
-                  'arrivee_date', 'arrivee_heure', 'arrivee_vol',
-                  'arrivee_compagnie', 'arrivee_a')
+class PlanVolForm(forms.Form):
+        depart_date = forms.DateField(required=False)
+        depart_heure = forms.TimeField(required=False)
+        depart_vol = forms.CharField(required=False, max_length=100)
+        depart_compagnie = forms.CharField(required=False, max_length=64)
+        depart_de = forms.ChoiceField(
+            choices=inscription_models.Inscription.DEPART_DE_CHOICES)
+        arrivee_date = forms.DateField(required=False)
+        arrivee_heure = forms.TimeField(required=False)
+        arrivee_vol = forms.CharField(required=False, max_length=100)
+        arrivee_compagnie = forms.CharField(required=False, max_length=64)
+        arrivee_a = forms.ChoiceField(
+            choices=inscription_models.Inscription.DEPART_DE_CHOICES)
 
 
 class AjoutPasseportForm(forms.ModelForm):
