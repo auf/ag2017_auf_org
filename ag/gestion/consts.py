@@ -292,3 +292,4 @@ CAT_FONCTION_OBSERVATEUR = 'observ'
 
 CA = 'A'
 CS = 'S'
+COS = 'O'

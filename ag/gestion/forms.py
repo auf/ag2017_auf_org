@@ -53,6 +53,10 @@ class RechercheParticipantForm(Form):
 
     nom = CharField(label=u'Nom', max_length=128, required=False,
                     widget=TextInput(attrs={'size': 80}))
+    fonction = ModelChoiceField(
+        label=u"Fonction AG", queryset=Fonction.objects.all(),
+        required=False
+    )
     etablissement = IntegerField(label=u'Établissement',
                                  widget=HiddenInput(attrs={
                                     'id': 'recherche_etablissement_id'}),
@@ -68,8 +72,8 @@ class RechercheParticipantForm(Form):
         Participant.INSTANCES_AUF, required=False
     )
     type_institution = ModelChoiceField(
-        label=u'Type institution', required=False,
-        queryset=TypeInstitution.objects.all()
+        label=u'Type institution', queryset=TypeInstitution.objects.all(),
+        required=False
     )
     suivi = ModelChoiceField(
         label=u'Suivi', queryset=PointDeSuivi.objects.all(), widget=Select,
@@ -86,18 +90,14 @@ class RechercheParticipantForm(Form):
     region = ModelChoiceField(
         label=u"Région", queryset=Region.objects.all(), required=False
     )
-    fonction = ModelChoiceField(
-        label=u"Fonction", queryset=Fonction.objects.all(),
-        required=False
-    )
     probleme = ChoiceField(
-        label=u"Participants problématiques", choices=PROBLEME_CHOICES,
+        label=u"Problématique", choices=PROBLEME_CHOICES,
         required=False
     )
     hotel = ModelChoiceField(label=u"Hôtel", queryset=Hotel.objects.all(),
                              required=False)
     desactive = BooleanField(
-        label=u"Participants désactivés", required=False
+        label=u"Désactivés", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -107,10 +107,10 @@ class RechercheParticipantForm(Form):
         self.helper.layout = Layout(
             Fieldset(
                 '',
-                'nom', 'etablissement_nom', 'etablissement',
-                'instance_auf', 'suivi',
-                'prise_en_charge_transport', 'prise_en_charge_sejour', 'pays',
-                'region', 'fonction', 'probleme', 'hotel', 'desactive'
+                'nom', 'fonction', 'type_institution', 'etablissement_nom', 'etablissement',
+                'instance_auf', 'region', 'pays',
+                'prise_en_charge_transport', 'prise_en_charge_sejour', 'hotel',
+                'suivi', 'probleme', 'desactive'
             ),
             Div(
                 Submit('chercher', 'Chercher', css_class='default'),

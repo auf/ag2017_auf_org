@@ -411,9 +411,8 @@ class Participant(RenseignementsPersonnels):
         ('I', u"Par le bureau régional")
     )
     IMPUTATION_CHOICES = (
-        ('90002AG201', '90002AG201'),
-        ('90002AG202', '90002AG202'),
-        ('90002AG203', '90002AG203'),
+        ('A0394DRI017B3', 'A0394DRI017B3'),
+        ('A0394DRI016A3', 'A0394DRI016A3'),
     )
 
     # référence à l'inscription effectuée par le web, si applicable
@@ -743,12 +742,14 @@ class Participant(RenseignementsPersonnels):
             self.set_infos_arrivee(inscription.arrivee_date,
                                    inscription.arrivee_heure,
                                    inscription.arrivee_vol,
-                                   u"", u"")
+                                   inscription.arrivee_compagnie or u"",
+                                   inscription.arrivee_a)
         if inscription.depart_date:
             self.set_infos_depart(inscription.depart_date,
                                   inscription.depart_heure,
                                   inscription.depart_vol,
-                                  u"", u"")
+                                  inscription.depart_compagnie or u"",
+                                  inscription.depart_de)
 
     def set_infos_depart(self, date, heure, numero_vol, compagnie,
                          ville):
@@ -880,7 +881,7 @@ class Participant(RenseignementsPersonnels):
             text = u"Refusée"
         if value_demande:
             text += u" (demandée)"
-        return text
+        return text 
 
     def get_prise_en_charge_transport_text(self):
         return self.get_prise_en_charge_text(

@@ -19,12 +19,12 @@
 <div id="bloc-info-participant" class="info-participant">
    <h2> Informations du participant</h2>
       <p>
-      {{ inscription.get_genre_display }} {{ inscription.nom }}
-      {{ inscription.prenom }}<br/>
-      {{ inscription.poste }}<br/>
-      {{ inscription.courriel }}<br/>
-      T:{{ inscription.telephone }}<br/>
-      F:{{ inscription.telecopieur }}<br/>
+      {{ dossier.genre }} {{ dossier.nom }}
+      {{ dossier.prenom }}<br/>
+      {{ dossier.poste }}<br/>
+      {{ dossier.courriel }}<br/>
+      T:{{ adresse.telephone }}<br/>
+      F:{{ adresse.telecopieur }}<br/>
     </p>
       {% if dossier.invites %}
         <h3>Accompagnateur personnel</h3>
@@ -65,7 +65,7 @@
         <li class="{% if suivi.inscription_validee %}complet{% endif %}">Inscription validée</li>
         <li class="{% if suivi.participation_confirmee %}complet{% endif %}">Participation confirmée</li>
         <li class="{% if suivi.plan_de_vol_complete %}complet{% endif %}">Plan de vol complété</li>
-        {% if inscription.get_prise_en_charge_hebergement %}
+        {% if dossier.prise_en_charge_hebergement %}
         <li class="{% if inscription.a_televerse_passeport %}complet{% else %}{% endif %}">Copie de passeport reçue</li>
         {% endif %}
   </ul>
@@ -326,7 +326,7 @@
 
       <div id="bloc-hebergement" class="bloc-hebergement">
   <h2>Hébergement</h2>
-{% if not inscription.get_prise_en_charge_hebergement %}
+{% if not dossier.prise_en_charge_hebergement %}
 
   <p>
     L'AUF a négocié un tarif préférentiel avec l'hôtel Ryad Mogador Agdal & 
@@ -383,14 +383,15 @@
   
     <p>L’AUF offre des navettes entre l'aéroport de Marrakech et l’hôtel Mogador.
     <br/>Pour bénéficier de ce service, veuillez remplir le formulaire ci dessous.</p>
+      <a id="plan-vol"></a>
     <form id="plan-vol-dossier" method="POST"
           action="{% url "dossier_inscription" %}#plan-vol">
       {% csrf_token %}
       <table>
       <thead>
       <tr>
-      <th colspan=2>Arrivée à Marrakech</th>
-      <th colspan=2>Départ de Marrakech</th>
+      <th colspan=2>Arrivée</th>
+      <th colspan=2>Départ</th>
       </tr>
       </thead>
         <tr>
@@ -417,18 +418,26 @@
           <td>{{ plan_vol_form.depart_heure }}
                 {{ plan_vol_form.depart_heure.errors }}</td>
         </tr>
-        <tr>
-          <td>Compagnie/N<sup>o</sup> de vol<br/>
-                <span style="color: #555; font-size: 11px; text-align: right;">
+          <tr>
+              <td>Compagnie/N<sup>o</sup> de vol<br/>
+                  <span style="color: #555; font-size: 11px; text-align: right;">
                 <em>Exemple: AF 5542</em></span></td>
-          <td>{{ plan_vol_form.arrivee_vol }}
-                {{ plan_vol_form.arrivee_vol.errors }}</td>
-          <td>Compagnie/N<sup>o</sup> de vol<br/>
-                <span style="color: #555; font-size: 11px; text-align: right;">
+              <td>{{ plan_vol_form.arrivee_vol }}
+                  {{ plan_vol_form.arrivee_vol.errors }}</td>
+              <td>Compagnie/N<sup>o</sup> de vol<br/>
+                  <span style="color: #555; font-size: 11px; text-align: right;">
                 <em>Exemple: AT 224</em></span></td>
-          <td>{{ plan_vol_form.depart_vol }}
-                {{ plan_vol_form.depart_vol.errors }}</td>
-        </tr>
+              <td>{{ plan_vol_form.depart_vol }}
+                  {{ plan_vol_form.depart_vol.errors }}</td>
+          </tr>
+          <tr>
+              <td>Ville d'arrivée</td>
+              <td>{{ plan_vol_form.arrivee_a }}
+                  {{ plan_vol_form.arrivee_a.errors }}</td>
+              <td>Ville de départ</td>
+              <td>{{ plan_vol_form.depart_de }}
+                  {{ plan_vol_form.depart_de.errors }}</td>
+          </tr>
       </table>
         <button class="bouton_sub" name="submit-plan-vol-form" type="submit">
     Enregistrer</button>

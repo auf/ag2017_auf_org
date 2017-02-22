@@ -8,6 +8,67 @@ SuiviDossier = collections.namedtuple(
     'SuiviDossier', ('inscription_recue', 'inscription_validee',
                      'participation_confirmee', 'plan_de_vol_complete'))
 
+InfosDepartArrivee = collections.namedtuple(
+    'InfosDepartArrivee', ('arrivee_date', 'arrivee_heure', 'arrivee_vol',
+                           'arrivee_compagnie', 'arrivee_a',
+                           'depart_date', 'depart_heure', 'depart_vol',
+                           'depart_compagnie', 'depart_de',
+                           ))
+
+
+def infos_depart_arrivee_from_inscription(inscription):
+    """
+
+    :param inscription: models_inscription.Inscription
+    :return: InfosDepartArrivee
+    """
+    return InfosDepartArrivee(
+        **{field: getattr(inscription, field)
+           for field in InfosDepartArrivee._fields})
+
+
+def infos_depart_arrivee_to_inscription(infos_depart_arrivee, inscription):
+    for field in InfosDepartArrivee._fields:
+        setattr(inscription, field, getattr(infos_depart_arrivee, field))
+
+
+def infos_depart_arrivee_to_participant(infos_depart_arrivee, participant):
+    """
+    
+    :param infos_depart_arrivee: InfosDepartArrivee
+    :param participant: models_gestion.Participant
+    """
+
+    participant.set_infos_arrivee(infos_depart_arrivee.arrivee_date,
+                                  infos_depart_arrivee.arrivee_heure,
+                                  infos_depart_arrivee.arrivee_vol,
+                                  infos_depart_arrivee.arrivee_compagnie,
+                                  infos_depart_arrivee.arrivee_a)
+    participant.set_infos_depart(infos_depart_arrivee.depart_date,
+                                 infos_depart_arrivee.depart_heure,
+                                 infos_depart_arrivee.depart_vol,
+                                 infos_depart_arrivee.depart_compagnie,
+                                 infos_depart_arrivee.depart_de)
+
+
+def infos_depart_arrivee_from_participant(participant):
+    infos_arrivee = participant.get_infos_arrivee()  
+    # type: models_gestion.InfosVol
+    infos_depart = participant.get_infos_depart()
+    # type: models_gestion.InfosVol
+    return InfosDepartArrivee(
+        arrivee_date=infos_arrivee.date_arrivee,
+        arrivee_heure=infos_arrivee.heure_arrivee,
+        arrivee_compagnie=infos_arrivee.compagnie,
+        arrivee_vol=infos_arrivee.numero_vol,
+        arrivee_a=infos_arrivee.ville_arrivee,
+        depart_date=infos_depart.date_depart,
+        depart_heure=infos_depart.heure_depart,
+        depart_compagnie=infos_depart.compagnie,
+        depart_vol=infos_depart.numero_vol,
+        depart_de=infos_depart.ville_depart,
+    )
+
 
 class InscriptionFermee(models_inscription.Inscription):
     class Meta:
@@ -37,25 +98,6 @@ class InscriptionFermee(models_inscription.Inscription):
 
     def get_participant_or_self(self):
         return self.get_participant() or self
-
-    def get_adresse(self):
-        participant = self.get_participant()
-        if participant:
-            return participant.get_adresse()
-        else:
-            return super(InscriptionFermee, self).get_adresse()
-
-    def set_adresse(self, adresse):
-        """Fixe l'adresse du participant si l'inscription a été validée, sinon
-        fixe l'adresse de l'inscription
-
-        :param adresse: Adresse
-        """
-        dest = self.get_participant_or_self()
-        dest.adresse = adresse.adresse
-        dest.code_postal = adresse.code_postal
-        dest.ville = adresse.ville
-        dest.pays = adresse.pays
 
     def is_participation_confirmee(self):
         participant = self.get_participant()
@@ -106,8 +148,43 @@ class InscriptionFermee(models_inscription.Inscription):
 Invite = collections.namedtuple('Invite', ('genre', 'nom', 'prenom'))
 
 
-class DossierInscription:
+def set_adresse(dest, adresse):
+    dest.adresse = adresse.adresse
+    dest.code_postal = adresse.code_postal
+    dest.ville = adresse.ville
+    dest.pays = adresse.pays
+
+
+class Dossier(object):
+
+    def __init__(self, renseignements_personnels):
+        self.rp = renseignements_personnels
+        # type: models_inscription.RenseignementsPersonnels
+
+    @property
+    def genre(self):
+        return self.rp.get_genre_display()
+
+    @property
+    def nom(self):
+        return self.rp.nom
+
+    @property
+    def prenom(self):
+        return self.rp.prenom
+
+    @property
+    def poste(self):
+        return self.rp.poste
+
+    @property
+    def courriel(self):
+        return self.rp.courriel
+
+
+class DossierInscription(Dossier):
     def __init__(self, inscription):
+        super(DossierInscription, self).__init__(inscription)
         self.inscription = inscription  # type: models_inscription.Inscription
         self.itineraire_disponible = False
 
@@ -118,22 +195,55 @@ class DossierInscription:
                 nom=self.inscription.accompagnateur_nom,
                 prenom=self.inscription.accompagnateur_prenom)]
 
-    def get_prise_en_charge_hebergement(self):
+    def get_adresse(self):
+        return self.inscription.get_adresse()
+
+    def set_adresse(self, adresse):
+        self.inscription.set_adresse(adresse)
+        self.inscription.save()
+
+    @property
+    def prise_en_charge_hebergement(self):
         return self.inscription.prise_en_charge_hebergement
 
+    def get_infos_depart_arrivee(self):
+        return infos_depart_arrivee_from_inscription(self.inscription)
 
-class DossierGestion:
+    def set_infos_depart_arrivee(self, infos_depart_arrivee):
+        infos_depart_arrivee_to_inscription(infos_depart_arrivee,
+                                            self.inscription)
+        self.inscription.save()
+
+
+class DossierGestion(Dossier):
     def __init__(self, participant):
+        super(DossierGestion, self).__init__(participant)
         self.participant = participant  # type: models_gestion.Participant
 
     def invites(self):
         return [Invite(genre=i.get_genre_display(), nom=i.nom, prenom=i.prenom)
                 for i in self.participant.invite_set.all()]
 
-    def get_prise_en_charge_hebergement(self):
-        return self.participant.prise_en_charge_sejour
-
     @property
     def itineraire_disponible(self):
         return (self.participant.statut_dossier_transport ==
                 models_gestion.COMPLETE)
+
+    def get_adresse(self):
+        return self.participant.get_adresse()
+
+    def set_adresse(self, adresse):
+        self.participant.set_adresse(adresse)
+        self.participant.save()
+
+    @property
+    def prise_en_charge_hebergement(self):
+        return self.participant.prise_en_charge_sejour
+
+    def get_infos_depart_arrivee(self):
+        return infos_depart_arrivee_from_participant(self.participant)
+
+    def set_infos_depart_arrivee(self, infos_depart_arrivee):
+        infos_depart_arrivee_to_participant(infos_depart_arrivee,
+                                            self.participant)
+        self.participant.save()

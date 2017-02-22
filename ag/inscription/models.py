@@ -122,6 +122,18 @@ class RenseignementsPersonnels(models.Model):
                        pays=self.pays, telephone=self.telephone,
                        telecopieur=self.telecopieur)
 
+    def set_adresse(self, adresse):
+        """
+
+        :param adresse: Adresse
+        """
+        self.adresse = adresse.adresse
+        self.code_postal = adresse.code_postal
+        self.ville = adresse.ville
+        self.pays = adresse.pays
+        self.telephone = adresse.telephone
+        self.telecopieur = adresse.telecopieur
+
     def get_verse_en_trop(self):
         return -min(self.total_facture - self.total_deja_paye, 0)
 
@@ -283,6 +295,10 @@ class Inscription(RenseignementsPersonnels):
         "Je demande la prise en charge de mon transport."
     )
 
+    arrivee_a = models.CharField(
+        'arrivée à', max_length=10, choices=DEPART_DE_CHOICES, blank=True
+    )
+
     arrivee_date = models.DateField(
         "date d'arrivée à Marrakech", blank=True, null=True,
         help_text='format: jj/mm/aaaa'
@@ -291,6 +307,8 @@ class Inscription(RenseignementsPersonnels):
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
     arrivee_vol = models.CharField('vol', max_length=100, blank=True)
+    arrivee_compagnie = models.CharField('compagnie', max_length=64, blank=True,
+                                         null=True)
     depart_de = models.CharField(
         'départ de', max_length=10, choices=DEPART_DE_CHOICES, blank=True
     )
@@ -302,6 +320,8 @@ class Inscription(RenseignementsPersonnels):
         'heure', blank=True, null=True, help_text='format: hh:mm'
     )
     depart_vol = models.CharField('vol', max_length=100, blank=True)
+    depart_compagnie = models.CharField('compagnie', max_length=64, blank=True,
+                                        null=True)
 
     fermee = models.BooleanField(
         u"Confirmée par le participant", default=False

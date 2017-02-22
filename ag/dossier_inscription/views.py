@@ -14,7 +14,7 @@ from ag.inscription.models import (
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
-from ag.dossier_inscription.models import InscriptionFermee
+from ag.dossier_inscription.models import InscriptionFermee, InfosDepartArrivee
 from ag.reference.models import Region, Pays
 
 InfoVirement = collections.namedtuple(
@@ -35,16 +35,15 @@ def handle_invites_formset(request, inscription):
     return invites_formset
 
 
-def handle_plan_vol_form(request, inscription):
+def handle_plan_vol_form(request, dossier):
     if request.method == 'POST' and 'submit-plan-vol-form' in request.POST:
-        form = forms.PlanVolForm(request.POST, instance=inscription)
+        form = forms.PlanVolForm(request.POST)
         if form.is_valid():
-            form.save()
-            participant = inscription.get_participant()
-            if participant:
-                participant.set_infos_depart_arrivee(inscription)
+            infos = InfosDepartArrivee(**form.cleaned_data)
+            dossier.set_infos_depart_arrivee(infos)
     else:
-        form = forms.PlanVolForm(instance=inscription)
+        infos = dossier.get_infos_depart_arrivee()
+        form = forms.PlanVolForm(initial=infos._asdict())
     return form
 
 
@@ -86,7 +85,7 @@ def handle_reseautage(request, inscription):
     return form_filtre_reseautage, liste_reseautage
 
 
-def dossier(request):
+def vue_dossier(request):
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
         return redirect('connexion_inscription')
@@ -94,7 +93,8 @@ def dossier(request):
     if not inscription.fermee:
         return redirect(reverse('connexion_inscription'))
 
-    adresse = inscription.get_adresse()
+    dossier = inscription.dossier
+    adresse = dossier.get_adresse()
     participant = inscription.get_participant()
 
     activites = {a.code: a.libelle
@@ -102,7 +102,7 @@ def dossier(request):
 
     # noinspection PyProtectedMember
     context = {
-        'dossier': inscription.dossier,
+        'dossier': dossier,
         'inscription': inscription,
         'participant': participant,
         'adresse': adresse,
@@ -117,7 +117,7 @@ def dossier(request):
         'inscriptions_terminees': inscription_views.inscriptions_terminees(),
         'avant_31_decembre': (datetime.datetime.today() <
                               datetime.datetime(2017, 1, 31)),
-        'plan_vol_form': handle_plan_vol_form(request, inscription),
+        'plan_vol_form': handle_plan_vol_form(request, dossier),
         'activites': activites,
         'titre_facture': pdf.titre_facture(participant or inscription)
     }
@@ -155,18 +155,17 @@ def set_adresse(request):
     inscription_id = request.session.get('inscription_id', None)
     if not inscription_id:
         return redirect('connexion_inscription')
-    inscription = InscriptionFermee.objects.get(id=inscription_id)
+    dossier = InscriptionFermee.objects.get(id=inscription_id).dossier
     form_adresse = forms.AdresseForm(request.POST)
     if form_adresse.is_valid():
-        adresse_courante = inscription.get_adresse()
-        inscription.set_adresse(
-            Adresse(
-                telephone=adresse_courante.telephone,
-                telecopieur=adresse_courante.telecopieur,
-                **form_adresse.cleaned_data))
-        inscription.save()
+        adresse_courante = dossier.get_adresse()
+        nouvelle_adresse = Adresse(
+            telephone=adresse_courante.telephone,
+            telecopieur=adresse_courante.telecopieur,
+            **form_adresse.cleaned_data)
+        dossier.set_adresse(nouvelle_adresse)
     return render(request, 'dossier_inscription/includes/adresse.html',
-                  {'adresse': inscription.get_adresse(),
+                  {'adresse': dossier.get_adresse(),
                    'form_adresse': form_adresse})
 
 
