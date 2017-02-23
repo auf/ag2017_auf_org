@@ -387,13 +387,6 @@
           action="{% url "dossier_inscription" %}#plan-vol">
       {% csrf_token %}
       <table>
-      <tr>
-          <td>Aéroport d'arrivée/départ</td>
-          <td colspan=3>{{ plan_vol_form.depart_de }}
-	  {{ plan_vol_form.depart_de.errors }}</td>
-      </tr>
-      </table>
-      <table>
       <thead>
       <tr>
       <th colspan=2>Arrivée</th>
