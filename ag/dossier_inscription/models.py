@@ -1,19 +1,12 @@
 # -*- encoding: utf-8 -*-
 import collections
-import ag.inscription.models as models_inscription
-import ag.gestion.models as models_gestion
 
+import ag.gestion.models as models_gestion
+import ag.inscription.models as models_inscription
 
 SuiviDossier = collections.namedtuple(
     'SuiviDossier', ('inscription_recue', 'inscription_validee',
                      'participation_confirmee', 'plan_de_vol_complete'))
-
-InfosDepartArrivee = collections.namedtuple(
-    'InfosDepartArrivee', ('arrivee_date', 'arrivee_heure', 'arrivee_vol',
-                           'arrivee_compagnie', 'arrivee_a',
-                           'depart_date', 'depart_heure', 'depart_vol',
-                           'depart_compagnie', 'depart_de',
-                           ))
 
 
 def infos_depart_arrivee_from_inscription(inscription):
@@ -22,13 +15,15 @@ def infos_depart_arrivee_from_inscription(inscription):
     :param inscription: models_inscription.Inscription
     :return: InfosDepartArrivee
     """
-    return InfosDepartArrivee(
+    # noinspection PyProtectedMember
+    return models_gestion.InfosDepartArrivee(
         **{field: getattr(inscription, field)
-           for field in InfosDepartArrivee._fields})
+           for field in models_gestion.InfosDepartArrivee._fields})
 
 
 def infos_depart_arrivee_to_inscription(infos_depart_arrivee, inscription):
-    for field in InfosDepartArrivee._fields:
+    # noinspection PyProtectedMember
+    for field in models_gestion.InfosDepartArrivee._fields:
         setattr(inscription, field, getattr(infos_depart_arrivee, field))
 
 
@@ -86,7 +81,7 @@ def infos_depart_arrivee_from_participant(participant):
             depart_de=u"", )
     infos_dict = infos_depart_dict
     infos_dict.update(infos_arrivee_dict)
-    return InfosDepartArrivee(**infos_dict)
+    return models_gestion.InfosDepartArrivee(**infos_dict)
 
 
 class InscriptionFermee(models_inscription.Inscription):

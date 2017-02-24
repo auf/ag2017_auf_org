@@ -14,7 +14,7 @@ from ag.inscription.models import (
 import ag.inscription.views as inscription_views
 import auf.django.mailing.models as mailing
 from ag.dossier_inscription import forms
-from ag.dossier_inscription.models import InscriptionFermee, InfosDepartArrivee
+from ag.dossier_inscription.models import InscriptionFermee
 from ag.reference.models import Region, Pays
 
 InfoVirement = collections.namedtuple(
@@ -39,10 +39,11 @@ def handle_plan_vol_form(request, dossier):
     if request.method == 'POST' and 'submit-plan-vol-form' in request.POST:
         form = forms.PlanVolForm(request.POST)
         if form.is_valid():
-            infos = InfosDepartArrivee(**form.cleaned_data)
+            infos = gestion_models.InfosDepartArrivee(**form.cleaned_data)
             dossier.set_infos_depart_arrivee(infos)
     else:
         infos = dossier.get_infos_depart_arrivee()
+        # noinspection PyProtectedMember
         form = forms.PlanVolForm(initial=infos._asdict())
     return form
 

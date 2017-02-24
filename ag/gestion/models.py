@@ -1381,3 +1381,11 @@ def get_inscriptions_par_mois():
 def strip_accents(s):
     return ''.join((c for c in unicodedata.normalize('NFD', unicode(s))
                     if unicodedata.category(c) != 'Mn'))
+
+
+InfosDepartArrivee = collections.namedtuple(
+    'InfosDepartArrivee', ('arrivee_date', 'arrivee_heure', 'arrivee_vol',
+                           'arrivee_compagnie', 'arrivee_a',
+                           'depart_date', 'depart_heure', 'depart_vol',
+                           'depart_compagnie', 'depart_de',
+                           ))
