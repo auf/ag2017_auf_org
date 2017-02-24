@@ -604,11 +604,11 @@ Coupon = namedtuple('coupon', (
 ))
 
 
-def generer_coupons(output_file, coupons):
+def generer_coupons(output_file, coupon):
     """
 
     :param output_file: File
-    :param coupons: Iterator[Coupon]
+    :param coupon: Coupon
     :return:
     """
     # Dimensions
@@ -630,5 +630,12 @@ def generer_coupons(output_file, coupons):
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     canvas = Canvas(output_file, pagesize=PAGESIZE)
 
-    for coupon in coupons:
-        pass
+
+
+def coupon_transport_response(participant):
+    """
+
+    :param participant: Participant
+    :return: HttpResponse
+    """
+    return None
