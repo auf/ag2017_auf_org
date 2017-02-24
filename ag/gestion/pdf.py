@@ -4,8 +4,6 @@ import os
 import urllib
 from collections import namedtuple
 from datetime import date
-
-from django.conf import settings
 from django.http import HttpResponse
 from django.utils.dateformat import time_format
 from django.utils.formats import date_format
@@ -23,10 +21,11 @@ from ag.inscription.models import Inscription, montant_str
 PAGESIZE = letter
 
 Facture = namedtuple('Facture',
-                     ('titre', 'civilite', 'nom', 'prenom', 'numero_facture', 'numero',
-                      'date_facturation', 'adresse', 'etablissement_id',
-                      'numero_dossier', 'imputation', 'frais_inscription',
-                      'frais_forfaits', 'frais_hebergement', 'total_frais',
+                     ('titre', 'civilite', 'nom', 'prenom', 'numero_facture',
+                      'numero', 'date_facturation', 'adresse',
+                      'etablissement_id', 'numero_dossier', 'imputation',
+                      'frais_inscription', 'frais_forfaits',
+                      'frais_hebergement', 'total_frais',
                       'paiements', 'verse_en_trop', 'solde_a_payer', 'validee'))
 
 
@@ -206,9 +205,8 @@ def generer_factures(output_file, factures):
             [
                 [u"Date d'émission", date_facturation],
                 [u"# Facture", u"{}-{}".format(
-                        facture.numero,
-                        [numero_facture] if numero_facture else u"00")
-                ],
+                    facture.numero,
+                    [numero_facture] if numero_facture else u"00")],
                 [u"# Dossier", facture.numero_dossier],
                 [
                     u"# Membre",
@@ -280,7 +278,7 @@ def generer_factures(output_file, factures):
         if facture.paiements:
             lignes_paiement = [[u"Paiements reçus"]]
             lignes_paiement.extend(
-                [[p.date, p.moyen, p.implantation,p.ref_paiement, p.montant]
+                [[p.date, p.moyen, p.implantation, p.ref_paiement, p.montant]
                  for p in facture.paiements])
             t = Table(
                 lignes_paiement,
@@ -398,7 +396,8 @@ def generer_itineraires(output_file, participants):
         contenu.append(Spacer(0, 0.5 * cm))
 
         contenu.append(Paragraph(u"VOTRE ITINÉRAIRE DE VOYAGE - "
-        u"Assemblée générale AUF 2017", styles['titre']))
+                                 u"Assemblée générale AUF 2017",
+                                 styles['titre']))
         contenu.append(Spacer(0, 0.5 * cm))
 
         # Coordonnées
@@ -410,8 +409,8 @@ def generer_itineraires(output_file, participants):
                 [u"Téléphone :", participant.telephone],
                 [u"Télécopieur :", participant.telecopieur],
                 [u"Courriel :", participant.courriel],
-                #[u"Bureau régional AUF :",
-                 #participant.get_nom_bureau_regional()],
+                # [u"Bureau régional AUF :",
+                # participant.get_nom_bureau_regional()],
             ],
             colWidths=(5 * cm, 13.5 * cm),
 
@@ -477,12 +476,14 @@ def generer_itineraires(output_file, participants):
         contenu.append(Table(
             [
                 [u"Retrait des titres de transport :", 
-                participant.get_modalite_retrait_billet_display()],
+                 participant.get_modalite_retrait_billet_display()],
                 [u"Documents requis :",
-                Paragraph(u"&bull; Passeport en cours de validité <br/>"
-                u"&bull; Visa d'entrée pour le Maroc", styles['petit'])],
+                 Paragraph(u"&bull; Passeport en cours de validité <br/>"
+                           u"&bull; Visa d'entrée pour le Maroc",
+                           styles['petit'])],
                 [u"Remarques :", 
-                Paragraph(participant.remarques_transport, styles['remarque'])],
+                 Paragraph(participant.remarques_transport, styles['remarque'])
+                 ],
             ],
             colWidths=(5 * cm, 13.5 * cm),
             style=TableStyle([
@@ -503,60 +504,61 @@ def generer_itineraires(output_file, participants):
             contenu.append(Paragraph(u"Note de frais :", styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table(
-            [
-                [u"Montant :", u"%.2d €" % participant.frais_autres],
-                [u"Versement :", participant.get_modalite_versement_frais_sejour_display()]
-            ],
-            colWidths=(5 * cm, 13.5 * cm),
-            style=TableStyle([
-                ('BOX', (0, 0), (-1, -1), 0, black),
-                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
-                ('TOPPADDING', (0, 0), (-1, -1), 5),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                ('BACKGROUND', (0, 0), (0, -1), lightgrey),
-                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
-            ])
-            ))
+                [
+                    [u"Montant :", u"%.2d €" % participant.frais_autres],
+                    [u"Versement :",
+                     participant.get_modalite_versement_frais_sejour_display()]
+                ],
+                colWidths=(5 * cm, 13.5 * cm),
+                style=TableStyle([
+                    ('BOX', (0, 0), (-1, -1), 0, black),
+                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                    ('TOPPADDING', (0, 0), (-1, -1), 5),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                    ('BACKGROUND', (0, 0), (0, -1), lightgrey),
+                    ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                    ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
+                ])))
         contenu.append(Spacer(0, 0.5 * cm))
         # Hôtel
         if participant.hotel:
             contenu.append(Paragraph(u"Séjour :", styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table(
-            [
-                [u"Dates du séjour :", Paragraph("du {0} au {1}".format(
-                date_format(participant.date_arrivee_hotel,
-                            'SHORT_DATE_FORMAT'),
-                date_format(participant.date_depart_hotel,
-                            'SHORT_DATE_FORMAT')),
-                styles['normal'])],
-                [u"Hôtel :", Paragraph(participant.hotel.libelle, styles['bold'])],
-                [u"Adresse :", Paragraph(participant.hotel.adresse, styles['petit'])],
-                [u"Remarques:", Paragraph(
-                      u"<i>Présentez-vous à l'accueil de l'hôtel avec votre "
-                      u"passeport <br/>pour l'attribution de votre chambre.</i>",
-                      styles['remarque'])],
-                [u"", Paragraph(
-                      u"N.B. Prévoyez de libérer votre chambre avant midi, le "
-                      u"jour de votre départ.",
-                      styles['remarque'])]
-            ],
-            colWidths=(5 * cm, 13.5 * cm),
-            style=TableStyle([
-                ('BOX', (0, 0), (-1, -1), 0, black),
-                ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
-                ('TOPPADDING', (0, 0), (-1, -1), 5),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                ('BACKGROUND', (0, 0), (0, -1), lightgrey),
-                ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-                ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
-                ('VALIGN', (0, 0), (0, -1), 'TOP'),
-            ])
+                [
+                    [u"Dates du séjour :", Paragraph("du {0} au {1}".format(
+                        date_format(participant.date_arrivee_hotel,
+                                    'SHORT_DATE_FORMAT'),
+                        date_format(participant.date_depart_hotel,
+                                    'SHORT_DATE_FORMAT')),
+                        styles['normal'])],
+                    [u"Hôtel :", Paragraph(participant.hotel.libelle,
+                                            styles['bold'])],
+                    [u"Adresse :", Paragraph(participant.hotel.adresse,
+                                             styles['petit'])],
+                    [u"Remarques:", Paragraph(
+                        u"<i>Présentez-vous à l'accueil de l'hôtel avec votre "
+                        u"passeport <br/>pour l'attribution de votre chambre."
+                        u"</i>",
+                        styles['remarque'])],
+                    [u"", Paragraph(
+                        u"N.B. Prévoyez de libérer votre chambre avant midi, "
+                        u"le jour de votre départ.",
+                        styles['remarque'])]
+                ],
+                colWidths=(5 * cm, 13.5 * cm),
+                style=TableStyle([
+                    ('BOX', (0, 0), (-1, -1), 0, black),
+                    ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+                    ('TOPPADDING', (0, 0), (-1, -1), 5),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                    ('BACKGROUND', (0, 0), (0, -1), lightgrey),
+                    ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+                    ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 8),
+                    ('VALIGN', (0, 0), (0, -1), 'TOP'),
+                ])
             ))
         contenu.append(Spacer(0, 0.5 * cm))
-       
-
         # Rendu
         frame = Frame(margin_left, margin_bottom, frame_width, frame_height)
         frame.addFromList(contenu, canvas)
@@ -600,4 +602,3 @@ Coupon = namedtuple('coupon', (
     'nom_accompagnateur',
     'infos_depart_arrivee',
 ))
-
