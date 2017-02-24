@@ -593,3 +593,11 @@ def facture_response(inscription_ou_participant):
     else:
         facture = facture_from_participant(inscription_ou_participant)
     return generer_factures(response, [facture])
+
+
+Coupon = namedtuple('coupon', (
+    'nom_participant',
+    'nom_accompagnateur',
+    'infos_depart_arrivee',
+))
+
