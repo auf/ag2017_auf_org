@@ -602,3 +602,33 @@ Coupon = namedtuple('coupon', (
     'nom_accompagnateur',
     'infos_depart_arrivee',
 ))
+
+
+def generer_coupons(output_file, coupons):
+    """
+
+    :param output_file: File
+    :param coupons: Iterator[Coupon]
+    :return:
+    """
+    # Dimensions
+    page_width, page_height = PAGESIZE
+    margin_top = margin_bottom = 1 * cm
+    margin_left = margin_right = 1.5 * cm
+    frame_width = page_width - margin_left - margin_right
+    frame_height = page_height - margin_top - margin_bottom
+
+    # Styles
+    styles = StyleSheet()
+    styles.add_style('normal', fontName='Helvetica', fontSize=18)
+    styles.add_style('petit', fontName='Helvetica', fontSize=12)
+    styles.add_style('petit-bold', fontName='Helvetica-bold', fontSize=12)
+    styles.add_style('bold', fontName='Helvetica-bold', fontSize=18)
+    styles.add_style('titre', fontName='Helvetica-Bold', fontSize=15)
+    styles.add_style('centered', alignment=TA_CENTER),
+    styles.add_style('gros-numero', fontName='Helvetica-Bold', fontSize=24)
+    styles.add_style('right-aligned', alignment=TA_RIGHT)
+    canvas = Canvas(output_file, pagesize=PAGESIZE)
+
+    for coupon in coupons:
+        pass
