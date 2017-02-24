@@ -326,7 +326,7 @@ def tableau_de_bord(request):
                 suivi__code="frais_payes"
             ).count(),
             'nb_tout_paye_droit_de_vote': Participant.actifs.filter(
-                suivi__code="frais_payes", # statut__droit_de_vote=True
+                suivi__code="frais_payes",  # statut__droit_de_vote=True
             ).count(),
         })
 
