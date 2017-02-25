@@ -1673,6 +1673,12 @@ class TestsVolsGroupes(TestCase):
         self.assertRedirects(response, reverse('liste_vols_groupes'))
 
 
+def empty_depart_arrivee():
+    empty_depart_arrivee_dict = EMPTY_DEPART
+    empty_depart_arrivee_dict.update(EMPTY_ARRIVEE)
+    return InfosDepartArrivee(**empty_depart_arrivee_dict)
+
+
 class InfosDepartArriveeTestCase(unittest.TestCase):
     def info_vol(self):
         return InfosVol(
@@ -1686,11 +1692,8 @@ class InfosDepartArriveeTestCase(unittest.TestCase):
             compagnie="Air France", )
 
     def test_empty_depart_arrivee(self):
-        empty_depart_arrivee_dict = EMPTY_DEPART
-        empty_depart_arrivee_dict.update(EMPTY_ARRIVEE)
-
         self.assertEqual(infos_depart_arrivee_from_infos_vols(None, None),
-                         InfosDepartArrivee(**dict(empty_depart_arrivee_dict)))
+                         empty_depart_arrivee())
 
     def test_depart(self):
         iv = self.info_vol()
@@ -1709,3 +1712,31 @@ class InfosDepartArriveeTestCase(unittest.TestCase):
                          (ida.arrivee_a, ida.arrivee_date,
                           ida.arrivee_heure, ida.arrivee_vol,
                           ida.arrivee_compagnie))
+
+
+class InfosDepartArriveeParticipantTestCase(TestCase):
+    def test_participant_sans_pec_sans_infos_vol(self):
+        p = Participant(prise_en_charge_transport=False)
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         empty_depart_arrivee())
+
+    def test_participant_sans_pec_avec_infos_vol(self):
+        p = test_utils.ParticipantFactory(prise_en_charge_transport=False)
+        p.set_infos_arrivee(datetime.date(2017, 5, 1),
+                            datetime.time(12, 0),
+                            "1234",
+                            "Air Canada",
+                            "Marrakech")
+        p.set_infos_depart(datetime.date(2017, 5, 5),
+                           datetime.time(12, 12),
+                           "4321",
+                           "Air France",
+                           "Casablanca")
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         infos_depart_arrivee_from_infos_vols(
+                             p.get_infos_depart(), p.get_infos_arrivee()))
+
+    def test_participant_avec_pec_sans_vol(self):
+        p = test_utils.ParticipantFactory(prise_en_charge_transport=True)
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         empty_depart_arrivee())

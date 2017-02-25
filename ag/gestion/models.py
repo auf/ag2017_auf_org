@@ -789,7 +789,12 @@ class Participant(RenseignementsPersonnels):
     def get_infos_depart_arrivee(self):
         """Renvoie les informations de départ et d'arrivée pour tout participant
         qu'il soit pris en charge ou non. """
-
+        if self.prise_en_charge_transport:
+            pass
+        else:
+            return infos_depart_arrivee_from_infos_vols(
+                self.get_infos_depart(),
+                self.get_infos_arrivee())
 
     def itineraire(self):
         """ Renvoie l'itinéraire d'un participant dont le transport est pris
