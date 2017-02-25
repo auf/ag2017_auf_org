@@ -57,6 +57,9 @@ __all__ = ('Participant',
            'Invitation',
            'Institution',
            'CategorieFonction',
+           'InfosDepartArrivee',
+           'infos_depart_arrivee_from_infos_vols',
+           'EMPTY_ARRIVEE', 'EMPTY_DEPART',
            )
 
 
@@ -783,6 +786,11 @@ class Participant(RenseignementsPersonnels):
         except InfosVol.DoesNotExist:
             return None
 
+    def get_infos_depart_arrivee(self):
+        """Renvoie les informations de départ et d'arrivée pour tout participant
+        qu'il soit pris en charge ou non. """
+
+
     def itineraire(self):
         """ Renvoie l'itinéraire d'un participant dont le transport est pris
         en charge.
@@ -875,7 +883,7 @@ class Participant(RenseignementsPersonnels):
             text = u"Refusée"
         if value_demande:
             text += u" (demandée)"
-        return text 
+        return text
 
     def get_prise_en_charge_transport_text(self):
         return self.get_prise_en_charge_text(
@@ -1357,7 +1365,7 @@ class Invitation(Model):
     statut = CharField(max_length=3, blank=True)
 
     class Meta:
-        managed = False 
+        managed = False
         db_table = u'invitations'
         app_label = 'gestion'
         verbose_name = u'Invitation'
@@ -1389,3 +1397,51 @@ InfosDepartArrivee = collections.namedtuple(
                            'depart_date', 'depart_heure', 'depart_vol',
                            'depart_compagnie', 'depart_de',
                            ))
+
+EMPTY_ARRIVEE = {
+    'arrivee_date': None,
+    'arrivee_heure': None,
+    'arrivee_compagnie': u"",
+    'arrivee_vol': u"",
+    'arrivee_a': u"", }
+
+EMPTY_DEPART = {
+    'depart_date': None,
+    'depart_heure': None,
+    'depart_compagnie': u"",
+    'depart_vol': u"",
+    'depart_de': u"", }
+
+
+def infos_depart_arrivee_from_infos_vols(infos_depart, infos_arrivee):
+    """
+
+    :param infos_depart: Optional[InfosVol]
+    :param infos_arrivee: Optional[InfosVol]
+    :return: InfosDepartArrivee
+    """
+    if infos_depart:
+        info_depart_dict = {
+            'depart_date': infos_depart.date_depart,
+            'depart_heure': infos_depart.heure_depart,
+            'depart_compagnie': infos_depart.compagnie,
+            'depart_vol': infos_depart.numero_vol,
+            'depart_de': infos_depart.ville_depart,
+        }
+    else:
+        info_depart_dict = EMPTY_DEPART
+
+    if infos_arrivee:
+        info_arrivee_dict = {
+            'arrivee_date': infos_arrivee.date_arrivee,
+            'arrivee_heure': infos_arrivee.heure_arrivee,
+            'arrivee_compagnie': infos_arrivee.compagnie,
+            'arrivee_vol': infos_arrivee.numero_vol,
+            'arrivee_a': infos_arrivee.ville_arrivee,
+        }
+    else:
+        info_arrivee_dict = EMPTY_ARRIVEE
+
+    infos_dict = info_depart_dict
+    infos_dict.update(info_arrivee_dict)
+    return InfosDepartArrivee(**infos_dict)

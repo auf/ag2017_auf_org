@@ -47,41 +47,10 @@ def infos_depart_arrivee_to_participant(infos_depart_arrivee, participant):
 
 
 def infos_depart_arrivee_from_participant(participant):
-    infos_arrivee = participant.get_infos_arrivee()
-    # type: models_gestion.InfosVol
-    if infos_arrivee:
-        infos_arrivee_dict = dict(
-            arrivee_date=infos_arrivee.date_arrivee,
-            arrivee_heure=infos_arrivee.heure_arrivee,
-            arrivee_compagnie=infos_arrivee.compagnie,
-            arrivee_vol=infos_arrivee.numero_vol,
-            arrivee_a=infos_arrivee.ville_arrivee,)
-    else:
-        infos_arrivee_dict = dict(
-            arrivee_date=None,
-            arrivee_heure=None,
-            arrivee_compagnie=u"",
-            arrivee_vol=u"",
-            arrivee_a=u"", )
     infos_depart = participant.get_infos_depart()
-    # type: models_gestion.InfosVol
-    if infos_depart:
-        infos_depart_dict = dict(
-            depart_date=infos_depart.date_depart,
-            depart_heure=infos_depart.heure_depart,
-            depart_compagnie=infos_depart.compagnie,
-            depart_vol=infos_depart.numero_vol,
-            depart_de=infos_depart.ville_depart,)
-    else:
-        infos_depart_dict = dict(
-            depart_date=None,
-            depart_heure=None,
-            depart_compagnie=u"",
-            depart_vol=u"",
-            depart_de=u"", )
-    infos_dict = infos_depart_dict
-    infos_dict.update(infos_arrivee_dict)
-    return models_gestion.InfosDepartArrivee(**infos_dict)
+    infos_arrivee = participant.get_infos_arrivee()
+    return models_gestion.infos_depart_arrivee_from_infos_vols(infos_depart,
+                                                               infos_arrivee)
 
 
 class InscriptionFermee(models_inscription.Inscription):

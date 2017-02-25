@@ -1,5 +1,14 @@
 # -*- encoding: utf-8 -*-
 import uuid
+import datetime
+import unittest
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.core import mail
+from django.test import TestCase
+from django.conf import settings
+import html5lib
+
 
 from ag.core import test_utils
 from ag.gestion import consts
@@ -21,13 +30,6 @@ from ag.core.test_utils import (
 from ag.tests import create_fixtures, creer_participant
 from ag.reference.models import Etablissement, Pays, Region, Implantation
 
-import datetime
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.core import mail
-from django.test import TestCase
-from django.conf import settings
-import html5lib
 
 CODE_HOTEL = 'gtulip'
 TYPE_CHAMBRE_TEST = consts.CHAMBRE_DOUBLE
@@ -1669,3 +1671,41 @@ class TestsVolsGroupes(TestCase):
         del data[u'vols-0-prix']
         response = self.client.post(reverse('ajouter_vol_groupe'), data=data)
         self.assertRedirects(response, reverse('liste_vols_groupes'))
+
+
+class InfosDepartArriveeTestCase(unittest.TestCase):
+    def info_vol(self):
+        return InfosVol(
+            ville_depart="Paris",
+            date_depart=datetime.date(2017, 5, 1),
+            heure_depart=datetime.time(12, 00),
+            ville_arrivee="Marrakech",
+            date_arrivee=datetime.date(2017, 5, 2),
+            heure_arrivee=datetime.time(12, 00),
+            numero_vol="1234",
+            compagnie="Air France", )
+
+    def test_empty_depart_arrivee(self):
+        empty_depart_arrivee_dict = EMPTY_DEPART
+        empty_depart_arrivee_dict.update(EMPTY_ARRIVEE)
+
+        self.assertEqual(infos_depart_arrivee_from_infos_vols(None, None),
+                         InfosDepartArrivee(**dict(empty_depart_arrivee_dict)))
+
+    def test_depart(self):
+        iv = self.info_vol()
+        ida = infos_depart_arrivee_from_infos_vols(iv, None)
+        self.assertEqual((iv.ville_depart, iv.date_depart, iv.heure_depart,
+                          iv.numero_vol, iv.compagnie),
+                         (ida.depart_de, ida.depart_date,
+                          ida.depart_heure, ida.depart_vol,
+                          ida.depart_compagnie))
+
+    def test_arrivee(self):
+        iv = self.info_vol()
+        ida = infos_depart_arrivee_from_infos_vols(None, iv)
+        self.assertEqual((iv.ville_arrivee, iv.date_arrivee, iv.heure_arrivee,
+                          iv.numero_vol, iv.compagnie),
+                         (ida.arrivee_a, ida.arrivee_date,
+                          ida.arrivee_heure, ida.arrivee_vol,
+                          ida.arrivee_compagnie))
