@@ -1740,3 +1740,57 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
         p = test_utils.ParticipantFactory(prise_en_charge_transport=True)
         self.assertEqual(p.get_infos_depart_arrivee(),
                          empty_depart_arrivee())
+
+    def create_infos_vols(self, p):
+        infos_vol_aller_1 = InfosVol.objects.create(
+            date_depart=datetime.date(2013, 5, 1),
+            heure_depart=datetime.time(15, 10),
+            ville_depart='PARIS',
+            date_arrivee=datetime.date(2013, 5, 2),
+            heure_arrivee=datetime.time(17, 10),
+            ville_arrivee='BERLIN',
+            compagnie='AIR FRANCE',
+            numero_vol='AF615',
+            prix=500,
+            participant=p,
+            type_infos=consts.VOL_ORGANISE,
+        )
+        infos_vol_aller_2 = InfosVol.objects.create(
+            date_depart=datetime.date(2013, 5, 2),
+            heure_depart=datetime.time(18, 10),
+            ville_depart='BERLIN',
+            date_arrivee=datetime.date(2013, 5, 3),
+            heure_arrivee=datetime.time(5, 10),
+            ville_arrivee=Inscription.DEPART_DE_CHOICES[0][0],
+            compagnie='AIR FRANCE',
+            numero_vol='AF615',
+            prix=500,
+            participant=p,
+            type_infos=consts.VOL_ORGANISE,
+        )
+        infos_vol_retour = InfosVol.objects.create(
+            date_depart=datetime.date(2013, 5, 4),
+            heure_depart=datetime.time(15, 10),
+            ville_depart=Inscription.DEPART_DE_CHOICES[-1][0],
+            date_arrivee=datetime.date(2013, 5, 5),
+            heure_arrivee=datetime.time(17, 10),
+            ville_arrivee='PARIS',
+            compagnie='AIR FRANCE',
+            numero_vol='AF616',
+            prix=600,
+            participant=p,
+            type_infos=consts.VOL_ORGANISE,
+        )
+        return infos_vol_aller_2, infos_vol_retour
+
+    def test_participant_avec_pec_avec_vols(self):
+        """Dans le cas d'un vol groupé ou organisé pour le participant,
+        on vérifie que les infos de départ et d'arrivée sont bien celles
+        du dernier segment du vol aller, et du premier segment du vol retour."""
+
+        p = test_utils.ParticipantFactory(prise_en_charge_transport=True)
+        # type: Participant
+        infos_arrivee, infos_depart = self.create_infos_vols(p)
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         infos_depart_arrivee_from_infos_vols(infos_depart,
+                                                              infos_arrivee))

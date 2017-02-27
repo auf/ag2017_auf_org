@@ -786,15 +786,28 @@ class Participant(RenseignementsPersonnels):
         except InfosVol.DoesNotExist:
             return None
 
+    def get_vols_depart_arrivee(self):
+        def ensure_one(lst):
+            return lst[0] if len(lst) == 1 else None
+
+        villes = [c[0] for c in Inscription.DEPART_DE_CHOICES]
+        infos = self.itineraire().filter(
+            Q(ville_arrivee__in=villes) | Q(ville_depart__in=villes))
+        infos_arrivee = ensure_one([i for i in infos
+                                    if i.ville_arrivee in villes])
+        infos_depart = ensure_one([i for i in infos
+                                   if i.ville_depart in villes])
+        return infos_depart, infos_arrivee
+
     def get_infos_depart_arrivee(self):
         """Renvoie les informations de départ et d'arrivée pour tout participant
         qu'il soit pris en charge ou non. """
         if self.prise_en_charge_transport:
-            pass
+            infos_depart, infos_arrivee = self.get_vols_depart_arrivee()
         else:
-            return infos_depart_arrivee_from_infos_vols(
-                self.get_infos_depart(),
-                self.get_infos_arrivee())
+            infos_depart = self.get_infos_depart()
+            infos_arrivee = self.get_infos_arrivee()
+        return infos_depart_arrivee_from_infos_vols(infos_depart, infos_arrivee)
 
     def itineraire(self):
         """ Renvoie l'itinéraire d'un participant dont le transport est pris
