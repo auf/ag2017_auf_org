@@ -586,9 +586,7 @@ class StyleSheet(StyleSheet1):
 def facture_response(inscription_ou_participant):
     filename = u'Facture - %s %s.pdf' % (inscription_ou_participant.prenom,
                                          inscription_ou_participant.nom)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
-                                      urllib.quote(filename.encode('utf-8'))
+    response = pdf_response(filename)
 
     if isinstance(inscription_ou_participant, Inscription):
         facture = facture_from_inscription(inscription_ou_participant)
@@ -597,14 +595,21 @@ def facture_response(inscription_ou_participant):
     return generer_factures(response, [facture])
 
 
+def pdf_response(filename):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
+                                      urllib.quote(filename.encode('utf-8'))
+    return response
+
+
 Coupon = namedtuple('coupon', (
     'nom_participant',
-    'nom_accompagnateur',
+    'noms_invites',
     'infos_depart_arrivee',
 ))
 
 
-def generer_coupons(output_file, coupon):
+def generer_coupon(output_file, coupon):
     """
 
     :param output_file: File
@@ -631,11 +636,19 @@ def generer_coupons(output_file, coupon):
     canvas = Canvas(output_file, pagesize=PAGESIZE)
 
 
-
 def coupon_transport_response(participant):
     """
 
     :param participant: Participant
     :return: HttpResponse
     """
-    return None
+    noms_invites = [i.nom_complet for i in participant.invite_set.all()]
+    coupon = Coupon(
+        nom_participant=participant.get_nom_complet(),
+        noms_invites=noms_invites,
+        infos_depart_arrivee=participant.get_infos_depart_arrivee(),
+    )
+    filename = u'Coupon transport - {}.pdf'.format(coupon.nom_participant)
+    response = pdf_response(filename)
+    generer_coupon(response, coupon)
+    return response
