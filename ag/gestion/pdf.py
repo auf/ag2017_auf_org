@@ -610,29 +610,79 @@ Coupon = namedtuple('coupon', (
 ))
 
 
-def draw_coupon(canvas, nom_participant, noms_invites, compagnie, vol,
+def draw_coupon(canvas, styles, nom_participant, noms_invites, compagnie, vol,
                 date_vol, heure_vol, aeroport, arrivee_depart, nb_personnes):
     page_width, page_height = PAGESIZE
     margin_top = margin_bottom = 1 * cm
     margin_left = margin_right = 1.5 * cm
-    frame_width = page_width - margin_left - margin_right
-    frame_height = page_height - margin_top - margin_bottom
+    coupon_width = page_width - margin_left - margin_right
     coupon_height = 9 * cm
     coupon_spacing = 0.5 * cm
     coupon_y = page_height - margin_top - coupon_height
     if arrivee_depart == 'depart':
         coupon_y -= coupon_height + coupon_spacing
-    canvas.rect(margin_left, coupon_y, frame_width, coupon_height)
-    padding = 0.5 * cm
+    canvas.rect(margin_left, coupon_y, coupon_width, coupon_height)
+    padding = 0.2 * cm
     logo_x = margin_left + padding
-    logo_y = coupon_y + padding
-
-    logo_height = coupon_height - padding * 2
+    frame_y = coupon_y + padding
+    frame_height = coupon_height - padding * 2
+    logo_y = frame_y
+    logo_height = frame_height
     logo_width = 143 * logo_height / 300
     canvas.drawImage(
         os.path.join(APP_ROOT, 'images', 'agauflogo2017vert.jpg'),
         logo_x, logo_y, logo_width, logo_height)
+    frame_width = coupon_width - padding * 2 - (logo_width + padding)
+    frame_x = logo_x + logo_width + padding
+    frame = Frame(frame_x, frame_y, frame_width, frame_height)
+    contenu = []
+    contenu.append(
+        Table(
+            [[[Paragraph(u"Coupon navette", styles['bold']),
+               Paragraph(u"Bon pour transport par autobus réservé",
+                         styles['normal'])],
+              Paragraph(str(nb_personnes), styles['gros-numero'])]
+             ],
+            colWidths=[frame_width - 1.2 * cm, 1.2 * cm],
+        )
+    )
+    hotel = u"HÔTEL MOGADOR"
+    if arrivee_depart == "arrivee":
+        trajet = [aeroport, hotel]
+        presenter = u"Veuillez présenter ce coupon au point de " \
+                    u"rencontre aux couleurs de l'AUF à la sortie de " \
+                    u"l'aéroport."
+    else:
+        trajet = [hotel, aeroport]
+        presenter = u"Veuillez présenter ce coupon au conducteur de la navette."
+    contenu.append(Paragraph(u"\u2708 " + trajet[0] + u" → " + trajet[1],
+                             styles['bold']))
+    contenu.append(Spacer(0, 0.5 * cm))
+    contenu.append(
+        Table([[Paragraph(u"<br/>".join([vol, date_format(date_vol),
+                                         time_format(heure_vol, 'H:i')]),
+                          styles['centered']),
+                Paragraph(u"<br/> + ".join([nom_participant] + noms_invites),
+                          styles['normal-centered'])]],
+              colWidths=[2.5 * cm, frame_width - 2.5 * cm],
+              style=TableStyle(
+                  [('BACKGROUND', (0, 0), (0, 0), lightgrey),
+                   ('FONTSIZE', (0, 0), (-1, -1), 18),
+                   ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                   ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')]
+              ))
 
+    )
+    contenu.append(Spacer(0, 0.5 * cm))
+    contenu.append(Paragraph(presenter, styles['petit']))
+    contenu.append(Paragraph(u"En cas de difficulté, veuillez contacter le "
+                             u"1 888 123 1234", styles['petit-bold']))
+    frame.addFromList(contenu, canvas)
+    notice_y = coupon_y + 0.1 * cm
+    canvas.setFont('Helvetica', 10)
+    canvas.drawString(frame_x, notice_y, u"© AUF 2017")
+    canvas.drawRightString(frame_x + frame_width, notice_y,
+                           u"Ce bon n'est pas transférable ni monnayable.")
 
 
 def generer_coupons(output_file, coupon):
@@ -645,22 +695,24 @@ def generer_coupons(output_file, coupon):
     # Styles
     styles = StyleSheet()
     styles.add_style('normal', fontName='Helvetica', fontSize=18)
+    styles.add_style('normal-centered', fontName='Helvetica', fontSize=18,
+                     alignment=TA_CENTER)
     styles.add_style('petit', fontName='Helvetica', fontSize=12)
     styles.add_style('petit-bold', fontName='Helvetica-bold', fontSize=12)
     styles.add_style('bold', fontName='Helvetica-bold', fontSize=18)
     styles.add_style('titre', fontName='Helvetica-Bold', fontSize=15)
     styles.add_style('centered', alignment=TA_CENTER),
-    styles.add_style('gros-numero', fontName='Helvetica-Bold', fontSize=24)
+    styles.add_style('gros-numero', fontName='Helvetica-Bold', fontSize=32)
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     canvas = Canvas(output_file, pagesize=PAGESIZE)
-    draw_coupon(canvas, coupon.nom_participant, coupon.noms_invites,
+    draw_coupon(canvas, styles, coupon.nom_participant, coupon.noms_invites,
                 coupon.infos_depart_arrivee.depart_compagnie,
                 coupon.infos_depart_arrivee.depart_vol,
                 coupon.infos_depart_arrivee.depart_date,
                 coupon.infos_depart_arrivee.depart_heure,
                 coupon.infos_depart_arrivee.depart_de,
                 'depart', coupon.nb_personnes)
-    draw_coupon(canvas, coupon.nom_participant, coupon.noms_invites,
+    draw_coupon(canvas, styles, coupon.nom_participant, coupon.noms_invites,
                 coupon.infos_depart_arrivee.arrivee_compagnie,
                 coupon.infos_depart_arrivee.arrivee_vol,
                 coupon.infos_depart_arrivee.arrivee_date,
