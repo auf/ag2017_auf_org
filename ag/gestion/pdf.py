@@ -606,23 +606,42 @@ Coupon = namedtuple('coupon', (
     'nom_participant',
     'noms_invites',
     'infos_depart_arrivee',
+    'nb_personnes',
 ))
 
 
-def generer_coupon(output_file, coupon):
+def draw_coupon(canvas, nom_participant, noms_invites, compagnie, vol,
+                date_vol, heure_vol, aeroport, arrivee_depart, nb_personnes):
+    page_width, page_height = PAGESIZE
+    margin_top = margin_bottom = 1 * cm
+    margin_left = margin_right = 1.5 * cm
+    frame_width = page_width - margin_left - margin_right
+    frame_height = page_height - margin_top - margin_bottom
+    coupon_height = 9 * cm
+    coupon_spacing = 0.5 * cm
+    coupon_y = page_height - margin_top - coupon_height
+    if arrivee_depart == 'depart':
+        coupon_y -= coupon_height + coupon_spacing
+    canvas.rect(margin_left, coupon_y, frame_width, coupon_height)
+    padding = 0.5 * cm
+    logo_x = margin_left + padding
+    logo_y = coupon_y + padding
+
+    logo_height = coupon_height - padding * 2
+    logo_width = 143 * logo_height / 300
+    canvas.drawImage(
+        os.path.join(APP_ROOT, 'images', 'agauflogo2017vert.jpg'),
+        logo_x, logo_y, logo_width, logo_height)
+
+
+
+def generer_coupons(output_file, coupon):
     """
 
     :param output_file: File
     :param coupon: Coupon
     :return:
     """
-    # Dimensions
-    page_width, page_height = PAGESIZE
-    margin_top = margin_bottom = 1 * cm
-    margin_left = margin_right = 1.5 * cm
-    frame_width = page_width - margin_left - margin_right
-    frame_height = page_height - margin_top - margin_bottom
-
     # Styles
     styles = StyleSheet()
     styles.add_style('normal', fontName='Helvetica', fontSize=18)
@@ -634,6 +653,21 @@ def generer_coupon(output_file, coupon):
     styles.add_style('gros-numero', fontName='Helvetica-Bold', fontSize=24)
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     canvas = Canvas(output_file, pagesize=PAGESIZE)
+    draw_coupon(canvas, coupon.nom_participant, coupon.noms_invites,
+                coupon.infos_depart_arrivee.depart_compagnie,
+                coupon.infos_depart_arrivee.depart_vol,
+                coupon.infos_depart_arrivee.depart_date,
+                coupon.infos_depart_arrivee.depart_heure,
+                coupon.infos_depart_arrivee.depart_de,
+                'depart', coupon.nb_personnes)
+    draw_coupon(canvas, coupon.nom_participant, coupon.noms_invites,
+                coupon.infos_depart_arrivee.arrivee_compagnie,
+                coupon.infos_depart_arrivee.arrivee_vol,
+                coupon.infos_depart_arrivee.arrivee_date,
+                coupon.infos_depart_arrivee.arrivee_heure,
+                coupon.infos_depart_arrivee.arrivee_a,
+                'arrivee', coupon.nb_personnes)
+    canvas.save()
 
 
 def coupon_transport_response(participant):
@@ -647,8 +681,9 @@ def coupon_transport_response(participant):
         nom_participant=participant.get_nom_complet(),
         noms_invites=noms_invites,
         infos_depart_arrivee=participant.get_infos_depart_arrivee(),
+        nb_personnes=1 + len(noms_invites),
     )
     filename = u'Coupon transport - {}.pdf'.format(coupon.nom_participant)
     response = pdf_response(filename)
-    generer_coupon(response, coupon)
+    generer_coupons(response, coupon)
     return response

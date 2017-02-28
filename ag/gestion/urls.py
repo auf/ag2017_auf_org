@@ -77,5 +77,6 @@ urlpatterns = patterns(
     url(r'activites_scientifiques/$',
         'liste_participants_activites_scientifiques',
         name='liste_participants_activites_scientifiques'),
-    url(r'^coupon_transport/$', 'coupon_transport', name='coupon_transport'),
+    url(r'^coupon_transport/(\d+)/$', 'coupon_transport',
+        name='coupon_transport'),
 )

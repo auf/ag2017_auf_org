@@ -1007,5 +1007,5 @@ def encode_csv_row(row):
 
 def coupon_transport(request, id_participant):
     require_permission(request.user, consts.PERM_LECTURE)
-    participant = Participant.object.get(pk=id_participant)
+    participant = Participant.objects.get(pk=id_participant)
     return pdf.coupon_transport_response(participant)
