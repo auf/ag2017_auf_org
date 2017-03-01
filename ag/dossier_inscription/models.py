@@ -197,6 +197,10 @@ class DossierInscription(Dossier):
                                             self.inscription)
         self.inscription.save()
 
+    # noinspection PyMethodMayBeStatic
+    def has_infos_depart_arrivee(self):
+        return False
+
 
 class DossierGestion(Dossier):
     def __init__(self, participant):
@@ -230,3 +234,6 @@ class DossierGestion(Dossier):
         infos_depart_arrivee_to_participant(infos_depart_arrivee,
                                             self.participant)
         self.participant.save()
+
+    def has_infos_depart_arrivee(self):
+        return self.participant.has_infos_depart_arrivee()

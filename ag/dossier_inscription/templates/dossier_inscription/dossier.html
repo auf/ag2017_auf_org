@@ -76,7 +76,11 @@
     {% if dossier.itineraire_disponible %}
     <li class="documentpdf"><a href="{% url "itineraire_pdf" dossier.participant.id %}">Itinéraire de voyage</a></li>
     {% endif %}
-<!-- à faire --> {#    <li><a href="">Coupons navette</a></li>#}
+    {% if dossier.has_infos_depart_arrivee %}
+    <li class="documentpdf">
+        <a href="{% url "coupon_transport_dossier" %}">Coupons navette</a>
+    </li>
+    {% endif %}
   </ul>
 </div>
 
