@@ -610,10 +610,11 @@ Coupon = namedtuple('coupon', (
 ))
 
 
-def draw_coupon(canvas, styles, nom_participant, noms_invites, compagnie, vol,
-                date_vol, heure_vol, aeroport, arrivee_depart, nb_personnes):
+# noinspection PyListCreation
+def draw_coupon(canvas, styles, nom_participant, noms_invites,
+                date_vol, aeroport, arrivee_depart, nb_personnes):
     page_width, page_height = PAGESIZE
-    margin_top = margin_bottom = 1 * cm
+    margin_top = 1 * cm
     margin_left = margin_right = 1.5 * cm
     coupon_width = page_width - margin_left - margin_right
     coupon_height = 9 * cm
@@ -659,8 +660,7 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites, compagnie, vol,
                              styles['bold']))
     contenu.append(Spacer(0, 0.5 * cm))
     contenu.append(
-        Table([[Paragraph(u"<br/>".join([vol, date_format(date_vol),
-                                         time_format(heure_vol, 'H:i')]),
+        Table([[Paragraph(date_format(date_vol),
                           styles['centered']),
                 Paragraph(u"<br/> + ".join([nom_participant] + noms_invites),
                           styles['normal-centered'])]],
@@ -706,17 +706,11 @@ def generer_coupons(output_file, coupon):
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     canvas = Canvas(output_file, pagesize=PAGESIZE)
     draw_coupon(canvas, styles, coupon.nom_participant, coupon.noms_invites,
-                coupon.infos_depart_arrivee.depart_compagnie,
-                coupon.infos_depart_arrivee.depart_vol,
                 coupon.infos_depart_arrivee.depart_date,
-                coupon.infos_depart_arrivee.depart_heure,
                 coupon.infos_depart_arrivee.depart_de,
                 'depart', coupon.nb_personnes)
     draw_coupon(canvas, styles, coupon.nom_participant, coupon.noms_invites,
-                coupon.infos_depart_arrivee.arrivee_compagnie,
-                coupon.infos_depart_arrivee.arrivee_vol,
                 coupon.infos_depart_arrivee.arrivee_date,
-                coupon.infos_depart_arrivee.arrivee_heure,
                 coupon.infos_depart_arrivee.arrivee_a,
                 'arrivee', coupon.nb_personnes)
     canvas.save()

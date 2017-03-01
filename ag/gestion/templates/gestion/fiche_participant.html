@@ -193,6 +193,13 @@
         {% if participant.transport_organise_par_auf %}
         <a href="{% url "itineraire_pdf" participant.id %}" class="printlink">Imprimer</a>
         {% endif %}
+        {% if participant.has_infos_depart_arrivee %}
+            <a href="{% url "coupon_transport" participant.id %}">
+            <img src="{{ STATIC_URL }}img/pdf.png"/>
+            Coupon transport
+            </a>
+            &nbsp;
+        {% endif %}
         {% ifhasperm perms_dict.PERM_MODIF_SEJOUR participant %}
         <a href="{% url "transport" participant.id %}" class="changelink">Modifier</a>
         {% endifhasperm %}

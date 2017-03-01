@@ -810,7 +810,7 @@ class Participant(RenseignementsPersonnels):
         return infos_depart_arrivee_from_infos_vols(infos_depart, infos_arrivee)
 
     def has_infos_depart_arrivee(self):
-        return not is_empty_depart_arrivee(self.get_infos_depart_arrivee())
+        return is_depart_arrivee_complete(self.get_infos_depart_arrivee())
 
     def itineraire(self):
         """ Renvoie l'itinéraire d'un participant dont le transport est pris
@@ -1468,7 +1468,8 @@ def infos_depart_arrivee_from_infos_vols(infos_depart, infos_arrivee):
     return InfosDepartArrivee(**infos_dict)
 
 
-def is_empty_depart_arrivee(infos_depart_arrivee):
-    infos_dict = EMPTY_ARRIVEE
-    infos_dict.update(EMPTY_DEPART)
-    return InfosDepartArrivee(**infos_dict) == infos_depart_arrivee
+def is_depart_arrivee_complete(infos_depart_arrivee):
+    return (infos_depart_arrivee.depart_de and
+            infos_depart_arrivee.arrivee_a and
+            infos_depart_arrivee.arrivee_date and
+            infos_depart_arrivee.depart_date)

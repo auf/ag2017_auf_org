@@ -275,3 +275,9 @@ def facture_dossier(request):
     inscription_id = request.session.get('inscription_id', None)
     inscription = get_object_or_404(InscriptionFermee, id=inscription_id)
     return pdf.facture_response(inscription.get_participant() or inscription)
+
+
+def coupon_transport_dossier(request):
+    inscription_id = request.session.get('inscription_id', None)
+    inscription = get_object_or_404(InscriptionFermee, id=inscription_id)
+    return pdf.coupon_transport_response(inscription.get_participant())
