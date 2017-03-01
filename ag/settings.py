@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     'ag.outil',
     'ag.actualite',
     'ag.activites_scientifiques',
+    'ag.elections',
     'raven.contrib.django',
     
     'crispy_forms',
