@@ -1,0 +1,66 @@
+[
+  {
+    "pk": 1,
+    "model": "elections.election",
+    "fields": {
+      "code": "pres",
+      "libelle": "\u00c9lection du pr\u00e9sident",
+      "nb_sieges_global": 16,
+      "nb_sieges_afrique": null,
+      "nb_sieges_ameriques": null,
+      "nb_sieges_asie_pacifique": null,
+      "nb_sieges_europe_ouest": null,
+      "nb_sieges_europe_est": null,
+      "nb_sieges_maghreb": null,
+      "nb_sieges_moyen_orient": null
+    }
+  },
+  {
+    "pk": 2,
+    "model": "elections.election",
+    "fields": {
+      "code": "ca",
+      "libelle": "\u00c9lection des membres du conseil d’administration",
+      "nb_sieges_global": null,
+      "nb_sieges_afrique": 4,
+      "nb_sieges_ameriques": 2,
+      "nb_sieges_asie_pacifique": 1,
+      "nb_sieges_europe_ouest": 5,
+      "nb_sieges_europe_est": 1,
+      "nb_sieges_maghreb": 2,
+      "nb_sieges_moyen_orient": 1
+    }
+  },
+  {
+    "pk": 3,
+    "model": "elections.election",
+    "fields": {
+      "code": "cass-tit",
+      "libelle": "\u00c9lection des membres universitaires titulaires du conseil associatif",
+      "nb_sieges_global": 4,
+      "nb_sieges_afrique": null,
+      "nb_sieges_ameriques": null,
+      "nb_sieges_asie_pacifique": null,
+      "nb_sieges_europe_ouest": null,
+      "nb_sieges_europe_est": null,
+      "nb_sieges_maghreb": null,
+      "nb_sieges_moyen_orient": null
+    }
+  },
+  {
+    "pk": 4,
+    "model": "elections.election",
+    "fields": {
+      "code": "pres",
+      "libelle": "\u00c9lection des membres universitaires associés du conseil associatif",
+      "nb_sieges_global": 4,
+      "nb_sieges_afrique": null,
+      "nb_sieges_ameriques": null,
+      "nb_sieges_asie_pacifique": null,
+      "nb_sieges_europe_ouest": null,
+      "nb_sieges_europe_est": null,
+      "nb_sieges_maghreb": null,
+      "nb_sieges_moyen_orient": null
+    }
+  }
+]
