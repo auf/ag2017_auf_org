@@ -241,6 +241,9 @@ class ParticipantsQuerySet(QuerySet):
             template % tuple(self.sql_expr(f) for f in fields)
         ]))
 
+    def filter_representants_mandates(self):
+        return self.filter(inscription__invitation__est_pour_mandate=True)
+
     def avec_region_vote(self):
         """
         Attention: petite assymétrie avec filter_region_vote: les

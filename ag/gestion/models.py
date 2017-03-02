@@ -20,6 +20,7 @@ from django.utils.datastructures import SortedDict
 
 from ag import reference
 from ag.core import models as core
+from ag.elections.models import Election
 from ag.gestion import consts
 from ag.gestion.consts import *
 from ag.gestion.participants_queryset import ParticipantsQuerySet
@@ -507,6 +508,11 @@ class Participant(RenseignementsPersonnels):
     forfaits = ManyToManyField(Forfait)
 
     commentaires = TextField(blank=True, null=True)
+
+    candidat_a = ForeignKey(Election, blank=True, null=True, on_delete=PROTECT)
+    suppleant_de = ForeignKey("self", blank=True, null=True)
+    candidat_libre = BooleanField(u"libre", default=False)
+    candidat_elimine = BooleanField(u"éliminé", default=False)
 
     objects = ParticipantsManager()
     actifs = ParticipantsActifsManager()
