@@ -14,6 +14,7 @@ urlpatterns = patterns(
     url(r'^inscription/', include('ag.inscription.urls')),
     url(r'^dossier_inscription/', include('ag.dossier_inscription.urls')),
     url(r'^gestion/', include('ag.gestion.urls')),
+    url(r'^gestion/elections/', include('ag.elections.urls')),
     url(r'^activites_scientifiques/',
         include('ag.activites_scientifiques.urls')),
     url(r'^admin/', include(admin.site.urls)),
