@@ -242,7 +242,7 @@ class ParticipantsQuerySet(QuerySet):
         ]))
 
     def filter_representants_mandates(self):
-        return self.filter(inscription__invitation__est_pour_mandate=True)
+        return self.filter(inscription__invitation__pour_mandate=True)
 
     def avec_region_vote(self):
         """

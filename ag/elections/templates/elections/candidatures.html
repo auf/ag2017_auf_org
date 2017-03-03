@@ -1,11 +1,23 @@
 {% extends "gestion/base.html" %}
 {% block title %}Élections - Candidatures - AG2017{% endblock %}
 {% block breadcrumbs %}
-    <div class="breadcrumbs">
-        <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
-        <a href="{% url "accueil_elections" %}">Élections</a>&rsaquo;
-        Candidatures
-    </div>
+  <div class="breadcrumbs">
+    <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
+    <a href="{% url "accueil_elections" %}">Élections</a>&rsaquo;
+    Candidatures
+  </div>
 {% endblock %}
 {% block content %}
+  <table>
+    {% for form in formset %}
+      <tr>
+        <td>{{ form.instance.nom }}</td>
+        <td>{{ form.instance.prenom }}</td>
+        <td>{{ form.instance.poste }}</td>
+        <td>{{ form.instance.etablissement.nom }}</td>
+        <td>Libre ? {{ form.candidat_libre }}</td>
+        <td>Éliminé ? {{ form.candidat_elimine }}</td>
+      </tr>
+    {% endfor %}
+  </table>
 {% endblock %}
