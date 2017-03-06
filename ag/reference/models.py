@@ -2,6 +2,12 @@
 
 from django.db import models
 
+CODE_TITULAIRE = 'T'
+CODE_ASSOCIE = 'A'
+CODE_RESEAU = 'RES'
+CODE_ETAB_ENSEIGNEMENT = 'ESR'
+CODE_CENTRE_RECHERCHE = 'CIR'
+
 
 class Pays(models.Model):
     class Meta:
@@ -43,14 +49,15 @@ class Etablissement(models.Model):
         ordering = ('nom', )
 
     STATUT_CHOICES = (
-        ('T', 'Titulaire'),
-        ('A', 'Associé'),
+        (CODE_TITULAIRE, 'Titulaire'),
+        (CODE_ASSOCIE, 'Associé'),
         ('C', 'Candidat'),
     )
     QUALITE_CHOICES = (
-        ('ESR', "Établissement d'enseignement supérieur et de recherche"),
-        ('CIR', "Centre ou institution de recherche"),
-        ('RES', "Réseau"),
+        (CODE_ETAB_ENSEIGNEMENT,
+         "Établissement d'enseignement supérieur et de recherche"),
+        (CODE_CENTRE_RECHERCHE, "Centre ou institution de recherche"),
+        (CODE_RESEAU, "Réseau"),
     )
 
     nom = models.CharField(max_length=255)

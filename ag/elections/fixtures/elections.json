@@ -3,6 +3,7 @@
     "pk": 1,
     "model": "elections.election",
     "fields": {
+      "ordre": 0,
       "code": "pres",
       "libelle": "\u00c9lection du pr\u00e9sident",
       "nb_sieges_global": 16,
@@ -19,6 +20,7 @@
     "pk": 2,
     "model": "elections.election",
     "fields": {
+      "ordre": 1,
       "code": "ca",
       "libelle": "\u00c9lection des membres du conseil d’administration",
       "nb_sieges_global": null,
@@ -35,6 +37,7 @@
     "pk": 3,
     "model": "elections.election",
     "fields": {
+      "ordre": 2,
       "code": "cass-tit",
       "libelle": "\u00c9lection des membres universitaires titulaires du conseil associatif",
       "nb_sieges_global": 4,
@@ -51,7 +54,8 @@
     "pk": 4,
     "model": "elections.election",
     "fields": {
-      "code": "pres",
+      "ordre": 3,
+      "code": "cass-ass",
       "libelle": "\u00c9lection des membres universitaires associés du conseil associatif",
       "nb_sieges_global": 4,
       "nb_sieges_afrique": null,

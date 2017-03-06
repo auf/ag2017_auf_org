@@ -8,16 +8,41 @@
   </div>
 {% endblock %}
 {% block content %}
-  <table>
-    {% for form in formset %}
+  {% regroup formset by instance.region_vote as forms_by_region %}
+  {% for region_forms in forms_by_region %}
+    <h2>{{ region_forms.grouper }}</h2>
+    <table>
       <tr>
-        <td>{{ form.instance.nom }}</td>
-        <td>{{ form.instance.prenom }}</td>
-        <td>{{ form.instance.poste }}</td>
-        <td>{{ form.instance.etablissement.nom }}</td>
-        <td>Libre ? {{ form.candidat_libre }}</td>
-        <td>Éliminé ? {{ form.candidat_elimine }}</td>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Poste</th>
+        <th>Établissement</th>
+        {% for radio in region_forms.list.0.candidat_a %}
+          <th>{{ radio.choice_label }}</th>
+        {% endfor %}
+        <th></th>
+        <th></th>
       </tr>
-    {% endfor %}
-  </table>
+
+      {% for form in region_forms.list %}
+        <tr>
+          <td>{{ form.instance.nom }}</td>
+          <td>{{ form.instance.prenom }}</td>
+          <td>{{ form.instance.poste }}</td>
+          <td>{{ form.instance.etablissement.nom }}</td>
+          {% for radio in form.candidat_a %}
+            <td>
+              <input type="radio" id="{{ radio.attrs.id }}"
+                     disabled="disabled"
+                     name="{{ radio.name }}"
+                     value="{{ radio.choice_value }}"
+                     {% if radio.is_checked %}checked="checked"{% endif %}/>
+            </td>
+          {% endfor %}
+          <td>Libre ? {{ form.candidat_libre }}</td>
+          <td>Éliminé ? {{ form.candidat_elimine }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endfor %}
 {% endblock %}

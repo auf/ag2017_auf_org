@@ -29,7 +29,8 @@ from ag.inscription.models import (
     RenseignementsPersonnels,
     Paiement as PaiementNamedTuple,
     Forfait)
-from ag.reference.models import Etablissement, Region, Pays, Implantation
+from ag.reference.models import Etablissement, Region, Pays, Implantation, \
+    CODE_ASSOCIE, CODE_RESEAU, CODE_TITULAIRE
 
 __all__ = ('Participant',
            'nouveau_participant',
@@ -521,6 +522,18 @@ class Participant(RenseignementsPersonnels):
         super(Participant, self).__init__(*args, **kwargs)
         self._facture = None
         self._reservations = None
+
+    def candidatures_possibles(self):
+        result = set()
+        if self.etablissement:
+            if (self.etablissement.statut != CODE_ASSOCIE and
+                    self.etablissement.qualite != CODE_RESEAU):
+                result.update({ELEC_PRES, ELEC_CA})
+            if self.etablissement.statut != CODE_ASSOCIE:
+                result.add(ELEC_CASS_TIT)
+            if self.etablissement.statut != CODE_TITULAIRE:
+                result.add(ELEC_CASS_ASS)
+        return result
 
     @property
     def represente_etablissement(self):
