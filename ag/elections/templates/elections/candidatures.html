@@ -8,7 +8,7 @@
   </div>
 {% endblock %}
 {% block content %}
-  {% regroup formset by instance.region_vote as forms_by_region %}
+  {% regroup formset by instance.get_region_vote_display as forms_by_region %}
   {% for region_forms in forms_by_region %}
     <h2>{{ region_forms.grouper }}</h2>
     <table>
@@ -33,7 +33,9 @@
           {% for radio in form.candidat_a %}
             <td>
               <input type="radio" id="{{ radio.attrs.id }}"
+                     {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
                      disabled="disabled"
+                     {% endif %}
                      name="{{ radio.name }}"
                      value="{{ radio.choice_value }}"
                      {% if radio.is_checked %}checked="checked"{% endif %}/>

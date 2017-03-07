@@ -979,6 +979,13 @@ class Participant(RenseignementsPersonnels):
     #     elif self.vol_groupe:
     #
 
+    def get_region_vote_display(self):
+        region_vote = getattr(self, 'region_vote', None)
+        if region_vote:
+            return REGIONS_VOTANTS_DICT[self.region_vote]
+        else:
+            return u""
+
     # noinspection PyTypeChecker
     def __unicode__(self):
         return u"<Participant: " + self.get_nom_prenom() + \

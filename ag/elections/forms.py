@@ -21,6 +21,9 @@ class CandidatureForm(ModelForm):
         self.fields['candidat_a'].empty_label = u"Aucune"
         self.fields['candidat_a'].choices = [(u"", u"Aucune")] + [
             (unicode(e.id), e.code) for e in elections]
+        self.candidatures_possibles = [
+            unicode(e.id) for e in elections
+            if e.code in self.instance.candidatures_possibles()]
 
 
 class BaseCandidatureFormset(BaseModelFormSet):

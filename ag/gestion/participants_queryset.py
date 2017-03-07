@@ -4,6 +4,10 @@ from ag.gestion.consts import *
 from django.db.models import Q
 from django.db.models.query import QuerySet
 
+CASE_REGION_VOTE = "\n".join(["WHEN '{}' THEN '{}'".format(reg, reg_vote)
+                              for reg, reg_vote
+                              in REGION_AUF_REGION_VOTANTS.items()])
+
 EXCEPT_DOM_TOM_SQL = "reference_etablissement.id in ({0})". \
     format(', '.join(map(str, EXCEPTIONS_DOM_TOM)))
 CONDITION_VOTE_SQL = """
@@ -13,22 +17,13 @@ CONDITION_VOTE_SQL = """
                     AND reference_etablissement.qualite in ('RES', 'CIR', 'ESR')
                     """.format(TYPE_ETAB=consts.TYPE_INST_ETABLISSEMENT)
 CALCUL_REGION_VOTE_SQL = """
-        IF(reference_etablissement.qualite = 'RES', '{REG_RESEAU}',
                           IF({EXCEPT_DOM_TOM}, '{REG_EUROPE_OUEST}',
                              (CASE reference_region.code
-                             WHEN 'ACGL' THEN '{REG_AFRIQUE}'
-                             WHEN 'AO' THEN '{REG_AFRIQUE}'
-                             WHEN 'A' THEN '{REG_AMERIQUES}'
-                             WHEN 'C' THEN '{REG_AMERIQUES}'
-                             WHEN 'AP' THEN '{REG_ASIE_PACIFIQUE}'
-                             WHEN 'ECO' THEN '{REG_EUROPE_EST}'
-                             WHEN 'EO' THEN '{REG_EUROPE_OUEST}'
-                             WHEN 'M' THEN '{REG_MAGHREB}'
-                             ELSE '{REG_MOYEN_ORIENT}'
+                             {CASE_REGION_VOTE}
                              END)
                              )
-                       )
         """.format(EXCEPT_DOM_TOM=EXCEPT_DOM_TOM_SQL,
+                   CASE_REGION_VOTE=CASE_REGION_VOTE,
                    **REGIONS_VOTANTS_CONSTS_DICT)
 REGION_VOTE_SQL = """
             IF({CONDITION_VOTE_SQL},
