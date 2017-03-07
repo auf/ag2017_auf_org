@@ -511,7 +511,9 @@ class Participant(RenseignementsPersonnels):
     commentaires = TextField(blank=True, null=True)
 
     candidat_a = ForeignKey(Election, blank=True, null=True, on_delete=PROTECT)
-    suppleant_de = ForeignKey("self", blank=True, null=True)
+    suppleant_de = ForeignKey(
+        "self", blank=True, null=True,
+        limit_choices_to={'candidat_a__code': consts.ELEC_CA})
     candidat_libre = BooleanField(u"libre", default=False)
     candidat_elimine = BooleanField(u"éliminé", default=False)
 
@@ -534,6 +536,9 @@ class Participant(RenseignementsPersonnels):
             if self.etablissement.statut != CODE_TITULAIRE:
                 result.add(ELEC_CASS_ASS)
         return result
+
+    def candidat_avec_suppleant_possible(self):
+        return self.candidat_a.code == consts.ELEC_CA
 
     @property
     def represente_etablissement(self):
