@@ -2,8 +2,8 @@
 from django.forms import Form,  formset_factory, RadioSelect, ChoiceField, \
     BooleanField, BaseFormSet
 
+from ag.elections.models import Candidat
 from ag.elections.models import Candidats, get_candidats_possibles
-from ag.gestion.models import Participant
 from .models import Election
 
 
@@ -15,33 +15,35 @@ def suppleant_de_choices(participant, candidats_ca):
 
 
 class CandidatureForm(Form):
-    class Meta:
-        model = Participant
-        fields = ('suppleant_de', 'candidat_libre',
-                  'candidat_elimine', 'candidat_a_election')
-
     election = ChoiceField(choices=(), widget=RadioSelect,
                            required=False)
     suppleant_de_id = ChoiceField(choices=(), required=False)
-    libre = BooleanField()
-    elimine = BooleanField()
+    libre = BooleanField(required=False)
+    elimine = BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.elections = elections = kwargs.pop('elections')
         candidat = self.candidat = kwargs.pop('candidat')
+        # type: Candidat
         candidats = self.candidats = kwargs.pop('candidats')
         # type: Candidats
+        self.suppleant = candidats.get_suppleant(candidat)
         super(CandidatureForm, self).__init__(*args, **kwargs)
-        self.fields['candidat_a_election'].choices = \
+        self.fields['election'].choices = \
             [(u"", u"Aucune")] + \
             [(unicode(e.id), e.code) for e in elections] + \
             [(u"S", u"Suppléant")]
-        self.fields['suppleant_de'].choices = \
+        self.fields['suppleant_de_id'].choices = \
             candidats.get_suppleant_de_choices(self.candidat)
         self.candidatures_possibles = [
             unicode(e.id) for e in elections
-            if e.code in self.candidat.candidatures_possibles] + \
-            [self.SUPPLEANT]
+            if e.code in self.candidat.candidatures_possibles]
+        if candidat.peut_etre_suppleant:
+            self.candidatures_possibles += [SUPPLEANT]
+
+    def get_updated_candidat(self):
+        return self.candidat._update(self.cleaned_data)
+
 
 SUPPLEANT = u"S"
 
@@ -51,23 +53,28 @@ def candidat_to_form_data(candidat):
     return {
         'election': election or u"",
         'suppleant_de_id': candidat.suppleant_de_id,
-        'libre': candidat.libre,
-        'elimine': candidat.elimine,
+        'libre': candidat.libre or False,
+        'elimine': candidat.elimine or False,
     }
 
 
 class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
         self.candidats = get_candidats_possibles()
+        self.grouped_by_region = self.candidats.grouped_by_region()
         kwargs['initial'] = [candidat_to_form_data(c) for c in
-                             self.candidats.grouped_by_region()]
+                             self.grouped_by_region]
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
         self.elections = list(Election.objects.all())
 
     def _construct_form(self, i, **kwargs):
         kwargs['elections'] = self.elections
-        kwargs['candidat'] = self.candidats[i]
+        kwargs['candidat'] = self.grouped_by_region[i]
+        kwargs['candidats'] = self.candidats
         return super(BaseCandidatureFormset, self)._construct_form(i, **kwargs)
+
+    def get_updated_candidats(self):
+        return [form.get_updated_candidat() for form in self]
 
 
 CandidatureFormset = formset_factory(

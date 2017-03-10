@@ -8,17 +8,13 @@ from .forms import CandidatureFormset
 def candidatures(request):
     candidatures_formset = CandidatureFormset(
         request.POST or None,
-        queryset=get_candidats_possibles())
+    )
     if request.method == 'POST':
         if candidatures_formset.is_valid():
-            candidatures_formset.save()
-            candidatures_formset = CandidatureFormset(
-                request.POST or None,
-                queryset=get_candidats_possibles())
+            candidatures_formset = CandidatureFormset()
+            print('valid!')
         return render(request, "elections/candidatures_form.html",
                       {'formset': candidatures_formset})
     else:
         return render(request, "elections/candidatures.html",
                       {'formset': candidatures_formset})
-
-

@@ -2,7 +2,7 @@
   {% csrf_token %}
   {{ formset.management_form }}
   {{ formset.errors }}
-  {% regroup formset by instance.get_region_vote_display as forms_by_region %}
+  {% regroup formset by candidat.code_region as forms_by_region %}
   {% for region_forms in forms_by_region %}
     <h2>{{ region_forms.grouper }}</h2>
     <table>
@@ -12,7 +12,7 @@
         <th>Poste</th>
         <th>Établissement</th>
         <th>Suppléant</th>
-        {% for radio in region_forms.list.0.candidat_a_election %}
+        {% for radio in region_forms.list.0.election %}
           <th>{{ radio.choice_label }}</th>
         {% endfor %}
         <th>Suppléant de</th>
@@ -23,18 +23,18 @@
       {% for form in region_forms.list %}
         <tr>
           {{ form.id }}
-          <td>{{ form.instance.nom }}</td>
-          <td>{{ form.instance.prenom }}</td>
-          <td>{{ form.instance.poste }}</td>
-          <td>{{ form.instance.etablissement.nom }}</td>
+          <td>{{ form.candidat.nom }}</td>
+          <td>{{ form.candidat.prenom }}</td>
+          <td>{{ form.candidat.poste }}</td>
+          <td>{{ form.candidat.etablissement_nom }}</td>
           <td>
-            {% if form.instance.get_suppleant %}
-            {{ form.instance.get_suppleant.get_nom_complet }}
+            {% if form.suppleant %}
+            {{ form.suppleant.nom_complet }}
             {% else %}
               -
             {% endif %}
           </td>
-          {% for radio in form.candidat_a_election %}
+          {% for radio in form.election %}
             <td>
               <input type="radio" id="{{ radio.attrs.id }}"
                      {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
@@ -46,12 +46,12 @@
             </td>
           {% endfor %}
           <td>
-              <span class="js-select-suppleant" {% if form.candidat_a_election.value != "S" %} style="display: none;"{% endif %}>
-              {{ form.suppleant_de }}
+              <span class="js-select-suppleant" {% if form.election.value != "S" %} style="display: none;"{% endif %}>
+              {{ form.suppleant_de_id }}
               </span>
           </td>
-          <td>Libre ? {{ form.candidat_libre }}</td>
-          <td>Éliminé ? {{ form.candidat_elimine }}</td>
+          <td>Libre ? {{ form.libre }}</td>
+          <td>Éliminé ? {{ form.elimine }}</td>
         </tr>
       {% endfor %}
     </table>

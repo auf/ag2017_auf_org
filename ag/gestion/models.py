@@ -21,7 +21,6 @@ from django.utils.datastructures import SortedDict
 
 from ag import reference
 from ag.core import models as core
-from ag.elections.models import Election
 from ag.gestion import consts
 from ag.gestion.consts import *
 from ag.gestion.participants_queryset import ParticipantsQuerySet
@@ -511,7 +510,8 @@ class Participant(RenseignementsPersonnels):
 
     commentaires = TextField(blank=True, null=True)
 
-    candidat_a = ForeignKey(Election, blank=True, null=True, on_delete=PROTECT)
+    candidat_a = ForeignKey('elections.Election', blank=True, null=True,
+                            on_delete=PROTECT)
     suppleant_de = OneToOneField(
         "self", blank=True, null=True,
         limit_choices_to={'candidat_a__code': consts.ELEC_CA},
@@ -540,7 +540,7 @@ class Participant(RenseignementsPersonnels):
         return result
 
     def candidat_avec_suppleant_possible(self):
-        return self.candidat_a.code == consts.ELEC_CA
+        return self.candidat_a and self.candidat_a.code == consts.ELEC_CA
 
     def candidat_peut_etre_suppleant(self):
         # pour pouvoir être suppléant:
@@ -549,6 +549,10 @@ class Participant(RenseignementsPersonnels):
         #   *
         return not self.candidat_a and \
                ELEC_CA in self.candidatures_possibles()
+
+    def candidat_peut_etre_suppleant_de(self, participant):
+        return self.candidat_peut_etre_suppleant() and\
+            self.region_vote == participant.region_vote
 
     def get_suppleant(self):
         try:
@@ -1305,7 +1309,6 @@ def get_donnees_activites():
 def get_donnees_prise_en_charge():
     def representants(qs):
         return qs.filter(fonction__code=consts.FONCTION_REPR_UNIVERSITAIRE)
-        #return qs.filter(statut__droit_de_vote=True)
 
     qs_insc = Participant.actifs.filter(prise_en_charge_inscription=True)
     qs_trans = Participant.actifs.filter(prise_en_charge_transport=True)

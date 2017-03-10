@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-from django.db.models import IntegerField, collections
+import collections
+from django.db.models import IntegerField
 
 from ag.core.models import TableReferenceOrdonnee
 from ag.gestion import consts
@@ -28,25 +29,32 @@ class Election(TableReferenceOrdonnee):
         return self.code
 
 
-Candidat = collections.namedtuple('Candidature', (
-    'participant_id', 'participant_nom_complet',
-    'participant_nom', 'participant_prenom',
-    'participant_poste', 'participant_etablissement_nom',
+Candidat = collections.namedtuple('Candidat', (
+    'participant_id', 'nom_complet',
+    'nom', 'prenom',
+    'poste', 'etablissement_nom',
     'election', 'suppleant_de_id', 'libre', 'elimine',
     'candidatures_possibles', 'code_region',
+    'peut_avoir_suppleant', 'peut_etre_suppleant'
 ))
 
 
 def participant_to_candidat(participant):
     return Candidat(
         participant_id=participant.id,
-        participant_nom=participant.get_nom_complet(),
+        nom_complet=participant.get_nom_complet(),
+        nom=participant.nom,
+        prenom=participant.prenom,
+        poste=participant.poste,
+        etablissement_nom=participant.etablissement.nom,
         election=participant.candidat_a_id,
         suppleant_de_id=participant.suppleant_de_id,
         libre=participant.candidat_libre,
         elimine=participant.candidat_elimine,
         candidatures_possibles=participant.candidatures_possibles(),
         code_region=participant.get_region_vote_display(),
+        peut_avoir_suppleant=participant.candidat_avec_suppleant_possible(),
+        peut_etre_suppleant=participant.candidat_peut_etre_suppleant(),
     )
 
 
@@ -62,17 +70,46 @@ def get_candidats_possibles():
 class Candidats(object):
     def __init__(self, candidats):
         self.candidats = candidats
-        self.suppleants = {c.suppleant_de_id: c.id
+        self.suppleants = {c.suppleant_de_id: c
                            for c in self.candidats if c.suppleant_de_id}
 
     def get_suppleant(self, candidat):
-        return self.suppleants.get(candidat.id, None)
+        return self.suppleants.get(candidat.participant_id, None)
 
     def get_suppleant_de_choices(self, candidat):
-        return [c for c in self.candidats if c.election == consts.ELEC_CA
-                if c.id != candidat.id]
+        suppleants_possibles = [
+            (c.participant_id, c.nom_complet)
+            for c in self.candidats
+            if c.peut_etre_suppleant and
+            c.participant_id != candidat.participant_id]
+        return [(u"", u"Personne")] + suppleants_possibles
 
     def grouped_by_region(self):
         enum_candidats = enumerate(self.candidats)
-        sorted_enum = sorted(enum_candidats, lambda x: (x[1].code_region, x[0]))
+        sorted_enum = sorted(enum_candidats,
+                             key=lambda x: (x[1].code_region, x[0]))
         return [e[1] for e in sorted_enum]
+
+    def update_participants(self):
+        elections_by_code = {e.code:e for e in Election.objects.all()}
+        participant_ids = [c.participant_id for c in self.candidats]
+        participants = list(gestion_models.Participant.objects
+                            .filter(id__in=participant_ids)
+                            .avec_region_vote()
+                            .select_related('candidat_a', 'suppleant_de'))
+        participant_by_id = {p.id: p for p in participants}
+        for candidat in self.candidats:
+            participant = participant_by_id[candidat.participant_id]
+            participant.candidat_a = elections_by_code[candidat.election]
+            participant.candidat_libre = candidat.libre
+            participant.candidat_elimine = candidat.elimine
+
+        for candidat in self.candidats:
+            participant = participant_by_id[candidat.participant_id]
+            suppleant_de = participant_by_id[candidat.suppleant_de_id]
+            if suppleant_de.candidat_peut_etre_suppleant_de(participant) and\
+                    participant.candidat_avec_suppleant_possible():
+                participant.suppleant_de = suppleant_de
+
+        for participant in participants:
+            participant.save()
