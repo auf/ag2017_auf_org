@@ -1,5 +1,9 @@
 {% extends "gestion/base.html" %}
 {% block title %}Élections - Candidatures - AG2017{% endblock %}
+{% block extrahead %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/jquery.form/4.0.1/jquery.form.min.js" integrity="sha384-MSBAlvUdugJfNRlgXmRfwPbw7SNanf6IaKgQBi1ajJdWoZ9oUYhxC79B5n4gp3y5" crossorigin="anonymous"></script>
+{% endblock %}
 {% block breadcrumbs %}
   <div class="breadcrumbs">
     <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
@@ -8,55 +12,44 @@
   </div>
 {% endblock %}
 {% block content %}
-  <form method="post">
-  {% csrf_token %}
-  {{ formset.management_form }}
-  {% regroup formset by instance.get_region_vote_display as forms_by_region %}
-  {% for region_forms in forms_by_region %}
-    <h2>{{ region_forms.grouper }}</h2>
-    <table>
-      <tr>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Poste</th>
-        <th>Établissement</th>
-        {% for radio in region_forms.list.0.candidat_a %}
-          <th>{{ radio.choice_label }}</th>
-        {% endfor %}
-        <th>Suppléant de</th>
-        <th></th>
-        <th></th>
-      </tr>
+  <div id="form-candidatures">
+  {% include "elections/candidatures_form.html" %}
 
-      {% for form in region_forms.list %}
-        <tr>
-          {{ form.id }}
-          <td>{{ form.instance.nom }}</td>
-          <td>{{ form.instance.prenom }}</td>
-          <td>{{ form.instance.poste }}</td>
-          <td>{{ form.instance.etablissement.nom }}</td>
-          {% for radio in form.candidat_a %}
-            <td>
-              <input type="radio" id="{{ radio.attrs.id }}"
-                     {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
-                     disabled="disabled"
-                     {% endif %}
-                     name="{{ radio.name }}"
-                     value="{{ radio.choice_value }}"
-                     {% if radio.is_checked %}checked="checked"{% endif %}/>
-            </td>
-          {% endfor %}
-          <td>
-              <span{% if not form.suppleant_de.field.choices %} hidden{% endif %}>
-              {{ form.suppleant_de }}
-              </span>
-          </td>
-          <td>Libre ? {{ form.candidat_libre }}</td>
-          <td>Éliminé ? {{ form.candidat_elimine }}</td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% endfor %}
-  <input type="submit"/>
-  </form>
+  </div>
+  {% block js_initializations %}
+<script>
+  function form_changed(event) {
+    var form = $('form');
+    var target = $(event.target);
+    if (target.attr('type') == 'radio') {
+      var suppleant_select = target.closest('tr').find('.js-select-suppleant');
+      if (target.is(':checked') && target.val() === 'S') {
+        suppleant_select.show();
+      }
+      else {
+        suppleant_select.hide();
+        form.submit();
+      }
+    }
+    else {
+      form.submit();
+    }
+  }
+
+  function init_form() {
+    var form = $('form');
+    form.ajaxForm({
+      target: '#form-candidatures form',
+      success: init_form
+    });
+    form.find('input,select').change(form_changed);
+
+  }
+  function init() {
+    init_form();
+  }
+  $(init);
+
+</script>
+  {% endblock %}
 {% endblock %}

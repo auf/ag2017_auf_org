@@ -1,56 +1,76 @@
-from django.forms import ModelForm,  modelformset_factory, RadioSelect, \
-    ModelChoiceField
-from django.forms.models import BaseModelFormSet
+# -*- encoding: utf-8 -*-
+from django.forms import Form,  formset_factory, RadioSelect, ChoiceField, \
+    BooleanField, BaseFormSet
 
-from ag.gestion import consts
+from ag.elections.models import Candidats, get_candidats_possibles
 from ag.gestion.models import Participant
 from .models import Election
 
 
-class CandidatureForm(ModelForm):
+def suppleant_de_choices(participant, candidats_ca):
+    return [(u"", u"Personne")] + [
+        (unicode(candidat.id), candidat.get_nom_complet())
+        for candidat in candidats_ca
+        if candidat != participant]
+
+
+class CandidatureForm(Form):
     class Meta:
         model = Participant
-        fields = ('candidat_a', 'suppleant_de', 'candidat_libre',
-                  'candidat_elimine')
-        widgets = {'candidat_a': RadioSelect}
+        fields = ('suppleant_de', 'candidat_libre',
+                  'candidat_elimine', 'candidat_a_election')
+
+    election = ChoiceField(choices=(), widget=RadioSelect,
+                           required=False)
+    suppleant_de_id = ChoiceField(choices=(), required=False)
+    libre = BooleanField()
+    elimine = BooleanField()
 
     def __init__(self, *args, **kwargs):
-        elections = kwargs.pop('elections')
-        candidats_ca = kwargs.pop('candidats_ca')
-        suppleants = kwargs.pop('suppleants')
+        self.elections = elections = kwargs.pop('elections')
+        candidat = self.candidat = kwargs.pop('candidat')
+        candidats = self.candidats = kwargs.pop('candidats')
+        # type: Candidats
         super(CandidatureForm, self).__init__(*args, **kwargs)
-        self.fields['candidat_a'].empty_label = u"Aucune"
-        self.fields['candidat_a'].choices = [(u"", u"Aucune")] + [
-            (unicode(e.id), e.code) for e in elections]
-        if not self.instance.candidat_avec_suppleant_possible or\
-                self.instance in suppleants:
-            suppleant_choices = []
-        else:
-            suppleant_choices = [(u"", u"Personne")] + [
-                (unicode(participant.id), participant.get_nom_complet())
-                for participant in candidats_ca if participant != self.instance]
-        self.fields['suppleant_de'].choices = suppleant_choices
+        self.fields['candidat_a_election'].choices = \
+            [(u"", u"Aucune")] + \
+            [(unicode(e.id), e.code) for e in elections] + \
+            [(u"S", u"Suppléant")]
+        self.fields['suppleant_de'].choices = \
+            candidats.get_suppleant_de_choices(self.candidat)
         self.candidatures_possibles = [
             unicode(e.id) for e in elections
-            if e.code in self.instance.candidatures_possibles()]
+            if e.code in self.candidat.candidatures_possibles] + \
+            [self.SUPPLEANT]
+
+SUPPLEANT = u"S"
 
 
-class BaseCandidatureFormset(BaseModelFormSet):
+def candidat_to_form_data(candidat):
+    election = SUPPLEANT if candidat.suppleant_de_id else candidat.election
+    return {
+        'election': election or u"",
+        'suppleant_de_id': candidat.suppleant_de_id,
+        'libre': candidat.libre,
+        'elimine': candidat.elimine,
+    }
+
+
+class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
+        self.candidats = get_candidats_possibles()
+        kwargs['initial'] = [candidat_to_form_data(c) for c in
+                             self.candidats.grouped_by_region()]
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
         self.elections = list(Election.objects.all())
-        self.candidats_ca = list(Participant.objects.filter(
-            candidat_a__code=consts.ELEC_CA))
-        self.suppleants = list(Participant.objects.filter(
-            candidat_a__code=consts.ELEC_CA,
-            id__in=Participant.objects.values_list('suppleant_de', flat=True)))
 
     def _construct_form(self, i, **kwargs):
         kwargs['elections'] = self.elections
-        kwargs['candidats_ca'] = self.candidats_ca
-        kwargs['suppleants'] = self.suppleants
+        kwargs['candidat'] = self.candidats[i]
         return super(BaseCandidatureFormset, self)._construct_form(i, **kwargs)
 
-CandidatureFormset = modelformset_factory(
-    Participant, CandidatureForm, extra=0, can_delete=False, can_order=False,
+
+CandidatureFormset = formset_factory(
+    CandidatureForm, extra=0, can_delete=False, can_order=False,
     formset=BaseCandidatureFormset)
+

@@ -3,6 +3,7 @@ import datetime
 import os
 import unicodedata
 import collections
+import exceptions
 
 from auf.django.permissions import Role
 from django.conf import settings
@@ -511,9 +512,10 @@ class Participant(RenseignementsPersonnels):
     commentaires = TextField(blank=True, null=True)
 
     candidat_a = ForeignKey(Election, blank=True, null=True, on_delete=PROTECT)
-    suppleant_de = ForeignKey(
+    suppleant_de = OneToOneField(
         "self", blank=True, null=True,
-        limit_choices_to={'candidat_a__code': consts.ELEC_CA})
+        limit_choices_to={'candidat_a__code': consts.ELEC_CA},
+        related_name='suppleant')
     candidat_libre = BooleanField(u"libre", default=False)
     candidat_elimine = BooleanField(u"éliminé", default=False)
 
@@ -539,6 +541,20 @@ class Participant(RenseignementsPersonnels):
 
     def candidat_avec_suppleant_possible(self):
         return self.candidat_a.code == consts.ELEC_CA
+
+    def candidat_peut_etre_suppleant(self):
+        # pour pouvoir être suppléant:
+        #   * il ne faut être candidat à aucune élection
+        #   * pouvoir être candidat au CA
+        #   *
+        return not self.candidat_a and \
+               ELEC_CA in self.candidatures_possibles()
+
+    def get_suppleant(self):
+        try:
+            return self.suppleant
+        except exceptions.AttributeError:
+            return None
 
     @property
     def represente_etablissement(self):
