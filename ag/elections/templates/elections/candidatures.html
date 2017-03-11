@@ -16,23 +16,32 @@
   {% include "elections/candidatures_form.html" %}
 
   </div>
-  {% block js_initializations %}
+
+{% endblock %}
+
+{% block js_initializations %}
 <script>
+  function submit_form() {
+    var form = $('form');
+    form.submit();
+    $('input,select').prop('disabled', 'disabled');
+  }
+
   function form_changed(event) {
+    event.stopPropagation();
     var form = $('form');
     var target = $(event.target);
     if (target.attr('type') == 'radio') {
-      var suppleant_select = target.closest('tr').find('.js-select-suppleant');
-      if (target.is(':checked') && target.val() === 'S') {
-        suppleant_select.show();
-      }
-      else {
-        suppleant_select.hide();
-        form.submit();
+      var tr = target.closest('tr');
+      var suppleant_select = tr.find('.js-select-suppleant');
+      var suppleant_radio = tr.find('input[type="radio"][value="S"]');
+      suppleant_select.toggle(suppleant_radio.is(':checked'));
+      if (target.is(':checked') && !target.is(suppleant_radio)) {
+        submit_form();
       }
     }
     else {
-      form.submit();
+      submit_form();
     }
   }
 
@@ -52,4 +61,3 @@
 
 </script>
   {% endblock %}
-{% endblock %}

@@ -42,7 +42,24 @@ class CandidatureForm(Form):
             self.candidatures_possibles += [SUPPLEANT]
 
     def get_updated_candidat(self):
-        return self.candidat._update(self.cleaned_data)
+        d = self.cleaned_data
+        election = d['election']
+        if election == SUPPLEANT and d['suppleant_de_id']:
+            suppleant_de_id = int(d['suppleant_de_id'])
+        else:
+            suppleant_de_id = None
+        if election == SUPPLEANT or not election:
+            election_id = None
+        else:
+            election_id = int(election)
+
+        # noinspection PyProtectedMember
+        return self.candidat._replace(**{
+            'suppleant_de_id': suppleant_de_id,
+            'election': election_id,
+            'libre': d['libre'],
+            'elimine': d['elimine']
+        })
 
 
 SUPPLEANT = u"S"
@@ -74,7 +91,7 @@ class BaseCandidatureFormset(BaseFormSet):
         return super(BaseCandidatureFormset, self)._construct_form(i, **kwargs)
 
     def get_updated_candidats(self):
-        return [form.get_updated_candidat() for form in self]
+        return Candidats([form.get_updated_candidat() for form in self])
 
 
 CandidatureFormset = formset_factory(

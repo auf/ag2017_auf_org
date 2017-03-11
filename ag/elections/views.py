@@ -11,8 +11,9 @@ def candidatures(request):
     )
     if request.method == 'POST':
         if candidatures_formset.is_valid():
+            candidats = candidatures_formset.get_updated_candidats()
+            candidats.update_participants()
             candidatures_formset = CandidatureFormset()
-            print('valid!')
         return render(request, "elections/candidatures_form.html",
                       {'formset': candidatures_formset})
     else:

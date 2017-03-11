@@ -547,8 +547,7 @@ class Participant(RenseignementsPersonnels):
         #   * il ne faut être candidat à aucune élection
         #   * pouvoir être candidat au CA
         #   *
-        return not self.candidat_a and \
-               ELEC_CA in self.candidatures_possibles()
+        return ELEC_CA in self.candidatures_possibles()
 
     def candidat_peut_etre_suppleant_de(self, participant):
         return self.candidat_peut_etre_suppleant() and\

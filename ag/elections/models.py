@@ -80,7 +80,7 @@ class Candidats(object):
         suppleants_possibles = [
             (c.participant_id, c.nom_complet)
             for c in self.candidats
-            if c.peut_etre_suppleant and
+            if c.peut_avoir_suppleant and
             c.participant_id != candidat.participant_id]
         return [(u"", u"Personne")] + suppleants_possibles
 
@@ -91,7 +91,7 @@ class Candidats(object):
         return [e[1] for e in sorted_enum]
 
     def update_participants(self):
-        elections_by_code = {e.code:e for e in Election.objects.all()}
+        elections_by_id = {e.id: e for e in Election.objects.all()}
         participant_ids = [c.participant_id for c in self.candidats]
         participants = list(gestion_models.Participant.objects
                             .filter(id__in=participant_ids)
@@ -99,17 +99,26 @@ class Candidats(object):
                             .select_related('candidat_a', 'suppleant_de'))
         participant_by_id = {p.id: p for p in participants}
         for candidat in self.candidats:
+            if candidat.election:
+                election = elections_by_id[candidat.election]
+            else:
+                election = None
             participant = participant_by_id[candidat.participant_id]
-            participant.candidat_a = elections_by_code[candidat.election]
+            participant.candidat_a = election
             participant.candidat_libre = candidat.libre
             participant.candidat_elimine = candidat.elimine
 
         for candidat in self.candidats:
             participant = participant_by_id[candidat.participant_id]
-            suppleant_de = participant_by_id[candidat.suppleant_de_id]
-            if suppleant_de.candidat_peut_etre_suppleant_de(participant) and\
-                    participant.candidat_avec_suppleant_possible():
-                participant.suppleant_de = suppleant_de
+            if candidat.suppleant_de_id:
+                suppleant_de = participant_by_id[candidat.suppleant_de_id]
+                if participant.candidat_peut_etre_suppleant_de(suppleant_de) and\
+                        suppleant_de.candidat_avec_suppleant_possible():
+                    participant.suppleant_de = suppleant_de
+                else:
+                    participant.suppleant_de = None
+            else:
+                participant.suppleant_de = None
 
         for participant in participants:
             participant.save()
