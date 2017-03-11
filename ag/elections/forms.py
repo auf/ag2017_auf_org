@@ -2,7 +2,7 @@
 from django.forms import Form,  formset_factory, RadioSelect, ChoiceField, \
     BooleanField, BaseFormSet
 
-from ag.elections.models import Candidat
+from ag.elections.models import Candidat, peut_etre_suppleant
 from ag.elections.models import Candidats, get_candidats_possibles
 from .models import Election
 
@@ -31,32 +31,29 @@ class CandidatureForm(Form):
         super(CandidatureForm, self).__init__(*args, **kwargs)
         self.fields['election'].choices = \
             [(u"", u"Aucune")] + \
-            [(unicode(e.id), e.code) for e in elections] + \
+            [(e.code, e.code) for e in elections] + \
             [(u"S", u"Suppléant")]
         self.fields['suppleant_de_id'].choices = \
             candidats.get_suppleant_de_choices(self.candidat)
-        self.candidatures_possibles = [
-            unicode(e.id) for e in elections
-            if e.code in self.candidat.candidatures_possibles]
-        if candidat.peut_etre_suppleant:
-            self.candidatures_possibles += [SUPPLEANT]
+        candidatures_possibles = self.candidat.candidatures_possibles
+        if peut_etre_suppleant(candidat):
+            candidatures_possibles |= {SUPPLEANT}
+        self.candidatures_possibles = candidatures_possibles
 
     def get_updated_candidat(self):
         d = self.cleaned_data
-        election = d['election']
-        if election == SUPPLEANT and d['suppleant_de_id']:
+        code_election = d['election']
+        if code_election == SUPPLEANT and d['suppleant_de_id']:
             suppleant_de_id = int(d['suppleant_de_id'])
         else:
             suppleant_de_id = None
-        if election == SUPPLEANT or not election:
-            election_id = None
-        else:
-            election_id = int(election)
+        if code_election == SUPPLEANT or not code_election:
+            code_election = None
 
         # noinspection PyProtectedMember
         return self.candidat._replace(**{
             'suppleant_de_id': suppleant_de_id,
-            'election': election_id,
+            'code_election': code_election,
             'libre': d['libre'],
             'elimine': d['elimine']
         })
@@ -66,7 +63,7 @@ SUPPLEANT = u"S"
 
 
 def candidat_to_form_data(candidat):
-    election = SUPPLEANT if candidat.suppleant_de_id else candidat.election
+    election = SUPPLEANT if candidat.suppleant_de_id else candidat.code_election
     return {
         'election': election or u"",
         'suppleant_de_id': candidat.suppleant_de_id,

@@ -537,21 +537,7 @@ class Participant(RenseignementsPersonnels):
                 result.add(ELEC_CASS_TIT)
             if self.etablissement.statut != CODE_TITULAIRE:
                 result.add(ELEC_CASS_ASS)
-        return result
-
-    def candidat_avec_suppleant_possible(self):
-        return self.candidat_a and self.candidat_a.code == consts.ELEC_CA
-
-    def candidat_peut_etre_suppleant(self):
-        # pour pouvoir être suppléant:
-        #   * il ne faut être candidat à aucune élection
-        #   * pouvoir être candidat au CA
-        #   *
-        return ELEC_CA in self.candidatures_possibles()
-
-    def candidat_peut_etre_suppleant_de(self, participant):
-        return self.candidat_peut_etre_suppleant() and\
-            self.region_vote == participant.region_vote
+        return frozenset(result)
 
     def get_suppleant(self):
         try:

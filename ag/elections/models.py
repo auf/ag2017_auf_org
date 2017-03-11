@@ -33,13 +33,16 @@ Candidat = collections.namedtuple('Candidat', (
     'participant_id', 'nom_complet',
     'nom', 'prenom',
     'poste', 'etablissement_nom',
-    'election', 'suppleant_de_id', 'libre', 'elimine',
+    'code_election', 'suppleant_de_id', 'libre', 'elimine',
     'candidatures_possibles', 'code_region',
-    'peut_avoir_suppleant', 'peut_etre_suppleant'
 ))
 
 
 def participant_to_candidat(participant):
+    if participant.candidat_a:
+        code_election = participant.candidat_a.code
+    else:
+        code_election = None
     return Candidat(
         participant_id=participant.id,
         nom_complet=participant.get_nom_complet(),
@@ -47,14 +50,12 @@ def participant_to_candidat(participant):
         prenom=participant.prenom,
         poste=participant.poste,
         etablissement_nom=participant.etablissement.nom,
-        election=participant.candidat_a_id,
+        code_election=code_election,
         suppleant_de_id=participant.suppleant_de_id,
         libre=participant.candidat_libre,
         elimine=participant.candidat_elimine,
         candidatures_possibles=participant.candidatures_possibles(),
         code_region=participant.get_region_vote_display(),
-        peut_avoir_suppleant=participant.candidat_avec_suppleant_possible(),
-        peut_etre_suppleant=participant.candidat_peut_etre_suppleant(),
     )
 
 
@@ -67,11 +68,26 @@ def get_candidats_possibles():
     return Candidats([participant_to_candidat(p) for p in participants])
 
 
+def peut_avoir_suppleant(candidat):
+    return candidat.code_election == consts.ELEC_CA
+
+
+def peut_etre_suppleant(candidat):
+    return consts.ELEC_CA in candidat.candidatures_possibles
+
+
+def suppleant_possible(candidat, suppleant):
+    return peut_avoir_suppleant(candidat) and\
+        peut_etre_suppleant(suppleant) and\
+        candidat.code_region == suppleant.code_region
+
+
 class Candidats(object):
     def __init__(self, candidats):
         self.candidats = candidats
         self.suppleants = {c.suppleant_de_id: c
                            for c in self.candidats if c.suppleant_de_id}
+        self.candidats_dict = {c.participant_id: c for c in self.candidats}
 
     def get_suppleant(self, candidat):
         return self.suppleants.get(candidat.participant_id, None)
@@ -80,7 +96,7 @@ class Candidats(object):
         suppleants_possibles = [
             (c.participant_id, c.nom_complet)
             for c in self.candidats
-            if c.peut_avoir_suppleant and
+            if peut_avoir_suppleant(c) and
             c.participant_id != candidat.participant_id]
         return [(u"", u"Personne")] + suppleants_possibles
 
@@ -91,7 +107,7 @@ class Candidats(object):
         return [e[1] for e in sorted_enum]
 
     def update_participants(self):
-        elections_by_id = {e.id: e for e in Election.objects.all()}
+        elections_by_code = {e.code: e for e in Election.objects.all()}
         participant_ids = [c.participant_id for c in self.candidats]
         participants = list(gestion_models.Participant.objects
                             .filter(id__in=participant_ids)
@@ -99,8 +115,8 @@ class Candidats(object):
                             .select_related('candidat_a', 'suppleant_de'))
         participant_by_id = {p.id: p for p in participants}
         for candidat in self.candidats:
-            if candidat.election:
-                election = elections_by_id[candidat.election]
+            if candidat.code_election:
+                election = elections_by_code[candidat.code_election]
             else:
                 election = None
             participant = participant_by_id[candidat.participant_id]
@@ -111,10 +127,12 @@ class Candidats(object):
         for candidat in self.candidats:
             participant = participant_by_id[candidat.participant_id]
             if candidat.suppleant_de_id:
-                suppleant_de = participant_by_id[candidat.suppleant_de_id]
-                if participant.candidat_peut_etre_suppleant_de(suppleant_de) and\
-                        suppleant_de.candidat_avec_suppleant_possible():
-                    participant.suppleant_de = suppleant_de
+                # noinspection PyNoneFunctionAssignment
+                suppleant_de = self.candidats_dict[candidat.suppleant_de_id]
+                # noinspection PyTypeChecker
+                if suppleant_possible(suppleant_de, candidat):
+                    participant.suppleant_de = \
+                        participant_by_id[candidat.suppleant_de_id]
                 else:
                     participant.suppleant_de = None
             else:
