@@ -47,6 +47,12 @@ urlpatterns += patterns('',
     url(r'^', include('cms.urls')),
 )
 
+if not settings.SAML_AUTH:
+    urlpatterns += patterns(
+            '',
+            (r'^', include('auf.django.saml.mellon_urls')),
+    )
+
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # NOQA
     urlpatterns += patterns('',
