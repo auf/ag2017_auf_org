@@ -39,10 +39,16 @@ urlpatterns += patterns(
     (r'^actualites/(?P<slug>[-\w]+)/$', 'actualite_detail'),
 )
 
-urlpatterns += patterns(
-    '',
-    (r'^', include('auf.django.saml.urls')),
-)
+if settings.SAML_AUTH:
+    urlpatterns += patterns(
+        '',
+        (r'^', include('auf.django.saml.urls')),
+    )
+else:
+    urlpatterns += patterns(
+            '',
+            (r'^', include('auf.django.saml.mellon_urls')),
+    )
 
 urlpatterns += patterns('',
     url(r'^', include('cms.urls')),
