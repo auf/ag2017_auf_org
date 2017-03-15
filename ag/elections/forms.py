@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 from django.forms import Form,  formset_factory, RadioSelect, ChoiceField, \
-    BooleanField, BaseFormSet
+    BooleanField, BaseFormSet, IntegerField, HiddenInput
+from django.forms.formsets import INITIAL_FORM_COUNT
 
 from ag.elections.models import Candidat, peut_etre_suppleant
 from ag.elections.models import Candidats, get_candidats_possibles
@@ -8,6 +9,7 @@ from .models import Election
 
 
 class CandidatureForm(Form):
+    participant_id = IntegerField(required=True, widget=HiddenInput)
     election = ChoiceField(choices=(), widget=RadioSelect,
                            required=False)
     suppleant_de_id = ChoiceField(choices=(), required=False)
@@ -21,6 +23,7 @@ class CandidatureForm(Form):
         candidats = self.candidats = kwargs.pop('candidats')
         # type: Candidats
         self.suppleant = candidats.get_suppleant(candidat)
+        kwargs['initial'] = candidat_to_form_data(candidat)
         super(CandidatureForm, self).__init__(*args, **kwargs)
         self.fields['election'].choices = \
             [(u"", u"Aucune")] + \
@@ -58,6 +61,7 @@ SUPPLEANT = u"S"
 def candidat_to_form_data(candidat):
     election = SUPPLEANT if candidat.suppleant_de_id else candidat.code_election
     return {
+        'participant_id': candidat.participant_id,
         'election': election or u"",
         'suppleant_de_id': candidat.suppleant_de_id,
         'libre': candidat.libre or False,
@@ -69,15 +73,29 @@ class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
         self.candidats = get_candidats_possibles()
         self.grouped_by_region = self.candidats.grouped_by_region()
-        kwargs['initial'] = [candidat_to_form_data(c) for c in
-                             self.grouped_by_region]
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
         self.elections = list(Election.objects.all())
 
+    def initial_form_count(self):
+        """Returns the number of forms that are required in this FormSet."""
+        if self.is_bound:
+            return self.management_form.cleaned_data[INITIAL_FORM_COUNT]
+        else:
+            # Use the length of the initial data if it's there, 0 otherwise.
+            initial_forms = len(self.candidats)
+        return initial_forms
+
     def _construct_form(self, i, **kwargs):
         kwargs['elections'] = self.elections
-        kwargs['candidat'] = self.grouped_by_region[i]
         kwargs['candidats'] = self.candidats
+        if self.is_bound:
+            participant_id_field = u"{}-{}".format(self.add_prefix(i),
+                                                   'participant_id')
+            participant_id = int(self.data[participant_id_field])
+            candidat = self.candidats.get_candidat(participant_id)
+        else:
+            candidat = self.grouped_by_region[i]
+        kwargs['candidat'] = candidat
         return super(BaseCandidatureFormset, self)._construct_form(i, **kwargs)
 
     def get_updated_candidats(self):

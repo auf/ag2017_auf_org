@@ -89,6 +89,12 @@ class Candidats(object):
                            for c in self.candidats if c.suppleant_de_id}
         self.candidats_dict = {c.participant_id: c for c in self.candidats}
 
+    def __len__(self):
+        return len(self.candidats)
+
+    def get_candidat(self, participant_id):
+        return self.candidats_dict[participant_id]
+
     def get_suppleant(self, candidat):
         return self.suppleants.get(candidat.participant_id, None)
 
