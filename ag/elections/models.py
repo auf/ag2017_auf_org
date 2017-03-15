@@ -127,9 +127,7 @@ class Candidats(object):
         for candidat in self.candidats:
             participant = participant_by_id[candidat.participant_id]
             if candidat.suppleant_de_id:
-                # noinspection PyNoneFunctionAssignment
                 suppleant_de = self.candidats_dict[candidat.suppleant_de_id]
-                # noinspection PyTypeChecker
                 if suppleant_possible(suppleant_de, candidat):
                     participant.suppleant_de = \
                         participant_by_id[candidat.suppleant_de_id]

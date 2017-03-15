@@ -7,13 +7,6 @@ from ag.elections.models import Candidats, get_candidats_possibles
 from .models import Election
 
 
-def suppleant_de_choices(participant, candidats_ca):
-    return [(u"", u"Personne")] + [
-        (unicode(candidat.id), candidat.get_nom_complet())
-        for candidat in candidats_ca
-        if candidat != participant]
-
-
 class CandidatureForm(Form):
     election = ChoiceField(choices=(), widget=RadioSelect,
                            required=False)
