@@ -515,7 +515,8 @@ class Participant(RenseignementsPersonnels):
     suppleant_de = OneToOneField(
         "self", blank=True, null=True,
         limit_choices_to={'candidat_a__code': consts.ELEC_CA},
-        related_name='suppleant')
+        related_name='suppleant',
+        on_delete=PROTECT)
     candidat_libre = BooleanField(u"libre", default=False)
     candidat_elimine = BooleanField(u"éliminé", default=False)
 
