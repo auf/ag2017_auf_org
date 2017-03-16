@@ -99,12 +99,13 @@ class Candidats(object):
         return self.suppleants.get(candidat.participant_id, None)
 
     def get_suppleant_de_choices(self, candidat):
-        suppleants_possibles = [
+        suppleants_de_possibles = [
             (c.participant_id, c.nom_complet)
             for c in self.candidats
-            if peut_avoir_suppleant(c) and
-            c.participant_id != candidat.participant_id]
-        return [(u"", u"Personne")] + suppleants_possibles
+            if suppleant_possible(c, candidat) and
+            (c.participant_id == candidat.suppleant_de_id or
+             not self.get_suppleant(c))]
+        return [(u"", u"Personne")] + suppleants_de_possibles
 
     def grouped_by_region(self):
         enum_candidats = enumerate(self.candidats)

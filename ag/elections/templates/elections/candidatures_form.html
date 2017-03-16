@@ -22,11 +22,11 @@
       {% for form in region_forms.list %}
         <tr>
           {{ form.participant_id }}
-          <td>{{ form.candidat.nom }}</td>
-          <td>{{ form.candidat.prenom }}</td>
-          <td>{{ form.candidat.poste }}</td>
-          <td>{{ form.candidat.etablissement_nom }}</td>
-          <td>
+          <td width="9%">{{ form.candidat.nom }}</td>
+          <td width="9%">{{ form.candidat.prenom }}</td>
+          <td width="7%">{{ form.candidat.poste }}</td>
+          <td width="10%">{{ form.candidat.etablissement_nom }}</td>
+          <td width="10%">
             {% if form.suppleant %}
             {{ form.suppleant.nom_complet }}
             {% else %}
@@ -34,7 +34,7 @@
             {% endif %}
           </td>
           {% for radio in form.election %}
-            <td>
+            <td width="4%">
               <input type="radio" id="{{ radio.attrs.id }}"
                      {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
                      disabled="disabled"
@@ -44,13 +44,13 @@
                      {% if radio.is_checked %}checked="checked"{% endif %}/>
             </td>
           {% endfor %}
-          <td>
+          <td width="10%">
               <span class="js-select-suppleant" {% if form.election.value != "S" %} style="display: none;"{% endif %}>
               {{ form.suppleant_de_id }}
               </span>
           </td>
-          <td>Libre ? {{ form.libre }}</td>
-          <td>Éliminé ? {{ form.elimine }}</td>
+          <td width="5%">Libre ? {{ form.libre }}</td>
+          <td width="5%">Éliminé ? {{ form.elimine }}</td>
         </tr>
       {% endfor %}
     </table>
