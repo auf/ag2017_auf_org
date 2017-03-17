@@ -90,6 +90,8 @@ class ParticipantFactory(factory.DjangoModelFactory):
     class Meta:
         model = gestion_models.Participant
 
+    nom = factory.Sequence(lambda n: u"part{}".format(n))
+
 
 class PaiementFactory(factory.DjangoModelFactory):
     class Meta:
