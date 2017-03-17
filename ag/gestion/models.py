@@ -1257,10 +1257,10 @@ def get_nombre_votants_par_region():
     for region in REGIONS_VOTANTS:
         code_region = region[0]
         nom_region = region[1]
-        nb_titulaires = Participant.objects.filter_region_vote(code_region) \
-            .filter(etablissement__statut='T').count()
-        nb_associes = Participant.objects.filter_region_vote(code_region) \
-            .filter(etablissement__statut='A').count()
+        nb_titulaires = Participant.objects.all().titulaires() \
+            .count_par_region_vote(code_region)
+        nb_associes = Participant.objects.all().associes() \
+            .count_par_region_vote(code_region)
         if code_region != 'FR':
             total_titulaires += nb_titulaires
             total_associes += nb_associes

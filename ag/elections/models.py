@@ -6,6 +6,7 @@ from django.db.models import IntegerField
 from ag.core.models import TableReferenceOrdonnee
 from ag.gestion import consts
 import ag.gestion.models as gestion_models
+from ag.gestion.participants_queryset import ParticipantsQuerySet
 
 
 class Election(TableReferenceOrdonnee):
@@ -145,3 +146,52 @@ class Candidats(object):
 
         for participant in participants:
             participant.save()
+
+Criterion = collections.namedtuple(
+    'Criterion', ('code', 'titre', 'filter'))
+
+
+def make_filter_region(code_region):
+    def filter_region(participants_queryset):
+        return participants_queryset.filter_region_vote(code_region)
+
+    return filter_region
+
+
+def filter_participants(filters):
+    qs = gestion_models.Participant.objects.actifs().represente_etablissement()
+    for filtr in filters:
+        qs = filtr(qs)
+    return qs
+
+
+CRITERE_REGION_TEMPLATE = 'membre_tit_{}'
+CRITERE_ASSOCIES = 'associes'
+CRITERE_RESEAU = 'reseau'
+
+
+def code_critere_region(code_region):
+    return CRITERE_REGION_TEMPLATE.format(code_region)
+
+
+def get_electeur_criteria():
+    criteria = []
+    for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
+        # todo: qualité ??
+        criteria.append(Criterion(
+            code=code_critere_region(code_region),
+            filter=(ParticipantsQuerySet.titulaires,
+                    make_filter_region(code_region)),
+            titre=u"Membres titulaires - {}".format(nom_region), ))
+    criteria.append(Criterion(
+        code=CRITERE_RESEAU,
+        filter=(ParticipantsQuerySet.titulaires,
+                ParticipantsQuerySet.reseau),
+        titre=u"Membres titulaires des réseaux"
+    ))
+    criteria.append(Criterion(
+        code=CRITERE_ASSOCIES,
+        filter=(ParticipantsQuerySet.associes, ),
+        titre=u"Membres associés"
+    ))
+    return collections.OrderedDict(((c.code, c) for c in criteria))

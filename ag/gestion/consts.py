@@ -1,5 +1,14 @@
 # -*- encoding: utf-8 -*-
 
+# noinspection PyUnresolvedReferences
+from ag.reference.models import (
+    CODE_TITULAIRE,
+    CODE_ASSOCIE,
+    CODE_CENTRE_RECHERCHE,
+    CODE_ETAB_ENSEIGNEMENT,
+    CODE_RESEAU,
+)
+
 
 ARRIVEE_SEULEMENT = 0
 DEPART_SEULEMENT = 1
@@ -21,10 +30,10 @@ REG_AMERIQUES = 'AM'
 REG_ASIE_PACIFIQUE = 'AP'
 REG_EUROPE_EST = 'EE'
 REG_EUROPE_OUEST = 'EO'
-REG_FRANCE = 'FR'
+# REG_FRANCE = 'FR'
 REG_MOYEN_ORIENT = 'MO'
 REG_MAGHREB = 'MG'
-REG_RESEAU = 'RI'
+# REG_RESEAU = 'RI'
 
 REGIONS_VOTANTS_CONSTS_DICT = {
     'REG_AFRIQUE': REG_AFRIQUE,
@@ -32,10 +41,10 @@ REGIONS_VOTANTS_CONSTS_DICT = {
     'REG_ASIE_PACIFIQUE': REG_ASIE_PACIFIQUE,
     'REG_EUROPE_EST': REG_EUROPE_EST,
     'REG_EUROPE_OUEST': REG_EUROPE_OUEST,
-    'REG_FRANCE': REG_FRANCE,
+    # 'REG_FRANCE': REG_FRANCE,
     'REG_MOYEN_ORIENT': REG_MOYEN_ORIENT,
     'REG_MAGHREB': REG_MAGHREB,
-    'REG_RESEAU': REG_RESEAU
+    # 'REG_RESEAU': REG_RESEAU
 }
 
 REGIONS_VOTANTS = (
@@ -44,10 +53,10 @@ REGIONS_VOTANTS = (
     (REG_ASIE_PACIFIQUE, u"Asie-Pacifique"),
     (REG_EUROPE_EST, u"Europe de l'Est"),
     (REG_EUROPE_OUEST, u"Europe de l'Ouest"),
-    (REG_FRANCE, u"France"),
+    # (REG_FRANCE, u"France"),
     (REG_MOYEN_ORIENT, u"Moyen-Orient"),
     (REG_MAGHREB, u"Maghreb"),
-    (REG_RESEAU, u"Réseau institutionnel"),
+    # (REG_RESEAU, u"Réseau institutionnel"),
 )
 
 REGIONS_VOTANTS_DICT = dict(REGIONS_VOTANTS)

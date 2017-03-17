@@ -4,6 +4,7 @@ import factory
 import ag.reference.models as ref_models
 import ag.inscription.models as inscription_models
 import ag.gestion.models as gestion_models
+from ag.gestion import consts
 
 
 def find_input_by_id(tree, html_id):
@@ -58,7 +59,7 @@ class EtablissementFactory(factory.DjangoModelFactory):
     nom = factory.Sequence(lambda n: u"Etablissement {0}".format(n))
     pays = factory.SubFactory(PaysFactory)
     region = factory.SubFactory(RegionFactory)
-    qualite = "ESR"
+    qualite = consts.CODE_ETAB_ENSEIGNEMENT
 
 
 class ImplantationFactory(factory.DjangoModelFactory):

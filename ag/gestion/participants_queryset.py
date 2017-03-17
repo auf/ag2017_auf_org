@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 from ag.gestion import consts
 from ag.gestion.consts import *
-from django.db.models import Q
 from django.db.models.query import QuerySet
 
 CASE_REGION_VOTE = "\n".join(["WHEN '{}' THEN '{}'".format(reg, reg_vote)
@@ -62,8 +61,8 @@ class ParticipantsQuerySet(QuerySet):
         return self.exclude(desactive=True)
 
     def represente_etablissement(self):
-        return self.filter(fonction__type_institution__code=
-                           consts.TYPE_INST_ETABLISSEMENT)
+        return self.actifs().filter(fonction__type_institution__code=
+                                    consts.TYPE_INST_ETABLISSEMENT)
 
     def represente_autre_institution(self):
         return self.exclude(fonction__type_institution__code=
@@ -252,42 +251,55 @@ class ParticipantsQuerySet(QuerySet):
                                  'etablissement__pays',
                                  'fonction__type_institution')
 
+    def count_par_region_vote(self, code_region_vote):
+        return self.represente_etablissement() \
+            .filter_region_vote(code_region_vote) \
+            .filter(etablissement__region__nom__startswith='') \
+            .count()
+
     def filter_region_vote(self, code_region_vote):
         """ Voir commentaire avec_region_vote()
         """
         qs = self.select_related('etablissement', 'etablissement__region',
                                  'fonction')
+
         # Lors d'un count, django ne tient pas compte du select_related
         # ce qui fait échouer notre requête qui s'attend à ce que
         # certaines tables soient présentes. Pour cette raison, on est
         # obligés de dupliquer les conditions de vote exprimées
         # dans CONDITION_VOTE_SQL
-        qs = qs.filter_votants()
-        qs = qs.filter(
-            etablissement__statut__in=('T', 'A'),
-            fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
-            desactive=False,
-            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
-            # cette dernière condition force la jointure sur region
-            etablissement__region__nom__startswith='')
-        if code_region_vote == REG_FRANCE:
-            code_region_vote = REG_EUROPE_OUEST
-            qs = qs.filter(Q(etablissement__pays__code='FR') |
-                           Q(etablissement__id__in=EXCEPTIONS_DOM_TOM))
         return qs.extra(
             where=[
                 "({0}) = '{1}'".format(CALCUL_REGION_VOTE_SQL, code_region_vote)
             ]
         )
 
+    def filter_statut_etablissement(self, *codes_statuts):
+        return self.filter(etablissement__statut__in=codes_statuts)
+
+    def titulaires(self):
+        return self.filter_statut_etablissement(consts.CODE_TITULAIRE)
+
+    def associes(self):
+        return self.filter_statut_etablissement(consts.CODE_ASSOCIE)
+
+    def filter_qualite_etablissement(self, *codes_qualites):
+        return self.filter(etablissement__qualite__in=codes_qualites)
+
+    def reseau(self):
+        return self.filter_qualite_etablissement(consts.CODE_RESEAU)
+
     def filter_votants(self):
         """ Voir commentaire avec_region_vote()
         """
-        return self.filter(
-            etablissement__statut__in=('T', 'A'),
-            fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT,
-            desactive=False,
-            etablissement__qualite__in=('RES', 'CIR', 'ESR'),
-            # cette dernière condition force la jointure sur
-            # region
-            etablissement__region__nom__startswith='')
+        # la dernière condition force la jointure sur
+        # region
+        return self \
+            .filter_statut_etablissement(consts.CODE_TITULAIRE,
+                                         consts.CODE_ASSOCIE) \
+            .actifs() \
+            .filter_qualite_etablissement(consts.CODE_RESEAU,
+                                          consts.CODE_CENTRE_RECHERCHE,
+                                          consts.CODE_ETAB_ENSEIGNEMENT) \
+            .represente_etablisssement() \
+            .filter(etablissement__region__nom__startswith='')
