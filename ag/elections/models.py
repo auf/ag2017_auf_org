@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 import collections
+
+import itertools
 from django.db.models import IntegerField
 
 from ag.core.models import TableReferenceOrdonnee
@@ -195,3 +197,16 @@ def get_electeur_criteria():
         titre=u"Membres associés"
     ))
     return collections.OrderedDict(((c.code, c) for c in criteria))
+
+
+def get_donnees_liste_salle(criteria):
+    participants = filter_participants(criteria.filter)
+    participants = participants\
+        .order_by('etablissement__pays__nom', 'nom', 'prenom')\
+        .select_related('etablissement')
+    participants = list(participants)
+    grouped_participants = itertools.groupby(
+        participants, key=lambda p: p.etablissement.pays.nom)
+    return dict((pays, list(liste)) for pays, liste in grouped_participants)
+
+
