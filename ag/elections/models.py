@@ -199,8 +199,8 @@ def get_electeur_criteria():
     return collections.OrderedDict(((c.code, c) for c in criteria))
 
 
-def get_donnees_liste_salle(criteria):
-    participants = filter_participants(criteria.filter)
+def get_donnees_liste_salle(critere):
+    participants = filter_participants(critere.filter)
     participants = participants\
         .order_by('etablissement__pays__nom', 'nom', 'prenom')\
         .select_related('etablissement')
