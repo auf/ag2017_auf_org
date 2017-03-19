@@ -3,6 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block titre %}{% endblock %}</title>
+  <style>
+    h1 span {
+      color: white;
+      background-color: #7E0321;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .liste-salle-pays {
+      font-size: 2em;
+    }
+    .liste-salle-pays td {
+      padding-top: 0.5em;
+    }
+
+    .liste-salle-participant {
+      border-top: 2px solid black;
+      border-bottom: 2px solid black;
+    }
+  </style>
 </head>
 <body>
 
@@ -10,15 +31,15 @@
 {% block salle_date %}
 {% endblock %}
 </div>
-<h1>{% block titre_tableau %}{% endblock %}
+<h1><span>{% block titre_tableau %}</span>{% endblock %}
 </h1>
-<table class="liste-salle">
+<table>
   {% for pays, participants in participants_par_pays.iteritems %}
     <tr class="liste-salle-pays">
       <td colspan="4">{{ pays }}</td>
     </tr>
     {% for participant in participants %}
-    <tr>
+    <tr class="liste-salle-participant">
       <td>{{ participant.nom }}</td>
       <td>{{ participant.prenom }}</td>
       <td>{{ participant.poste }}</td>
