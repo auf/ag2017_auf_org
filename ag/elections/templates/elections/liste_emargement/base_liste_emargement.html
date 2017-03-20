@@ -1,10 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% extends "elections/base_listes.html" %}
+{% block titre_doc %}17e Assemblée générale des membres de l’AUF – Marrakech (Maroc) 2017
+{% endblock %}
 
-</body>
-</html>
+{% block titre %}
+  LISTE D'ÉMARGEMENT - {{ titre_critere }}
+{% endblock %}
+{% block tables %}
+<table>
+  {% for pays, participants in participants_par_pays.iteritems %}
+    <tr>
+      <td class="liste-emargement-pays" colspan="4">{{ pays }}</td>
+      <td>Signature</td>
+      <td>Date</td>
+      <td>Val</td>
+    </tr>
+    {% for participant in participants %}
+    <tr class="liste-emargement-participant">
+      <td width="15%">{{ participant.nom }}</td>
+      <td width="15%">{{ participant.prenom }}</td>
+      <td width="15%">{{ participant.poste }}</td>
+      <td width="25%">{{ participant.nom_institution }}</td>
+      <td width="15%"></td>
+      <td width="10%"></td>
+      <td width="5%"></td>
+    </tr>
+    {% endfor %}
+  {% endfor %}
+</table>
+{% endblock %}
+

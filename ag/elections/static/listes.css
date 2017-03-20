@@ -14,7 +14,7 @@ table {
     border-collapse: collapse;
 }
 
-.liste-salle-pays {
+.liste-salle-pays, .liste-emargement-pays {
     font-size: 2em;
 }
 
@@ -25,4 +25,12 @@ table {
 .liste-salle-participant {
     border-top: 2px solid black;
     border-bottom: 2px solid black;
+}
+
+.liste-emargement-participant {
+    border: 1px solid black;
+}
+
+.liste-emargement-participant td {
+    border: 1px solid black;
 }

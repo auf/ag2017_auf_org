@@ -22,13 +22,20 @@ def candidatures(request):
                       {'formset': candidatures_formset})
 
 
-def liste_salle(request, code_critere):
+SALLE = 'salle'
+EMARGEMENT = 'emargement'
 
+
+def liste_votants(request, code_critere, salle_ou_emargement):
     criteria = get_electeur_criteria()
     try:
         critere = criteria[code_critere]
     except KeyError:
         raise Http404()
     donnees = get_donnees_liste_salle(critere)
-    template = u"elections/liste_salle/liste_salle_{}.html".format(critere.code)
-    return render(request, template, {'participants_par_pays': donnees})
+    template = u"elections/liste_{}/{}.html".format(
+        salle_ou_emargement, critere.code)
+    return render(request, template, {
+        'participants_par_pays': donnees,
+        'titre_critere': critere.titre,
+    })
