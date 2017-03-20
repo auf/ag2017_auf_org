@@ -1,0 +1,28 @@
+.surtitre {
+    color: darkred;
+    font-weight: bold;
+}
+
+h1 span {
+    color: white;
+    background-color: darkred;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.liste-salle-pays {
+    font-size: 2em;
+}
+
+.liste-salle-pays td {
+    padding-top: 0.5em;
+}
+
+.liste-salle-participant {
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+}

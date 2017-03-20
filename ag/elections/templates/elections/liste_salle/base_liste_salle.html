@@ -1,0 +1,20 @@
+{% extends "elections/base_listes.html" %}
+
+{% block tables %}
+<table>
+  {% for pays, participants in participants_par_pays.iteritems %}
+    <tr class="liste-salle-pays">
+      <td colspan="4">{{ pays }}</td>
+    </tr>
+    {% for participant in participants %}
+    <tr class="liste-salle-participant">
+      <td>{{ participant.nom }}</td>
+      <td>{{ participant.prenom }}</td>
+      <td>{{ participant.poste }}</td>
+      <td>{{ participant.nom_institution }}</td>
+    </tr>
+    {% endfor %}
+  {% endfor %}
+</table>
+{% endblock %}
+

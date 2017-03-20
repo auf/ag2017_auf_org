@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block titre_doc %}{% endblock %}</title>
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}listes.css" />
+</head>
+<body>
+<div class="surtitre">
+{% block surtitre %}
+{% endblock %}
+</div>
+<h1>
+  {% block titre %}
+  {% endblock %}
+</h1>
+{% block tables %}
+{% endblock %}
+</body>
+</html>
