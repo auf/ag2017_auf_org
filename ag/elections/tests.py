@@ -66,7 +66,8 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
 
         def creer_participant_vote(
                 etablissement, pour_mandate=True,
-                code_fonction=consts.FONCTION_REPR_UNIVERSITAIRE):
+                code_fonction=consts.FONCTION_REPR_UNIVERSITAIRE,
+                nom=None):
             invitation = InvitationFactory(
                 pour_mandate=pour_mandate,
                 etablissement=etablissement)
@@ -75,18 +76,23 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
                 etablissement=etablissement,
                 inscription=inscription,
                 fonction=fonctions[code_fonction],
+                **({'nom': nom} if nom else {})
             )
             return participant
 
-        cls.participant_mo = creer_participant_vote(etablissement_mo)
-        cls.participant_mo2 = creer_participant_vote(etablissement_mo2)
-        cls.participant_mo3 = creer_participant_vote(etablissement_mo3)
+        cls.participant_mo = creer_participant_vote(etablissement_mo,
+                                                    nom='A')
+        cls.participant_mo2 = creer_participant_vote(etablissement_mo2,
+                                                     nom='B')
+        cls.participant_mo3 = creer_participant_vote(etablissement_mo3,
+                                                     nom='C')
         cls.participant_fr = creer_participant_vote(etablissement_fr)
         cls.participant_fr_sans_vote = creer_participant_vote(
             etablissement_fr, pour_mandate=False,
             code_fonction=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
         cls.participant_de = creer_participant_vote(etablissement_de)
-        cls.participant_reseau_mo = creer_participant_vote(etablissement_reseau)
+        cls.participant_reseau_mo = creer_participant_vote(etablissement_reseau,
+                                                           nom='D')
         cls.participant_associe = creer_participant_vote(etablissement_associe)
         cls.criteria = get_electeur_criteria()
         cls.candidats = get_candidats_possibles()
