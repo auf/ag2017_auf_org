@@ -77,6 +77,7 @@ ELEC_PRES = 'pres'
 ELEC_CA = 'ca'
 ELEC_CASS_ASS = 'cass-ass'
 ELEC_CASS_TIT = 'cass-tit'
+ELEC_CASS_RES = 'cass-res'
 
 
 CHAMBRE_SIMPLE = 'S'
