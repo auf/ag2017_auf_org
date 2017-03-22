@@ -3,6 +3,8 @@
 import collections
 
 import itertools
+
+import functools
 from django.db.models import IntegerField
 
 from ag.core.models import TableReferenceOrdonnee
@@ -171,6 +173,10 @@ CRITERE_REGION_TEMPLATE = 'membre_tit_{}'
 CRITERE_ASSOCIES = 'associes'
 CRITERE_RESEAU = 'reseau'
 
+CRITERE_CANDIDAT_REGION_TEMPLATE = 'candidat_{}'
+CRITERE_CANDIDAT_ASSOCIE = 'associe'
+CRITERE_CANDIDAT_RESEAU = 'reseau'
+
 
 def code_critere_region(code_region):
     return CRITERE_REGION_TEMPLATE.format(code_region)
@@ -179,7 +185,6 @@ def code_critere_region(code_region):
 def get_electeur_criteria():
     criteria = []
     for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
-        # todo: qualité ??
         criteria.append(Criterion(
             code=code_critere_region(code_region),
             filter=(ParticipantsQuerySet.titulaires,
@@ -197,6 +202,47 @@ def get_electeur_criteria():
         titre=u"Membres associés"
     ))
     return collections.OrderedDict(((c.code, c) for c in criteria))
+
+
+def code_critere_candidat_region(code_region):
+    return CRITERE_CANDIDAT_REGION_TEMPLATE.format(code_region)
+
+
+def get_candidat_criteria(election):
+    """
+
+    :param election: Election
+    :return: list[Criterion]
+    """
+    criteria = []
+    filter_election = functools.partial(ParticipantsQuerySet.candidats,
+                                        code_election=election.code)
+    base_nom = u"Candidats - {}".format(election.libelle)
+    for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
+        criteria.append(Criterion(
+            code=code_critere_candidat_region(code_region),
+            titre=u"{} - Membres titulaires {}".format(base_nom, nom_region),
+            filter=(filter_election,
+                    make_filter_region(code_region))
+        ))
+
+    criteria.append(
+        Criterion(
+            code=CRITERE_CANDIDAT_ASSOCIE,
+            titre=u"{} des membres associés".format(base_nom),
+            filter=(filter_election, )
+        )
+    )
+
+    criteria.append(
+        Criterion(
+            code=CRITERE_CANDIDAT_RESEAU,
+            titre=u"{} des réseaux".format(base_nom),
+            filter=(filter_election,)
+        )
+    )
+    return collections.OrderedDict(((c.code, c) for c in criteria))
+
 
 
 def get_donnees_liste_salle(critere):

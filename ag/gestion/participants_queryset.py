@@ -280,6 +280,10 @@ class ParticipantsQuerySet(QuerySet):
     def titulaires(self):
         return self.filter_statut_etablissement(consts.CODE_TITULAIRE)
 
+    def candidats(self, code_election):
+        return self.filter(candidat_a__code=code_election)\
+            .prefetch_related('suppleant')
+
     def associes(self):
         return self.filter_statut_etablissement(consts.CODE_ASSOCIE)
 

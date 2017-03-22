@@ -5,7 +5,8 @@ from ag.core.test_utils import ParticipantFactory, EtablissementFactory, \
     InvitationFactory
 from ag.elections.models import code_critere_region, get_electeur_criteria, \
     filter_participants, CRITERE_RESEAU, CRITERE_ASSOCIES, \
-    get_candidats_possibles, get_donnees_liste_salle
+    get_candidats_possibles, get_donnees_liste_salle, Election, \
+    code_critere_candidat_region, get_candidat_criteria
 from ag.gestion import consts
 from ag.gestion.models import get_fonction_repr_universitaire, Invitation, \
     Fonction
@@ -67,7 +68,7 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
         def creer_participant_vote(
                 etablissement, pour_mandate=True,
                 code_fonction=consts.FONCTION_REPR_UNIVERSITAIRE,
-                nom=None):
+                nom=None, election=None):
             invitation = InvitationFactory(
                 pour_mandate=pour_mandate,
                 etablissement=etablissement)
@@ -76,12 +77,14 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
                 etablissement=etablissement,
                 inscription=inscription,
                 fonction=fonctions[code_fonction],
+                candidat_a=election,
                 **({'nom': nom} if nom else {})
             )
             return participant
 
-        cls.participant_mo = creer_participant_vote(etablissement_mo,
-                                                    nom='A')
+        elec_ca = Election.objects.get(code=consts.ELEC_CA)
+        cls.participant_mo = creer_participant_vote(
+            etablissement_mo, nom='A', election=elec_ca)
         cls.participant_mo2 = creer_participant_vote(etablissement_mo2,
                                                      nom='B')
         cls.participant_mo3 = creer_participant_vote(etablissement_mo3,
@@ -91,10 +94,11 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             etablissement_fr, pour_mandate=False,
             code_fonction=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
         cls.participant_de = creer_participant_vote(etablissement_de)
-        cls.participant_reseau_mo = creer_participant_vote(etablissement_reseau,
-                                                           nom='D')
+        cls.participant_reseau_mo = creer_participant_vote(
+            etablissement_reseau, nom='D', election=elec_ca)
         cls.participant_associe = creer_participant_vote(etablissement_associe)
         cls.criteria = get_electeur_criteria()
+        cls.candidats_criteria = get_candidat_criteria(elec_ca)
         cls.candidats = get_candidats_possibles()
 
     def get_participants_region(self, code_region):
@@ -133,4 +137,12 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             {self.pays_eg.nom: [self.participant_mo, self.participant_mo2,
                                 self.participant_reseau_mo],
              self.pays_lb.nom: [self.participant_mo3]}
+        )
+
+    def test_donnees_candidats_mo(self):
+        code_critere = code_critere_candidat_region(consts.REG_MOYEN_ORIENT)
+        filter_ = self.candidats_criteria[code_critere].filter
+        self.assertEqual(
+            set(filter_participants(filter_)),
+            {self.participant_mo, self.participant_reseau_mo}
         )
