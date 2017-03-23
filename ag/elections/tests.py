@@ -3,16 +3,12 @@ from django.test import TestCase as DjangoTestCase
 
 from ag.core.test_utils import ParticipantFactory, EtablissementFactory, \
     InvitationFactory
-from ag.elections.models import code_critere_region, get_electeur_criteria, \
-    filter_participants, CRITERE_RESEAU, CRITERE_ASSOCIES, \
-    get_candidats_possibles, get_donnees_liste_salle, Election, \
-    code_critere_candidat_region, get_candidat_criteria
+from ag.elections.models import *
 from ag.gestion import consts
-from ag.gestion.models import get_fonction_repr_universitaire, Invitation, \
-    Fonction
+from ag.gestion.models import Fonction
 from ag.inscription.models import Inscription
-from ag.reference.models import Pays, Region, Etablissement
-from ag.tests import create_fixtures, creer_participant
+from ag.reference.models import Pays, Region
+from ag.tests import create_fixtures
 
 
 TITULAIRE = consts.CODE_TITULAIRE
@@ -83,6 +79,7 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             return participant
 
         elec_ca = Election.objects.get(code=consts.ELEC_CA)
+        elections = Election.objects.all()
         cls.participant_mo = creer_participant_vote(
             etablissement_mo, nom='A', election=elec_ca)
         cls.participant_mo2 = creer_participant_vote(etablissement_mo2,
@@ -98,7 +95,7 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             etablissement_reseau, nom='D', election=elec_ca)
         cls.participant_associe = creer_participant_vote(etablissement_associe)
         cls.criteria = get_electeur_criteria()
-        cls.candidats_criteria = get_candidat_criteria(elec_ca)
+        cls.candidats_criteria = get_all_listes_candidat_criteria(elections)
         cls.candidats = get_candidats_possibles()
 
     def get_participants_region(self, code_region):
@@ -139,8 +136,9 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
              self.pays_lb.nom: [self.participant_mo3]}
         )
 
-    def test_donnees_candidats_mo(self):
-        code_critere = code_critere_candidat_region(consts.REG_MOYEN_ORIENT)
+    def test_candidats_ca_mo(self):
+        code_critere = code_critere_candidat_region(consts.ELEC_CA,
+                                                    consts.REG_MOYEN_ORIENT)
         filter_ = self.candidats_criteria[code_critere].filter
         self.assertEqual(
             set(filter_participants(filter_)),

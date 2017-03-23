@@ -1,0 +1,51 @@
+{%  extends "elections/base_listes.html" %}
+{% block titre_doc %}
+
+{% endblock %}
+
+{% block surtitre %}
+
+{% endblock %}
+
+{% block titre %}
+  {{ nom_election }}
+  {% if nom_region %}
+  <br/>
+  Membres titulaires {{ nom_region }}
+  {% endif %}
+{% endblock %}
+
+{% block tables %}
+  <table>
+    <thead>
+    <tr>
+      <th>Candidat</th>
+      <th>Établissement de rattachement</th>
+      {% if election_ca %}
+        <th>Suppléant</th>
+      {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for participant in participants %}
+      <tr class="liste-candidats">
+        <td>
+          {{ participant.nom }}, {{ participant.prenom }}
+        </td>
+        <td>
+          {{ participant.nom_institution }}
+        </td>
+        {% if election_ca %}
+          <td>
+          {% if participant.suppleant %}
+            {{ participant.suppleant.nom }}, {{ participant.suppleant.prenom }}
+          {% else %}
+            (aucun)
+          {% endif %}
+          </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

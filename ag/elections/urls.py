@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
 
-from ag.elections.views import liste_votants, SALLE, EMARGEMENT
+from ag.elections.views import liste_votants, SALLE, EMARGEMENT, liste_candidats
 from .views import candidatures
 
 urlpatterns = patterns(
@@ -15,4 +15,5 @@ urlpatterns = patterns(
         kwargs={'salle_ou_emargement': SALLE}),
     url(r'^liste_emargement/([_\w]+)/$', liste_votants, name='liste_emargement',
         kwargs={'salle_ou_emargement': EMARGEMENT}),
+    url(r'^liste_candidats/([_\-\w]+)/$', liste_candidats, name='liste_candidats')
 )

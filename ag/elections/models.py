@@ -151,8 +151,8 @@ class Candidats(object):
         for participant in participants:
             participant.save()
 
-Criterion = collections.namedtuple(
-    'Criterion', ('code', 'titre', 'filter'))
+CritereElecteur = collections.namedtuple(
+    'CritereElecteur', ('code', 'titre', 'filter', ))
 
 
 def make_filter_region(code_region):
@@ -173,7 +173,6 @@ CRITERE_REGION_TEMPLATE = 'membre_tit_{}'
 CRITERE_ASSOCIES = 'associes'
 CRITERE_RESEAU = 'reseau'
 
-CRITERE_CANDIDAT_REGION_TEMPLATE = 'candidat_{}'
 CRITERE_CANDIDAT_ASSOCIE = 'associe'
 CRITERE_CANDIDAT_RESEAU = 'reseau'
 
@@ -185,18 +184,18 @@ def code_critere_region(code_region):
 def get_electeur_criteria():
     criteria = []
     for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
-        criteria.append(Criterion(
+        criteria.append(CritereElecteur(
             code=code_critere_region(code_region),
             filter=(ParticipantsQuerySet.titulaires,
                     make_filter_region(code_region)),
             titre=u"Membres titulaires - {}".format(nom_region), ))
-    criteria.append(Criterion(
+    criteria.append(CritereElecteur(
         code=CRITERE_RESEAU,
         filter=(ParticipantsQuerySet.titulaires,
                 ParticipantsQuerySet.reseau),
         titre=u"Membres titulaires des réseaux"
     ))
-    criteria.append(Criterion(
+    criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
         filter=(ParticipantsQuerySet.associes, ),
         titre=u"Membres associés"
@@ -204,45 +203,63 @@ def get_electeur_criteria():
     return collections.OrderedDict(((c.code, c) for c in criteria))
 
 
-def code_critere_candidat_region(code_region):
-    return CRITERE_CANDIDAT_REGION_TEMPLATE.format(code_region)
+def code_critere_candidat_region(code_election, code_region):
+    return '{}_{}'.format(code_election, code_region)
 
 
-def get_candidat_criteria(election):
+def titre_liste_candidats(election):
+    return u"Candidats - {}".format(election.libelle)
+
+
+def make_filter_election(election):
+    return functools.partial(ParticipantsQuerySet.candidats,
+                             code_election=election.code)
+
+
+CritereCandidat = collections.namedtuple(
+    'CritereCandidat', ('code', 'titre', 'filter',
+                        'code_region', 'code_election', ))
+
+
+def get_listes_candidat_par_region_criteria(election):
     """
 
     :param election: Election
-    :return: list[Criterion]
+    :return: list[CritereCandidat]
     """
     criteria = []
-    filter_election = functools.partial(ParticipantsQuerySet.candidats,
-                                        code_election=election.code)
-    base_nom = u"Candidats - {}".format(election.libelle)
+    filter_election = make_filter_election(election)
+    base_titre = titre_liste_candidats(election)
     for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
-        criteria.append(Criterion(
-            code=code_critere_candidat_region(code_region),
-            titre=u"{} - Membres titulaires {}".format(base_nom, nom_region),
+        criteria.append(CritereCandidat(
+            code=code_critere_candidat_region(election.code, code_region),
+            titre=u"{} - Membres titulaires {}".format(base_titre, nom_region),
             filter=(filter_election,
-                    make_filter_region(code_region))
+                    make_filter_region(code_region)),
+            code_region=code_region,
+            code_election=election.code,
         ))
+    return criteria
 
-    criteria.append(
-        Criterion(
-            code=CRITERE_CANDIDAT_ASSOCIE,
-            titre=u"{} des membres associés".format(base_nom),
-            filter=(filter_election, )
-        )
-    )
 
-    criteria.append(
-        Criterion(
-            code=CRITERE_CANDIDAT_RESEAU,
-            titre=u"{} des réseaux".format(base_nom),
-            filter=(filter_election,)
-        )
-    )
+def get_all_listes_candidat_criteria(elections):
+    criteria = []
+    liste_par_region = {consts.ELEC_CA, consts.ELEC_PRES,
+                        consts.ELEC_CASS_TIT}
+    for election in elections:
+        if election.code in liste_par_region:
+            criteria.extend(get_listes_candidat_par_region_criteria(election))
+        else:
+            criteria.append(
+                CritereCandidat(
+                    code=election.code,
+                    titre=titre_liste_candidats(election),
+                    filter=(make_filter_election(election), ),
+                    code_region=None,
+                    code_election=election.code,
+                )
+            )
     return collections.OrderedDict(((c.code, c) for c in criteria))
-
 
 
 def get_donnees_liste_salle(critere):
