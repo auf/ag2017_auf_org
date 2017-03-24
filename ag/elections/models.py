@@ -309,3 +309,22 @@ def get_donnees_bulletin_ca():
         }
         candidats_par_region.append(region)
     return candidats_par_region
+
+
+def get_donnees_bulletin_cass_tit():
+    election = Election.objects.get(code=consts.ELEC_CASS_TIT)
+    candidats = filter_participants((make_filter_election(election), ))
+    candidats = candidats.avec_region_vote()\
+        .select_related('etablissement') \
+        .order_by('region_vote', 'nom', 'prenom', )
+    grouped_candidats = itertools.groupby(candidats,
+                                          key=lambda c: c.region_vote)
+    candidats_par_region = []
+    for code_region, candidats in grouped_candidats:
+        region = {
+            'code_region': code_region,
+            'nom_region': consts.REGIONS_VOTANTS_DICT[code_region],
+            'candidats': list(candidats)
+        }
+        candidats_par_region.append(region)
+    return election.nb_sieges_global, candidats_par_region
