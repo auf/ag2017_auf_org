@@ -328,3 +328,10 @@ def get_donnees_bulletin_cass_tit():
         }
         candidats_par_region.append(region)
     return election.nb_sieges_global, candidats_par_region
+
+
+def get_donnees_bulletin(election):
+    candidats = filter_participants((make_filter_election(election),))
+    candidats = candidats.select_related('etablissement')\
+        .order_by('nom', 'prenom')
+    return list(candidats)

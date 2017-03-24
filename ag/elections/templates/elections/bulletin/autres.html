@@ -2,16 +2,12 @@
 
 {% block titre %}
   {{ nom_election }}<br>
-  {{ nb_sieges }} sièges
+  {{ nb_sieges }} siège{{ nb_sieges|pluralize }}
 {% endblock %}
 
 {% block tables %}
-{% for region in regions %}
- <div class="region-bulletin">
-{{ region.nom_region }}
- </div>
 <table class="liste-candidats-bulletin">
-  {% for candidat in region.candidats %}
+  {% for candidat in candidats %}
     <tr>
       <td width="5%">&#x25a2;</td>
       <td width="20%">{{ candidat.nom }}</td>
@@ -20,10 +16,6 @@
       <td width="20%">{{ candidat.nom_institution }}</td>
     </tr>
   {% endfor %}
-
-
 </table>
-
-{% endfor %}
 
 {% endblock %}

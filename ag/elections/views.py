@@ -2,9 +2,11 @@
 from django.http.response import Http404
 from django.shortcuts import render
 
-from ag.elections.models import get_electeur_criteria, get_donnees_liste_salle, \
-    get_all_listes_candidat_criteria, Election, filter_participants, \
-    get_donnees_bulletin_ca, get_donnees_bulletin_cass_tit
+from ag.elections.models import (
+    get_electeur_criteria, get_donnees_liste_salle,
+    get_all_listes_candidat_criteria, Election, filter_participants,
+    get_donnees_bulletin_ca, get_donnees_bulletin_cass_tit,
+    get_donnees_bulletin)
 from ag.gestion import consts
 from ag.reference.models import Region
 from .forms import CandidatureFormset
@@ -89,17 +91,30 @@ def liste_candidats(request, code_critere):
 def bulletin_ca(request):
     candidats_par_region = get_donnees_bulletin_ca()
     nb_sieges_total = sum(r['nb_sieges'] for r in candidats_par_region)
+    nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[consts.ELEC_CA]
     return render(request, 'elections/bulletin/ca.html',
-                  {'regions': candidats_par_region,
+                  {'nom_election': nom_election,
+                   'regions': candidats_par_region,
                    'nb_sieges_total': nb_sieges_total})
 
 
 def bulletin_cass_tit(request):
     nb_sieges, candidats_par_region = get_donnees_bulletin_cass_tit()
+    nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[consts.ELEC_CASS_TIT]
     return render(request, 'elections/bulletin/cass_tit.html',
-                  {'nb_sieges': nb_sieges,
+                  {'nom_election': nom_election,
+                   'nb_sieges': nb_sieges,
                    'regions': candidats_par_region})
 
 
-def bulletin(request, code_election):
-    pass
+def bulletin_autres(request, code_election):
+    if code_election not in [consts.ELEC_CASS_ASS, consts.ELEC_PRES]:
+        raise Http404()
+
+    election = Election.objects.get(code=code_election)
+    candidats = get_donnees_bulletin(election)
+    nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[code_election]
+    return render(request, 'elections/bulletin/autres.html',
+                  {'nom_election': nom_election,
+                   'nb_sieges': election.nb_sieges_global,
+                   'candidats': candidats})
