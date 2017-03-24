@@ -273,3 +273,39 @@ def get_donnees_liste_salle(critere):
     return dict((pays, list(liste)) for pays, liste in grouped_participants)
 
 
+def get_all_criteria_bulletins(elections):
+    pass
+
+
+REGIONS_FIELDS = {
+    consts.REG_AFRIQUE: "nb_sieges_afrique",
+    consts.REG_AMERIQUES: "nb_sieges_ameriques",
+    consts.REG_ASIE_PACIFIQUE: "nb_sieges_asie_pacifique",
+    consts.REG_EUROPE_OUEST: "nb_sieges_europe_ouest",
+    consts.REG_EUROPE_EST: "nb_sieges_europe_est",
+    consts.REG_MAGHREB: "nb_sieges_maghreb",
+    consts.REG_MOYEN_ORIENT: "nb_sieges_moyen_orient",
+}
+
+
+def get_donnees_bulletin_ca():
+    election = Election.objects.get(code=consts.ELEC_CA)
+    participants = filter_participants((make_filter_election(election), ))
+    participants = participants.avec_region_vote()
+    participants = participants.order_by('region_vote', 'nom', 'prenom')
+    participants = participants.prefetch_related('suppleant')
+    grouped_participants = itertools.groupby(participants,
+                                             key=lambda pr: pr.region_vote)
+    candidats_par_region = []
+    for code_region, participants in grouped_participants:
+        region = {
+            'code_region': code_region,
+            'nom_region': consts.REGIONS_VOTANTS_DICT[code_region],
+            'nb_sieges': getattr(election, REGIONS_FIELDS[code_region]),
+            'candidats': [
+                {'nom': p.nom, 'prenom': p.prenom,
+                 'suppleant': p.get_nom_suppleant()}
+                for p in participants]
+        }
+        candidats_par_region.append(region)
+    return candidats_par_region

@@ -3,7 +3,8 @@ from django.http.response import Http404
 from django.shortcuts import render
 
 from ag.elections.models import get_electeur_criteria, get_donnees_liste_salle, \
-    get_all_listes_candidat_criteria, Election, filter_participants
+    get_all_listes_candidat_criteria, Election, filter_participants, \
+    get_donnees_bulletin_ca
 from ag.gestion import consts
 from ag.reference.models import Region
 from .forms import CandidatureFormset
@@ -83,3 +84,15 @@ def liste_candidats(request, code_critere):
             'nom_region': nom_region,
             'election_ca': critere.code_election == consts.ELEC_CA,
         })
+
+
+def bulletin_ca(request):
+    candidats_par_region = get_donnees_bulletin_ca()
+    nb_sieges_total = sum(r['nb_sieges'] for r in candidats_par_region)
+    return render(request, 'elections/bulletin/ca.html',
+                  {'regions': candidats_par_region,
+                   'nb_sieges_total': nb_sieges_total})
+
+
+def bulletin(request, code_election):
+    pass

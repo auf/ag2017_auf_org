@@ -1,0 +1,31 @@
+{% extends "elections/base_listes.html" %}
+
+{% block titre %}
+  ÉLECTION DES MEMBRES UNIVERSITAIRES DU CONSEIL D’ADMINISTRATION<br>
+  {{ nb_sieges_total }} sièges
+{% endblock %}
+
+{% block tables %}
+{% for region in regions %}
+ <div class="region-bulletin-ca">
+{{ region.nom_region }} ({{ region.nb_sieges }} sièges)
+ <span style="float: right;">
+   Cochez {{ region.nb_sieges }} case{{ region.nb_sieges|pluralize }}
+ </span>
+ </div>
+<table class="liste-candidats-bulletin">
+  {% for candidat in region.candidats %}
+    <tr>
+      <td width="5%">&#x25a2;</td>
+      <td width="20%">{{ candidat.nom }}</td>
+      <td width="20%">{{ candidat.prenom }}</td>
+      <td>Suppléant<br>{{ candidat.suppleant }}</td>
+    </tr>
+  {% endfor %}
+
+
+</table>
+
+{% endfor %}
+
+{% endblock %}

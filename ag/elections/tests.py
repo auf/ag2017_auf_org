@@ -78,7 +78,7 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             )
             return participant
 
-        elec_ca = Election.objects.get(code=consts.ELEC_CA)
+        elec_ca = cls.election_ca = Election.objects.get(code=consts.ELEC_CA)
         elections = Election.objects.all()
         cls.participant_mo = creer_participant_vote(
             etablissement_mo, nom='A', election=elec_ca)
@@ -128,7 +128,6 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
     def test_donnees_liste_salle_mo(self):
         code_critere = code_critere_region(consts.REG_MOYEN_ORIENT)
         d = get_donnees_liste_salle(self.criteria[code_critere])
-        print(d)
         self.assertDictEqual(
             d,
             {self.pays_eg.nom: [self.participant_mo, self.participant_mo2,
@@ -144,3 +143,11 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             set(filter_participants(filter_)),
             {self.participant_mo, self.participant_reseau_mo}
         )
+
+    def test_bulletin_ca_mo(self):
+        d = get_donnees_bulletin_ca()
+        self.assertEqual(len(d), 1)
+        self.assertEqual(d[0]['code_region'], consts.REG_MOYEN_ORIENT)
+        self.assertEqual(d[0]['nb_sieges'],
+                         self.election_ca.nb_sieges_moyen_orient)
+        self.assertEqual(len(d[0]['candidats']), 2)

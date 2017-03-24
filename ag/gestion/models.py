@@ -546,6 +546,10 @@ class Participant(RenseignementsPersonnels):
         except exceptions.AttributeError:
             return None
 
+    def get_nom_suppleant(self):
+        suppleant = self.get_suppleant()
+        return suppleant.get_nom_complet() if suppleant else u""
+
     @property
     def represente_etablissement(self):
         return self.fonction and self.fonction.type_institution and \

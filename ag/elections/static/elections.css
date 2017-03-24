@@ -26,7 +26,7 @@ th {
     padding-top: 0.5em;
 }
 
-.liste-salle-participant, .liste-candidats {
+.liste-salle-participant, .liste-candidats, .liste-candidats-bulletin {
     border-top: 2px solid black;
     border-bottom: 2px solid black;
 }
@@ -37,4 +37,11 @@ th {
 
 .liste-emargement-participant td {
     border: 1px solid black;
+}
+
+.region-bulletin-ca {
+    color: darkred;
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-top: 1em;
 }

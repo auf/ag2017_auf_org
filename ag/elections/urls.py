@@ -3,8 +3,10 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
 
-from ag.elections.views import liste_votants, SALLE, EMARGEMENT, liste_candidats
+from ag.elections.views import (
+    liste_votants, SALLE, EMARGEMENT, liste_candidats, bulletin, bulletin_ca)
 from .views import candidatures
+
 
 urlpatterns = patterns(
     'ag.elections.views',
@@ -15,5 +17,8 @@ urlpatterns = patterns(
         kwargs={'salle_ou_emargement': SALLE}),
     url(r'^liste_emargement/([_\w]+)/$', liste_votants, name='liste_emargement',
         kwargs={'salle_ou_emargement': EMARGEMENT}),
-    url(r'^liste_candidats/([_\-\w]+)/$', liste_candidats, name='liste_candidats')
+    url(r'^liste_candidats/([_\-\w]+)/$', liste_candidats,
+        name='liste_candidats'),
+    url(r'^bulletin/ca/$', bulletin_ca, name='bulletin_ca'),
+    url(r'^bulletin/([_\-\w]+)/$', bulletin, name='bulletin'),
 )
