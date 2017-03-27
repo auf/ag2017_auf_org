@@ -1,0 +1,36 @@
+{% extends "elections/base_listes.html" %}
+
+{% block titre %}
+  {{ nom_election }}<br>
+  {{ nb_sieges_total }} sièges
+{% endblock %}
+
+{% block tables %}
+  <table class="table-depouillement">
+  <thead>
+  <tr>
+    <th>Région</th>
+    <th>Candidat</th>
+    <th>Suppléant</th>
+    {% include "elections/depouillement/cellules_head.html" %}
+  </tr>
+  </thead>
+{% for region in regions %}
+{% for candidat in region.candidats %}
+  <tr>
+  {% if forloop.first %}
+    <td rowspan="{{ region.candidats|length }}"
+        class="depouillement-cell-region">
+      {{ region.nom_region }}<br>({{ region.nb_sieges }})
+    </td>
+  {% endif %}
+  <td class="depouillement-cell-nom-candidat">{{ candidat.nom }}, {{ candidat.prenom }}</td>
+  <td class="depouillement-cell-nom-candidat">{{ candidat.suppleant }}</td>
+{% include "elections/depouillement/cellules_candidat.html" %}
+  </tr>
+  {% endfor %}
+  <tr><td class="depouillement-ligne-espace"></td></tr>
+{% endfor %}
+  </table>
+
+{% endblock %}

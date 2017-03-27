@@ -118,3 +118,18 @@ def bulletin_autres(request, code_election):
                   {'nom_election': nom_election,
                    'nb_sieges': election.nb_sieges_global,
                    'candidats': candidats})
+
+
+def depouillement_cells():
+    return range(1, 21)
+
+
+def depouillement_ca(request):
+    candidats_par_region = get_donnees_bulletin_ca()
+    nb_sieges_total = sum(r['nb_sieges'] for r in candidats_par_region)
+    nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[consts.ELEC_CA]
+    return render(request, 'elections/depouillement/ca.html',
+                  {'nom_election': nom_election,
+                   'regions': candidats_par_region,
+                   'nb_sieges_total': nb_sieges_total,
+                   'cells': depouillement_cells(), })

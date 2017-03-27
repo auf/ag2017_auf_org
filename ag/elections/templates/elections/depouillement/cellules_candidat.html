@@ -1,0 +1,7 @@
+<td class="depouillement-cell-espace"></td>
+<td class="depouillement-cell-total"></td>
+<td class="depouillement-cell-espace"></td>
+
+{% for cell in cells %}
+  <td class="depouillement-cell-compte{% cycle "" "" "" "" " grise" %}"></td>
+{% endfor %}

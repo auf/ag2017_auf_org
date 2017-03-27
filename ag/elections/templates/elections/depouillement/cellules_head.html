@@ -1,0 +1,9 @@
+<th width="2%"></th>
+<th width="2%"></th>
+<th width="2%"></th>
+
+{% for cell in cells %}
+  <th  width="2%" class="{% cycle "" "" "" "" " grise" %}">
+    {{ forloop.counter }}
+  </th>
+{% endfor %}
