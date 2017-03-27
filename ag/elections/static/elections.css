@@ -71,3 +71,17 @@ th {
 .grise {
     background-color: lightgray;
 }
+
+.grille-nb-feuilles {
+    float: right;
+    width: 10%;
+}
+
+.grille-nb-feuilles td {
+    border: 1px solid black;
+    width: 50%;
+}
+
+.table-depouillement {
+    width: 89%;
+}

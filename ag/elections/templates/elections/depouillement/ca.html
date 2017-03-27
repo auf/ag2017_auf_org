@@ -1,12 +1,7 @@
-{% extends "elections/base_listes.html" %}
+{% extends "elections/depouillement/base.html" %}
 
-{% block titre %}
-  {{ nom_election }}<br>
-  {{ nb_sieges_total }} sièges
-{% endblock %}
-
-{% block tables %}
-  <table class="table-depouillement">
+{% block table_depouillement %}
+  <table>
   <thead>
   <tr>
     <th>Région</th>
