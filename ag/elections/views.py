@@ -133,3 +133,13 @@ def depouillement_ca(request):
                    'regions': candidats_par_region,
                    'nb_sieges_total': nb_sieges_total,
                    'cells': depouillement_cells(), })
+
+
+def depouillement_cass_tit(request):
+    nb_sieges_total, candidats_par_region = get_donnees_bulletin_cass_tit()
+    nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[consts.ELEC_CASS_TIT]
+    return render(request, 'elections/depouillement/cass_tit.html',
+                  {'nom_election': nom_election,
+                   'nb_sieges_total': nb_sieges_total,
+                   'regions': candidats_par_region,
+                   'cells': depouillement_cells(), })
