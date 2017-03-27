@@ -200,6 +200,7 @@ def get_electeur_criteria():
         filter=(ParticipantsQuerySet.associes, ),
         titre=u"Membres associés"
     ))
+    # noinspection PyArgumentList
     return collections.OrderedDict(((c.code, c) for c in criteria))
 
 
@@ -259,6 +260,7 @@ def get_all_listes_candidat_criteria(elections):
                     code_election=election.code,
                 )
             )
+    # noinspection PyArgumentList
     return collections.OrderedDict(((c.code, c) for c in criteria))
 
 
@@ -271,10 +273,6 @@ def get_donnees_liste_salle(critere):
     grouped_participants = itertools.groupby(
         participants, key=lambda p: p.etablissement.pays.nom)
     return dict((pays, list(liste)) for pays, liste in grouped_participants)
-
-
-def get_all_criteria_bulletins(elections):
-    pass
 
 
 REGIONS_FIELDS = {
