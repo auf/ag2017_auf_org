@@ -5,7 +5,8 @@ from django.views.generic.base import TemplateView
 
 from ag.elections.views import (
     liste_votants, SALLE, EMARGEMENT, liste_candidats, bulletin_autres,
-    bulletin_ca, bulletin_cass_tit, depouillement_ca, depouillement_cass_tit)
+    bulletin_ca, bulletin_cass_tit, depouillement_ca, depouillement_cass_tit,
+    depouillement_autres)
 from .views import candidatures
 
 
@@ -28,4 +29,6 @@ urlpatterns = patterns(
         name='depouillement_ca'),
     url(r'^grille_depouillement/cass-tit/$', depouillement_cass_tit,
         name='depouillement_cass_tit'),
+    url(r'^grille_depouillement/([_\-\w]+)/$', depouillement_autres,
+        name='depouillement_autres'),
 )

@@ -1,0 +1,24 @@
+{% extends "elections/base_listes.html" %}
+
+{% block titre %}
+  {{ nom_election }}<br>
+  {{ nb_sieges_total }} siège{{ nb_sieges_total|pluralize }}
+{% endblock %}
+
+{% block tables %}
+  <table class="table-depouillement">
+  <thead>
+  <tr>
+    <th>Candidat</th>
+    {% include "elections/depouillement/cellules_head.html" %}
+  </tr>
+  </thead>
+{% for candidat in candidats %}
+  <tr>
+  <td class="depouillement-cell-nom-candidat">{{ candidat.nom }}, {{ candidat.prenom }}</td>
+{% include "elections/depouillement/cellules_candidat.html" %}
+  </tr>
+{% endfor %}
+  </table>
+
+{% endblock %}

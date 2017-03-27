@@ -67,3 +67,7 @@ th {
 .depouillement-ligne-espace {
     height: 1em;
 }
+
+.grise {
+    background-color: lightgray;
+}

@@ -143,3 +143,17 @@ def depouillement_cass_tit(request):
                    'nb_sieges_total': nb_sieges_total,
                    'regions': candidats_par_region,
                    'cells': depouillement_cells(), })
+
+
+def depouillement_autres(request, code_election):
+    if code_election not in [consts.ELEC_CASS_ASS, consts.ELEC_PRES]:
+        raise Http404()
+
+    election = Election.objects.get(code=code_election)
+    candidats = get_donnees_bulletin(election)
+    nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[code_election]
+    return render(request, 'elections/depouillement/autres.html',
+                  {'nom_election': nom_election,
+                   'nb_sieges_total': election.nb_sieges_global,
+                   'candidats': candidats,
+                   'cells': depouillement_cells(), })
