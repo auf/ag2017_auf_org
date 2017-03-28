@@ -16,4 +16,13 @@
         </a></li>
       {% endfor %}
     </ul>
+  <h2>Listes salles</h2>
+  <ul>
+  {% for criterion in criteria_listes_votants %}
+    <li><a href="{% url "liste_salle" criterion.code %}">
+      {{ criterion.titre }}
+    </a></li>
+  {% endfor %}
+
+  </ul>
 {% endblock %}
