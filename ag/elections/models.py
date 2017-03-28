@@ -285,7 +285,9 @@ def get_donnees_liste_salle(critere):
     participants = list(participants)
     grouped_participants = itertools.groupby(
         participants, key=lambda p: p.etablissement.pays.nom)
-    return dict((pays, list(liste)) for pays, liste in grouped_participants)
+    # noinspection PyArgumentList
+    return collections.OrderedDict(
+        (pays, list(liste)) for pays, liste in grouped_participants)
 
 
 REGIONS_FIELDS = {
