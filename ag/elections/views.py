@@ -12,15 +12,15 @@ from ag.reference.models import Region
 from .forms import CandidatureFormset
 
 
-def candidatures(request):
+def candidatures(request, code_region=None):
     candidatures_formset = CandidatureFormset(
-        request.POST or None,
+        request.POST or None, code_region=code_region
     )
     if request.method == 'POST':
         if candidatures_formset.is_valid():
             candidats = candidatures_formset.get_updated_candidats()
             candidats.update_participants()
-            candidatures_formset = CandidatureFormset()
+            candidatures_formset = CandidatureFormset(code_region=code_region)
         return render(request, "elections/candidatures_form.html",
                       {'formset': candidatures_formset})
     else:

@@ -15,6 +15,7 @@ urlpatterns = patterns(
     url(r'^$', TemplateView.as_view(template_name="elections/accueil.html"),
         name='accueil_elections'),
     url(r'^candidatures/$', candidatures, name='candidatures'),
+    url(r'^candidatures/(\w+)/$', candidatures, name='candidatures_region'),
     url(r'^liste_salle/([_\w]+)/$', liste_votants, name='liste_salle',
         kwargs={'salle_ou_emargement': SALLE}),
     url(r'^liste_emargement/([_\w]+)/$', liste_votants, name='liste_emargement',

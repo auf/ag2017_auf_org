@@ -71,7 +71,8 @@ def candidat_to_form_data(candidat):
 
 class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
-        self.candidats = get_candidats_possibles()
+        code_region = kwargs.pop('code_region', None)
+        self.candidats = get_candidats_possibles(code_region)
         self.grouped_by_region = self.candidats.grouped_by_region()
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
         self.elections = list(Election.objects.all())

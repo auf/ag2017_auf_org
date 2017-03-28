@@ -1,9 +1,9 @@
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
-  {% regroup formset by candidat.code_region as forms_by_region %}
+  {% regroup formset by candidat.region as forms_by_region %}
   {% for region_forms in forms_by_region %}
-    <h2>{{ region_forms.grouper }}</h2>
+    <h2>{{ region_forms.grouper.nom }}</h2>
     <table>
       <tr>
         <th>Nom</th>

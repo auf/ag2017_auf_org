@@ -39,7 +39,7 @@ Candidat = collections.namedtuple('Candidat', (
     'nom', 'prenom',
     'poste', 'etablissement_nom',
     'code_election', 'suppleant_de_id', 'libre', 'elimine',
-    'candidatures_possibles', 'code_region',
+    'candidatures_possibles', 'region',
 ))
 
 
@@ -60,16 +60,19 @@ def participant_to_candidat(participant):
         libre=participant.candidat_libre,
         elimine=participant.candidat_elimine,
         candidatures_possibles=participant.candidatures_possibles(),
-        code_region=participant.get_region_vote_display(),
+        region={'code': participant.region_vote,
+                'nom': participant.get_region_vote_display()},
     )
 
 
-def get_candidats_possibles():
+def get_candidats_possibles(code_region=None):
     participants = gestion_models.Participant.actifs \
         .all().filter_representants_mandates() \
         .avec_region_vote() \
         .select_related('candidat_a', 'suppleant_de')\
         .order_by('nom', 'prenom')
+    if code_region:
+        participants = participants.filter_region_vote(code_region)
     return Candidats([participant_to_candidat(p) for p in participants])
 
 
@@ -115,7 +118,7 @@ class Candidats(object):
     def grouped_by_region(self):
         enum_candidats = enumerate(self.candidats)
         sorted_enum = sorted(enum_candidats,
-                             key=lambda x: (x[1].code_region, x[0]))
+                             key=lambda x: (x[1].region['code'], x[0]))
         return [e[1] for e in sorted_enum]
 
     def update_participants(self):
