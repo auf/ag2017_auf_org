@@ -39,7 +39,7 @@ Candidat = collections.namedtuple('Candidat', (
     'nom', 'prenom',
     'poste', 'etablissement_nom',
     'code_election', 'suppleant_de_id', 'libre', 'elimine',
-    'candidatures_possibles', 'region',
+    'candidatures_possibles', 'region', 'last_modified',
 ))
 
 
@@ -62,6 +62,7 @@ def participant_to_candidat(participant):
         candidatures_possibles=participant.candidatures_possibles(),
         region={'code': participant.region_vote,
                 'nom': participant.get_region_vote_display()},
+        last_modified=participant.last_modified,
     )
 
 
@@ -87,7 +88,11 @@ def peut_etre_suppleant(candidat):
 def suppleant_possible(candidat, suppleant):
     return peut_avoir_suppleant(candidat) and\
         peut_etre_suppleant(suppleant) and\
-        candidat.code_region == suppleant.code_region
+        candidat.region == suppleant.region
+
+
+class ParticipantModified(Exception):
+    pass
 
 
 class Candidats(object):
@@ -135,6 +140,11 @@ class Candidats(object):
             else:
                 election = None
             participant = participant_by_id[candidat.participant_id]
+            if (participant.last_modified and
+                    participant.last_modified > candidat.last_modified):
+                raise ParticipantModified(
+                    u"Le participant {} a été modifié entre temps.".format(
+                        participant.get_nom_complet()))
             participant.candidat_a = election
             participant.candidat_libre = candidat.libre
             participant.candidat_elimine = candidat.elimine

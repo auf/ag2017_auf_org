@@ -1,5 +1,11 @@
 <form method="post">
   {% csrf_token %}
+  {% if message_echec %}
+    <ul class="errorlist">
+      <li>{{ message_echec }}</li>
+    </ul>
+  {% endif %}
+
   {{ formset.management_form }}
   {% regroup formset by candidat.region as forms_by_region %}
   {% for region_forms in forms_by_region %}
@@ -22,6 +28,7 @@
       {% for form in region_forms.list %}
         <tr>
           {{ form.participant_id }}
+          {{ form.last_modified }}
           <td width="9%">{{ form.candidat.nom }}</td>
           <td width="9%">{{ form.candidat.prenom }}</td>
           <td width="7%">{{ form.candidat.poste }}</td>

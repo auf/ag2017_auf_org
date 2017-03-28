@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-from django.forms import Form,  formset_factory, RadioSelect, ChoiceField, \
-    BooleanField, BaseFormSet, IntegerField, HiddenInput
+from django.forms import Form, formset_factory, RadioSelect, ChoiceField, \
+    BooleanField, BaseFormSet, IntegerField, HiddenInput, DateTimeField
 from django.forms.formsets import INITIAL_FORM_COUNT
 
 from ag.elections.models import Candidat, peut_etre_suppleant
@@ -15,6 +15,7 @@ class CandidatureForm(Form):
     suppleant_de_id = ChoiceField(choices=(), required=False)
     libre = BooleanField(required=False)
     elimine = BooleanField(required=False)
+    last_modified = DateTimeField(required=False, widget=HiddenInput)
 
     def __init__(self, *args, **kwargs):
         self.elections = elections = kwargs.pop('elections')
@@ -51,7 +52,8 @@ class CandidatureForm(Form):
             'suppleant_de_id': suppleant_de_id,
             'code_election': code_election,
             'libre': d['libre'],
-            'elimine': d['elimine']
+            'elimine': d['elimine'],
+            'last_modified': d['last_modified'],
         })
 
 
@@ -66,6 +68,7 @@ def candidat_to_form_data(candidat):
         'suppleant_de_id': candidat.suppleant_de_id,
         'libre': candidat.libre or False,
         'elimine': candidat.elimine or False,
+        'last_modified': candidat.last_modified,
     }
 
 

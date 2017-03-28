@@ -520,6 +520,8 @@ class Participant(RenseignementsPersonnels):
     candidat_libre = BooleanField(u"libre", default=False)
     candidat_elimine = BooleanField(u"éliminé", default=False)
 
+    last_modified = DateTimeField(auto_now=True, null=True)
+
     objects = ParticipantsManager()
     actifs = ParticipantsActifsManager()
 

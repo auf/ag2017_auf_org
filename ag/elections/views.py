@@ -6,7 +6,7 @@ from ag.elections.models import (
     get_electeur_criteria, get_donnees_liste_salle,
     get_all_listes_candidat_criteria, Election, filter_participants,
     get_donnees_bulletin_ca, get_donnees_bulletin_cass_tit,
-    get_donnees_bulletin)
+    get_donnees_bulletin, ParticipantModified)
 from ag.gestion import consts
 from ag.reference.models import Region
 from .forms import CandidatureFormset
@@ -17,12 +17,17 @@ def candidatures(request, code_region=None):
         request.POST or None, code_region=code_region
     )
     if request.method == 'POST':
+        message_echec = u""
         if candidatures_formset.is_valid():
             candidats = candidatures_formset.get_updated_candidats()
-            candidats.update_participants()
+            try:
+                candidats.update_participants()
+            except ParticipantModified as e:
+                message_echec = e.message
             candidatures_formset = CandidatureFormset(code_region=code_region)
         return render(request, "elections/candidatures_form.html",
-                      {'formset': candidatures_formset})
+                      {'formset': candidatures_formset,
+                       'message_echec': message_echec, })
     else:
         return render(request, "elections/candidatures.html",
                       {'formset': candidatures_formset})
