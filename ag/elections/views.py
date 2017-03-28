@@ -165,12 +165,15 @@ def depouillement_autres(request, code_election):
 
 
 def accueil_elections(request):
+    elections = list(Election.objects.all())
     regions = [{'code': code, 'nom': nom}
                for code, nom in consts.REGIONS_VOTANTS]
     criteria_listes_votants = get_electeur_criteria().values()
-    elections = list(Election.objects.all())
+    criteria_listes_candidats = get_all_listes_candidat_criteria(elections)\
+        .values()
     return render(request, 'elections/accueil.html', {
         'regions': regions,
         'elections': elections,
         'criteria_listes_votants': criteria_listes_votants,
+        'criteria_listes_candidats': criteria_listes_candidats,
     })

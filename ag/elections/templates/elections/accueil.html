@@ -32,5 +32,17 @@
     </a></li>
   {% endfor %}
   </ul>
+  <h2>Liste candidats</h2>
+  <ul>
+  {% for criterion in criteria_listes_candidats %}
+    <li>
+    <a href="{% url "liste_candidats" criterion.code %}">
+      {{ criterion.titre }}
+    </a>
+    </li>
+  {% endfor %}
+
+
+  </ul>
 
 {% endblock %}

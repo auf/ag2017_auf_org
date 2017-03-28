@@ -257,6 +257,11 @@ def get_listes_candidat_par_region_criteria(election):
 
 
 def get_all_listes_candidat_criteria(elections):
+    """
+    
+    :param elections: List[Election]
+    :return: OrderedDict[str, CritereCandidat]
+    """
     criteria = []
     liste_par_region = {consts.ELEC_CA, consts.ELEC_PRES,
                         consts.ELEC_CASS_TIT}
