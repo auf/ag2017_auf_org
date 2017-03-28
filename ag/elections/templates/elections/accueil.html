@@ -7,7 +7,13 @@
     </div>
 {% endblock %}
 {% block content %}
+  <h2>Formulaires candidatures</h2>
     <ul>
-    <li><a href="{% url "candidatures" %}">Candidatures</a></li>
+    <li><a href="{% url "candidatures" %}">Toutes les régions</a></li>
+      {% for region in regions %}
+        <li><a href="{% url "candidatures_region" region.code %}">
+          {{ region.nom }}
+        </a></li>
+      {% endfor %}
     </ul>
 {% endblock %}

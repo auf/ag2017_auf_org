@@ -1,18 +1,16 @@
 # -*- encoding: utf-8 -*-
 
 from django.conf.urls import patterns, url
-from django.views.generic.base import TemplateView
-
 from ag.elections.views import (
     liste_votants, SALLE, EMARGEMENT, liste_candidats, bulletin_autres,
     bulletin_ca, bulletin_cass_tit, depouillement_ca, depouillement_cass_tit,
-    depouillement_autres)
+    depouillement_autres, accueil_elections)
 from .views import candidatures
 
 
 urlpatterns = patterns(
     'ag.elections.views',
-    url(r'^$', TemplateView.as_view(template_name="elections/accueil.html"),
+    url(r'^$', accueil_elections,
         name='accueil_elections'),
     url(r'^candidatures/$', candidatures, name='candidatures'),
     url(r'^candidatures/(\w+)/$', candidatures, name='candidatures_region'),

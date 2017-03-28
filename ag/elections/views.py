@@ -162,3 +162,13 @@ def depouillement_autres(request, code_election):
                    'nb_sieges_total': election.nb_sieges_global,
                    'candidats': candidats,
                    'cells': depouillement_cells(), })
+
+
+def accueil_elections(request):
+    regions = [{'code': code, 'nom': nom}
+               for code, nom in consts.REGIONS_VOTANTS]
+    elections = list(Election.objects.all())
+    return render(request, 'elections/accueil.html', {
+        'regions': regions,
+        'elections': elections,
+    })
