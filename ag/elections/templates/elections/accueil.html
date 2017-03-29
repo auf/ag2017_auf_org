@@ -32,7 +32,7 @@
     </a></li>
   {% endfor %}
   </ul>
-  <h2>Liste candidats</h2>
+  <h2>Listes candidats</h2>
   <ul>
   {% for criterion in criteria_listes_candidats %}
     <li>
@@ -41,8 +41,24 @@
     </a>
     </li>
   {% endfor %}
+  </ul>
+  <h2>Bulletins</h2>
+  <ul>
+    {% for election in elections %}
+      <li><a target="_blank" href="{% url "bulletin_autres" election.code %}">
+        {{ election.libelle }}
+      </a></li>
 
+    {% endfor %}
+  </ul>
+  <h2>Grilles de dépouillement</h2>
+  <ul>
+    {% for election in elections %}
+      <li><a target="_blank" href="{% url "depouillement_autres" election.code %}">
+        {{ election.libelle }}
+      </a></li>
 
+    {% endfor %}
   </ul>
 
 {% endblock %}

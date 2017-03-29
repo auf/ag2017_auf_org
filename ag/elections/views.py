@@ -165,7 +165,7 @@ def depouillement_autres(request, code_election):
 
 
 def accueil_elections(request):
-    elections = list(Election.objects.all())
+    elections = list(Election.objects.exclude(code=consts.ELEC_CASS_RES))
     regions = [{'code': code, 'nom': nom}
                for code, nom in consts.REGIONS_VOTANTS]
     criteria_listes_votants = get_electeur_criteria().values()
