@@ -74,6 +74,9 @@ def get_candidats_possibles(code_region=None):
         .order_by('nom', 'prenom')
     if code_region:
         participants = participants.filter_region_vote(code_region)
+        participants = participants.exclude(
+            candidat_a__code=consts.ELEC_CASS_RES,
+            candidat_statut=consts.ELU)
     return Candidats([participant_to_candidat(p) for p in participants])
 
 

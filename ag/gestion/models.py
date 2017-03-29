@@ -537,6 +537,8 @@ class Participant(RenseignementsPersonnels):
             if (self.etablissement.statut != CODE_ASSOCIE and
                     self.etablissement.qualite != CODE_RESEAU):
                 result.update({ELEC_PRES, ELEC_CA})
+            if self.etablissement.qualite == CODE_RESEAU:
+                result.add(ELEC_CASS_RES)
             if self.etablissement.statut != CODE_ASSOCIE:
                 result.add(ELEC_CASS_TIT)
             if self.etablissement.statut != CODE_TITULAIRE:
