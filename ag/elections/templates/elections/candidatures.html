@@ -1,8 +1,9 @@
 {% extends "gestion/base.html" %}
+{% load staticfiles %}
 {% block title %}Élections - Candidatures - AG2017{% endblock %}
 {% block extrahead %}
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/jquery.form/4.0.1/jquery.form.min.js" integrity="sha384-MSBAlvUdugJfNRlgXmRfwPbw7SNanf6IaKgQBi1ajJdWoZ9oUYhxC79B5n4gp3y5" crossorigin="anonymous"></script>
+  <script src="{% static "scripts/jquery.3.1.1.min.js" %}"></script>
+  <script src="{% static "scripts/jquery.form.4.0.1.min.js" %}"></script>
 {% endblock %}
 {% block breadcrumbs %}
   <div class="breadcrumbs">
