@@ -77,7 +77,7 @@ def liste_candidats(request, code_critere):
     participants = participants.order_by('nom', 'prenom', )\
         .select_related('etablissement')
     if critere.code_region:
-        nom_region = Region.objects.get(code=critere.code_region).nom
+        nom_region = consts.REGIONS_VOTANTS_DICT[critere.code_region]
     else:
         nom_region = u""
     return render(
