@@ -38,7 +38,7 @@ Candidat = collections.namedtuple('Candidat', (
     'participant_id', 'nom_complet',
     'nom', 'prenom',
     'poste', 'etablissement_nom',
-    'code_election', 'suppleant_de_id', 'libre', 'elimine',
+    'code_election', 'suppleant_de_id', 'libre', 'statut',
     'candidatures_possibles', 'region', 'last_modified',
 ))
 
@@ -58,7 +58,7 @@ def participant_to_candidat(participant):
         code_election=code_election,
         suppleant_de_id=participant.suppleant_de_id,
         libre=participant.candidat_libre,
-        elimine=participant.candidat_elimine,
+        statut=participant.candidat_statut,
         candidatures_possibles=participant.candidatures_possibles(),
         region={'code': participant.region_vote,
                 'nom': participant.get_region_vote_display()},
@@ -147,7 +147,7 @@ class Candidats(object):
                         participant.get_nom_complet()))
             participant.candidat_a = election
             participant.candidat_libre = candidat.libre
-            participant.candidat_elimine = candidat.elimine
+            participant.candidat_statut = candidat.statut
 
         for candidat in self.candidats:
             participant = participant_by_id[candidat.participant_id]

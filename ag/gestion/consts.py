@@ -80,6 +80,17 @@ ELEC_CASS_TIT = 'cass-tit'
 ELEC_CASS_RES = 'cass-res'
 
 
+DANS_LA_COURSE = 'dans_course'
+ELU = 'elu'
+ELIMINE = 'elimine'
+
+STATUTS_CANDIDATS = (
+    (DANS_LA_COURSE, u'Dans la course'),
+    (ELU, u'Élu'),
+    (ELIMINE, u'Éliminé'),
+)
+
+
 CHAMBRE_SIMPLE = 'S'
 CHAMBRE_DOUBLE = 'D'
 CHAMBRE_SIMPLE_SUP = '1'

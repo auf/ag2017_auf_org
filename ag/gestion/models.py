@@ -518,7 +518,8 @@ class Participant(RenseignementsPersonnels):
         related_name='suppleant',
         on_delete=PROTECT)
     candidat_libre = BooleanField(u"libre", default=False)
-    candidat_elimine = BooleanField(u"éliminé", default=False)
+    candidat_statut = CharField(max_length=16, choices=consts.STATUTS_CANDIDATS,
+                                default=consts.DANS_LA_COURSE)
 
     last_modified = DateTimeField(auto_now=True, null=True)
 

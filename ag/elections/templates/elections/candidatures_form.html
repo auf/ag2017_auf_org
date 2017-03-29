@@ -21,7 +21,7 @@
           <th>{{ radio.choice_label }}</th>
         {% endfor %}
         <th>Suppléant de</th>
-        <th></th>
+        <th>Statut</th>
         <th></th>
       </tr>
 
@@ -41,7 +41,7 @@
             {% endif %}
           </td>
           {% for radio in form.election %}
-            <td width="4%">
+            <td width="3%">
               <input type="radio" id="{{ radio.attrs.id }}"
                      {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
                      disabled="disabled"
@@ -56,8 +56,12 @@
               {{ form.suppleant_de_id }}
               </span>
           </td>
+          <td width="10%">
+            {% if form.candidat.code_election %}
+            {{ form.statut }}
+            {% endif %}
+          </td>
           <td width="5%">Libre ? {{ form.libre }}</td>
-          <td width="5%">Éliminé ? {{ form.elimine }}</td>
         </tr>
       {% endfor %}
     </table>

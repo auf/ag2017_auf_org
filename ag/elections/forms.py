@@ -5,6 +5,7 @@ from django.forms.formsets import INITIAL_FORM_COUNT
 
 from ag.elections.models import Candidat, peut_etre_suppleant
 from ag.elections.models import Candidats, get_candidats_possibles
+from ag.gestion import consts
 from .models import Election
 
 
@@ -14,7 +15,7 @@ class CandidatureForm(Form):
                            required=False)
     suppleant_de_id = ChoiceField(choices=(), required=False)
     libre = BooleanField(required=False)
-    elimine = BooleanField(required=False)
+    statut = ChoiceField(choices=consts.STATUTS_CANDIDATS, required=False)
     last_modified = DateTimeField(required=False, widget=HiddenInput)
 
     def __init__(self, *args, **kwargs):
@@ -52,8 +53,8 @@ class CandidatureForm(Form):
             'suppleant_de_id': suppleant_de_id,
             'code_election': code_election,
             'libre': d['libre'],
-            'elimine': d['elimine'],
             'last_modified': d['last_modified'],
+            'statut': d.get('statut', consts.DANS_LA_COURSE)
         })
 
 
@@ -67,7 +68,7 @@ def candidat_to_form_data(candidat):
         'election': election or u"",
         'suppleant_de_id': candidat.suppleant_de_id,
         'libre': candidat.libre or False,
-        'elimine': candidat.elimine or False,
+        'statut': candidat.statut,
         'last_modified': candidat.last_modified,
     }
 
