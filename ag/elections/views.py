@@ -6,31 +6,37 @@ from ag.elections.models import (
     get_electeur_criteria, get_donnees_liste_salle,
     get_all_listes_candidat_criteria, Election, filter_participants,
     get_donnees_bulletin_ca, get_donnees_bulletin_cass_tit,
-    get_donnees_bulletin, ParticipantModified)
+    get_donnees_bulletin, ParticipantModified, get_candidatures_criteria)
 from ag.gestion import consts
 from ag.reference.models import Region
 from .forms import CandidatureFormset
 
 
-def candidatures(request, code_region=None):
-    candidatures_formset = CandidatureFormset(
-        request.POST or None, code_region=code_region
-    )
+def candidatures(request, code_critere=None):
+    if code_critere:
+        try:
+            critere = get_candidatures_criteria()[code_critere]
+        except KeyError:
+            raise Http404()
+    else:
+        critere = None
+
+    candidatures_formset = CandidatureFormset(request.POST or None,
+                                              critere=critere)
+    message_echec = u""
     if request.method == 'POST':
-        message_echec = u""
         if candidatures_formset.is_valid():
             candidats = candidatures_formset.get_updated_candidats()
             try:
                 candidats.update_participants()
             except ParticipantModified as e:
                 message_echec = e.message
-            candidatures_formset = CandidatureFormset(code_region=code_region)
-        return render(request, "elections/candidatures_form.html",
-                      {'formset': candidatures_formset,
-                       'message_echec': message_echec, })
-    else:
-        return render(request, "elections/candidatures.html",
-                      {'formset': candidatures_formset})
+            candidatures_formset = CandidatureFormset(critere=critere)
+        else:
+            message_echec = candidatures_formset.errors
+    return render(request, "elections/candidatures_form.html",
+                  {'formset': candidatures_formset,
+                   'message_echec': message_echec, })
 
 
 SALLE = 'salle'

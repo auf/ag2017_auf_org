@@ -1002,7 +1002,7 @@ class Participant(RenseignementsPersonnels):
     def get_region_vote_display(self):
         region_vote = getattr(self, 'region_vote', None)
         if region_vote:
-            return REGIONS_VOTANTS_DICT[self.region_vote]
+            return REGIONS_VOTANTS_DICT[region_vote]
         else:
             return u""
 

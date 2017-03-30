@@ -3,10 +3,13 @@ from django.forms import Form, formset_factory, RadioSelect, ChoiceField, \
     BooleanField, BaseFormSet, IntegerField, HiddenInput, DateTimeField
 from django.forms.formsets import INITIAL_FORM_COUNT
 
-from ag.elections.models import Candidat, peut_etre_suppleant
-from ag.elections.models import Candidats, get_candidats_possibles
+from ag.elections.models import (
+    Candidat,
+    peut_etre_suppleant,
+    Election,
+    Candidats,
+    get_candidats_possibles)
 from ag.gestion import consts
-from .models import Election
 
 
 class CandidatureForm(Form):
@@ -75,8 +78,9 @@ def candidat_to_form_data(candidat):
 
 class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
-        code_region = kwargs.pop('code_region', None)
-        self.candidats = get_candidats_possibles(code_region)
+        critere = kwargs.pop('critere', None)
+        filtr = critere.filter if critere else ()
+        self.candidats = get_candidats_possibles(filtr)
         self.grouped_by_region = self.candidats.grouped_by_region()
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
         self.elections = list(Election.objects.all())

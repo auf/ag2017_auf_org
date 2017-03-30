@@ -34,6 +34,7 @@ class Election(TableReferenceOrdonnee):
         return self.code
 
 
+# représente un candidat potentiel
 Candidat = collections.namedtuple('Candidat', (
     'participant_id', 'nom_complet',
     'nom', 'prenom',
@@ -41,6 +42,36 @@ Candidat = collections.namedtuple('Candidat', (
     'code_election', 'suppleant_de_id', 'libre', 'statut',
     'candidatures_possibles', 'region', 'last_modified',
 ))
+
+
+CritereElecteur = collections.namedtuple(
+    'CritereElecteur', ('code', 'titre', 'filter', ))
+
+
+def get_candidatures_criteria():
+    criteria = []
+    exclude_elus_reseau = functools.partial(
+        ParticipantsQuerySet.exclude, candidat_a__code=consts.ELEC_CASS_RES,
+        candidat_statut=consts.ELU)
+    for code_region, nom_region in consts.REGIONS_VOTANTS:
+        criteria.append(CritereElecteur(
+            code=code_region,
+            titre=nom_region,
+            filter=(make_filter_region(code_region), exclude_elus_reseau, )
+        ))
+    criteria.append(CritereElecteur(
+        code=CRITERE_RESEAU,
+        titre=u"Titulaires réseau",
+        filter=(ParticipantsQuerySet.reseau,
+                ParticipantsQuerySet.titulaires, ),
+    ))
+    criteria.append(CritereElecteur(
+        code=CRITERE_ASSOCIES,
+        titre=u"Associés",
+        filter=(ParticipantsQuerySet.associes, ),
+    ))
+    # noinspection PyArgumentList
+    return collections.OrderedDict(((c.code, c) for c in criteria))
 
 
 def participant_to_candidat(participant):
@@ -66,17 +97,12 @@ def participant_to_candidat(participant):
     )
 
 
-def get_candidats_possibles(code_region=None):
-    participants = gestion_models.Participant.actifs \
-        .all().filter_representants_mandates() \
+def get_candidats_possibles(filters=()):
+    participants = filter_participants(filters) \
+        .filter_representants_mandates() \
         .avec_region_vote() \
         .select_related('candidat_a', 'suppleant_de')\
         .order_by('nom', 'prenom')
-    if code_region:
-        participants = participants.filter_region_vote(code_region)
-        participants = participants.exclude(
-            candidat_a__code=consts.ELEC_CASS_RES,
-            candidat_statut=consts.ELU)
     return Candidats([participant_to_candidat(p) for p in participants])
 
 
@@ -166,9 +192,6 @@ class Candidats(object):
 
         for participant in participants:
             participant.save()
-
-CritereElecteur = collections.namedtuple(
-    'CritereElecteur', ('code', 'titre', 'filter', ))
 
 
 def make_filter_region(code_region):
