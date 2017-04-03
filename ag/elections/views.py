@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+import collections
+
 from django.http.response import Http404
 from django.shortcuts import render
 
@@ -6,37 +8,66 @@ from ag.elections.models import (
     get_electeur_criteria, get_donnees_liste_salle,
     get_all_listes_candidat_criteria, Election, filter_participants,
     get_donnees_bulletin_ca, get_donnees_bulletin_cass_tit,
-    get_donnees_bulletin, ParticipantModified, get_candidatures_criteria)
+    get_donnees_bulletin, ParticipantModified, get_candidatures_criteria,
+    get_candidats_possibles, Candidats, CRITERE_TOUS)
 from ag.gestion import consts
-from ag.reference.models import Region
+from ag.gestion.consts import ELU
 from .forms import CandidatureFormset
 
 
-def candidatures(request, code_critere=None):
-    if code_critere:
-        try:
-            critere = get_candidatures_criteria()[code_critere]
-        except KeyError:
-            raise Http404()
-    else:
-        critere = None
+LigneCandidature = collections.namedtuple(
+    'LigneCandidature', ('candidat', 'form'))
 
-    candidatures_formset = CandidatureFormset(request.POST or None,
-                                              critere=critere)
+
+def make_candidatures_template_data(post_data, code_critere):
+    try:
+        critere = get_candidatures_criteria()[code_critere]
+    except KeyError:
+        raise Http404()
+
+    candidats = get_candidats_possibles(critere.filter)
+    if critere.une_seule_region:
+        candidats_editables = Candidats([c for c in candidats
+                                         if c.statut != ELU])
+    else:
+        candidats_editables = candidats
+    candidatures_formset = CandidatureFormset(post_data,
+                                              candidats=candidats_editables)
+    lignes = []
+    for candidat in candidats:
+        form = candidatures_formset.get_form_by_participant_id(
+            candidat.participant_id)
+        lignes.append(LigneCandidature(candidat=candidat,
+                                       form=form))
+    return {'formset': candidatures_formset,
+            'lignes': lignes,
+            'critere': critere,
+            'une_seule_region': critere.une_seule_region,
+            }
+
+
+def candidatures(request, code_critere=CRITERE_TOUS):
+    if request.is_ajax():
+        template = "elections/candidatures_form.html"
+    else:
+        template = "elections/candidatures.html"
+    template_data = make_candidatures_template_data(request.POST or None,
+                                                    code_critere)
     message_echec = u""
     if request.method == 'POST':
+        candidatures_formset = template_data['formset']
         if candidatures_formset.is_valid():
-            candidats = candidatures_formset.get_updated_candidats()
+            candidats_edited = candidatures_formset.get_updated_candidats()
             try:
-                candidats.update_participants()
+                candidats_edited.update_participants()
             except ParticipantModified as e:
                 message_echec = e.message
-            candidatures_formset = CandidatureFormset(critere=critere)
+            template_data = make_candidatures_template_data(None,
+                                                            code_critere)
         else:
             message_echec = candidatures_formset.errors
-    return render(request, "elections/candidatures_form.html",
-                  {'formset': candidatures_formset,
-                   'message_echec': message_echec, })
+        template_data['message_echec'] = message_echec
+    return render(request, template, template_data)
 
 
 SALLE = 'salle'

@@ -9,10 +9,11 @@
   <div class="breadcrumbs">
     <a href="{% url "tableau_de_bord" %}">Accueil</a>&rsaquo;
     <a href="{% url "accueil_elections" %}">Élections</a>&rsaquo;
-    Candidatures
+    Candidatures - {{ critere.titre }}
   </div>
 {% endblock %}
 {% block content %}
+  <h1>{{ critere.titre }}</h1>
   <div id="form-candidatures">
   {% include "elections/candidatures_form.html" %}
 

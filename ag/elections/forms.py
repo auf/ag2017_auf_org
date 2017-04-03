@@ -78,9 +78,8 @@ def candidat_to_form_data(candidat):
 
 class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
-        critere = kwargs.pop('critere', None)
-        filtr = critere.filter if critere else ()
-        self.candidats = get_candidats_possibles(filtr)
+        candidats = kwargs.pop('candidats')
+        self.candidats = candidats
         self.grouped_by_region = self.candidats.grouped_by_region()
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
         self.elections = list(Election.objects.all())
@@ -106,6 +105,11 @@ class BaseCandidatureFormset(BaseFormSet):
             candidat = self.grouped_by_region[i]
         kwargs['candidat'] = candidat
         return super(BaseCandidatureFormset, self)._construct_form(i, **kwargs)
+
+    def get_form_by_participant_id(self, participant_id):
+        for form in self:
+            if form.candidat.participant_id == participant_id:
+                return form
 
     def get_updated_candidats(self):
         return Candidats([form.get_updated_candidat() for form in self])

@@ -9,7 +9,9 @@
   {{ formset.management_form }}
   {% regroup formset by candidat.region as forms_by_region %}
   {% for region_forms in forms_by_region %}
-    <h2>{{ region_forms.grouper.nom }}</h2>
+    {% if not critere.une_seule_region %}
+      <h2>{{ region_forms.grouper.nom }}</h2>
+    {% endif %}
     <table>
       <tr>
         <th>Nom</th>

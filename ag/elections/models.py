@@ -45,7 +45,7 @@ Candidat = collections.namedtuple('Candidat', (
 
 
 CritereElecteur = collections.namedtuple(
-    'CritereElecteur', ('code', 'titre', 'filter', ))
+    'CritereElecteur', ('code', 'titre', 'filter', 'une_seule_region', ))
 
 
 def get_candidatures_criteria():
@@ -53,22 +53,33 @@ def get_candidatures_criteria():
     exclude_elus_reseau = functools.partial(
         ParticipantsQuerySet.exclude, candidat_a__code=consts.ELEC_CASS_RES,
         candidat_statut=consts.ELU)
+    criteria.append(
+        CritereElecteur(
+            code=CRITERE_TOUS,
+            titre=u"Tous",
+            filter=(),
+            une_seule_region=False
+        )
+    )
     for code_region, nom_region in consts.REGIONS_VOTANTS:
         criteria.append(CritereElecteur(
             code=code_region,
             titre=nom_region,
-            filter=(make_filter_region(code_region), exclude_elus_reseau, )
+            filter=(make_filter_region(code_region), exclude_elus_reseau, ),
+            une_seule_region=True,
         ))
     criteria.append(CritereElecteur(
         code=CRITERE_RESEAU,
         titre=u"Titulaires réseau",
         filter=(ParticipantsQuerySet.reseau,
                 ParticipantsQuerySet.titulaires, ),
+        une_seule_region=False,
     ))
     criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
         titre=u"Associés",
         filter=(ParticipantsQuerySet.associes, ),
+        une_seule_region=False,
     ))
     # noinspection PyArgumentList
     return collections.OrderedDict(((c.code, c) for c in criteria))
@@ -106,6 +117,14 @@ def get_candidats_possibles(filters=()):
     return Candidats([participant_to_candidat(p) for p in participants])
 
 
+def get_candidats_elus(elections):
+    filters_elections = [make_filter_election(election)
+                         for election in elections]
+    return get_candidats_possibles(
+        filters_elections + [ParticipantsQuerySet.elus]
+    )
+
+
 def peut_avoir_suppleant(candidat):
     return candidat.code_election == consts.ELEC_CA
 
@@ -133,6 +152,9 @@ class Candidats(object):
 
     def __len__(self):
         return len(self.candidats)
+
+    def __iter__(self):
+        return iter(self.candidats)
 
     def get_candidat(self, participant_id):
         return self.candidats_dict[participant_id]
@@ -208,6 +230,7 @@ def filter_participants(filters):
     return qs
 
 
+CRITERE_TOUS = 'tous'
 CRITERE_REGION_TEMPLATE = 'membre_tit_{}'
 CRITERE_ASSOCIES = 'associes'
 CRITERE_RESEAU = 'reseau'
@@ -227,17 +250,21 @@ def get_electeur_criteria():
             code=code_critere_region(code_region),
             filter=(ParticipantsQuerySet.titulaires,
                     make_filter_region(code_region)),
-            titre=u"Membres titulaires - {}".format(nom_region), ))
+            titre=u"Membres titulaires - {}".format(nom_region),
+            une_seule_region=True,
+        ))
     criteria.append(CritereElecteur(
         code=CRITERE_RESEAU,
         filter=(ParticipantsQuerySet.titulaires,
                 ParticipantsQuerySet.reseau),
-        titre=u"Membres titulaires des réseaux"
+        titre=u"Membres titulaires des réseaux",
+        une_seule_region=False,
     ))
     criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
         filter=(ParticipantsQuerySet.associes, ),
-        titre=u"Membres associés"
+        titre=u"Membres associés",
+        une_seule_region=False,
     ))
     # noinspection PyArgumentList
     return collections.OrderedDict(((c.code, c) for c in criteria))

@@ -293,6 +293,9 @@ class ParticipantsQuerySet(QuerySet):
     def reseau(self):
         return self.filter_qualite_etablissement(consts.CODE_RESEAU)
 
+    def elus(self):
+        return self.filter(candidat_statut=ELU)
+
     def filter_votants(self):
         """ Voir commentaire avec_region_vote()
         """
