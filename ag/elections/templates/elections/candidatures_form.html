@@ -7,10 +7,10 @@
   {% endif %}
 
   {{ formset.management_form }}
-  {% regroup formset by candidat.region as forms_by_region %}
-  {% for region_forms in forms_by_region %}
+  {% regroup lignes by candidat.region as lignes_by_region %}
+  {% for region_lignes in lignes_by_region %}
     {% if not critere.une_seule_region %}
-      <h2>{{ region_forms.grouper.nom }}</h2>
+      <h2>{{ region_lignes.grouper.nom }}</h2>
     {% endif %}
     <table>
       <tr>
@@ -19,16 +19,19 @@
         <th>Poste</th>
         <th>Établissement</th>
         <th>Suppléant</th>
-        {% for radio in region_forms.list.0.election %}
-          <th>{{ radio.choice_label }}</th>
+        <th>Aucune</th>
+        {% for election in elections %}
+          <th>{{ election.code }}</th>
         {% endfor %}
         <th>Suppléant de</th>
         <th>Statut</th>
         <th></th>
       </tr>
 
-      {% for form in region_forms.list %}
+      {% for ligne in region_lignes.list %}
         <tr>
+        {% if ligne.form %}
+          {% with ligne.form as form %}
           {{ form.participant_id }}
           {{ form.last_modified }}
           <td width="9%">{{ form.candidat.nom }}</td>
@@ -64,6 +67,16 @@
             {% endif %}
           </td>
           <td width="5%">Libre ? {{ form.libre }}</td>
+          {% endwith %}
+        {% else %}
+          <td width="9%">{{ ligne.candidat.nom }}</td>
+          <td width="9%">{{ ligne.candidat.prenom }}</td>
+          <td width="7%">{{ ligne.candidat.poste }}</td>
+          <td width="10%">{{ ligne.candidat.etablissement_nom }}</td>
+          <td></td>
+          <td colspan="7"><span class="candidat-elu">
+            Élu {{ ligne.candidat.code_election }}</span></td>
+        {% endif %}
         </tr>
       {% endfor %}
     </table>

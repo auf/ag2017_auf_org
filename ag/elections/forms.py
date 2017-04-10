@@ -6,9 +6,8 @@ from django.forms.formsets import INITIAL_FORM_COUNT
 from ag.elections.models import (
     Candidat,
     peut_etre_suppleant,
-    Election,
     Candidats,
-    get_candidats_possibles)
+)
 from ag.gestion import consts
 
 
@@ -79,10 +78,10 @@ def candidat_to_form_data(candidat):
 class BaseCandidatureFormset(BaseFormSet):
     def __init__(self, *args, **kwargs):
         candidats = kwargs.pop('candidats')
+        self.elections = kwargs.pop('elections')
         self.candidats = candidats
         self.grouped_by_region = self.candidats.grouped_by_region()
         super(BaseCandidatureFormset, self).__init__(*args, **kwargs)
-        self.elections = list(Election.objects.all())
 
     def initial_form_count(self):
         """Returns the number of forms that are required in this FormSet."""

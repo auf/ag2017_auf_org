@@ -461,3 +461,9 @@ p, li { font-size: 12px !important; line-height: 12px !important;}
 #colonne { padding-right: 0; position: absolute; top: 0; width: 95%; }
 }
 
+
+.candidat-elu {
+    font-weight: bold;
+    color: green;
+    font-size: 1.5em;
+}

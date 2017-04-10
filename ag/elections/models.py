@@ -49,23 +49,18 @@ CritereElecteur = collections.namedtuple(
 
 
 def get_candidatures_criteria():
-    criteria = []
-    exclude_elus_reseau = functools.partial(
-        ParticipantsQuerySet.exclude, candidat_a__code=consts.ELEC_CASS_RES,
-        candidat_statut=consts.ELU)
-    criteria.append(
+    criteria = [
         CritereElecteur(
             code=CRITERE_TOUS,
             titre=u"Tous",
             filter=(),
             une_seule_region=False
-        )
-    )
+        )]
     for code_region, nom_region in consts.REGIONS_VOTANTS:
         criteria.append(CritereElecteur(
             code=code_region,
             titre=nom_region,
-            filter=(make_filter_region(code_region), exclude_elus_reseau, ),
+            filter=(make_filter_region(code_region), ),
             une_seule_region=True,
         ))
     criteria.append(CritereElecteur(

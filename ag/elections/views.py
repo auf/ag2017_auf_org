@@ -19,7 +19,7 @@ LigneCandidature = collections.namedtuple(
     'LigneCandidature', ('candidat', 'form'))
 
 
-def make_candidatures_template_data(post_data, code_critere):
+def make_candidatures_template_data(post_data, code_critere, elections):
     try:
         critere = get_candidatures_criteria()[code_critere]
     except KeyError:
@@ -32,9 +32,10 @@ def make_candidatures_template_data(post_data, code_critere):
     else:
         candidats_editables = candidats
     candidatures_formset = CandidatureFormset(post_data,
-                                              candidats=candidats_editables)
+                                              candidats=candidats_editables,
+                                              elections=elections)
     lignes = []
-    for candidat in candidats:
+    for candidat in candidats.grouped_by_region():
         form = candidatures_formset.get_form_by_participant_id(
             candidat.participant_id)
         lignes.append(LigneCandidature(candidat=candidat,
@@ -43,6 +44,7 @@ def make_candidatures_template_data(post_data, code_critere):
             'lignes': lignes,
             'critere': critere,
             'une_seule_region': critere.une_seule_region,
+            'elections': elections,
             }
 
 
@@ -51,8 +53,9 @@ def candidatures(request, code_critere=CRITERE_TOUS):
         template = "elections/candidatures_form.html"
     else:
         template = "elections/candidatures.html"
+    elections = list(Election.objects.all())
     template_data = make_candidatures_template_data(request.POST or None,
-                                                    code_critere)
+                                                    code_critere, elections)
     message_echec = u""
     if request.method == 'POST':
         candidatures_formset = template_data['formset']
@@ -62,8 +65,8 @@ def candidatures(request, code_critere=CRITERE_TOUS):
                 candidats_edited.update_participants()
             except ParticipantModified as e:
                 message_echec = e.message
-            template_data = make_candidatures_template_data(None,
-                                                            code_critere)
+            template_data = make_candidatures_template_data(
+                None, code_critere, elections)
         else:
             message_echec = candidatures_formset.errors
         template_data['message_echec'] = message_echec
