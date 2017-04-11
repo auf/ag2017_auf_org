@@ -9,12 +9,11 @@
 {% block content %}
   <h2>Formulaires candidatures</h2>
     <ul>
-    <li><a href="{% url "candidatures" %}">Toutes les régions</a></li>
-      {% for region in regions %}
-        <li><a href="{% url "candidatures_region" region.code %}">
-          {{ region.nom }}
+    {% for critere_candidature in criteres_candidatures.values %}
+      <li><a href="{% url "candidatures_region" critere_candidature.code %}">
+          {{ critere_candidature.titre }}
         </a></li>
-      {% endfor %}
+    {% endfor %}
     </ul>
   <h2>Listes salles</h2>
   <ul>

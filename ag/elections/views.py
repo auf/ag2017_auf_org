@@ -20,8 +20,9 @@ LigneCandidature = collections.namedtuple(
 
 
 def make_candidatures_template_data(post_data, code_critere, elections):
+    criteres_candidatures = get_candidatures_criteria()
     try:
-        critere = get_candidatures_criteria()[code_critere]
+        critere = criteres_candidatures[code_critere]
     except KeyError:
         raise Http404()
 
@@ -45,6 +46,7 @@ def make_candidatures_template_data(post_data, code_critere, elections):
             'critere': critere,
             'une_seule_region': critere.une_seule_region,
             'elections': elections,
+            'criteres_candidatures': criteres_candidatures,
             }
 
 
@@ -205,6 +207,7 @@ def depouillement_autres(request, code_election):
 
 
 def accueil_elections(request):
+    criteres_candidatures = get_candidatures_criteria()
     elections = list(Election.objects.exclude(code=consts.ELEC_CASS_RES))
     regions = [{'code': code, 'nom': nom}
                for code, nom in consts.REGIONS_VOTANTS]
@@ -216,4 +219,5 @@ def accueil_elections(request):
         'elections': elections,
         'criteria_listes_votants': criteria_listes_votants,
         'criteria_listes_candidats': criteria_listes_candidats,
+        'criteres_candidatures': criteres_candidatures,
     })
