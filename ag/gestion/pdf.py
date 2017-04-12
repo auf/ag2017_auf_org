@@ -647,7 +647,7 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
             colWidths=[frame_width - 1.2 * cm, 1.2 * cm],
         )
     )
-    hotel = u"HÔTEL MOGADOR"
+    hotel = u"MOGADOR AGDAL 2"
     if arrivee_depart == "arrivee":
         trajet = [aeroport, hotel]
         presenter = u"Veuillez présenter ce coupon au point de " \
