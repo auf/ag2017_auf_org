@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
 
 from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
+
 
 @register.inclusion_tag('gestion/champ_fiche.html')
 def champ_fiche(form, field_name):
@@ -23,3 +25,9 @@ def champ_fiche(form, field_name):
         value = u'------'
 
     return {'label': label, 'value': value}
+
+
+@register.filter
+def sum_data(data):
+    return mark_safe(u'<a href="{}">{}</a>'.format(data.search_url,
+                                                   data.sum))

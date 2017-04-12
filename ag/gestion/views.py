@@ -5,8 +5,9 @@ import json
 import os
 import urllib
 from datetime import datetime
-
 import itertools
+import collections
+
 from auf.django.permissions import require_permission
 from collections import defaultdict
 from django.contrib import messages
@@ -28,7 +29,7 @@ from ag.gestion import consts
 from ag.gestion import forms
 from ag.gestion.models import *
 from ag.gestion.pdf import facture_response
-from ag.reference.models import Etablissement
+from ag.reference.models import Etablissement, Region
 
 
 def liste_etablissements_json(request):
@@ -271,6 +272,59 @@ def renseignements_personnels_view(request, id_participant):
         cancel_to_url=reverse('fiche_participant', args=[id_participant]))
 
 
+def nb_par_region(participants, category_fn):
+    pairs = [(category_fn(p), p.get_region().id)
+             for p in participants]
+    # noinspection PyArgumentList
+    return collections.Counter(pairs)
+
+
+# noinspection PyArgumentList
+def nb_par_categorie(participants, category_fn):
+    return collections.Counter([category_fn(p) for p in participants])
+
+
+SumData = collections.namedtuple('SumData', ('sum', 'search_url'))
+
+
+def make_sum_data(sum_, search_params):
+    search_url = u"{}?{}".format(reverse('participants'),
+                                 urllib.urlencode(search_params), )
+    return SumData(sum=sum_,
+                   search_url=search_url)
+
+
+SumsLine = collections.namedtuple('SumsLine', ('label', 'sums'))
+
+
+def table_fonctions_regions(participants, fonctions, regions):
+    fonction_getter = operator.attrgetter('fonction_id')
+    region_counter = nb_par_region(participants, fonction_getter)
+    cat_counter = nb_par_categorie(participants, fonction_getter)
+    sums_lines = []
+    for fonction in fonctions:
+        sum_data = make_sum_data(cat_counter[fonction.id],
+                                 {'fonction': fonction.id})
+        sums = [sum_data]
+        for region in regions:
+            sum_data = make_sum_data(region_counter[(fonction.id, region.id)],
+                                     {'fonction': fonction.id,
+                                      'region': region.id})
+            sums.append(sum_data)
+        sums_lines.append(SumsLine(fonction.libelle, sums))
+
+    return sums_lines
+
+
+def ligne_regions(participants, regions):
+    # noinspection PyArgumentList
+    counter = collections.Counter((p.get_region().id for p in participants))
+    sums = [make_sum_data(len(participants), {})]
+    for region in regions:
+        sums.append(make_sum_data(counter[region.id], {'region': region.id}))
+    return SumsLine(label=u"Tous", sums=sums)
+
+
 def tableau_de_bord(request):
     require_permission(request.user, consts.PERM_LECTURE)
     total_participants = Participant.objects.count()
@@ -288,15 +342,18 @@ def tableau_de_bord(request):
         }
         for code, probleme in consts.PROBLEMES.items()
     ]
-    par_fonction = []
-    for fonction in Fonction.objects.all():
-        nombre_clos = Participant.actifs.filter(
-            fonction=fonction, suivi__code='doss_complet').count()
-        nombre_ouverts = Participant.actifs.filter(fonction=fonction)\
-            .exclude(suivi__code='doss_complet').count()
-        par_fonction.append((
-            fonction, nombre_clos, nombre_ouverts, nombre_clos + nombre_ouverts
-        ))
+    fonctions = Fonction.objects.all()
+    regions = Region.objects.all()
+    participants = Participant.actifs\
+        .defer('nom', 'prenom', 'nationalite', 'poste', 'courriel',
+               'adresse', 'ville', 'pays', 'code_postal', 'telephone',
+               'telecopieur', 'notes_facturation', 'notes',
+               'notes_hebergement', 'modalite_versement_frais_sejour',
+               'numero_facture', 'numero_dossier_transport',)\
+        .select_related('etablissement__region', 'fonction',
+                        'implantation__region', 'institution__region')
+    totaux_regions = ligne_regions(participants, regions)
+    par_fonction = table_fonctions_regions(participants, fonctions, regions)
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
         get_donnees_hotels()
@@ -304,6 +361,8 @@ def tableau_de_bord(request):
     return render(
         request, 'gestion/tableau_de_bord.html',
         {
+            'regions': regions,
+            'fonctions': fonctions,
             'inscriptions_par_mois': get_inscriptions_par_mois(),
             'total_participants': total_participants,
             'total_actifs': total_actifs,
@@ -312,6 +371,7 @@ def tableau_de_bord(request):
             'par_probleme': par_probleme,
             'points_de_suivi':
             PointDeSuivi.objects.avec_nombre_participants().all(),
+            'totaux_regions': totaux_regions,
             'par_fonction': par_fonction,
             'nb_invites': nb_invites,
             'hotels': hotels,

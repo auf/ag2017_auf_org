@@ -1,4 +1,5 @@
 {% extends "gestion/base.html" %}
+{% load gestion %}
 {% block title %}Tableau de bord - AG2013{% endblock %}
 {% block content %}
 <ul class="object-tools">
@@ -24,6 +25,8 @@
 </table>
 
 </div>
+
+
 <div class="module">
 <h2>Nombre de participants</h2>
 <table>
@@ -48,6 +51,7 @@
         <th><a href="{% url "participants" %}?probleme=problematique">{{ total_problematiques }}</a></th>
 	</tr>
 	</thead>
+  <tbody>
 {% for probleme in par_probleme %}
     {% if probleme.nombre %}
     <tr>
@@ -74,18 +78,28 @@
         </table>
     </div>
 <div class="module">
-    <h2>Par statut</h2>
+    <h2>Par fonction</h2>
     <table>
-        <thead><tr><th>Statut</th><th>Dossiers complets</th>
-            <th>Dossiers incomplets</th>
-        <th>Total</th></tr></thead>
+        <thead><tr>
+          <th>Fonction</th>
+          <th>Total</th>
+          {% for region in regions %}
+            <th>{{ region.nom }}</th>
+          {% endfor %}
+          </tr></thead>
         <tbody>
-        {% for fonction, nombre_clos, nombre_ouverts, total in par_fonction %}
+        <tr>
+          <td>Toutes fonctions</td>
+            {% for sum_data in totaux_regions.sums %}
+              <td>{{ sum_data|sum_data }}</td>
+            {% endfor %}
+        </tr>
+        {% for ligne_fonction in par_fonction %}
             <tr>
-                <td>{{ fonction.libelle }}</td>
-                <td>{{ nombre_clos }}</td>
-                <td>{{ nombre_ouverts }}</td>
-                <td>{{ total }}</td>
+                <td>{{ ligne_fonction.label }}</td>
+              {% for sum_data in ligne_fonction.sums %}
+                <td>{{ sum_data|sum_data }}</td>
+              {% endfor %}
             </tr>
         {% endfor %}
         <tr>
