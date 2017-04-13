@@ -496,7 +496,8 @@ class Participant(RenseignementsPersonnels):
     remarques_transport = TextField(
         u"Remarques reprises sur itinéraire", blank=True
     )
-    vol_groupe = ForeignKey("VolGroupe", null=True, on_delete=PROTECT)
+    vol_groupe = ForeignKey("VolGroupe", null=True, blank=True,
+                            on_delete=PROTECT)
     # hébergement
     reservation_hotel_par_auf = BooleanField(u"réservation d'un hôtel",
                                              default=False)
