@@ -82,10 +82,7 @@
     <table>
         <thead><tr>
           <th>Fonction</th>
-          <th>Total</th>
-          {% for region in regions %}
-            <th>{{ region.nom }}</th>
-          {% endfor %}
+          {% include "gestion/headers_regions.html" %}
           </tr></thead>
         <tbody>
         <tr>
@@ -102,15 +99,34 @@
               {% endfor %}
             </tr>
         {% endfor %}
-        <tr>
-            <td>Invités</td>
-            <td>-</td>
-            <td>-</td>
-            <td>{{ nb_invites }}</td>
-        </tr>
         </tbody>
     </table>
 </div>
+<div class="module">
+  <h2>Membres participants</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Statut/Qualité</th>
+      {% include "gestion/headers_regions.html" %}
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      {% for ligne in par_statut_qualite %}
+        <tr>
+          <td>{{ ligne.label }}</td>
+          {% for sum_data in ligne.sums %}
+            <td>{{ sum_data|sum_data }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+
 <div class="module">
     <h2>Votants et associés</h2>
     <table>

@@ -29,7 +29,8 @@ from ag.gestion import consts
 from ag.gestion import forms
 from ag.gestion.models import *
 from ag.gestion.pdf import facture_response
-from ag.reference.models import Etablissement, Region
+from ag.reference.models import Etablissement, Region, CODE_ASSOCIE, \
+    CODE_TITULAIRE, CODE_ETAB_ENSEIGNEMENT, CODE_CENTRE_RECHERCHE, CODE_RESEAU
 
 
 def liste_etablissements_json(request):
@@ -316,6 +317,48 @@ def table_fonctions_regions(participants, fonctions, regions):
     return sums_lines
 
 
+def statut_getter(participant):
+    return participant.etablissement.statut
+
+
+def statut_qualite_getter(participant):
+    return participant.etablissement.statut, participant.etablissement.qualite
+
+
+def table_membres(participants, regions):
+    participants = [p for p in participants if p.represente_etablissement]
+    statut_counter = nb_par_categorie(participants, statut_getter)
+    statut_qualite_counter = nb_par_categorie(participants,
+                                              statut_qualite_getter)
+    statut_region_counter = nb_par_region(participants, statut_getter)
+    statut_qualite_region_counter = nb_par_region(participants,
+                                                  statut_qualite_getter)
+    sums_lines = []
+    libelles_statuts = dict(Etablissement.STATUT_CHOICES)
+    for statut in (CODE_TITULAIRE, CODE_ASSOCIE):
+        sums = [make_sum_data(statut_counter[statut], {'statut': statut})]
+        for region in regions:
+            sums.append(make_sum_data(statut_region_counter[statut, region.id],
+                                      {'statut': statut, 'region': region.id}))
+
+        sums_lines.append(SumsLine(libelles_statuts[statut], sums))
+        for qualite in (CODE_ETAB_ENSEIGNEMENT, CODE_CENTRE_RECHERCHE,
+                        CODE_RESEAU):
+            statut_qualite_params = {'statut': statut, 'qualite': qualite}
+            sums = [make_sum_data(statut_qualite_counter[(statut, qualite)],
+                                  statut_qualite_params)]
+            for region in regions:
+                counter_id = (statut, qualite), region.id
+                sum_ = statut_qualite_region_counter[counter_id]
+                params = dict(region=region.id, **statut_qualite_params)
+                sum_data = make_sum_data(sum_, params)
+                sums.append(sum_data)
+            libelle = mark_safe(u'<span class="qualite">{}</span>'
+                                .format(qualite))
+            sums_lines.append(SumsLine(libelle, sums))
+    return sums_lines
+
+
 def ligne_regions(participants, regions):
     # noinspection PyArgumentList
     counter = collections.Counter((p.get_region().id for p in participants))
@@ -354,6 +397,7 @@ def tableau_de_bord(request):
                         'implantation__region', 'institution__region')
     totaux_regions = ligne_regions(participants, regions)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
+    par_statut_qualite = table_membres(participants, regions)
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
         get_donnees_hotels()
@@ -373,6 +417,7 @@ def tableau_de_bord(request):
             PointDeSuivi.objects.avec_nombre_participants().all(),
             'totaux_regions': totaux_regions,
             'par_fonction': par_fonction,
+            'par_statut_qualite': par_statut_qualite,
             'nb_invites': nb_invites,
             'hotels': hotels,
             'types_chambres': types_chambres,
