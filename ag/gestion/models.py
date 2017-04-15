@@ -724,6 +724,14 @@ class Participant(RenseignementsPersonnels):
         except ParticipationActivite.DoesNotExist:
             return None
 
+    def is_participe_activite(self, code_activite):
+        return any(pa for pa in self.participationactivite_set.all()
+                   if pa.activite.code == code_activite)
+
+    def is_invite_participe_activite(self, code_activite):
+        return any(pa for pa in self.participationactivite_set.all()
+                   if pa.activite.code == code_activite and  pa.avec_invites)
+
     def set_frais(self, code_frais, quantite, montant):
         if montant:
             try:

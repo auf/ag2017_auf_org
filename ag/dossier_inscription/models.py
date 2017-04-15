@@ -3,6 +3,7 @@ import collections
 
 import ag.gestion.models as models_gestion
 import ag.inscription.models as models_inscription
+from ag.gestion import consts
 
 SuiviDossier = collections.namedtuple(
     'SuiviDossier', ('inscription_recue', 'inscription_validee',
@@ -201,6 +202,42 @@ class DossierInscription(Dossier):
     def has_infos_depart_arrivee(self):
         return False
 
+    @property
+    def programmation_gala(self):
+        return self.inscription.programmation_gala
+
+    @property
+    def programmation_gala_invite(self):
+        return self.inscription.programmation_gala_invite
+
+    @property
+    def programmation_soiree_10_mai(self):
+        return self.inscription.programmation_soiree_10_mai
+
+    @property
+    def programmation_soiree_10_mai_invite(self):
+        return self.inscription.programmation_soiree_10_mai_invite
+
+    @property
+    def programmation_soiree_9_mai(self):
+        return self.inscription.programmation_soiree_9_mai
+
+    @property
+    def programmation_soiree_9_mai_invite(self):
+        return self.inscription.programmation_soiree_9_mai_invite
+
+    @property
+    def programmation_soiree_12_mai(self):
+        return self.inscription.programmation_soiree_12_mai
+
+    @property
+    def forfait_invite_dejeuners(self):
+        return self.inscription.forfait_invite_dejeuners
+
+    @property
+    def forfait_invite_transfert(self):
+        return self.inscription.forfait_invite_transfert
+
 
 class DossierGestion(Dossier):
     def __init__(self, participant):
@@ -237,3 +274,42 @@ class DossierGestion(Dossier):
 
     def has_infos_depart_arrivee(self):
         return self.participant.has_infos_depart_arrivee()
+
+    @property
+    def programmation_gala(self):
+        return self.participant.is_participe_activite(consts.CODE_GALA)
+
+    @property
+    def programmation_gala_invite(self):
+        return self.participant.is_invite_participe_activite(consts.CODE_GALA)
+
+    @property
+    def programmation_soiree_10_mai(self):
+        return self.participant.is_participe_activite(consts.CODE_SOIREE_10_MAI)
+
+    @property
+    def programmation_soiree_10_mai_invite(self):
+        return self.participant.is_invite_participe_activite(
+            consts.CODE_SOIREE_10_MAI)
+
+    @property
+    def programmation_soiree_9_mai(self):
+        return self.participant.is_participe_activite(consts.CODE_SOIREE_9_MAI)
+
+    @property
+    def programmation_soiree_9_mai_invite(self):
+        return self.participant.is_invite_participe_activite(
+            consts.CODE_SOIREE_9_MAI)
+
+    @property
+    def programmation_soiree_12_mai(self):
+        return self.participant.is_participe_activite(
+            consts.CODE_COCKTAIL_12_MAI)
+
+    @property
+    def forfait_invite_dejeuners(self):
+        return self.participant.a_forfait(consts.CODE_DEJEUNERS)
+
+    @property
+    def forfait_invite_transfert(self):
+        return self.participant.a_forfait(consts.CODE_TRANSFERT_AEROPORT)

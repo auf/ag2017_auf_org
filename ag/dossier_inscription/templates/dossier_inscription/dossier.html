@@ -309,21 +309,21 @@
                 <div id="liste-activites">
                 <h3>Vos activités réservées</h3>
                 <ul>
-                        <li {% if inscription.programmation_soiree_9_mai %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
-                        <li {% if inscription.programmation_soiree_10_mai %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
-                        <li {% if inscription.programmation_gala %}class="oui"{% endif %}>{{ activites.gala }}</li>
-                        <li {% if inscription.programmation_soiree_12_mai %}class="oui"{% endif %}>{{ activites.cocktail_12_mai }}</li>
+                        <li {% if dossier.programmation_soiree_9_mai %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
+                        <li {% if dossier.programmation_soiree_10_mai %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
+                        <li {% if dossier.programmation_gala %}class="oui"{% endif %}>{{ activites.gala }}</li>
+                        <li {% if dossier.programmation_soiree_12_mai %}class="oui"{% endif %}>{{ activites.cocktail_12_mai }}</li>
                 </ul>
                 </div>
                 {% if dossier.invites %}
                         <div id="liste-forfaits">
                 <h3>Forfaits sélectionnés</h3>
                 <ul>
-                                <li {% if inscription.programmation_soiree_9_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
-                                <li {% if inscription.programmation_soiree_10_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
-                                <li {% if inscription.programmation_gala_invite %}class="oui"{% endif %}>{{ activites.gala }}</li>
-                                <li {% if inscription.forfait_invite_dejeuners %}class="oui"{% endif %}>Forfait 3 Déjeuners (9,10 et 11)</li>
-                                <li {% if inscription.forfait_invite_transfert %}class="oui"{% endif %}>2 transferts entre l’aéroport et hôtel Mogador</li>
+                                <li {% if dossier.programmation_soiree_9_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_9_mai }}</li>
+                                <li {% if dossier.programmation_soiree_10_mai_invite %}class="oui"{% endif %}>{{ activites.soiree_10_mai }}</li>
+                                <li {% if dossier.programmation_gala_invite %}class="oui"{% endif %}>{{ activites.gala }}</li>
+                                <li {% if dossier.forfait_invite_dejeuners %}class="oui"{% endif %}>Forfait 3 Déjeuners (9,10 et 11)</li>
+                                <li {% if dossier.forfait_invite_transfert %}class="oui"{% endif %}>2 transferts entre l’aéroport et hôtel Mogador</li>
                         </ul>
                 </div>
                 {% endif %}
