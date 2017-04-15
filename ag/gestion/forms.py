@@ -609,10 +609,11 @@ class TransportFormTop(GestionModelForm):
         self.helper.layout = Layout(
             Fieldset(
                 u'Organisation',
-                'transport_organise_par_auf', Div(
+                'transport_organise_par_auf',
+                crispy_Field('statut_dossier_transport',
+                             css_class='required'),
+                Div(
                     HTML('{% include "gestion/nombre_invites.html" %}'),
-                    crispy_Field('statut_dossier_transport',
-                                 css_class='required'),
                     'numero_dossier_transport', 'modalite_retrait_billet',
                     'vol_groupe', css_class='organise_par_auf'),
             ),
