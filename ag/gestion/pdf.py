@@ -610,23 +610,32 @@ Coupon = namedtuple('coupon', (
 ))
 
 
+COUPON_HEIGHT = 9 * cm
+COUPON_SPACING = 0.5 * cm
+COUPON_MARGIN_SIDE = 1.5 * cm
+
+
+def calc_coupon_y(arrivee_depart):
+    page_width, page_height = PAGESIZE
+    margin_top = 1 * cm
+    coupon_y = page_height - margin_top - COUPON_HEIGHT
+    if arrivee_depart == 'depart':
+        coupon_y -= COUPON_HEIGHT + COUPON_SPACING
+    return coupon_y
+
+
 # noinspection PyListCreation
 def draw_coupon(canvas, styles, nom_participant, noms_invites,
                 date_vol, aeroport, arrivee_depart, nb_personnes):
     page_width, page_height = PAGESIZE
-    margin_top = 1 * cm
-    margin_left = margin_right = 1.5 * cm
+    margin_left = margin_right = COUPON_MARGIN_SIDE
     coupon_width = page_width - margin_left - margin_right
-    coupon_height = 9 * cm
-    coupon_spacing = 0.5 * cm
-    coupon_y = page_height - margin_top - coupon_height
-    if arrivee_depart == 'depart':
-        coupon_y -= coupon_height + coupon_spacing
-    canvas.rect(margin_left, coupon_y, coupon_width, coupon_height)
+    coupon_y = calc_coupon_y(arrivee_depart)
+    canvas.rect(margin_left, coupon_y, coupon_width, COUPON_HEIGHT)
     padding = 0.2 * cm
     logo_x = margin_left + padding
     frame_y = coupon_y + padding
-    frame_height = coupon_height - padding * 2
+    frame_height = COUPON_HEIGHT - padding * 2
     logo_y = frame_y
     logo_height = frame_height
     logo_width = 143 * logo_height / 300
@@ -658,7 +667,7 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
         presenter = u"Veuillez présenter ce coupon au conducteur de la navette."
     contenu.append(Paragraph(u"\u2708 " + trajet[0] + u" → " + trajet[1],
                              styles['bold']))
-    contenu.append(Spacer(0, 0.5 * cm))
+    contenu.append(Spacer(0, COUPON_SPACING))
     contenu.append(
         Table([[Paragraph(date_format(date_vol),
                           styles['centered']),
@@ -673,7 +682,7 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
               ))
 
     )
-    contenu.append(Spacer(0, 0.5 * cm))
+    contenu.append(Spacer(0, COUPON_SPACING))
     contenu.append(Paragraph(presenter, styles['petit']))
     contenu.append(Paragraph(u"En cas de difficulté, veuillez contacter le "
                              u"1 888 123 1234", styles['petit-bold']))
@@ -713,6 +722,14 @@ def generer_coupons(output_file, coupon):
                 coupon.infos_depart_arrivee.arrivee_date,
                 coupon.infos_depart_arrivee.arrivee_a,
                 'arrivee', coupon.nb_personnes)
+    page_width, page_height = PAGESIZE
+    frame_height = 3 * cm
+    frame = Frame(COUPON_MARGIN_SIDE, calc_coupon_y('depart') - frame_height,
+                  page_width - COUPON_MARGIN_SIDE * 2, frame_height)
+    frame.addFromList([Paragraph(u"""Lorem ipsum dolor sit amet, consectetur 
+    adipiscing elit. Quisque quis nisi aliquet, maximus eros vel, placerat 
+    dolor. Morbi vehicula tortor vestibulum, eleifend felis eu, varius velit. 
+    """, styles['petit'])], canvas)
     canvas.save()
 
 
