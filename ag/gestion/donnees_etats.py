@@ -19,13 +19,21 @@ Element = namedtuple('DonneeEtat', ['titre', 'elements'])
 
 
 def get_donnees_etat_participants():
+    q_etablissements = Q(
+        fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
+    q_observateur = Q(fonction__code=consts.CAT_FONCTION_OBSERVATEUR)
+    q_instance_seulement = Q(fonction__code=consts.FONCTION_INSTANCE_SEULEMENT)
+    q_personnel_auf = Q(fonction__code=consts.FONCTION_PERSONNEL_AUF)
+    q_autres = (~q_etablissements & ~q_observateur & ~q_instance_seulement &
+                ~q_personnel_auf)
+
     def get_participants_etablissements():
         participants = Participant.actifs\
-            .filter(type_institution=Participant.ETABLISSEMENT)\
+            .filter(q_etablissements)\
             .select_related('etablissement', 'etablissement__pays',
                             'fonction')\
             .order_by('etablissement__pays__nom', 'etablissement__nom',
-                      'statut__ordre', 'nom', 'prenom')
+                      'fonction__ordre', 'nom', 'prenom')
         return recursive_group_by(
             list(participants),
             keys=[lambda p:p.etablissement.pays,
@@ -35,18 +43,17 @@ def get_donnees_etat_participants():
 
     def get_observateurs():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.AUTRE_INSTITUTION,
-                    fonction__code=consts.CAT_FONCTION_OBSERVATEUR) \
-            .select_related('region') \
-            .order_by('nom_autre_institution', 'nom', 'prenom')
+            .filter(q_observateur) \
+            .select_related('institution__region') \
+            .order_by('institution__nom', 'nom', 'prenom')
         return recursive_group_by(
             participants,
-            keys=[lambda p: (p.nom_autre_institution, p.get_region())],
+            keys=[lambda p: (p.nom_institution(), p.get_region())],
             titles=[lambda k: u"{0}, {1}".format(k[0], k[1].nom)])
 
     def get_instances():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.INSTANCE_AUF)\
+            .filter(q_instance_seulement)\
             .order_by('instance_auf', 'nom', 'prenom')
         return recursive_group_by(
             participants,
@@ -56,27 +63,25 @@ def get_donnees_etat_participants():
 
     def get_personnel_auf():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.AUTRE_INSTITUTION,
-                    statut__code='pers_auf') \
-            .select_related('region')\
-            .order_by('nom_autre_institution', 'region__nom', 'nom', 'prenom')
+            .filter(q_personnel_auf) \
+            .select_related('implantation__region')\
+            .order_by('implantation__region__nom',
+                      'nom', 'prenom')
         return recursive_group_by(
             participants,
-            keys=[lambda p: p.nom_autre_institution,
-                  lambda p: p.region],
-            titles=[lambda k: k, lambda k: k.nom]
+            keys=[lambda p: p.get_region().nom],
+            titles=[lambda k: k.nom]
         )
 
     def get_autres():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.AUTRE_INSTITUTION)\
-            .exclude(statut__code='pers_auf') \
-            .exclude(statut__code='obs') \
-            .select_related('region') \
-            .order_by('nom_autre_institution', 'region__nom', 'nom', 'prenom')
+            .filter(q_autres)\
+            .select_related('institution__region', 'implantation__region') \
+            .order_by('institution__nom', 'institution__region__nom', 'nom',
+                      'prenom')
         return recursive_group_by(
             participants,
-            keys=[lambda p: (p.nom_autre_institution, p.get_region())],
+            keys=[lambda p: (p.nom_institution(), p.get_region())],
             titles=[lambda k: u"{0}, {1}".format(k[0], k[1].nom)])
 
     return (

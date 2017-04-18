@@ -978,7 +978,7 @@ def etat_paiements_csv(request):
         'P_telephone', 'P_telecopieur', 'P_fonction', 'E_cgrm', 'E_nom',
         'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I', 'f_fact_I',
         'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S', 'f_AUF_S',
-        'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 
+        'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
         'f_valide', 'f_mode', 'f_accompte', 'n_R', 'n_N', 'n_T', 'n_A',
         'n_mode', 'n_statut',)
     writer.writerow(fields)
