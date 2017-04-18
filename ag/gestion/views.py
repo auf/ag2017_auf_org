@@ -280,8 +280,8 @@ def nb_par_region(participants, category_fn):
     return collections.Counter(pairs)
 
 
-# noinspection PyArgumentList
 def nb_par_categorie(participants, category_fn):
+    # noinspection PyArgumentList
     return collections.Counter([category_fn(p) for p in participants])
 
 
@@ -359,6 +359,13 @@ def table_membres(participants, regions):
     return sums_lines
 
 
+def votants_par_regions(participant)
+
+def table_votants(participants):
+    votants = [p for p in participants if p.represente_etablissement]
+    pairs = [(p.)]
+
+
 def ligne_regions(participants, regions):
     # noinspection PyArgumentList
     counter = collections.Counter((p.get_region().id for p in participants))
@@ -366,6 +373,28 @@ def ligne_regions(participants, regions):
     for region in regions:
         sums.append(make_sum_data(counter[region.id], {'region': region.id}))
     return SumsLine(label=u"Tous", sums=sums)
+
+
+def localisation_votants():
+    def critere_region(code_region):
+        return (consts.REGIONS_VOTANTS_DICT[code_region],
+                lambda p: p.region_vote == code_region)
+
+    def critere_pays(code_pays, nom_pays):
+        return (nom_pays,
+                lambda p: p.pays.code == code_pays)
+
+    return (
+        critere_region(consts.REG_AFRIQUE),
+        critere_region(consts.REG_AMERIQUES),
+        critere_pays(consts.CODE_PAYS_CANADA, u"dont Canada"),
+        critere_region(consts.REG_ASIE_PACIFIQUE),
+        critere_region(consts.REG_EUROPE_EST),
+        critere_region(consts.REG_EUROPE_OUEST),
+        critere_pays(consts.CODE_PAYS_FRANCE, u"dont France"),
+        critere_region(consts.REG_MAGHREB),
+        critere_region(consts.REG_MOYEN_ORIENT),
+    )
 
 
 def tableau_de_bord(request):
@@ -394,6 +423,7 @@ def tableau_de_bord(request):
                'notes_hebergement', 'modalite_versement_frais_sejour',
                'numero_facture', 'numero_dossier_transport',)\
         .select_related('etablissement__region', 'fonction',
+                        'fonction__type_institution',
                         'implantation__region', 'institution__region')
     totaux_regions = ligne_regions(participants, regions)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
