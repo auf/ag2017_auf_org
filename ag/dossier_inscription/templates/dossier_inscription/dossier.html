@@ -445,8 +445,6 @@
     </form>
   {% else %}  
                 <p>L’AUF se charge de planifier votre vol.</p>
-                {% for vol in participant.itineraire %}
-                {% if vol.ville_depart == "MARRAKECH" or "CASABLANCA" %}{{ vol.date_depart|date:"d M" }}{% endif %}{% if vol.ville_arrivee == "MARRAKECH" or "CASABLANCA" %}{{ vol.date_arrivee|date:"d M" }}{% endif %}{% endfor %}
                 {% ifequal solde 0 %}
                   {% if dossier.itineraire_disponible %}
                 <p class="message">Votre itinéraire de voyage est complété et 
