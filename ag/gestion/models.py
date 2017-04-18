@@ -532,6 +532,12 @@ class Participant(RenseignementsPersonnels):
         self._facture = None
         self._reservations = None
 
+    def get_moyens_paiement_display(self):
+        moyens = set()
+        for paiement in self.paiement_set.all():
+            moyens.add(paiement.moyen)
+        return u",".join(moyens)
+
     def candidatures_possibles(self):
         result = set()
         if self.etablissement:

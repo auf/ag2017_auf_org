@@ -342,3 +342,5 @@ CAT_FONCTION_OBSERVATEUR = 'observ'
 CA = 'A'
 CS = 'S'
 COS = 'O'
+
+POINT_DE_SUIVI_NOTE_VERSEE = 'note_versee'

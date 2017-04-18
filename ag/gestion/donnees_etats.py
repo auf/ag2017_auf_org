@@ -386,16 +386,20 @@ def get_donnees_tous_vols(filtre_ville_depart=None,
 PaiementParticipant = namedtuple('PaiementParticipant', (
     'P_actif', 'P_id', 'P_genre', 'P_nom', 'P_prenom', 'P_poste',
     'P_courriel', 'P_adresse', 'P_ville', 'P_pays', 'P_code_postal',
-    'P_telephone', 'P_telecopieur', 'P_statut', 'E_cgrm', 'E_nom',
-    'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I', 'f_fact_I', 'f_PEC_T',
-    'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S', 'f_AUF_S', 'f_total_S',
-    'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 'f_valide',
-    'f_mode', 'f_accompte', 'f_solde', 'n_R', 'n_N', 'n_T', 'n_A', 'n_total',
-    'n_mode', 'n_statut',))
+    'P_telephone', 'P_telecopieur', 'P_invites', 'P_fonction',
+    'E_cgrm', 'E_nom', 'E_delinquant', 'f_PEC_I', 'f_total_I',
+    'f_fact_I', 'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S',
+    'f_AUF_S', 'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
+    'f_valide', 'f_mode', 'f_accompte', 'f_solde', 'n_R', 'n_N', 'n_T', 'n_A',
+    'n_total', 'n_mode', 'n_statut',))
 
 
 def format_money(n):
     return u'{0:.2f}'.format(n).replace('.', ',')
+
+
+def bool_to_o_n(b):
+    return u"O" if b else u"N"
 
 
 def get_donnees_paiements(actifs_seulement):
@@ -403,7 +407,8 @@ def get_donnees_paiements(actifs_seulement):
     for f in Frais.objects.select_related('type_frais').all():
         frais_participants[f.participant_id][f.type_frais.code] = f.total()
     notes_versees = set(v[0] for v in
-                        PointDeSuivi.objects.get(id=7)
+                        PointDeSuivi.objects.get(
+                            code=consts.POINT_DE_SUIVI_NOTE_VERSEE)
                         .participant_set.values_list('id'))
 
     participants = (Participant.actifs.all() if actifs_seulement else
@@ -415,20 +420,20 @@ def get_donnees_paiements(actifs_seulement):
         'frais_autres', 'total_frais',
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
-                        'etablissement__region', 'region', 'fonction')
+                        'etablissement__region', 'institution__region',
+                        'fonction')
     # on sépare le count car une annotation sur la requête principale
     # produit un SQL atroce.
     nombre_invites = dict(
         (p['id'], p['num_invites']) for p in
         Participant.objects.values('id').annotate(num_invites=Count('invite')))
 
-    bool_ON = lambda b: u"O" if b else u"N"
     forfaits = get_forfaits()
     result = []
     for p in participants:
         frais = frais_participants[p.id]
         pp = PaiementParticipant(
-            P_actif=bool_ON(not p.desactive),
+            P_actif=bool_to_o_n(not p.desactive),
             P_id=p.id,
             P_genre=p.get_genre_display(),
             P_nom=p.nom,
@@ -442,38 +447,39 @@ def get_donnees_paiements(actifs_seulement):
             P_telephone=p.telephone,
             P_telecopieur=p.telecopieur,
             P_fonction=p.fonction.libelle,
+            P_invites=nombre_invites[p.id],
             E_cgrm=p.etablissement.id if p.etablissement else u"",
             E_nom=p.nom_institution(),
-            E_delinquant=bool_ON(p.delinquant) if p.etablissement else u"n/a",
-            P_invites=nombre_invites[p.id],
-            f_PEC_I=bool_ON(p.prise_en_charge_inscription),
+            E_delinquant=bool_to_o_n(p.delinquant) if p.etablissement
+            else u"n/a",
+            f_PEC_I=bool_to_o_n(p.prise_en_charge_inscription),
             f_total_I=format_money(p.frais_inscription),
             f_fact_I=format_money(p.frais_inscription_facture),
-            f_PEC_T=bool_ON(p.prise_en_charge_transport),
-            f_AUF_T=bool_ON(p.transport_organise_par_auf),
+            f_PEC_T=bool_to_o_n(p.prise_en_charge_transport),
+            f_AUF_T=bool_to_o_n(p.transport_organise_par_auf),
             f_total_T=format_money(p.frais_transport),
             f_fact_T=format_money(p.frais_transport_facture),
-            f_PEC_S=bool_ON(p.prise_en_charge_sejour),
-            f_AUF_S=bool_ON(p.reservation_hotel_par_auf),
+            f_PEC_S=bool_to_o_n(p.prise_en_charge_sejour),
+            f_AUF_S=bool_to_o_n(p.reservation_hotel_par_auf),
             f_total_S=format_money(p.frais_hebergement),
             f_fact_S=format_money(p.frais_hebergement_facture),
             f_supp_S=format_money(
                 forfaits[consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE].montant
                 if p.a_forfait(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
                 else 0),
-            f_PEC_A=bool_ON(p.prise_en_charge_activites),
+            f_PEC_A=bool_to_o_n(p.prise_en_charge_activites),
             f_total_A=format_money(p.forfaits_invites),
-            f_valide=bool_ON(p.facturation_validee),
-            f_mode=p.get_paiement_display(),
-            f_accompte=format_money(p.accompte),
-            f_solde=format_money(p.total_facture - p.accompte),
+            f_valide=bool_to_o_n(p.facturation_validee),
+            f_mode=p.get_moyens_paiement_display(),
+            f_accompte=format_money(p.total_deja_paye),
+            f_solde=format_money(p.get_solde()),
             n_R=format_money(frais['repas']),
             n_N=format_money(frais['nuitees']),
             n_T=format_money(frais['taxi']),
             n_A=format_money(frais['autres']),
             n_total=format_money(sum(frais.itervalues())),
             n_mode=p.get_modalite_versement_frais_sejour_display(),
-            n_statut=bool_ON(p.id in notes_versees),
+            n_statut=bool_to_o_n(p.id in notes_versees),
         )
 
         result.append(pp)
