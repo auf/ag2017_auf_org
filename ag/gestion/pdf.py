@@ -656,7 +656,7 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
             colWidths=[frame_width - 1.2 * cm, 1.2 * cm],
         )
     )
-    hotel = u"HÔTEL MOGADOR"
+    hotel = u"MOGADOR AGDAL 2"
     if arrivee_depart == "arrivee":
         trajet = [aeroport, hotel]
         presenter = u"Veuillez présenter ce coupon au point de " \
@@ -726,9 +726,13 @@ def generer_coupons(output_file, coupon):
     frame_height = 3 * cm
     frame = Frame(COUPON_MARGIN_SIDE, calc_coupon_y('depart') - frame_height,
                   page_width - COUPON_MARGIN_SIDE * 2, frame_height)
-    frame.addFromList([Paragraph(u"""Lorem ipsum dolor sit amet, consectetur 
-    adipiscing elit. Quisque quis nisi aliquet, maximus eros vel, placerat 
-    dolor. Morbi vehicula tortor vestibulum, eleifend felis eu, varius velit. 
+    frame.addFromList([Paragraph(u"""RAPPEL:      
+        Les transferts (à l'arrivée et au départ) organisés par l'AUF se 
+        rendent à / partent de l'hôtel Mogador Agdal 2, lieu de l'AG 2017.
+        Si vous ne logez pas au Mogador Agdal 2, vous devez assurer, à vos 
+        frais, votre déplacement vers/de votre hôtel.
+        Adresse du Mogador Agdal 2: 
+        Zone Touristique Agdal, Route d'Ourika, Marrakech 40000, Maroc
     """, styles['petit'])], canvas)
     canvas.save()
 
