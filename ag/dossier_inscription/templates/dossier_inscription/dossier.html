@@ -7,6 +7,7 @@
     <li><a href="#baseline" class="js-scrollTo">Informations</a></li>
     <li><a href="#bloc-paiement" class="js-scrollTo">État de compte</a></li>
     {% if inscription.est_pour_mandate %}<li><a href="#bloc-accompagnateur" class="js-scrollTo">Accompagnateurs</a></li>{% endif %}
+    <li><a href="#bloc-reseautage" class="js-scrollTo">Réseautage</a></li>
     <li><a href="#bloc-activites" class="js-scrollTo">Activités</a></li>
     <li><a href="#bloc-hebergement" class="js-scrollTo">Séjour</a></li>
   </ul>
@@ -91,9 +92,12 @@
 {% if inscription.etablissement_delinquant %}
   <p class="attention">
     D'après les informations en notre possession, votre établissement n'est pas
-    à jour de sa cotisation à l'AUF. Votre inscription ne sera validée qu'après
-    règlement de l'année ou des années de cotisation impayées. Pour nous
-    contacter à ce sujet, merci d'écrire à {% email_region %} en rappelant votre
+    à jour de sa cotisation à l'AUF. 
+    {% ifequal inscription.get_etablissement.pays_id 50 %} <strong>Veuillez noter 
+    qu'exceptionnellement pour les ressortissants de l'Algérie, cette condition 
+    n'empêchera pas votre participation à l'assemblée générale.</strong>{% else %} 
+    Votre inscription ne sera validée qu'après règlement de l'année ou des années de cotisation impayées. {% endifequal %}
+    Pour nous contacter à ce sujet, merci d'écrire à {% email_region %} en rappelant votre
     nom, numéro de dossier, ainsi que celui de votre établissement.
   </p>
 {% endif %}
@@ -266,42 +270,29 @@
 </div>
 {% endif %}
 
-<!-- À lancer plus tard mais le finir avant
+
 
 <div id="bloc-reseautage" class="bloc-reseautage">
   <a id="reseautage"></a>
   <h2>Rencontres réseautage</h2>
-  <p> L'assemblée générale vous offre la possibilité de programmer des
-    rencontres
-    avec les représentants de établissements participants à l'AG. Nous pouvons
-    vous assister dans l'organisation de ces rencontres.
-  </p>
   {% if not inscription.reseautage %}
-    <p> Pour ce faire, vous devez accepter de divulguer votre adresse courriel
-      aux       autres participants (seulement pour ceux qui ont aussi accepté).
-    </p>
     <form method="post" action="{% url "reseautage_on_off" %}">
+  <p> L'assemblée générale vous offre la possibilité de programmer des
+    rencontres avec les représentants de établissements participants à l'AG. 
+    Vous devez accepter de divulguer votre adresse courriel aux autres 
+    participants (seulement à ceux qui ont aussi accepté).
+    </p>
       {% csrf_token %}
-      <input name="accepte_reseautage" type="submit"
-             value="J'accepte de partager mon adresse courriel"/>
+      <input id="accepte-reseautage" name="accepte_reseautage" type="submit"
+             value="J'accepte de partager mon adresse courriel" class="bouton_sub"/>
     </form>
   {% else %}
-    <form method="post" action="{% url "reseautage_on_off" %}">
-      {% csrf_token %}
-      <input name="refuse_reseautage" type="submit"
-             value="Je ne veux plus partager mon adresse courriel"/>
-    </form>
-        <div class="intro">
-        <h3>Parcourez la liste des participants</h3>
-        <p><em>Notez-bien que n'apparaissent dans la liste que les participants
-      confirmés, revenez plus tard pour un plus grand choix.</em></p>
-                </div>
     <div class="liste-reseautage">
       {% include "dossier_inscription/includes/liste_reseautage.html" %}
     </div>
         {% endif %}
 </div>
--->
+
     
         <div id="bloc-activites" class="bloc-activites">
         <h2>Activités {% if dossier.invites %}et forfaits pour vous et votre invité{% endif %}</h2>
@@ -366,7 +357,7 @@
         {% if participant %}
                 <div id="passeport" class="message">
         {% if inscription.a_televerse_passeport %}
-                <p>Passeport envoyé !</p>
+                <p>Copie de passeport reçue !</p>
         {% else %}
                 <p>Pour faciliter votre enregistrement à l'hôtel Mogador, prière de 
                 téléverser une <strong>capture de votre passeport</strong>.
@@ -385,9 +376,14 @@
     <div id="bloc-planvol" class="bloc-planvol">
         <h2>Renseignements sur mon plan de vol</h2>
 {% if not participant.transport_organise_par_auf or not inscription.prise_en_charge_transport %}
-  
-    <p>L’AUF offre des navettes entre l'aéroport de Marrakech ou de Casablanca et l’hôtel Mogador.
-    <br/>Pour bénéficier de ce service, veuillez remplir le formulaire ci dessous.</p>
+        {% if dossier.has_infos_depart_arrivee %}
+    <p class="message">Vos coupons navettes pour ces dates sont disponibles au téléchargement 
+    dans votre section <a href="#baseline" class="js-scrollTo">"Documents"</a>.</p>
+        {% else %}
+         <p>L’AUF offre des navettes entre l'aéroport de Marrakech ou de Casablanca 
+         et l’hôtel Mogador.<br/>Pour bénéficier de ce service, veuillez remplir 
+         le formulaire ci dessous.</p>
+        {% endif %}
       <a id="plan-vol"></a>
     <form id="plan-vol-dossier" method="POST"
           action="{% url "dossier_inscription" %}#plan-vol">
@@ -447,11 +443,15 @@
         <button class="bouton_sub" name="submit-plan-vol-form" type="submit">
     Enregistrer</button>
     </form>
-  {% else %}
-  
+  {% else %}  
                 <p>L’AUF se charge de planifier votre vol.</p>
+                {% for vol in participant.itineraire %}
+                {% if vol.ville_depart == "MARRAKECH" or "CASABLANCA" %}{{ vol.date_depart|date:"d M" }}{% endif %}{% if vol.ville_arrivee == "MARRAKECH" or "CASABLANCA" %}{{ vol.date_arrivee|date:"d M" }}{% endif %}{% endfor %}
                 {% ifequal solde 0 %}
                   {% if dossier.itineraire_disponible %}
+                <p class="message">Votre itinéraire de voyage est complété et 
+                disponible au téléchargement, ainsi que vos coupons navettes, 
+                dans votre section <a href="#baseline" class="js-scrollTo">"Documents"</a>.</p> 
                   {% else %}
                 <p>Votre itinéraire est en cours de préparation. Votre plan de vol 
                 sera communiqué lorsqu’il sera complété.</p>
