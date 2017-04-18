@@ -1,42 +1,42 @@
 <div>
-  <form id="filtre-reseautage" action="{% url "dossier_inscription" %}#reseautage">
+    <form method="post" action="{% url "reseautage_on_off" %}">
+      {% csrf_token %}
+      <div class="intro">
+        <h3>Informations de contact des participants au réseautage</h3>
+        
+         </div>
+      <input id="refuse-reseautage" name="refuse_reseautage" type="submit"
+      value="Je ne veux plus partager mon adresse courriel" class="bouton_sub"/>
+         <p><em>Notez-bien que n'apparaissent dans la liste que les participants
+         qui acceptent de partager leur adresse courriel, la liste peut changer à 
+         tous moments.</em></p>
+    </form>
+    <form id="filtre-reseautage" action="{% url "dossier_inscription" %}#reseautage">
     <table>
-      <tr>
-        <td>Région</td>
-        <td>Pays</td>
+      <tr id="labels">
+        <td>Filtrer par Région</td>
+        <td>Filtrer par Pays</td>
       </tr>
       <tr>
-        <td>{{ form_filtre_reseautage.region }}</td>
-        <td>{{ form_filtre_reseautage.pays }}</td>
+        <td id="fregion">{{ form_filtre_reseautage.region }}</td>
+        <td id="fpays">{{ form_filtre_reseautage.pays }}</td>
       </tr>
     </table>
-  </form>
+    </form>
 </div>
-
 <div id="participants-reseautage-wrapper">
-<div id="participants-reseautage">
-{% for inscription in liste_reseautage %}
-  <table class="table-reseautage">
-    <tr>
-      <td><strong>{{ inscription.nom }}, {{ inscription.prenom }}</strong></td>
-      <td>{% if inscription.est_pour_mandate %}
-        Représentant mandaté
-      {% else %}
-        Accompagnateur
-      {% endif %}</td>
-    </tr>
-    <tr>
-      <td colspan="2">{{ inscription.get_etablissement.nom }}</td>
-    </tr>
-    <tr>
-      <td colspan="2"><a href="mailto:{{ inscription.invitation.get_adresse }}">
-        {{ inscription.invitation.get_adresse }}</a></td>
-    </tr>
-    <tr>
-      <td>{{ inscription.get_etablissement.pays.nom }}</td>
-      <td>{{ inscription.get_etablissement.region.nom }}</td>
-    </tr>
-  </table>
-{% endfor %}
-</div>
+    <div id="participants-reseautage">
+        <table class="table-reseautage">
+        {% for inscription in liste_reseautage %}
+            <tr>
+                <td><strong>{{ inscription.nom }}, {{ inscription.prenom }}</strong>
+                <br />{% if inscription.est_pour_mandate %}Représentant mandaté
+                {% else %}Accompagnateur{% endif %}</td>
+                <td colspan="2"><strong>{{ inscription.get_etablissement.nom }}</strong>
+                <br />{{ inscription.get_etablissement.pays.nom }}</td>
+                <td><a href="mailto:{{ inscription.invitation.get_adresse }}">
+                {{ inscription.invitation.get_adresse }}</a></td>
+            </tr>{% endfor %}
+        </table>
+    </div>
 </div>

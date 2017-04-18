@@ -1041,29 +1041,78 @@ input.invite-widget {
     width: 90%;
 }
 
+.bloc-reseautage form {
+    padding: 15px;
+    background-color: white;
+}
+
+#accepte-reseautage {
+    float: right;
+    position: relative;
+    top: -40px;
+    margin-left: 10px;
+}
+
+#refuse-reseautage {
+    float: right;
+    position: relative;
+    top: 10px;
+    margin-left: 10px;
+}
+
+#filtre-reseautage {
+    padding-top: 5px;
+}
+    
 #filtre-reseautage table {
     background-color: transparent;
     width: auto;
-    margin-bottom: 6px;
+    margin: 0px;
 }
 
 #filtre-reseautage table td {
-    border:None;
+    border: None;
     padding: 0;
+}
+
+#filtre-reseautage #labels {
+    color: #A90F30;
+    font-weight: 700;
+}
+
+#filtre-reseautage #fpays, #filtre-reseautage #fregion {
+    color: #A90F30;
+}
+
+#filtre-reseautage #fpays select, #filtre-reseautage #fregion select {
+    min-width: 250px;
 }
 
 .table-reseautage {
+    margin: 0px;
+    width: 100%;
+}
+
+.table-reseautage tr {
     margin-bottom: 6px;
-    width: 60%;
+    width: 100%;
+}
+
+.table-reseautage tr:nth-child(even) {
+    background-color: #eee;
 }
 
 .table-reseautage td {
-    border:None;
-    padding: 0;
+    border: None;
+    padding: 5px 15px;
 }
 
 .table-reseautage tr td:first-of-type {
-    width: 60%;
+    width: 220px;
+}
+
+.table-reseautage tr td:last-of-type {
+    text-align: right;
 }
 
 #participants-reseautage {
@@ -1072,7 +1121,7 @@ input.invite-widget {
 }
 
 #participants-reseautage-wrapper {
-    padding: 5px;
+    padding: 0px;
     border: 1px solid lightgray;
 }
 
