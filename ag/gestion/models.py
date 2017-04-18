@@ -839,6 +839,8 @@ class Participant(RenseignementsPersonnels):
             return lst[0] if len(lst) == 1 else None
 
         villes = [c[0] for c in Inscription.DEPART_DE_CHOICES]
+        villes_upper = [v.upper() for v in villes]
+        villes += [v.lower() for v in villes_upper] + villes_upper
         infos = self.itineraire().filter(
             Q(ville_arrivee__in=villes) | Q(ville_depart__in=villes))
         infos_arrivee = ensure_one([i for i in infos
@@ -850,7 +852,7 @@ class Participant(RenseignementsPersonnels):
     def get_infos_depart_arrivee(self):
         """Renvoie les informations de départ et d'arrivée pour tout participant
         qu'il soit pris en charge ou non. """
-        if self.prise_en_charge_transport:
+        if self.transport_organise_par_auf:
             infos_depart, infos_arrivee = self.get_vols_depart_arrivee()
         else:
             infos_depart = self.get_infos_depart()
