@@ -610,9 +610,9 @@ Coupon = namedtuple('coupon', (
 ))
 
 
-COUPON_HEIGHT = 9 * cm
+COUPON_HEIGHT = 8 * cm
 COUPON_SPACING = 0.5 * cm
-COUPON_MARGIN_SIDE = 1.5 * cm
+COUPON_MARGIN_SIDE = 1 * cm
 
 
 def calc_coupon_y(arrivee_depart):
@@ -632,12 +632,12 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
     coupon_width = page_width - margin_left - margin_right
     coupon_y = calc_coupon_y(arrivee_depart)
     canvas.rect(margin_left, coupon_y, coupon_width, COUPON_HEIGHT)
-    padding = 0.2 * cm
+    padding = 0.1 * cm
     logo_x = margin_left + padding
     frame_y = coupon_y + padding
-    frame_height = COUPON_HEIGHT - padding * 2
-    logo_y = frame_y
-    logo_height = frame_height
+    frame_height = COUPON_HEIGHT
+    logo_y = frame_y + padding
+    logo_height = frame_height - 3 * padding
     logo_width = 143 * logo_height / 300
     canvas.drawImage(
         os.path.join(APP_ROOT, 'images', 'agauflogo2017vert.jpg'),
@@ -687,10 +687,8 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
               ))
 
     )
-    contenu.append(Spacer(2, COUPON_SPACING))
+    contenu.append(Spacer(3, COUPON_SPACING))
     contenu.append(Paragraph(presenter, styles['petit']))
-    contenu.append(Paragraph(u"En cas de difficulté, veuillez contacter le "
-                             u"1 888 123 1234", styles['petit-bold']))
     frame.addFromList(contenu, canvas)
     notice_y = coupon_y + 0.1 * cm
     canvas.setFont('Helvetica', 10)
@@ -718,7 +716,7 @@ def generer_coupons(output_file, coupon):
     styles.add_style('petit-bold', fontName='Helvetica-bold', fontSize=12)
     styles.add_style('titre', fontName='Helvetica-Bold', fontSize=15)
     styles.add_style('centered', alignment=TA_CENTER)
-    styles.add_style('remarque', fontName='Helvetica-Oblique', fontSize=12)
+    styles.add_style('remarque', fontName='Helvetica-Oblique', fontSize=11)
     styles.add_style('gros-numero', fontName='Helvetica-Bold', fontSize=36)
     styles.add_style('right-aligned', alignment=TA_RIGHT)
     canvas = Canvas(output_file, pagesize=PAGESIZE)
@@ -732,16 +730,31 @@ def generer_coupons(output_file, coupon):
                 'arrivee', coupon.nb_personnes)
     
     page_width, page_height = PAGESIZE
-    frame_height = 5 * cm
+    frame_height = 10 * cm
     frame = Frame(COUPON_MARGIN_SIDE, calc_coupon_y('depart') - frame_height,
                   page_width - COUPON_MARGIN_SIDE * 2, frame_height)
-    frame.addFromList([Paragraph(u"""RAPPEL: <br/>     
-        Les transferts (à l'arrivée et au départ) organisés par l'AUF se 
-        rendent à / partent de l'hôtel Mogador Agdal 2, lieu de l'AG 2017.<br/>
+    frame.addFromList([Paragraph(u"""<br/><br/><u>Veuillez noter que les transferts en 
+    navette ne s'effectuent que dans les conditions suivantes:</u><br/><br/>     
+        À votre arrivée, les transferts en navette organisés des aéroports de 
+        Casablanca et de Marrakech sont uniquement à destination du lieu de 
+        l’Assemblée générale, le Palais des Congrès de l'hôtel Mogador Agdal 2.
+        <br/><b>Ces transferts ne sont disponibles que du 6 au 10 mai 2017.</b>
+        <br/><br/>
+        À votre départ, les transferts en navette oganisés à destination des 
+        aéroports de Casablanca et de Marrakech se feront au même point qu'à 
+        l'arrivée à l'hôtel Mogador Agdal 2.<br/>
+        <b>Ces transferts ne sont disponibles que du 12 au 15 mai 2017.</b>
+        <br/><br/>
+        Aucun autre arrêt n'est prévu durant ces trajets.
         Si vous ne logez pas au Mogador Agdal 2, vous devez assurer, à vos 
-        frais, votre déplacement vers/de votre hôtel.<br/><br/>
-        Adresse du Mogador Agdal 2: <br/>
-        Zone Touristique Agdal, Route d'Ourika, Marrakech 40000, Maroc
+        frais, votre déplacement entre votre hôtel et le lieu de l’Assemblée 
+        générale.
+        <br/><br/>
+        <b>Adresse du Mogador Agdal 2:</b> Zone Touristique Agdal, Route d'Ourika, 
+        Marrakech 40000, Maroc
+        <br/><br/>
+        <b>En cas de problème à l'arrivée, veuillez contacter:</b> <br/>Casablanca: 
+        +212 6 89 91 77 19 &nbsp; &nbsp; &nbsp; Marrakech: +212 6 89 91 77 20
     """, styles['remarque'])], canvas)
     canvas.save()
 
