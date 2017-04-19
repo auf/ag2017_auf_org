@@ -70,7 +70,7 @@ def get_donnees_etat_participants():
         return recursive_group_by(
             participants,
             keys=[lambda p: p.get_region().nom],
-            titles=[lambda k: k.nom]
+            titles=[lambda k: k]
         )
 
     def get_autres():
@@ -82,7 +82,8 @@ def get_donnees_etat_participants():
         return recursive_group_by(
             participants,
             keys=[lambda p: (p.nom_institution(), p.get_region())],
-            titles=[lambda k: u"{0}, {1}".format(k[0], k[1].nom)])
+            titles=[lambda k: u"{0}, {1}".format(k[0],
+                                                 k[1].nom if k[1] else u"")])
 
     return (
         Element(u'Établissements', get_participants_etablissements()),
