@@ -1784,11 +1784,11 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
         return infos_vol_aller_2, infos_vol_retour
 
     def test_participant_avec_pec_avec_vols(self):
-        """Dans le cas d'un vol groupé ou organisé pour le participant,
+        """Dans le cas d'un vol groupé ou organisé par l'auf,
         on vérifie que les infos de départ et d'arrivée sont bien celles
         du dernier segment du vol aller, et du premier segment du vol retour."""
 
-        p = test_utils.ParticipantFactory(prise_en_charge_transport=True)
+        p = test_utils.ParticipantFactory(transport_organise_par_auf=True)
         # type: Participant
         infos_arrivee, infos_depart = self.create_infos_vols(p)
         self.assertEqual(p.get_infos_depart_arrivee(),
