@@ -509,13 +509,13 @@ def make_entree_coupon(participant, depart_arrivee, ville, date_, heure,
     noms_invites = participant.get_noms_invites()
     nb_passagers = len(noms_invites) + 1
     entete = EnteteListeCoupons(
-        depart_arrivee=depart_arrivee, ville=ville,
+        depart_arrivee=depart_arrivee, ville=ville.upper(),
         date=date_)
     ligne = LigneCoupon(
         nom=participant.get_nom_complet(),
-        type=participant.fonction.nom,
+        type=participant.fonction.libelle,
         region=participant.get_region_nom(),
-        hotel=participant.hotel,
+        hotel=participant.hotel or u"(Aucun)",
         heure_arrivee=heure,
         compagnie=compagnie,
         vol=vol,
@@ -529,24 +529,26 @@ def donnees_liste_coupons():
     participants = Participant.actifs.select_related('vol_groupe')\
         .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set',
                           'invite_set')\
-        .order('nom', 'prenom')
+        .order_by('nom', 'prenom')
     listes_coupons = defaultdict(list)
     for participant in participants:
         infos_depart_arrivee = participant.get_infos_depart_arrivee()
-        entete_depart, ligne_depart = make_entree_coupon(
-            participant, DEPART,
-            infos_depart_arrivee.depart_ville, infos_depart_arrivee.depart_date,
-            infos_depart_arrivee.depart_heure,
-            infos_depart_arrivee.depart_compagnie,
-            infos_depart_arrivee.depart_vol)
-        entete_arrivee, ligne_arrivee = make_entree_coupon(
-            participant, ARRIVEE, infos_depart_arrivee.arrivee_ville, 
-            infos_depart_arrivee.arrivee_date,
-            infos_depart_arrivee.arrivee_heure,
-            infos_depart_arrivee.arrivee_compagnie,
-            infos_depart_arrivee.arrivee_vol
-        )
-        listes_coupons[entete_depart].append(ligne_depart)
-        listes_coupons[entete_arrivee].append(ligne_arrivee)
+        if infos_depart_arrivee.depart_date and infos_depart_arrivee.depart_de:
+            entete_depart, ligne_depart = make_entree_coupon(
+                participant, DEPART,
+                infos_depart_arrivee.depart_de,
+                infos_depart_arrivee.depart_date,
+                infos_depart_arrivee.depart_heure,
+                infos_depart_arrivee.depart_compagnie,
+                infos_depart_arrivee.depart_vol)
+            listes_coupons[entete_depart].append(ligne_depart)
+        if infos_depart_arrivee.arrivee_date and infos_depart_arrivee.arrivee_a:
+            entete_arrivee, ligne_arrivee = make_entree_coupon(
+                participant, ARRIVEE, infos_depart_arrivee.arrivee_a,
+                infos_depart_arrivee.arrivee_date,
+                infos_depart_arrivee.arrivee_heure,
+                infos_depart_arrivee.arrivee_compagnie,
+                infos_depart_arrivee.arrivee_vol)
+            listes_coupons[entete_arrivee].append(ligne_arrivee)
     return sorted(listes_coupons.iteritems(), key=lambda item: item[0])
 

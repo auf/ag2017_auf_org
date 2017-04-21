@@ -893,7 +893,11 @@ class Participant(RenseignementsPersonnels):
         if self.vol_groupe_id:
             infos_vols.extend(list(self.vol_groupe.infosvol_set.all()))
         infos_vols.extend(self.filter_infos_vols(type_infos=VOL_ORGANISE))
-        infos_vols.sort(key=lambda i: (i.date_depart, i.heure_depart))
+        infos_vols.sort(
+            key=lambda i: (i.date_depart or datetime.date(2016, 1, 1),
+                           i.heure_depart or datetime.time(0, 0),
+                           i.date_arrivee or datetime.date(2018, 1 ,1),
+                           i.heure_arrivee or datetime.time(0, 0)))
         return infos_vols
 
     def save(self, **kwargs):

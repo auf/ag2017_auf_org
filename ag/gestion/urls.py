@@ -71,6 +71,7 @@ urlpatterns = patterns(
     url(r'^etat_paiements/$', 'etat_paiements', name='etat_paiements'),
     url(r'^etat_paiements_csv/$', 'etat_paiements_csv',
         name='etat_paiements_csv'),
+    url(r'^liste_coupons/$', 'liste_coupons', name='liste_coupons'),
     url(r'logout/$', 'logout', name='logout'),
     url(r'motdepasse/$', 'changement_mot_de_passe',
         name='changement_mot_de_passe'),

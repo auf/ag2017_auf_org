@@ -1004,3 +1004,11 @@ def coupon_transport(request, id_participant):
     require_permission(request.user, consts.PERM_LECTURE)
     participant = Participant.objects.get(pk=id_participant)
     return pdf.coupon_transport_response(participant)
+
+
+def liste_coupons(request):
+    donnees = donnees_etats.donnees_liste_coupons()
+    return render(request, 'gestion/liste_coupons.html',
+                  {'donnees': donnees,
+                   'DEPART': donnees_etats.DEPART,
+                   'ARRIVEE': donnees_etats.ARRIVEE})
