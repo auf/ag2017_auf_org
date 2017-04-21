@@ -417,7 +417,7 @@
             <tbody>
             {% for fichier in fichiers %}
                 <ul>
-                <li {% if fichier.efface_le %}class="strikethrough"{% endif %}><a href="{% url "media_participant" nom_fichier=fichier.filename %}">{{ fichier.filename }}</a></li>
+                <li {% if fichier.efface_le %}class="strikethrough"{% endif %}><a href="{% url "media_participant" nom_fichier=fichier.fichier.name %}">{{ fichier.filename }}</a></li>
                 </ul>
             {% endfor %}
             </tbody>
