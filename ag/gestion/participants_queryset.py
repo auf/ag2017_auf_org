@@ -252,7 +252,7 @@ class ParticipantsQuerySet(QuerySet):
                                  'fonction__type_institution')
 
     def count_par_region_vote(self, code_region_vote):
-        return self.represente_etablissement() \
+        return self.filter_representants_mandates() \
             .filter_region_vote(code_region_vote) \
             .filter(etablissement__region__nom__startswith='') \
             .count()
