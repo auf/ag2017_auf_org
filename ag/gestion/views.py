@@ -14,7 +14,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.datastructures import SortedDict
@@ -28,6 +28,7 @@ from ag.gestion import consts
 from ag.gestion import forms
 from ag.gestion.models import *
 from ag.gestion.pdf import facture_response
+from ag.inscription.models import PaypalResponse
 from ag.reference.models import Etablissement
 
 
@@ -70,12 +71,22 @@ def participants_view(request):
             desactive = form.cleaned_data['desactive']
 
             participants = Participant.objects.filter(desactive=desactive) \
-                .order_by('nom', 'prenom')\
-                .sql_extra_fields('delinquant')\
+                .order_by('nom', 'prenom') \
+                .sql_extra_fields('delinquant') \
                 .select_related('etablissement',
                                 'etablissement__region', 'etablissement__pays',
                                 'fonction', 'institution',
-                                'institution__region')
+                                'institution__region',
+                                'fonction__type_institution',
+                                'implantation', 'implantation__region') \
+                .prefetch_related(
+                Prefetch('paiement_set',
+                         queryset=Paiement.objects
+                         .select_related('implantation')),
+                Prefetch('inscription__paypalresponse_set',
+                         to_attr='accepted_paypal_responses',
+                         queryset=PaypalResponse.objects.all_accepted()))
+
             if nom:
                 participants = participants.filter(
                     Q(nom__icontains=nom) | Q(prenom__icontains=nom)

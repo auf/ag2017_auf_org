@@ -497,7 +497,10 @@ class Inscription(RenseignementsPersonnels):
 
     def get_unique_paypal_responses(self):
         reponses = []
-        reponses_valides = PaypalResponse.objects.accepted(self)
+        try:
+            reponses_valides = self.accepted_paypal_responses
+        except AttributeError:
+            reponses_valides = PaypalResponse.objects.accepted(self)
         if reponses_valides:
             encountered_txns = set()
             for reponse in reponses_valides:
@@ -560,10 +563,13 @@ class PaypalInvoice(models.Model):
 
 class PaypalResponseManager(models.Manager):
     def accepted(self, inscription):
-        return self.filter(inscription=inscription,
-                           statut__in=PaypalResponse.STATUS_ACCEPTED,
-                           montant__isnull=False,
-                           validated=True)
+        return self.all_accepted().filter(inscription=inscription)
+
+    def all_accepted(self):
+        return self.filter(
+            statut__in=PaypalResponse.STATUS_ACCEPTED,
+            montant__isnull=False,
+            validated=True)
 
 
 class PaypalResponse(models.Model):
