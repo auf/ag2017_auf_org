@@ -526,7 +526,11 @@ def make_entree_coupon(participant, depart_arrivee, ville, date_, heure,
 
 
 def donnees_liste_coupons():
-    participants = Participant.actifs.select_related('vol_groupe')\
+    participants = Participant.actifs\
+        .select_related('vol_groupe', 'etablissement', 'implantation',
+                        'fonction', 'fonction__type_institution',
+                        'etablissement__region', 'implantation__region',
+                        'hotel', 'institution', 'institution__region')\
         .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set',
                           'invite_set')\
         .order_by('nom', 'prenom')
