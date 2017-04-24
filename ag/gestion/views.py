@@ -17,6 +17,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, Prefetch
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.shortcuts import render_to_response
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
@@ -1023,3 +1024,9 @@ def liste_coupons(request):
                   {'donnees': donnees,
                    'DEPART': donnees_etats.DEPART,
                    'ARRIVEE': donnees_etats.ARRIVEE})
+
+
+def listes_hotels(request):
+    donnees = donnees_etats.donnees_liste_hotels()
+    return render(request, 'gestion/listes_hotels.html',
+                  {'donnees': donnees})

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+<body>
+{% for entete, lignes in donnees %}
+    <table>
+    <thead>
+    <tr>
+      <th colspan="9">
+          {{ entete.hotel }}
+      </th>
+    </tr>
+    <tr>
+      <th>
+          Arrivée le {{ entete.arrivee_date }}
+      </th>
+      <th>Type</th><th>PEC</th><th>Occupants</th><th>Nuitées</th>
+      <th>Aéroport</th>
+      <th>ETA</th><th>JH Départ</th><th>Passeport</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ligne in lignes %}
+      <tr>
+        <td>{{ ligne.nom }}</td>
+        <td>{{ ligne.type }}</td>
+        <td>{{ ligne.PEC }}</td>
+        <td>{{ ligne.occupants }}</td>
+        <td>{{ ligne.nuitees }}</td>
+        <td>{{ ligne.aeroport }}</td>
+        <td>{{ ligne.heure_checkin|default_if_none:"" }}</td>
+        <td>{{ ligne.depart_datetime|default_if_none:"" }}</td>
+        <td>{{ ligne.passeport }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+
+    </table>
+{% endfor %}
+<div style="page-break-after: always"> </div>
+</body>
+
+
+</html>

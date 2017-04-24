@@ -1022,7 +1022,7 @@ class Participant(RenseignementsPersonnels):
                        sum(p.montant for p in self.get_paiements()))
 
     def a_televerse_passeport(self):
-        return self.fichier_set.filter(type_fichier=1).exists()
+        return any((f for f in self.fichier_set.all() if f.type_fichier == 1))
 
     def get_paiements(self):
         paiements = [PaiementNamedTuple(

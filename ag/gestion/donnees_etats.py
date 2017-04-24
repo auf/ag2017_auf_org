@@ -557,7 +557,7 @@ def participants_avec_vols():
                         'etablissement__region', 'implantation__region',
                         'hotel', 'institution', 'institution__region') \
         .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set',
-                          'invite_set') \
+                          'invite_set', 'fichier_set') \
         .order_by('nom', 'prenom')
 
 
@@ -581,10 +581,13 @@ def donnees_liste_hotels():
         if arrivee_date and participant.hotel:
             if (infos_depart_arrivee.arrivee_a and
                     infos_depart_arrivee.arrivee_heure):
-                heure_checkin = infos_depart_arrivee + datetime.timedelta(hours=1)
+                dt_checkin = datetime.datetime.combine(
+                    infos_depart_arrivee.arrivee_date,
+                    infos_depart_arrivee.arrivee_heure)
+                dt_checkin += datetime.timedelta(hours=1)
                 if infos_depart_arrivee.arrivee_a.lower() == casablanca:
-                    heure_checkin += datetime.timedelta(hours=2)
-
+                    dt_checkin += datetime.timedelta(hours=2)
+                heure_checkin = dt_checkin.time()
             else:
                 heure_checkin = None
 
@@ -596,11 +599,11 @@ def donnees_liste_hotels():
             if (depart_date and infos_depart_arrivee.depart_heure and
                     infos_depart_arrivee.depart_de):
                 depart_heure = infos_depart_arrivee.depart_heure
-                depart_heure += datetime.timedelta(hours=1)
-                if infos_depart_arrivee.depart_de.lower() == casablanca:
-                    depart_heure += datetime.timedelta(hours=2)
                 depart_datetime = datetime.datetime.combine(depart_date,
                                                             depart_heure)
+                depart_datetime -= datetime.timedelta(hours=1)
+                if infos_depart_arrivee.depart_de.lower() == casablanca:
+                    depart_datetime -= datetime.timedelta(hours=2)
             else:
                 depart_datetime = None
 
@@ -609,13 +612,14 @@ def donnees_liste_hotels():
             ligne = LigneListeHotel(
                 nom=participant.get_nom_complet(),
                 type=participant.get_fonction_libelle(),
-                PEC=participant.prise_en_charge_sejour,
-                occupants=len(participant.invite_set.all) + 1,
+                PEC=u"AUF" if participant.prise_en_charge_sejour else u"",
+                occupants=len(participant.invite_set.all()) + 1,
                 nuitees=nuitees,
                 aeroport=infos_depart_arrivee.arrivee_a,
                 heure_checkin=heure_checkin,
                 depart_datetime=depart_datetime,
-                passeport=participant.a_televerse_passeport()
+                passeport=u"oui" if participant.a_televerse_passeport()
+                else u"-"
             )
             listes_hotels[entete].append(ligne)
-    return listes_hotels
+    return sorted(listes_hotels.iteritems(), key=lambda item: item[0])
