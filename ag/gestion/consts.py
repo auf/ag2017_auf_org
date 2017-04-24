@@ -344,3 +344,6 @@ CS = 'S'
 COS = 'O'
 
 POINT_DE_SUIVI_NOTE_VERSEE = 'note_versee'
+
+MARRAKECH = u'Marrakech'
+CASABLANCA = u'Casablanca'

@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+<head>
+  <link  rel="stylesheet" type="text/css" href="{{ STATIC_URL }}gestion.css"/>
+</head>
+<body>
+{% for entete, lignes in donnees %}
+    <table class="liste_coupons_hotels">
+    <thead>
+    <tr class="ligne-titre">
+      <th colspan="9">
+          {{ entete.hotel }}
+      </th>
+    </tr>
+    <tr>
+      <th width="15%">
+          Arrivée le {{ entete.arrivee_date }}
+      </th>
+      <th width="10%">Type</th>
+      <th width="2%">PEC</th>
+      <th width="2%">Occupants</th>
+      <th width="2%">Nuitées</th>
+      <th width="7%">Aéroport</th>
+      <th width="5%">ETA</th>
+      <th width="10%">JH Départ</th>
+      <th width="2%">Passeport</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ligne in lignes %}
+      <tr>
+        <td>{{ ligne.nom }}</td>
+        <td>{{ ligne.type }}</td>
+        <td>{{ ligne.PEC }}</td>
+        <td>{{ ligne.occupants }}</td>
+        <td>{{ ligne.nuitees }}</td>
+        <td>{{ ligne.aeroport }}</td>
+        <td>{{ ligne.heure_checkin|default_if_none:"" }}</td>
+        <td>{{ ligne.depart_datetime|default_if_none:"" }}</td>
+        <td>{{ ligne.passeport }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+
+    </table>
+{% endfor %}
+<div style="page-break-after: always"> </div>
+</body>
+
+
+</html>

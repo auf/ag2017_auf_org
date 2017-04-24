@@ -765,7 +765,7 @@ def coupon_transport_response(participant):
     :param participant: Participant
     :return: HttpResponse
     """
-    noms_invites = [i.nom_complet for i in participant.invite_set.all()]
+    noms_invites = participant.get_noms_invites()
     coupon = Coupon(
         nom_participant=participant.get_nom_complet(),
         noms_invites=noms_invites,
@@ -776,3 +776,5 @@ def coupon_transport_response(participant):
     response = pdf_response(filename)
     generer_coupons(response, coupon)
     return response
+
+
