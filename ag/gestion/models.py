@@ -1052,6 +1052,9 @@ class Participant(RenseignementsPersonnels):
         else:
             return u""
 
+    def get_fonction_libelle(self):
+        return self.fonction.libelle if self.fonction else u"(aucune)"
+
     # noinspection PyTypeChecker
     def __unicode__(self):
         return u"<Participant: " + self.get_nom_prenom() + \

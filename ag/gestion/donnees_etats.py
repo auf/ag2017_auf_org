@@ -513,7 +513,7 @@ def make_entree_coupon(participant, depart_arrivee, ville, date_, heure,
         date=date_)
     ligne = LigneCoupon(
         nom=participant.get_nom_complet(),
-        type=participant.fonction.libelle,
+        type=participant.get_fonction_libelle(),
         region=participant.get_region_nom(),
         hotel=participant.hotel or u"(Aucun)",
         heure_arrivee=heure,
@@ -526,14 +526,7 @@ def make_entree_coupon(participant, depart_arrivee, ville, date_, heure,
 
 
 def donnees_liste_coupons():
-    participants = Participant.actifs\
-        .select_related('vol_groupe', 'etablissement', 'implantation',
-                        'fonction', 'fonction__type_institution',
-                        'etablissement__region', 'implantation__region',
-                        'hotel', 'institution', 'institution__region')\
-        .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set',
-                          'invite_set')\
-        .order_by('nom', 'prenom')
+    participants = participants_avec_vols()
     listes_coupons = defaultdict(list)
     for participant in participants:
         infos_depart_arrivee = participant.get_infos_depart_arrivee()
@@ -556,3 +549,73 @@ def donnees_liste_coupons():
             listes_coupons[entete_arrivee].append(ligne_arrivee)
     return sorted(listes_coupons.iteritems(), key=lambda item: item[0])
 
+
+def participants_avec_vols():
+    return Participant.actifs \
+        .select_related('vol_groupe', 'etablissement', 'implantation',
+                        'fonction', 'fonction__type_institution',
+                        'etablissement__region', 'implantation__region',
+                        'hotel', 'institution', 'institution__region') \
+        .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set',
+                          'invite_set') \
+        .order_by('nom', 'prenom')
+
+
+EnteteListeHotel = namedtuple('EnteteListeHotel', ('hotel', 'arrivee_date'))
+LigneListeHotel = namedtuple('LigneListeHotel',
+                             ('nom', 'type', 'PEC', 'occupants',
+                              'nuitees', 'aeroport', 'heure_checkin',
+                              'depart_datetime', 'passeport'))
+
+
+def donnees_liste_hotels():
+    participants = participants_avec_vols()
+    listes_hotels = defaultdict(list)
+    casablanca = consts.CASABLANCA.lower()
+    for participant in participants:
+        infos_depart_arrivee = participant.get_infos_depart_arrivee()
+        arrivee_date = (participant.date_arrivee_hotel or
+                        infos_depart_arrivee.arrivee_date)
+        depart_date = (participant.date_depart_hotel or
+                       infos_depart_arrivee.depart_date)
+        if arrivee_date and participant.hotel:
+            if (infos_depart_arrivee.arrivee_a and
+                    infos_depart_arrivee.arrivee_heure):
+                heure_checkin = infos_depart_arrivee + datetime.timedelta(hours=1)
+                if infos_depart_arrivee.arrivee_a.lower() == casablanca:
+                    heure_checkin += datetime.timedelta(hours=2)
+
+            else:
+                heure_checkin = None
+
+            if depart_date and arrivee_date:
+                nuitees = (depart_date - arrivee_date).days
+            else:
+                nuitees = None
+
+            if (depart_date and infos_depart_arrivee.depart_heure and
+                    infos_depart_arrivee.depart_de):
+                depart_heure = infos_depart_arrivee.depart_heure
+                depart_heure += datetime.timedelta(hours=1)
+                if infos_depart_arrivee.depart_de.lower() == casablanca:
+                    depart_heure += datetime.timedelta(hours=2)
+                depart_datetime = datetime.datetime.combine(depart_date,
+                                                            depart_heure)
+            else:
+                depart_datetime = None
+
+            entete = EnteteListeHotel(participant.hotel.libelle, arrivee_date)
+
+            ligne = LigneListeHotel(
+                nom=participant.get_nom_complet(),
+                type=participant.get_fonction_libelle(),
+                PEC=participant.prise_en_charge_sejour,
+                occupants=len(participant.invite_set.all) + 1,
+                nuitees=nuitees,
+                aeroport=infos_depart_arrivee.arrivee_a,
+                heure_checkin=heure_checkin,
+                depart_datetime=depart_datetime,
+                passeport=participant.a_televerse_passeport()
+            )
+            listes_hotels[entete].append(ligne)
+    return listes_hotels

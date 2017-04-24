@@ -4,26 +4,25 @@ import datetime
 import random
 import string
 import urllib2
-from urllib import unquote_plus
 import uuid
+from urllib import unquote_plus
 
-from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 import requests
-from django.utils.formats import date_format, number_format
-
-from ag.gestion import consts
-from ag.gestion.consts import PAIEMENT_CHOICES_DICT
-from ag.inscription.templatetags.inscription import adresse_email_region
-from ag.reference.models import Etablissement
+from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError
 from django.dispatch.dispatcher import Signal
+from django.utils.formats import date_format, number_format
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 
 from ag.core import models as core
+from ag.gestion import consts
+from ag.gestion.consts import PAIEMENT_CHOICES_DICT, MARRAKECH
+from ag.inscription.templatetags.inscription import adresse_email_region
+from ag.reference.models import Etablissement
 
 
 class LigneFacture(object):
@@ -217,10 +216,9 @@ paypal_signal = Signal()
 
 
 class Inscription(RenseignementsPersonnels):
-
     DEPART_DE_CHOICES = (
-        ('Marrakech', u'Marrakech'),
-        ('Casablanca', u'Casablanca'),
+        (consts.MARRAKECH, consts.MARRAKECH),
+        (consts.CASABLANCA, consts.CASABLANCA),
     )
 
     invitation = models.OneToOneField(Invitation)
