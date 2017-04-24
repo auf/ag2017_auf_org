@@ -308,5 +308,6 @@ class ParticipantsQuerySet(QuerySet):
             .filter_qualite_etablissement(consts.CODE_RESEAU,
                                           consts.CODE_CENTRE_RECHERCHE,
                                           consts.CODE_ETAB_ENSEIGNEMENT) \
-            .represente_etablisssement() \
+            .filter_representants_mandates() \
+            .avec_region_vote()\
             .filter(etablissement__region__nom__startswith='')
