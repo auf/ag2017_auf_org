@@ -1019,6 +1019,7 @@ def coupon_transport(request, id_participant):
 
 
 def liste_coupons(request):
+    require_permission(request.user, consts.PERM_LECTURE)
     donnees = donnees_etats.donnees_liste_coupons()
     return render(request, 'gestion/liste_coupons.html',
                   {'donnees': donnees,
@@ -1027,6 +1028,7 @@ def liste_coupons(request):
 
 
 def listes_hotels(request):
+    require_permission(request.user, consts.PERM_LECTURE)
     donnees = donnees_etats.donnees_liste_hotels()
     return render(request, 'gestion/listes_hotels.html',
                   {'donnees': donnees})
