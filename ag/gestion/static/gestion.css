@@ -433,6 +433,66 @@ tr.th-formset th {
     border: solid #999 1px;
 }
 
+/*-- form-candidatures--*/
+
+#form-candidatures h2 { 
+    margin: 0;
+    padding: 15px 5px;
+    background-color: #f1eedd;
+    border-top: 1px solid #ccc;
+}
+
+#form-candidatures td { 
+    font-size: 14px;
+    line-height: 20px;
+}
+
+#form-candidatures th { 
+    background-color: #f1eedd;
+    font-weight: normal;
+    text-transform: uppercase;
+    font-size: 11px;
+}
+
+#form-candidatures tr td:last-child {
+    font-size: 11px;
+}
+
+#form-candidatures tr:hover { 
+    background: AliceBlue; 
+}
+
+#form-candidatures tr:first-child:hover { 
+    background: White; 
+}
+
+#form-candidatures .radio { 
+    text-align: center;
+    vertical-align: middle;
+    background: white; 
+}
+#form-candidatures .pres { 
+    background: #80dfff; 
+}
+#form-candidatures .ca { 
+    background: #ffec80; 
+}
+#form-candidatures .S { 
+
+}
+#form-candidatures .cass-tit { 
+    background: #cce698; 
+}
+#form-candidatures .cass-ass { 
+    background: #c18ff0; 
+}
+#form-candidatures .cass-res { 
+    background: #f48aa0; 
+}
+#form-candidatures .disabled { 
+    background: #e6e6e6;
+}
+
 /* ---end media screen--- */
 
 @media print {
