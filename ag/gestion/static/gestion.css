@@ -467,3 +467,25 @@ p, li { font-size: 12px !important; line-height: 12px !important;}
     color: green;
     font-size: 1.5em;
 }
+
+.liste_coupons_hotels th {
+    text-align: left;
+    border: 2px solid black;
+    background-color: lightgrey;
+}
+
+.liste_coupons_hotels .ligne-titre th {
+    height: 3em;
+    background-color:gray;
+}
+
+.liste_coupons_hotels td {
+    text-align: left;
+    border: 2px solid black;
+}
+
+.liste_coupons_hotels {
+    border-collapse: collapse;
+    border: 2px solid black;
+    margin-bottom: 1em;
+}

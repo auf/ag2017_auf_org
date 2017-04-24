@@ -1,21 +1,29 @@
 <!DOCTYPE HTML>
 <html lang="fr">
+<head>
+  <link  rel="stylesheet" type="text/css" href="{{ STATIC_URL }}gestion.css"/>
+</head>
 <body>
 {% for entete, lignes in donnees %}
-    <table>
+    <table class="liste_coupons_hotels">
     <thead>
-    <tr>
+    <tr class="ligne-titre">
       <th colspan="9">
           {{ entete.hotel }}
       </th>
     </tr>
     <tr>
-      <th>
+      <th width="15%">
           Arrivée le {{ entete.arrivee_date }}
       </th>
-      <th>Type</th><th>PEC</th><th>Occupants</th><th>Nuitées</th>
-      <th>Aéroport</th>
-      <th>ETA</th><th>JH Départ</th><th>Passeport</th>
+      <th width="10%">Type</th>
+      <th width="2%">PEC</th>
+      <th width="2%">Occupants</th>
+      <th width="2%">Nuitées</th>
+      <th width="7%">Aéroport</th>
+      <th width="5%">ETA</th>
+      <th width="10%">JH Départ</th>
+      <th width="2%">Passeport</th>
     </tr>
     </thead>
     <tbody>
