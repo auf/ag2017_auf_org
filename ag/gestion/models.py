@@ -541,14 +541,13 @@ class Participant(RenseignementsPersonnels):
     def candidatures_possibles(self):
         result = set()
         if self.etablissement:
-            if (self.etablissement.statut != CODE_ASSOCIE and
-                    self.etablissement.qualite != CODE_RESEAU):
+            if (self.etablissement.statut == CODE_TITULAIRE):
                 result.update({ELEC_PRES, ELEC_CA})
             if self.etablissement.qualite == CODE_RESEAU:
                 result.add(ELEC_CASS_RES)
-            if self.etablissement.statut != CODE_ASSOCIE:
+            if self.etablissement.statut == CODE_TITULAIRE:
                 result.add(ELEC_CASS_TIT)
-            if self.etablissement.statut != CODE_TITULAIRE:
+            if self.etablissement.statut == CODE_ASSOCIE:
                 result.add(ELEC_CASS_ASS)
         return frozenset(result)
 
