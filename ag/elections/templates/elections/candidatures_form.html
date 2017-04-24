@@ -10,20 +10,19 @@
   {% regroup lignes by candidat.region as lignes_by_region %}
   {% for region_lignes in lignes_by_region %}
     {% if not critere.une_seule_region %}
-      <h2>{{ region_lignes.grouper.nom }}</h2>
+      <h2>Région: {{ region_lignes.grouper.nom }}</h2>
     {% endif %}
     <table>
       <tr>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Poste</th>
+        <th>Nom, Prénom</th>
+        <th>Fonction</th>
         <th>Établissement</th>
-        <th>Suppléant</th>
+        <th>a pour suppléant:</th>
         <th>Aucune</th>
         {% for election in elections %}
-          <th>{{ election.code }}</th>
+          <th class="{{ election.code }}"><strong>{{ election.code }}</strong></th>
         {% endfor %}
-        <th>Suppléant de</th>
+        <th colspan=2><strong>Suppléant de:</strong></th>
         <th>Statut</th>
         <th></th>
       </tr>
@@ -34,10 +33,10 @@
           {% with ligne.form as form %}
           {{ form.participant_id }}
           {{ form.last_modified }}
-          <td width="9%">{{ form.candidat.nom }}</td>
-          <td width="9%">{{ form.candidat.prenom }}</td>
-          <td width="7%">{{ form.candidat.poste }}</td>
-          <td width="10%">{{ form.candidat.etablissement_nom }}</td>
+          <td width="10%"><strong>{{ form.candidat.nom }}, 
+          {{ form.candidat.prenom }}</strong></td>
+          <td width="5%">{{ form.candidat.poste }}</td>
+          <td width="20%"><strong>{{ form.candidat.etablissement_nom }}</strong></td>
           <td width="10%">
             {% if form.suppleant %}
             {{ form.suppleant.nom_complet }}
@@ -46,7 +45,9 @@
             {% endif %}
           </td>
           {% for radio in form.election %}
-            <td width="3%">
+            <td width="3%" class="radio {{ radio.choice_value }} {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
+                     disabled
+                     {% endif %}">
               <input type="radio" id="{{ radio.attrs.id }}"
                      {% if radio.choice_value and not radio.choice_value in form.candidatures_possibles %}
                      disabled="disabled"
@@ -66,15 +67,15 @@
             {{ form.statut }}
             {% endif %}
           </td>
-          <td width="5%">Libre ? {{ form.libre }}</td>
+          <td width="5%">Candidature Libre {{ form.libre }}</td>
           {% endwith %}
         {% else %}
-          <td width="9%">{{ ligne.candidat.nom }}</td>
-          <td width="9%">{{ ligne.candidat.prenom }}</td>
-          <td width="7%">{{ ligne.candidat.poste }}</td>
-          <td width="10%">{{ ligne.candidat.etablissement_nom }}</td>
+          <td width="10%"><strong>{{ ligne.candidat.nom }}, 
+          {{ ligne.candidat.prenom }}</stong></td>
+          <td width="5%">{{ ligne.candidat.poste }}</td>
+          <td width="20%"><strong>{{ ligne.candidat.etablissement_nom }}</strong></td>
           <td></td>
-          <td colspan="7"><span class="candidat-elu">
+          <td colspan="10"><span class="candidat-elu">
             Élu {{ ligne.candidat.code_election }}</span></td>
         {% endif %}
         </tr>
