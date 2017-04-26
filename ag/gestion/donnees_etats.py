@@ -8,12 +8,12 @@ from ag.gestion import consts
 from ag.gestion.consts import ARRIVEES, DEPARTS, VOL_ORGANISE, DEPART_SEULEMENT, ARRIVEE_SEULEMENT
 from ag.gestion.models import (Participant, InfosVol, Invite, Activite, Hotel,
                                ParticipationActivite, ActiviteScientifique,
-                               strip_accents, Frais, PointDeSuivi)
+                               strip_accents, Frais, PointDeSuivi, Paiement)
 from django.db import connection
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Prefetch
 from django.utils.datastructures import SortedDict
 
-from ag.inscription.models import get_forfaits
+from ag.inscription.models import get_forfaits, PaypalResponse
 
 Element = namedtuple('DonneeEtat', ['titre', 'elements'])
 
@@ -427,7 +427,17 @@ def get_donnees_paiements(actifs_seulement):
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
                         'etablissement__region', 'institution__region',
-                        'fonction')
+                        'fonction', 'fonction__type_institution',
+                        'implantation')\
+        .prefetch_related(
+        Prefetch('paiement_set',
+                 queryset=Paiement.objects.select_related('implantation')),
+        'forfaits',
+        'inscription__paypalresponse_set',
+        Prefetch('inscription__paypalresponse_set',
+                 to_attr='accepted_paypal_responses',
+                 queryset=PaypalResponse.objects.all_accepted())
+    )
     # on sépare le count car une annotation sur la requête principale
     # produit un SQL atroce.
     nombre_invites = dict(
