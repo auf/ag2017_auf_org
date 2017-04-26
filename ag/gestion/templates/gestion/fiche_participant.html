@@ -223,7 +223,7 @@
             {% champ_fiche transport_top "vol_groupe" %}
             <tr>
             <td colspan="2">
-            {% if participant.itineraire.count %}
+            {% if participant.itineraire|length %}
                 {% include "gestion/table_itineraire.html" with itineraire=participant.itineraire prix_total=participant.frais_transport   %}
             {% endif %}
             </td>
