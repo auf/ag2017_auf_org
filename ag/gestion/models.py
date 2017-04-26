@@ -401,6 +401,34 @@ EN_COURS = 'E'
 COMPLETE = 'C'
 
 
+def find_vol_arrivee_ag(infos, villes_possibles,
+                        ville_ag):
+    infos = [i for i in infos if i.ville_arrivee.upper() in villes_possibles
+             and i.ville_depart.upper() != ville_ag]
+    if len(infos) == 0:
+        return None
+    elif len(infos) > 1:
+        return [i for i in infos
+                if i.ville_arrivee.upper() == ville_ag][0]
+    else:
+        return infos[0]
+
+
+def find_vol_depart_ag(infos, villes_possibles, ville_ag):
+    # on traite le cas où le participant arrive dans ville ag en faisant
+    # escale dans une ville d'arrivee possible et repart directement
+    # de cette dernière ville
+    infos = [i for i in infos if i.ville_depart.upper() in villes_possibles and
+             i.ville_arrivee.upper() != ville_ag]
+    if len(infos) == 0:
+        return None
+    elif len(infos) > 1:
+        return [i for i in infos
+                if i.ville_depart.upper() == ville_ag][0]
+    else:
+        return infos[0]
+
+
 class Participant(RenseignementsPersonnels):
     INSTANCES_AUF = (
         (consts.CA, u"Conseil d'administration"),
@@ -848,17 +876,15 @@ class Participant(RenseignementsPersonnels):
             return None
 
     def get_vols_depart_arrivee(self):
-        def ensure_one(lst):
-            return lst[0] if len(lst) == 1 else None
-
-        villes = [c[0] for c in Inscription.DEPART_DE_CHOICES]
-        villes_upper = [v.upper() for v in villes]
-        villes += [v.lower() for v in villes_upper] + villes_upper
+        villes_upper = [v.upper() for v in consts.AEROPORTS_AG]
+        ville_ag = consts.VILLE_AG.upper()
         itineraire = self.itineraire()
-        infos_arrivee = ensure_one([i for i in itineraire
-                                    if i.ville_arrivee in villes])
-        infos_depart = ensure_one([i for i in itineraire
-                                   if i.ville_depart in villes])
+        infos_arrivee = find_vol_arrivee_ag(
+            itineraire,
+            villes_upper, ville_ag)
+        infos_depart = find_vol_depart_ag(
+            itineraire,
+            villes_upper, ville_ag)
         return infos_depart, infos_arrivee
 
     def get_infos_depart_arrivee(self):

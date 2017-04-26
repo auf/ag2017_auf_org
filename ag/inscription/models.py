@@ -216,10 +216,7 @@ paypal_signal = Signal()
 
 
 class Inscription(RenseignementsPersonnels):
-    DEPART_DE_CHOICES = (
-        (consts.MARRAKECH, consts.MARRAKECH),
-        (consts.CASABLANCA, consts.CASABLANCA),
-    )
+    DEPART_DE_CHOICES = consts.AEROPORTS_CHOICES
 
     invitation = models.OneToOneField(Invitation)
 
