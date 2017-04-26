@@ -392,7 +392,7 @@ def get_donnees_tous_vols(filtre_ville_depart=None,
 PaiementParticipant = namedtuple('PaiementParticipant', (
     'P_actif', 'P_id', 'P_genre', 'P_nom', 'P_prenom', 'P_poste',
     'P_courriel', 'P_adresse', 'P_ville', 'P_pays', 'P_code_postal',
-    'P_telephone', 'P_telecopieur', 'P_invites', 'P_fonction',
+    'P_telephone', 'P_telecopieur', 'P_invites', 'P_fonction', 'P_region',
     'E_cgrm', 'E_nom', 'E_delinquant', 'f_PEC_I', 'f_total_I',
     'f_fact_I', 'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S',
     'f_AUF_S', 'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
@@ -464,6 +464,7 @@ def get_donnees_paiements(actifs_seulement):
             P_telecopieur=p.telecopieur,
             P_fonction=p.fonction.libelle,
             P_invites=nombre_invites[p.id],
+            P_region=p.get_region_code(),
             E_cgrm=p.etablissement.id if p.etablissement else u"",
             E_nom=p.nom_institution(),
             E_delinquant=bool_to_o_n(p.delinquant) if p.etablissement
