@@ -401,6 +401,34 @@ EN_COURS = 'E'
 COMPLETE = 'C'
 
 
+def find_vol_arrivee_ag(infos, villes_possibles,
+                        ville_ag):
+    infos = [i for i in infos if i.ville_arrivee.upper() in villes_possibles
+             and i.ville_depart.upper() != ville_ag]
+    if len(infos) == 0:
+        return None
+    elif len(infos) > 1:
+        return [i for i in infos
+                if i.ville_arrivee.upper() == ville_ag][0]
+    else:
+        return infos[0]
+
+
+def find_vol_depart_ag(infos, villes_possibles, ville_ag):
+    # on traite le cas où le participant arrive dans ville ag en faisant
+    # escale dans une ville d'arrivee possible et repart directement
+    # de cette dernière ville
+    infos = [i for i in infos if i.ville_depart.upper() in villes_possibles and
+             i.ville_arrivee.upper() != ville_ag]
+    if len(infos) == 0:
+        return None
+    elif len(infos) > 1:
+        return [i for i in infos
+                if i.ville_depart.upper() == ville_ag][0]
+    else:
+        return infos[0]
+
+
 class Participant(RenseignementsPersonnels):
     INSTANCES_AUF = (
         (consts.CA, u"Conseil d'administration"),
@@ -496,7 +524,8 @@ class Participant(RenseignementsPersonnels):
     remarques_transport = TextField(
         u"Remarques reprises sur itinéraire", blank=True
     )
-    vol_groupe = ForeignKey("VolGroupe", null=True, on_delete=PROTECT)
+    vol_groupe = ForeignKey("VolGroupe", null=True, blank=True,
+                            on_delete=PROTECT)
     # hébergement
     reservation_hotel_par_auf = BooleanField(u"réservation d'un hôtel",
                                              default=False)
@@ -531,17 +560,22 @@ class Participant(RenseignementsPersonnels):
         self._facture = None
         self._reservations = None
 
+    def get_moyens_paiement_display(self):
+        moyens = set()
+        for paiement in self.paiement_set.all():
+            moyens.add(paiement.moyen)
+        return u",".join(moyens)
+
     def candidatures_possibles(self):
         result = set()
         if self.etablissement:
-            if (self.etablissement.statut != CODE_ASSOCIE and
-                    self.etablissement.qualite != CODE_RESEAU):
+            if (self.etablissement.statut == CODE_TITULAIRE):
                 result.update({ELEC_PRES, ELEC_CA})
             if self.etablissement.qualite == CODE_RESEAU:
                 result.add(ELEC_CASS_RES)
-            if self.etablissement.statut != CODE_ASSOCIE:
+            if self.etablissement.statut == CODE_TITULAIRE:
                 result.add(ELEC_CASS_TIT)
-            if self.etablissement.statut != CODE_TITULAIRE:
+            if self.etablissement.statut == CODE_ASSOCIE:
                 result.add(ELEC_CASS_ASS)
         return frozenset(result)
 
@@ -576,6 +610,9 @@ class Participant(RenseignementsPersonnels):
             return self.inscription.numero
         else:
             return 'B%04d' % self.id
+
+    def get_noms_invites(self):
+        return [i.nom_complet for i in self.invite_set.all()]
 
     def get_reservations(self):
         """
@@ -723,6 +760,14 @@ class Participant(RenseignementsPersonnels):
         except ParticipationActivite.DoesNotExist:
             return None
 
+    def is_participe_activite(self, code_activite):
+        return any(pa for pa in self.participationactivite_set.all()
+                   if pa.activite.code == code_activite)
+
+    def is_invite_participe_activite(self, code_activite):
+        return any(pa for pa in self.participationactivite_set.all()
+                   if pa.activite.code == code_activite and  pa.avec_invites)
+
     def set_frais(self, code_frais, quantite, montant):
         if montant:
             try:
@@ -803,15 +848,22 @@ class Participant(RenseignementsPersonnels):
             ARRIVEE_SEULEMENT, date, heure, numero_vol, compagnie, ville
         )
 
+    def filter_infos_vols(self, **filtr):
+        def check(infos_vol):
+            for field, val in filtr.iteritems():
+                if not getattr(infos_vol, field) == val:
+                    return False
+            return True
+
+        return [iv for iv in self.infosvol_set.all() if check(iv)]
+
     def get_infos_depart(self):
         """ Renvoie les informations de départ pour les participants dont le
         transport n'est pas pris en charge
         """
         try:
-            return InfosVol.objects.get(
-                participant=self, type_infos=DEPART_SEULEMENT
-            )
-        except InfosVol.DoesNotExist:
+            return self.filter_infos_vols(type_infos=DEPART_SEULEMENT)[0]
+        except IndexError:
             return None
 
     def get_infos_arrivee(self):
@@ -819,34 +871,41 @@ class Participant(RenseignementsPersonnels):
         transport n'est pas pris en charge
         """
         try:
-            return InfosVol.objects.get(
-                participant=self, type_infos=ARRIVEE_SEULEMENT
-            )
-        except InfosVol.DoesNotExist:
+            return self.filter_infos_vols(type_infos=ARRIVEE_SEULEMENT)[0]
+        except IndexError:
             return None
 
     def get_vols_depart_arrivee(self):
-        def ensure_one(lst):
-            return lst[0] if len(lst) == 1 else None
-
-        villes = [c[0] for c in Inscription.DEPART_DE_CHOICES]
-        infos = self.itineraire().filter(
-            Q(ville_arrivee__in=villes) | Q(ville_depart__in=villes))
-        infos_arrivee = ensure_one([i for i in infos
-                                    if i.ville_arrivee in villes])
-        infos_depart = ensure_one([i for i in infos
-                                   if i.ville_depart in villes])
+        villes_upper = [v.upper() for v in consts.AEROPORTS_AG]
+        ville_ag = consts.VILLE_AG.upper()
+        itineraire = self.itineraire()
+        infos_arrivee = find_vol_arrivee_ag(
+            itineraire,
+            villes_upper, ville_ag)
+        infos_depart = find_vol_depart_ag(
+            itineraire,
+            villes_upper, ville_ag)
         return infos_depart, infos_arrivee
 
     def get_infos_depart_arrivee(self):
         """Renvoie les informations de départ et d'arrivée pour tout participant
         qu'il soit pris en charge ou non. """
-        if self.prise_en_charge_transport:
+        if self.transport_organise_par_auf:
             infos_depart, infos_arrivee = self.get_vols_depart_arrivee()
         else:
             infos_depart = self.get_infos_depart()
             infos_arrivee = self.get_infos_arrivee()
         return infos_depart_arrivee_from_infos_vols(infos_depart, infos_arrivee)
+
+    def get_infos_depart_arrivee_separes(self):
+        """Renvoie les informations de départ et d'arrivée pour tout participant
+        qu'il soit pris en charge ou non. """
+        if self.transport_organise_par_auf:
+            infos_depart, infos_arrivee = self.get_vols_depart_arrivee()
+        else:
+            infos_depart = self.get_infos_depart()
+            infos_arrivee = self.get_infos_arrivee()
+        return infos_depart, infos_arrivee
 
     def has_infos_depart_arrivee(self):
         return is_depart_arrivee_complete(self.get_infos_depart_arrivee())
@@ -855,10 +914,16 @@ class Participant(RenseignementsPersonnels):
         """ Renvoie l'itinéraire d'un participant dont le transport est pris
         en charge.
         """
-        return InfosVol.objects.filter(
-            Q(Q(participant=self) & Q(type_infos=VOL_ORGANISE))
-            | Q(Q(vol_groupe=self.vol_groupe) & Q(type_infos=VOL_GROUPE))
-        )
+        infos_vols = []
+        if self.vol_groupe_id:
+            infos_vols.extend(list(self.vol_groupe.infosvol_set.all()))
+        infos_vols.extend(self.filter_infos_vols(type_infos=VOL_ORGANISE))
+        infos_vols.sort(
+            key=lambda i: (i.date_depart or datetime.date(2016, 1, 1),
+                           i.heure_depart or datetime.time(0, 0),
+                           i.date_arrivee or datetime.date(2018, 1 ,1),
+                           i.heure_arrivee or datetime.time(0, 0)))
+        return infos_vols
 
     def save(self, **kwargs):
         if self.id:
@@ -912,6 +977,14 @@ class Participant(RenseignementsPersonnels):
             return self.institution and self.institution.region
         else:
             return None
+
+    def get_region_nom(self):
+        region = self.get_region()
+        return region.nom if region else u""
+
+    def get_region_code(self):
+        region = self.get_region()
+        return region.code if region else u""
 
     def get_nom_bureau_regional(self):
         return self.get_region().implantation_bureau.nom
@@ -976,7 +1049,7 @@ class Participant(RenseignementsPersonnels):
                        sum(p.montant for p in self.get_paiements()))
 
     def a_televerse_passeport(self):
-        return self.fichier_set.filter(type_fichier=1).exists()
+        return any((f for f in self.fichier_set.all() if f.type_fichier == 1))
 
     def get_paiements(self):
         paiements = [PaiementNamedTuple(
@@ -1005,6 +1078,9 @@ class Participant(RenseignementsPersonnels):
             return REGIONS_VOTANTS_DICT[region_vote]
         else:
             return u""
+
+    def get_fonction_libelle(self):
+        return self.fonction.libelle if self.fonction else u"(aucune)"
 
     # noinspection PyTypeChecker
     def __unicode__(self):
@@ -1153,6 +1229,12 @@ class InfosVol(Model):
             return self.heure_arrivee, self.ville_arrivee, self.date_arrivee
         else:
             return self.heure_depart, self.ville_depart, self.date_depart
+
+    def __unicode__(self):
+        return u"{} {} {} → {} {} {}".format(
+            self.compagnie, self.numero_vol, self.ville_depart,
+            self.ville_arrivee, self.date_depart, self.heure_depart
+        )
 
 
 class Frais(Model):

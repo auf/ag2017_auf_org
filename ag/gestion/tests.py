@@ -1685,7 +1685,7 @@ class InfosDepartArriveeTestCase(unittest.TestCase):
             ville_depart="Paris",
             date_depart=datetime.date(2017, 5, 1),
             heure_depart=datetime.time(12, 00),
-            ville_arrivee="Marrakech",
+            ville_arrivee=consts.AEROPORTS_AG[0],
             date_arrivee=datetime.date(2017, 5, 2),
             heure_arrivee=datetime.time(12, 00),
             numero_vol="1234",
@@ -1726,12 +1726,12 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
                             datetime.time(12, 0),
                             "1234",
                             "Air Canada",
-                            "Marrakech")
+                            consts.AEROPORTS_AG[0])
         p.set_infos_depart(datetime.date(2017, 5, 5),
                            datetime.time(12, 12),
                            "4321",
                            "Air France",
-                           "Casablanca")
+                           consts.AEROPORTS_AG[1])
         self.assertEqual(p.get_infos_depart_arrivee(),
                          infos_depart_arrivee_from_infos_vols(
                              p.get_infos_depart(), p.get_infos_arrivee()))
@@ -1741,14 +1741,17 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
         self.assertEqual(p.get_infos_depart_arrivee(),
                          empty_depart_arrivee())
 
-    def create_infos_vols(self, p):
-        infos_vol_aller_1 = InfosVol.objects.create(
+    def create_infos_vols(self, p, escale_aller='BERLIN',
+                          ville_depart_retour=consts.VILLE_AG,
+                          escale_retour='PARIS',
+                          ville_arrivee_ag=consts.VILLE_AG):
+        InfosVol.objects.create(   # vol aller 1
             date_depart=datetime.date(2013, 5, 1),
             heure_depart=datetime.time(15, 10),
             ville_depart='PARIS',
             date_arrivee=datetime.date(2013, 5, 2),
             heure_arrivee=datetime.time(17, 10),
-            ville_arrivee='BERLIN',
+            ville_arrivee=escale_aller,
             compagnie='AIR FRANCE',
             numero_vol='AF615',
             prix=500,
@@ -1758,10 +1761,10 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
         infos_vol_aller_2 = InfosVol.objects.create(
             date_depart=datetime.date(2013, 5, 2),
             heure_depart=datetime.time(18, 10),
-            ville_depart='BERLIN',
+            ville_depart=escale_aller,
             date_arrivee=datetime.date(2013, 5, 3),
             heure_arrivee=datetime.time(5, 10),
-            ville_arrivee=Inscription.DEPART_DE_CHOICES[0][0],
+            ville_arrivee=ville_arrivee_ag,
             compagnie='AIR FRANCE',
             numero_vol='AF615',
             prix=500,
@@ -1771,12 +1774,25 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
         infos_vol_retour = InfosVol.objects.create(
             date_depart=datetime.date(2013, 5, 4),
             heure_depart=datetime.time(15, 10),
-            ville_depart=Inscription.DEPART_DE_CHOICES[-1][0],
-            date_arrivee=datetime.date(2013, 5, 5),
+            ville_depart=ville_depart_retour,
+            date_arrivee=datetime.date(2013, 5, 4),
             heure_arrivee=datetime.time(17, 10),
-            ville_arrivee='PARIS',
+            ville_arrivee=escale_retour,
             compagnie='AIR FRANCE',
             numero_vol='AF616',
+            prix=600,
+            participant=p,
+            type_infos=consts.VOL_ORGANISE,
+        )
+        InfosVol.objects.create(  # vol retour 2
+            date_depart=datetime.date(2013, 5, 4),
+            heure_depart=datetime.time(18, 10),
+            ville_depart=escale_retour,
+            date_arrivee=datetime.date(2013, 5, 5),
+            heure_arrivee=datetime.time(12, 10),
+            ville_arrivee='MONTREAL',
+            compagnie='AIR FRANCE',
+            numero_vol='AF618',
             prix=600,
             participant=p,
             type_infos=consts.VOL_ORGANISE,
@@ -1784,13 +1800,65 @@ class InfosDepartArriveeParticipantTestCase(TestCase):
         return infos_vol_aller_2, infos_vol_retour
 
     def test_participant_avec_pec_avec_vols(self):
-        """Dans le cas d'un vol groupé ou organisé pour le participant,
+        """Dans le cas d'un vol groupé ou organisé par l'auf,
         on vérifie que les infos de départ et d'arrivée sont bien celles
         du dernier segment du vol aller, et du premier segment du vol retour."""
 
-        p = test_utils.ParticipantFactory(prise_en_charge_transport=True)
+        p = test_utils.ParticipantFactory(transport_organise_par_auf=True)
         # type: Participant
         infos_arrivee, infos_depart = self.create_infos_vols(p)
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         infos_depart_arrivee_from_infos_vols(infos_depart,
+                                                              infos_arrivee))
+
+    def test_priorite_ville_ag(self):
+        """Dans le cas d'un vol groupé ou organisé par l'auf,
+        on vérifie que les infos de départ et d'arrivée sont bien celles
+        du dernier segment du vol aller, et du premier segment du vol retour,
+        dans le cas où le participant fait une escale dans une autre ville 
+        d'arrivée (ex: AG à Marrakech, arrivée possible à Casablanca ou
+        Marrakech, le participant arrive à Marrakech en faisant une escale
+        à Casablanca."""
+
+        p = test_utils.ParticipantFactory(transport_organise_par_auf=True)
+        # type: Participant
+        infos_arrivee, infos_depart = self.create_infos_vols(
+            p, consts.AEROPORTS_AG[1])
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         infos_depart_arrivee_from_infos_vols(infos_depart,
+                                                              infos_arrivee))
+
+    def test_priorite_ville_ag_ville_retour_differente(self):
+        """Dans le cas d'un vol groupé ou organisé par l'auf,
+        on vérifie que les infos de départ et d'arrivée sont bien celles
+        du dernier segment du vol aller, et du premier segment du vol retour,
+        dans le cas où le participant fait une escale dans une autre ville 
+        d'arrivée (ex: AG à Marrakech, arrivée possible à Casablanca ou
+        Marrakech, le participant arrive à Marrakech en faisant une escale
+        à Casablanca."""
+
+        p = test_utils.ParticipantFactory(transport_organise_par_auf=True)
+        # type: Participant
+        infos_arrivee, infos_depart = self.create_infos_vols(
+            p, consts.AEROPORTS_AG[1], consts.AEROPORTS_AG[1])
+        self.assertEqual(p.get_infos_depart_arrivee(),
+                         infos_depart_arrivee_from_infos_vols(infos_depart,
+                                                              infos_arrivee))
+
+    def test_arrivee_ville_different_retour_ville_ag_escale_autre_ville(self):
+        """Dans le cas d'un vol groupé ou organisé par l'auf,
+        on vérifie que les infos de départ et d'arrivée sont bien celles
+        du dernier segment du vol aller, et du premier segment du vol retour,
+        dans le cas où le participant fait une escale dans une autre ville 
+        au départ (ex: AG à Marrakech, arrivée à Casablanca , le participant 
+        repart de Marrakech en faisant une escale à Casablanca."""
+
+        p = test_utils.ParticipantFactory(transport_organise_par_auf=True)
+        # type: Participant
+        infos_arrivee, infos_depart = self.create_infos_vols(
+            p, escale_aller='ATHENES', ville_arrivee_ag=consts.AEROPORTS_AG[1],
+            ville_depart_retour=consts.VILLE_AG,
+            escale_retour=consts.AEROPORTS_AG[1])
         self.assertEqual(p.get_infos_depart_arrivee(),
                          infos_depart_arrivee_from_infos_vols(infos_depart,
                                                               infos_arrivee))

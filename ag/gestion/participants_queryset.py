@@ -252,7 +252,7 @@ class ParticipantsQuerySet(QuerySet):
                                  'fonction__type_institution')
 
     def count_par_region_vote(self, code_region_vote):
-        return self.represente_etablissement() \
+        return self.filter_representants_mandates() \
             .filter_region_vote(code_region_vote) \
             .filter(etablissement__region__nom__startswith='') \
             .count()
@@ -308,5 +308,6 @@ class ParticipantsQuerySet(QuerySet):
             .filter_qualite_etablissement(consts.CODE_RESEAU,
                                           consts.CODE_CENTRE_RECHERCHE,
                                           consts.CODE_ETAB_ENSEIGNEMENT) \
-            .represente_etablisssement() \
+            .filter_representants_mandates() \
+            .avec_region_vote()\
             .filter(etablissement__region__nom__startswith='')

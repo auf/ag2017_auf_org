@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+<head>
+  <link  rel="stylesheet" type="text/css" href="{{ STATIC_URL }}gestion.css"/>
+</head>
+<body>
+{% for entete, lignes in donnees %}
+    <table class="liste_coupons_hotels">
+    <thead>
+    <tr class="ligne-titre">
+      <th colspan="8">
+          {% if entete.depart_arrivee == DEPART %}
+            Mogador → {{ entete.ville }}
+          {% else %}
+            {{ entete.ville }} → Mogador
+        {% endif %}
+
+      </th>
+    </tr>
+    <tr>
+      <th  width="15%">
+        {% if entete.depart_arrivee == DEPART %}
+          Départ le
+        {% else %}
+          Arrivée le{% endif %}
+        {{ entete.date }}
+      </th>
+      <th width="15%">Type</th>
+      <th width="10%">Région</th>
+      <th width="15%">Hôtel</th>
+      <th width="5%">Heure</th>
+      <th width="15%">Vol</th>
+      <th width="8%"># passagers</th>
+      <th>Autres passagers</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ligne in lignes %}
+      <tr>
+        <td>{{ ligne.nom }}</td>
+        <td>{{ ligne.type }}</td>
+        <td>{{ ligne.region }}</td>
+        <td>{{ ligne.hotel }}</td>
+        <td>{{ ligne.heure }}</td>
+        <td>{{ ligne.compagnie }} {{ ligne.vol }}</td>
+        <td>{{ ligne.nb_passagers }}</td>
+        <td>{{ ligne.autres_passagers }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+
+    </table>
+{% endfor %}
+<div style="page-break-after: always"> </div>
+</body>
+
+
+</html>

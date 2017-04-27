@@ -137,6 +137,15 @@
     }
   },
   {
+    "pk": 7,
+    "model": "gestion.pointdesuivi",
+    "fields": {
+      "ordre": 6,
+      "code": "note_versee",
+      "libelle": "La note de frais a été versée"
+    }
+  },
+  {
     "pk": 1,
     "model": "gestion.hotel",
     "fields": {

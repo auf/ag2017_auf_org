@@ -15,7 +15,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.datastructures import SortedDict
@@ -31,6 +31,7 @@ from ag.gestion.models import *
 from ag.gestion.pdf import facture_response
 from ag.reference.models import Etablissement, Region, CODE_ASSOCIE, \
     CODE_TITULAIRE, CODE_ETAB_ENSEIGNEMENT, CODE_CENTRE_RECHERCHE, CODE_RESEAU
+from ag.inscription.models import PaypalResponse
 
 
 def liste_etablissements_json(request):
@@ -72,12 +73,22 @@ def participants_view(request):
             desactive = form.cleaned_data['desactive']
 
             participants = Participant.objects.filter(desactive=desactive) \
-                .order_by('nom', 'prenom')\
-                .sql_extra_fields('delinquant')\
+                .order_by('nom', 'prenom') \
+                .sql_extra_fields('delinquant') \
                 .select_related('etablissement',
                                 'etablissement__region', 'etablissement__pays',
                                 'fonction', 'institution',
-                                'institution__region')
+                                'institution__region',
+                                'fonction__type_institution',
+                                'implantation', 'implantation__region') \
+                .prefetch_related(
+                Prefetch('paiement_set',
+                         queryset=Paiement.objects
+                         .select_related('implantation')),
+                Prefetch('inscription__paypalresponse_set',
+                         to_attr='accepted_paypal_responses',
+                         queryset=PaypalResponse.objects.all_accepted()))
+
             if nom:
                 participants = participants.filter(
                     Q(nom__icontains=nom) | Q(prenom__icontains=nom)
@@ -359,11 +370,12 @@ def table_membres(participants, regions):
     return sums_lines
 
 
-def votants_par_regions(participant)
+def votants_par_regions(participant):
+    pass
 
-def table_votants(participants):
-    votants = [p for p in participants if p.represente_etablissement]
-    pairs = [(p.)]
+# def table_votants(participants):
+#     votants = [p for p in participants if p.represente_etablissement]
+#     pairs = [(p.)]
 
 
 def ligne_regions(participants, regions):
@@ -961,7 +973,7 @@ def export_donnees_csv(request):
     # response.write("<html><head></head><body>")
     fields = [
         "P_actif", "P_id", "P_genre", "P_nom", "P_prenom", "P_poste",
-        "P_statut", "I_type", "E_cgrm", "E_qual", "E_statut",
+        "P_fonction", "I_type", "E_cgrm", "E_qual", "E_statut",
         "I_nom", "I_pays", "I_region", "E_vote", "E_vote_region",
         "V_volACie", "V_volA", "V_dateA", "V_heureA",
         "V_volDCie", "V_volD", "V_dateD", "V_heureD", "H_id", "H_dateA",
@@ -1022,23 +1034,18 @@ def export_donnees_csv(request):
         row['P_fonction'] = p.fonction.code
         row['E_vote'] = bool_to_01(p.region_vote)
         row['E_vote_region'] = p.region_vote
-        row['I_type'] = p.type_institution
-        if p.type_institution == Participant.ETABLISSEMENT:
+        row['I_type'] = p.institution.type_institution.code \
+            if p.institution else u""
+        row['I_nom'] = p.nom_institution()
+        region = p.get_region()
+        row['I_region'] = region.code if region else u""
+        if p.represente_etablissement:
             row['E_cgrm'] = p.etablissement.id
             row['E_qual'] = p.etablissement.qualite
             row['E_statut'] = p.etablissement.statut
-            row['I_nom'] = p.etablissement.nom
             row['I_pays'] = p.etablissement.pays.code
-            row['I_region'] = p.etablissement.region.code
-        else:
-            if p.pays_autre_institution:
-                row['I_pays'] = p.pays_autre_institution.code
-            if p.type_institution == Participant.INSTANCE_AUF:
-                row['I_nom'] = p.get_instance_auf_display()
-                row['I_region'] = p.get_region().code if p.get_region() else ""
-            elif p.type_institution == Participant.AUTRE_INSTITUTION:
-                row['I_type'] = p.type_institution
-                row['I_nom'] = p.nom_autre_institution
+        elif p.institution:
+                row['I_pays'] = p.institution.pays.code
         if p.vol_groupe_id:
             arrivee = arrivees_vols_groupes[p.vol_groupe_id]
             depart = departs_vols_groupes[p.vol_groupe_id]
@@ -1115,10 +1122,10 @@ def etat_paiements_csv(request):
     fields = (
         'P_actif', 'P_id', 'P_genre', 'P_nom', 'P_prenom', 'P_poste',
         'P_courriel', 'P_adresse', 'P_ville', 'P_pays', 'P_code_postal',
-        'P_telephone', 'P_telecopieur', 'P_fonction', 'E_cgrm', 'E_nom',
-        'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I', 'f_fact_I',
-        'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S', 'f_AUF_S',
-        'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 'f_fact_A',
+        'P_telephone', 'P_telecopieur', 'P_fonction', 'P_region', 'E_cgrm',
+        'E_nom', 'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I',
+        'f_fact_I', 'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S',
+        'f_AUF_S', 'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
         'f_valide', 'f_mode', 'f_accompte', 'n_R', 'n_N', 'n_T', 'n_A',
         'n_mode', 'n_statut',)
     writer.writerow(fields)
@@ -1144,3 +1151,19 @@ def coupon_transport(request, id_participant):
     require_permission(request.user, consts.PERM_LECTURE)
     participant = Participant.objects.get(pk=id_participant)
     return pdf.coupon_transport_response(participant)
+
+
+def liste_coupons(request):
+    require_permission(request.user, consts.PERM_LECTURE)
+    donnees = donnees_etats.donnees_liste_coupons()
+    return render(request, 'gestion/liste_coupons.html',
+                  {'donnees': donnees,
+                   'DEPART': donnees_etats.DEPART,
+                   'ARRIVEE': donnees_etats.ARRIVEE})
+
+
+def listes_hotels(request):
+    require_permission(request.user, consts.PERM_LECTURE)
+    donnees = donnees_etats.donnees_liste_hotels()
+    return render(request, 'gestion/listes_hotels.html',
+                  {'donnees': donnees})

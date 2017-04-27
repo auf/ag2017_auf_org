@@ -8,24 +8,32 @@ from ag.gestion import consts
 from ag.gestion.consts import ARRIVEES, DEPARTS, VOL_ORGANISE, DEPART_SEULEMENT, ARRIVEE_SEULEMENT
 from ag.gestion.models import (Participant, InfosVol, Invite, Activite, Hotel,
                                ParticipationActivite, ActiviteScientifique,
-                               strip_accents, Frais, PointDeSuivi)
+                               strip_accents, Frais, PointDeSuivi, Paiement)
 from django.db import connection
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Prefetch
 from django.utils.datastructures import SortedDict
 
-from ag.inscription.models import get_forfaits
+from ag.inscription.models import get_forfaits, PaypalResponse
 
 Element = namedtuple('DonneeEtat', ['titre', 'elements'])
 
 
 def get_donnees_etat_participants():
+    q_etablissements = Q(
+        fonction__type_institution__code=consts.TYPE_INST_ETABLISSEMENT)
+    q_observateur = Q(fonction__code=consts.CAT_FONCTION_OBSERVATEUR)
+    q_instance_seulement = Q(fonction__code=consts.FONCTION_INSTANCE_SEULEMENT)
+    q_personnel_auf = Q(fonction__code=consts.FONCTION_PERSONNEL_AUF)
+    q_autres = (~q_etablissements & ~q_observateur & ~q_instance_seulement &
+                ~q_personnel_auf)
+
     def get_participants_etablissements():
         participants = Participant.actifs\
-            .filter(type_institution=Participant.ETABLISSEMENT)\
+            .filter(q_etablissements)\
             .select_related('etablissement', 'etablissement__pays',
                             'fonction')\
             .order_by('etablissement__pays__nom', 'etablissement__nom',
-                      'statut__ordre', 'nom', 'prenom')
+                      'fonction__ordre', 'nom', 'prenom')
         return recursive_group_by(
             list(participants),
             keys=[lambda p:p.etablissement.pays,
@@ -35,18 +43,17 @@ def get_donnees_etat_participants():
 
     def get_observateurs():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.AUTRE_INSTITUTION,
-                    fonction__code=consts.CAT_FONCTION_OBSERVATEUR) \
-            .select_related('region') \
-            .order_by('nom_autre_institution', 'nom', 'prenom')
+            .filter(q_observateur) \
+            .select_related('institution__region') \
+            .order_by('institution__nom', 'nom', 'prenom')
         return recursive_group_by(
             participants,
-            keys=[lambda p: (p.nom_autre_institution, p.get_region())],
+            keys=[lambda p: (p.nom_institution(), p.get_region())],
             titles=[lambda k: u"{0}, {1}".format(k[0], k[1].nom)])
 
     def get_instances():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.INSTANCE_AUF)\
+            .filter(q_instance_seulement)\
             .order_by('instance_auf', 'nom', 'prenom')
         return recursive_group_by(
             participants,
@@ -56,28 +63,27 @@ def get_donnees_etat_participants():
 
     def get_personnel_auf():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.AUTRE_INSTITUTION,
-                    statut__code='pers_auf') \
-            .select_related('region')\
-            .order_by('nom_autre_institution', 'region__nom', 'nom', 'prenom')
+            .filter(q_personnel_auf) \
+            .select_related('implantation__region')\
+            .order_by('implantation__region__nom',
+                      'nom', 'prenom')
         return recursive_group_by(
             participants,
-            keys=[lambda p: p.nom_autre_institution,
-                  lambda p: p.region],
-            titles=[lambda k: k, lambda k: k.nom]
+            keys=[lambda p: p.get_region().nom],
+            titles=[lambda k: k]
         )
 
     def get_autres():
         participants = Participant.actifs \
-            .filter(type_institution=Participant.AUTRE_INSTITUTION)\
-            .exclude(statut__code='pers_auf') \
-            .exclude(statut__code='obs') \
-            .select_related('region') \
-            .order_by('nom_autre_institution', 'region__nom', 'nom', 'prenom')
+            .filter(q_autres)\
+            .select_related('institution__region', 'implantation__region') \
+            .order_by('institution__nom', 'institution__region__nom', 'nom',
+                      'prenom')
         return recursive_group_by(
             participants,
-            keys=[lambda p: (p.nom_autre_institution, p.get_region())],
-            titles=[lambda k: u"{0}, {1}".format(k[0], k[1].nom)])
+            keys=[lambda p: (p.nom_institution(), p.get_region())],
+            titles=[lambda k: u"{0}, {1}".format(k[0],
+                                                 k[1].nom if k[1] else u"")])
 
     return (
         Element(u'Établissements', get_participants_etablissements()),
@@ -386,16 +392,20 @@ def get_donnees_tous_vols(filtre_ville_depart=None,
 PaiementParticipant = namedtuple('PaiementParticipant', (
     'P_actif', 'P_id', 'P_genre', 'P_nom', 'P_prenom', 'P_poste',
     'P_courriel', 'P_adresse', 'P_ville', 'P_pays', 'P_code_postal',
-    'P_telephone', 'P_telecopieur', 'P_statut', 'E_cgrm', 'E_nom',
-    'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I', 'f_fact_I', 'f_PEC_T',
-    'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S', 'f_AUF_S', 'f_total_S',
-    'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A', 'f_valide',
-    'f_mode', 'f_accompte', 'f_solde', 'n_R', 'n_N', 'n_T', 'n_A', 'n_total',
-    'n_mode', 'n_statut',))
+    'P_telephone', 'P_telecopieur', 'P_invites', 'P_fonction', 'P_region',
+    'E_cgrm', 'E_nom', 'E_delinquant', 'f_PEC_I', 'f_total_I',
+    'f_fact_I', 'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S',
+    'f_AUF_S', 'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
+    'f_valide', 'f_mode', 'f_accompte', 'f_solde', 'n_R', 'n_N', 'n_T', 'n_A',
+    'n_total', 'n_mode', 'n_statut',))
 
 
 def format_money(n):
     return u'{0:.2f}'.format(n).replace('.', ',')
+
+
+def bool_to_o_n(b):
+    return u"O" if b else u"N"
 
 
 def get_donnees_paiements(actifs_seulement):
@@ -403,7 +413,8 @@ def get_donnees_paiements(actifs_seulement):
     for f in Frais.objects.select_related('type_frais').all():
         frais_participants[f.participant_id][f.type_frais.code] = f.total()
     notes_versees = set(v[0] for v in
-                        PointDeSuivi.objects.get(id=7)
+                        PointDeSuivi.objects.get(
+                            code=consts.POINT_DE_SUIVI_NOTE_VERSEE)
                         .participant_set.values_list('id'))
 
     participants = (Participant.actifs.all() if actifs_seulement else
@@ -415,20 +426,30 @@ def get_donnees_paiements(actifs_seulement):
         'frais_autres', 'total_frais',
         'total_facture', 'solde').order_by('nom', 'prenom')\
         .select_related('etablissement', 'etablissement__pays',
-                        'etablissement__region', 'region', 'fonction')
+                        'etablissement__region', 'institution__region',
+                        'fonction', 'fonction__type_institution',
+                        'implantation')\
+        .prefetch_related(
+        Prefetch('paiement_set',
+                 queryset=Paiement.objects.select_related('implantation')),
+        'forfaits',
+        'inscription__paypalresponse_set',
+        Prefetch('inscription__paypalresponse_set',
+                 to_attr='accepted_paypal_responses',
+                 queryset=PaypalResponse.objects.all_accepted())
+    )
     # on sépare le count car une annotation sur la requête principale
     # produit un SQL atroce.
     nombre_invites = dict(
         (p['id'], p['num_invites']) for p in
         Participant.objects.values('id').annotate(num_invites=Count('invite')))
 
-    bool_ON = lambda b: u"O" if b else u"N"
     forfaits = get_forfaits()
     result = []
     for p in participants:
         frais = frais_participants[p.id]
         pp = PaiementParticipant(
-            P_actif=bool_ON(not p.desactive),
+            P_actif=bool_to_o_n(not p.desactive),
             P_id=p.id,
             P_genre=p.get_genre_display(),
             P_nom=p.nom,
@@ -442,39 +463,174 @@ def get_donnees_paiements(actifs_seulement):
             P_telephone=p.telephone,
             P_telecopieur=p.telecopieur,
             P_fonction=p.fonction.libelle,
+            P_invites=nombre_invites[p.id],
+            P_region=p.get_region_code(),
             E_cgrm=p.etablissement.id if p.etablissement else u"",
             E_nom=p.nom_institution(),
-            E_delinquant=bool_ON(p.delinquant) if p.etablissement else u"n/a",
-            P_invites=nombre_invites[p.id],
-            f_PEC_I=bool_ON(p.prise_en_charge_inscription),
+            E_delinquant=bool_to_o_n(p.delinquant) if p.etablissement
+            else u"n/a",
+            f_PEC_I=bool_to_o_n(p.prise_en_charge_inscription),
             f_total_I=format_money(p.frais_inscription),
             f_fact_I=format_money(p.frais_inscription_facture),
-            f_PEC_T=bool_ON(p.prise_en_charge_transport),
-            f_AUF_T=bool_ON(p.transport_organise_par_auf),
+            f_PEC_T=bool_to_o_n(p.prise_en_charge_transport),
+            f_AUF_T=bool_to_o_n(p.transport_organise_par_auf),
             f_total_T=format_money(p.frais_transport),
             f_fact_T=format_money(p.frais_transport_facture),
-            f_PEC_S=bool_ON(p.prise_en_charge_sejour),
-            f_AUF_S=bool_ON(p.reservation_hotel_par_auf),
+            f_PEC_S=bool_to_o_n(p.prise_en_charge_sejour),
+            f_AUF_S=bool_to_o_n(p.reservation_hotel_par_auf),
             f_total_S=format_money(p.frais_hebergement),
             f_fact_S=format_money(p.frais_hebergement_facture),
             f_supp_S=format_money(
                 forfaits[consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE].montant
                 if p.a_forfait(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE)
                 else 0),
-            f_PEC_A=bool_ON(p.prise_en_charge_activites),
+            f_PEC_A=bool_to_o_n(p.prise_en_charge_activites),
             f_total_A=format_money(p.forfaits_invites),
-            f_valide=bool_ON(p.facturation_validee),
-            f_mode=p.get_paiement_display(),
-            f_accompte=format_money(p.accompte),
-            f_solde=format_money(p.total_facture - p.accompte),
+            f_valide=bool_to_o_n(p.facturation_validee),
+            f_mode=p.get_moyens_paiement_display(),
+            f_accompte=format_money(p.total_deja_paye),
+            f_solde=format_money(p.get_solde()),
             n_R=format_money(frais['repas']),
             n_N=format_money(frais['nuitees']),
             n_T=format_money(frais['taxi']),
             n_A=format_money(frais['autres']),
             n_total=format_money(sum(frais.itervalues())),
             n_mode=p.get_modalite_versement_frais_sejour_display(),
-            n_statut=bool_ON(p.id in notes_versees),
+            n_statut=bool_to_o_n(p.id in notes_versees),
         )
 
         result.append(pp)
     return result
+
+
+LigneCoupon = namedtuple('LigneCoupon', ('nom', 'type', 'region', 'hotel',
+                                         'heure_arrivee', 'compagnie', 'vol',
+                                         'nb_passagers', 'autres_passagers'))
+
+EnteteListeCoupons = namedtuple('EnteteListeCoupons',
+                                ('depart_arrivee', 'ville', 'date', ))
+
+
+DEPART = 'depart'
+ARRIVEE = 'arrivee'
+
+
+def make_entree_coupon(participant, depart_arrivee, ville, date_, heure,
+                       compagnie, vol):
+    noms_invites = participant.get_noms_invites()
+    nb_passagers = len(noms_invites) + 1
+    entete = EnteteListeCoupons(
+        depart_arrivee=depart_arrivee, ville=ville.upper(),
+        date=date_)
+    ligne = LigneCoupon(
+        nom=participant.get_nom_complet(),
+        type=participant.get_fonction_libelle(),
+        region=participant.get_region_nom(),
+        hotel=participant.hotel or u"(Aucun)",
+        heure_arrivee=heure,
+        compagnie=compagnie,
+        vol=vol,
+        nb_passagers=nb_passagers,
+        autres_passagers=u",".join(noms_invites)
+    )
+    return entete, ligne
+
+
+def donnees_liste_coupons():
+    participants = participants_avec_vols()
+    listes_coupons = defaultdict(list)
+    for participant in participants:
+        infos_depart_arrivee = participant.get_infos_depart_arrivee()
+        if infos_depart_arrivee.depart_date and infos_depart_arrivee.depart_de:
+            entete_depart, ligne_depart = make_entree_coupon(
+                participant, DEPART,
+                infos_depart_arrivee.depart_de,
+                infos_depart_arrivee.depart_date,
+                infos_depart_arrivee.depart_heure,
+                infos_depart_arrivee.depart_compagnie,
+                infos_depart_arrivee.depart_vol)
+            listes_coupons[entete_depart].append(ligne_depart)
+        if infos_depart_arrivee.arrivee_date and infos_depart_arrivee.arrivee_a:
+            entete_arrivee, ligne_arrivee = make_entree_coupon(
+                participant, ARRIVEE, infos_depart_arrivee.arrivee_a,
+                infos_depart_arrivee.arrivee_date,
+                infos_depart_arrivee.arrivee_heure,
+                infos_depart_arrivee.arrivee_compagnie,
+                infos_depart_arrivee.arrivee_vol)
+            listes_coupons[entete_arrivee].append(ligne_arrivee)
+    return sorted(listes_coupons.iteritems(), key=lambda item: item[0])
+
+
+def participants_avec_vols():
+    return Participant.actifs \
+        .select_related('vol_groupe', 'etablissement', 'implantation',
+                        'fonction', 'fonction__type_institution',
+                        'etablissement__region', 'implantation__region',
+                        'hotel', 'institution', 'institution__region') \
+        .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set',
+                          'invite_set', 'fichier_set') \
+        .order_by('nom', 'prenom')
+
+
+EnteteListeHotel = namedtuple('EnteteListeHotel', ('hotel', 'arrivee_date'))
+LigneListeHotel = namedtuple('LigneListeHotel',
+                             ('nom', 'type', 'PEC', 'occupants',
+                              'nuitees', 'aeroport', 'heure_checkin',
+                              'depart_datetime', 'passeport'))
+
+
+def donnees_liste_hotels():
+    participants = participants_avec_vols()
+    listes_hotels = defaultdict(list)
+    casablanca = consts.CASABLANCA.lower()
+    for participant in participants:
+        infos_depart_arrivee = participant.get_infos_depart_arrivee()
+        arrivee_date = (participant.date_arrivee_hotel or
+                        infos_depart_arrivee.arrivee_date)
+        depart_date = (participant.date_depart_hotel or
+                       infos_depart_arrivee.depart_date)
+        if arrivee_date and participant.hotel:
+            if (infos_depart_arrivee.arrivee_a and
+                    infos_depart_arrivee.arrivee_heure):
+                dt_checkin = datetime.datetime.combine(
+                    infos_depart_arrivee.arrivee_date,
+                    infos_depart_arrivee.arrivee_heure)
+                dt_checkin += datetime.timedelta(hours=1)
+                if infos_depart_arrivee.arrivee_a.lower() == casablanca:
+                    dt_checkin += datetime.timedelta(hours=2)
+                heure_checkin = dt_checkin.time()
+            else:
+                heure_checkin = None
+
+            if depart_date and arrivee_date:
+                nuitees = (depart_date - arrivee_date).days
+            else:
+                nuitees = None
+
+            if (depart_date and infos_depart_arrivee.depart_heure and
+                    infos_depart_arrivee.depart_de):
+                depart_heure = infos_depart_arrivee.depart_heure
+                depart_datetime = datetime.datetime.combine(depart_date,
+                                                            depart_heure)
+                depart_datetime -= datetime.timedelta(hours=1)
+                if infos_depart_arrivee.depart_de.lower() == casablanca:
+                    depart_datetime -= datetime.timedelta(hours=2)
+            else:
+                depart_datetime = None
+
+            entete = EnteteListeHotel(participant.hotel.libelle, arrivee_date)
+
+            ligne = LigneListeHotel(
+                nom=participant.get_nom_complet(),
+                type=participant.get_fonction_libelle(),
+                PEC=u"AUF" if participant.prise_en_charge_sejour else u"",
+                occupants=len(participant.invite_set.all()) + 1,
+                nuitees=nuitees,
+                aeroport=infos_depart_arrivee.arrivee_a,
+                heure_checkin=heure_checkin,
+                depart_datetime=depart_datetime,
+                passeport=u"oui" if participant.a_televerse_passeport()
+                else u"-"
+            )
+            listes_hotels[entete].append(ligne)
+    return sorted(listes_hotels.iteritems(), key=lambda item: item[0])

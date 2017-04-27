@@ -216,14 +216,14 @@
                 {% endif %}
             </td>
         </tr>
+        {% champ_fiche transport_top "statut_dossier_transport" %}
         {% if participant.transport_organise_par_auf %}
             {% champ_fiche transport_top "numero_dossier_transport" %}
             {% champ_fiche transport_top "modalite_retrait_billet" %}
-            {% champ_fiche transport_top "statut_dossier_transport" %}
             {% champ_fiche transport_top "vol_groupe" %}
             <tr>
             <td colspan="2">
-            {% if participant.itineraire.count %}
+            {% if participant.itineraire|length %}
                 {% include "gestion/table_itineraire.html" with itineraire=participant.itineraire prix_total=participant.frais_transport   %}
             {% endif %}
             </td>
@@ -417,7 +417,7 @@
             <tbody>
             {% for fichier in fichiers %}
                 <ul>
-                <li {% if fichier.efface_le %}class="strikethrough"{% endif %}><a href="{% url "media_participant" nom_fichier=fichier.filename %}">{{ fichier.filename }}</a></li>
+                <li {% if fichier.efface_le %}class="strikethrough"{% endif %}><a href="{% url "media_participant" nom_fichier=fichier.fichier.name %}">{{ fichier.filename }}</a></li>
                 </ul>
             {% endfor %}
             </tbody>

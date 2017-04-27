@@ -76,20 +76,14 @@
 </li></ul>
 <h2>{{ liste_inscrits.3.0 }}{# Personnel AUF #}</h2>
 <ul>
-    {% for institution in liste_inscrits.3.1 %}
-    <li class="niveau2"><p>{{ institution.titre }}</p>
-    <table>
-        {% for region in institution.elements %}
-        <tr><td><p>{{ region.titre }}</p></td>
-        <td><ul>
+    {% for region in liste_inscrits.3.1 %}
+    <li class="niveau2"><p>{{ region.titre }}</p>
+    <ul>
         {% for participant in region.elements %}
               <li class="niveau3">{{ participant.nom }}, {{ participant.prenom }}</li>
               <li class="niveau4">{{ participant.poste}}</li>
         {% endfor %}
-        </ul></td>
-        </tr>
-        {% endfor %}
-    </table>
+    </ul>
     </li>
     {% endfor %}
 </ul>

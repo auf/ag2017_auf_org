@@ -219,7 +219,8 @@ def make_filter_region(code_region):
 
 
 def filter_participants(filters):
-    qs = gestion_models.Participant.objects.actifs().represente_etablissement()
+    qs = gestion_models.Participant.objects.actifs()\
+        .filter_representants_mandates()
     for filtr in filters:
         qs = filtr(qs)
     return qs
