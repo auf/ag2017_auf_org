@@ -286,7 +286,7 @@ def renseignements_personnels_view(request, id_participant):
 
 def nb_par_region(participants, category_fn):
     pairs = [(category_fn(p), p.get_region().id)
-             for p in participants]
+             for p in participants if p.get_region()]
     # noinspection PyArgumentList
     return collections.Counter(pairs)
 
@@ -380,7 +380,8 @@ def votants_par_regions(participant):
 
 def ligne_regions(participants, regions):
     # noinspection PyArgumentList
-    counter = collections.Counter((p.get_region().id for p in participants))
+    counter = collections.Counter((p.get_region().id for p in participants
+                                   if p.get_region()))
     sums = [make_sum_data(len(participants), {})]
     for region in regions:
         sums.append(make_sum_data(counter[region.id], {'region': region.id}))
