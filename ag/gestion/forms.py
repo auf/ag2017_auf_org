@@ -96,6 +96,8 @@ class RechercheParticipantForm(Form):
     )
     hotel = ModelChoiceField(label=u"Hôtel", queryset=Hotel.objects.all(),
                              required=False)
+    pays_code = CharField(max_length=5, required=False)
+    region_vote = CharField(max_length=12, required=False)
     desactive = BooleanField(
         label=u"Désactivés", required=False
     )

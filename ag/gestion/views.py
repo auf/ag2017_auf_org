@@ -66,6 +66,8 @@ def participants_view(request):
             prise_en_charge_sejour = \
                 form.cleaned_data['prise_en_charge_sejour']
             pays = form.cleaned_data['pays']
+            pays_code = form.cleaned_data['pays_code']
+            region_vote = form.cleaned_data['region_vote']
             region = form.cleaned_data['region']
             fonction = form.cleaned_data['fonction']
             probleme = form.cleaned_data['probleme']
@@ -120,6 +122,12 @@ def participants_view(request):
                 participants = participants.filter(
                     pays__icontains=pays
                 )
+            if pays_code:
+                participants = participants.filter(
+                    pays__code=pays_code
+                )
+            if region_vote:
+                participants = participants.filter_region_vote(region_vote)
             if region:
                 participants = participants.filter(
                     Q(etablissement__region=region) |
@@ -370,14 +378,6 @@ def table_membres(participants, regions):
     return sums_lines
 
 
-def votants_par_regions(participant):
-    pass
-
-# def table_votants(participants):
-#     votants = [p for p in participants if p.represente_etablissement]
-#     pairs = [(p.)]
-
-
 def ligne_regions(participants, regions):
     # noinspection PyArgumentList
     counter = collections.Counter((p.get_region().id for p in participants
@@ -388,14 +388,35 @@ def ligne_regions(participants, regions):
     return SumsLine(label=u"Tous", sums=sums)
 
 
+CritereElecteur = collections.namedtuple(
+    'CritereElecteur', ('code', 'category_fn', 'search_params'))
+
+
+CATEGORIES_VOTANTS = (
+    ('titulaire', lambda p: p.etablissement.statut == consts.CODE_TITULAIRE,
+     {'statut': consts.CODE_TITULAIRE}),
+    ('associe', lambda p: p.etablissement.statut == consts.CODE_ASSOCIE,
+     {'statut': consts.CODE_ASSOCIE}),
+    ('reseau', lambda p: p.etablisssement.qualite == consts.CODE_RESEAU,
+     {'qualite': consts.CODE_RESEAU}),
+)
+
+def categories_votants():
+    return [CritereElecteur(*d) for d in CATEGORIES_VOTANTS]
+
+
 def localisation_votants():
     def critere_region(code_region):
-        return (consts.REGIONS_VOTANTS_DICT[code_region],
-                lambda p: p.region_vote == code_region)
+        return CritereElecteur(
+            code=consts.REGIONS_VOTANTS_DICT[code_region],
+            category_fn=lambda p: p.region_vote == code_region,
+            search_params={'region_vote': code_region})
 
     def critere_pays(code_pays, nom_pays):
-        return (nom_pays,
-                lambda p: p.pays.code == code_pays)
+        return CritereElecteur(
+            code=nom_pays,
+            category_fn=lambda p: p.pays.code == code_pays,
+            search_params={'pays_code': code_pays})
 
     return (
         critere_region(consts.REG_AFRIQUE),
@@ -408,6 +429,34 @@ def localisation_votants():
         critere_region(consts.REG_MAGHREB),
         critere_region(consts.REG_MOYEN_ORIENT),
     )
+
+
+def table_votants(participants):
+    votants = [p for p in participants
+               if p.fonction.code == consts.FONCTION_REPR_UNIVERSITAIRE]
+    pairs = []
+    criteres_localisation = localisation_votants()
+    criteres_categorisation = categories_votants()
+    for p in votants:
+        for localisation in criteres_localisation:
+            if localisation.category_fn(p):
+                for categorie in criteres_categorisation:
+                    if categorie.category_fn(p):
+                        pairs.append((categorie.code, localisation.code))
+                        pairs.append(categorie.code)
+    # noinspection PyArgumentList
+    counter = collections.Counter(pairs)
+    lignes = []
+    for categorie in criteres_categorisation:
+        sums = [make_sum_data(counter[categorie.code], categorie.search_params)]
+        for localisation in criteres_localisation:
+            search_params = categorie.search_params.copy()
+            search_params.update(localisation.search_params)
+            sum_data = make_sum_data(
+                counter[(categorie.code, localisation.code)], search_params)
+            sums.append(sum_data)
+        lignes.append(SumsLine(categorie.code, sums))
+    return lignes
 
 
 def tableau_de_bord(request):
@@ -435,9 +484,10 @@ def tableau_de_bord(request):
                'telecopieur', 'notes_facturation', 'notes',
                'notes_hebergement', 'modalite_versement_frais_sejour',
                'numero_facture', 'numero_dossier_transport',)\
+        .avec_region_vote()\
         .select_related('etablissement__region', 'fonction',
                         'fonction__type_institution',
-                        'implantation__region', 'institution__region')
+                        'implantation__region', 'institution__region', )
     totaux_regions = ligne_regions(participants, regions)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
     par_statut_qualite = table_membres(participants, regions)
