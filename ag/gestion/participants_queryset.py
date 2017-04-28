@@ -249,7 +249,9 @@ class ParticipantsQuerySet(QuerySet):
             })
         return qs.select_related('etablissement', 'etablissement__region',
                                  'etablissement__pays',
-                                 'fonction__type_institution')
+                                 'fonction__type_institution',
+                                 'implantation__region',
+                                 'institution__region', )
 
     def count_par_region_vote(self, code_region_vote):
         return self.filter_representants_mandates() \

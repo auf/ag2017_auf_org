@@ -128,21 +128,28 @@
 
 
 <div class="module">
-    <h2>Votants et associés</h2>
+    <h2>Votants</h2>
     <table>
         <thead>
-            <tr><th>Région</th><th>Votants</th><th>Associés</th><th>Total</th></tr></thead>
-        <tbody>
-        {% for nombres_region in nombres_votants %}
-            <tr>{% for donnee in nombres_region %}<td>{{ donnee }}</td>{% endfor %}
+            <tr>
+              <th>Membres votants</th>
+              <th>Total</th>
+              {% for localisation in localisations_electeurs %}
+                <th>{{localisation}}</th>
+              {% endfor %}
             </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot><tr>
-            <td>Total</td>
-            {% for total in totaux_votants %}
-            <td>{{ total }}</td>{% endfor %}
-        </tr></tfoot>
+        </thead>
+      <tbody>
+      {% for ligne in par_region_vote %}
+        <tr>
+          <td>{{ ligne.label }}</td>
+          {% for sum_data in ligne.sums %}
+            <td>{{ sum_data|sum_data }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+
+      </tbody>
     </table>
 </div>
 

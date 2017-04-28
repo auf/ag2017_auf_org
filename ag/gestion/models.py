@@ -1072,6 +1072,14 @@ class Participant(RenseignementsPersonnels):
     #     elif self.vol_groupe:
     #
 
+    def get_region_vote(self):
+        if hasattr(self, 'region_vote'):
+            return self.region_vote
+        elif self.inscription.invitation.pour_mandate:
+                return consts.REGION_AUF_REGION_VOTANTS[self.get_region().code]
+        else:
+            return None
+
     def get_region_vote_display(self):
         region_vote = getattr(self, 'region_vote', None)
         if region_vote:

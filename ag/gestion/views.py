@@ -124,7 +124,7 @@ def participants_view(request):
                 )
             if pays_code:
                 participants = participants.filter(
-                    pays__code=pays_code
+                    etablissement__pays__code=pays_code
                 )
             if region_vote:
                 participants = participants.filter_region_vote(region_vote)
@@ -393,13 +393,14 @@ CritereElecteur = collections.namedtuple(
 
 
 CATEGORIES_VOTANTS = (
-    ('titulaire', lambda p: p.etablissement.statut == consts.CODE_TITULAIRE,
+    (u'Titulaire', lambda p: p.etablissement.statut == consts.CODE_TITULAIRE,
      {'statut': consts.CODE_TITULAIRE}),
-    ('associe', lambda p: p.etablissement.statut == consts.CODE_ASSOCIE,
+    (u'Associé', lambda p: p.etablissement.statut == consts.CODE_ASSOCIE,
      {'statut': consts.CODE_ASSOCIE}),
-    ('reseau', lambda p: p.etablisssement.qualite == consts.CODE_RESEAU,
+    (u'Réseau', lambda p: p.etablissement.qualite == consts.CODE_RESEAU,
      {'qualite': consts.CODE_RESEAU}),
 )
+
 
 def categories_votants():
     return [CritereElecteur(*d) for d in CATEGORIES_VOTANTS]
@@ -409,13 +410,13 @@ def localisation_votants():
     def critere_region(code_region):
         return CritereElecteur(
             code=consts.REGIONS_VOTANTS_DICT[code_region],
-            category_fn=lambda p: p.region_vote == code_region,
+            category_fn=lambda p: p.get_region_vote() == code_region,
             search_params={'region_vote': code_region})
 
     def critere_pays(code_pays, nom_pays):
         return CritereElecteur(
             code=nom_pays,
-            category_fn=lambda p: p.pays.code == code_pays,
+            category_fn=lambda p: p.etablissement.pays.code == code_pays,
             search_params={'pays_code': code_pays})
 
     return (
@@ -456,7 +457,8 @@ def table_votants(participants):
                 counter[(categorie.code, localisation.code)], search_params)
             sums.append(sum_data)
         lignes.append(SumsLine(categorie.code, sums))
-    return lignes
+    return (lignes, [c.code for c in criteres_categorisation],
+            [c.code for c in criteres_localisation])
 
 
 def tableau_de_bord(request):
@@ -484,13 +486,16 @@ def tableau_de_bord(request):
                'telecopieur', 'notes_facturation', 'notes',
                'notes_hebergement', 'modalite_versement_frais_sejour',
                'numero_facture', 'numero_dossier_transport',)\
-        .avec_region_vote()\
         .select_related('etablissement__region', 'fonction',
+                        'etablissement__pays',
                         'fonction__type_institution',
-                        'implantation__region', 'institution__region', )
+                        'implantation__region', 'institution__region',
+                        'inscription__invitation')
     totaux_regions = ligne_regions(participants, regions)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
     par_statut_qualite = table_membres(participants, regions)
+    par_region_vote, categories_electeurs, localisations_electeurs = \
+        table_votants(participants)
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
         get_donnees_hotels()
@@ -511,6 +516,9 @@ def tableau_de_bord(request):
             'totaux_regions': totaux_regions,
             'par_fonction': par_fonction,
             'par_statut_qualite': par_statut_qualite,
+            'par_region_vote': par_region_vote,
+            'categories_electeurs': categories_electeurs,
+            'localisations_electeurs': localisations_electeurs,
             'nb_invites': nb_invites,
             'hotels': hotels,
             'types_chambres': types_chambres,
