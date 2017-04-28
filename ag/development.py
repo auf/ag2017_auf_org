@@ -3,6 +3,7 @@ import sys
 
 from ag.settings import *  # NOQA
 DEBUG = True
+ALLOWED_HOSTS = ['127.0.0.1']
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 if os.environ.get('DJDT', '0') == '1':

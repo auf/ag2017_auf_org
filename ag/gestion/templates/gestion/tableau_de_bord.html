@@ -66,12 +66,18 @@
     <div class="module">
         <h2>Par point de suivi</h2>
         <table>
-            <thead><tr><th>Point de suivi</th><th>Nombre de participants</th></tr></thead>
+            <thead><tr><th>Point de suivi</th>
+              {% include "gestion/headers_regions.html" %}
+              <th>Aucune</th>
+            </tr></thead>
             <tbody>
-            {% for point_de_suivi in points_de_suivi %}
+            {% for ligne in par_point_de_suivi %}
                 <tr>
-                    <td>{{ point_de_suivi.libelle }}</td>
-                    <td><a href="{% url "participants" %}?suivi={{ point_de_suivi.id }}">{{ point_de_suivi.nombre_participants }}</a></td>
+                    <td>{{ ligne.label }}</td>
+                  {% for sum_data in ligne.sums %}
+                    <td>{{ sum_data|sum_data }}</td>
+                  {% endfor %}
+
                 </tr>
             {% endfor %}
             </tbody>

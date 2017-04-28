@@ -461,7 +461,30 @@ def table_votants(participants):
             [c.code for c in criteres_localisation])
 
 
+def table_points_de_suivi(participants, points_de_suivi, regions):
+    pairs = []
+    for p in participants:
+        region_id = p.get_region_id()
+        for pds in p.suivi.all():
+            pairs.append((region_id, pds.id))
+            pairs.append(pds.id)
+    # noinspection PyArgumentList
+    counter = collections.Counter(pairs)
+    lignes = []
+    for pds in points_de_suivi:
+        sums = [make_sum_data(counter[pds.id], {'suivi': pds.id})]
+        for region in regions:
+            params = {'suivi': pds.id, 'region': region.id}
+            sums.append(make_sum_data(counter[(region.id, pds.id)], params))
+        sums.append(make_sum_data(counter[(None, pds.id)],
+                                  {'suivi': pds.id, 'region': None}))
+        lignes.append(SumsLine(pds.libelle, sums))
+    return lignes
+
+
 def tableau_de_bord(request):
+    import time
+    t = time.time()
     require_permission(request.user, consts.PERM_LECTURE)
     total_participants = Participant.objects.count()
     total_actifs = Participant.actifs.count()
@@ -480,6 +503,8 @@ def tableau_de_bord(request):
     ]
     fonctions = Fonction.objects.all()
     regions = Region.objects.all()
+    points_de_suivi = PointDeSuivi.objects.all()
+    print('ref', time.time() - t)
     participants = Participant.actifs\
         .defer('nom', 'prenom', 'nationalite', 'poste', 'courriel',
                'adresse', 'ville', 'pays', 'code_postal', 'telephone',
@@ -490,16 +515,24 @@ def tableau_de_bord(request):
                         'etablissement__pays',
                         'fonction__type_institution',
                         'implantation__region', 'institution__region',
-                        'inscription__invitation')
+                        'inscription__invitation')\
+        .prefetch_related('suivi')
+    participants = list(participants)
+    print('req', time.time() - t)
     totaux_regions = ligne_regions(participants, regions)
+    print('region', time.time() - t)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
+    print('fonction', time.time() - t)
     par_statut_qualite = table_membres(participants, regions)
+    print('statqal', time.time() - t)
     par_region_vote, categories_electeurs, localisations_electeurs = \
         table_votants(participants)
+    par_point_de_suivi = table_points_de_suivi(participants, points_de_suivi,
+                                               regions)
+    print('calc', time.time() - t)
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
         get_donnees_hotels()
-    nombres_votants, totaux_votants = get_nombre_votants_par_region()
     return render(
         request, 'gestion/tableau_de_bord.html',
         {
@@ -511,8 +544,7 @@ def tableau_de_bord(request):
             'total_desactives': total_participants - total_actifs,
             'total_problematiques': total_problematiques,
             'par_probleme': par_probleme,
-            'points_de_suivi':
-            PointDeSuivi.objects.avec_nombre_participants().all(),
+            'par_point_de_suivi': par_point_de_suivi,
             'totaux_regions': totaux_regions,
             'par_fonction': par_fonction,
             'par_statut_qualite': par_statut_qualite,
@@ -524,8 +556,6 @@ def tableau_de_bord(request):
             'types_chambres': types_chambres,
             'donnees_hotels_par_jour': donnees_hotels_par_jour,
             'totaux_hotels': totaux_hotels,
-            'nombres_votants': nombres_votants,
-            'totaux_votants': totaux_votants,
             'activites': get_donnees_activites(),
             'prises_en_charge': get_donnees_prise_en_charge(),
             'nb_tout_paye': Participant.actifs.filter(

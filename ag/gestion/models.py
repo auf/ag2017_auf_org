@@ -982,6 +982,10 @@ class Participant(RenseignementsPersonnels):
         region = self.get_region()
         return region.nom if region else u""
 
+    def get_region_id(self):
+        region = self.get_region()
+        return region.id if region else None
+
     def get_region_code(self):
         region = self.get_region()
         return region.code if region else u""
