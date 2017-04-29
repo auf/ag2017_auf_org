@@ -388,8 +388,8 @@ def ligne_regions(participants, regions):
     return SumsLine(label=u"Tous", sums=sums)
 
 
-CritereElecteur = collections.namedtuple(
-    'CritereElecteur', ('code', 'category_fn', 'search_params'))
+CritereTableau = collections.namedtuple(
+    'CritereTableau', ('code', 'category_fn', 'search_params'))
 
 
 CATEGORIES_VOTANTS = (
@@ -403,18 +403,18 @@ CATEGORIES_VOTANTS = (
 
 
 def categories_votants():
-    return [CritereElecteur(*d) for d in CATEGORIES_VOTANTS]
+    return [CritereTableau(*d) for d in CATEGORIES_VOTANTS]
 
 
 def localisation_votants():
     def critere_region(code_region):
-        return CritereElecteur(
+        return CritereTableau(
             code=consts.REGIONS_VOTANTS_DICT[code_region],
             category_fn=lambda p: p.get_region_vote() == code_region,
             search_params={'region_vote': code_region})
 
     def critere_pays(code_pays, nom_pays):
-        return CritereElecteur(
+        return CritereTableau(
             code=nom_pays,
             category_fn=lambda p: p.etablissement.pays.code == code_pays,
             search_params={'pays_code': code_pays})
