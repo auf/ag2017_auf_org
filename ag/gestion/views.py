@@ -28,6 +28,7 @@ from ag.gestion import pdf
 from ag.gestion import consts
 from ag.gestion import forms
 from ag.gestion.models import *
+from ag.gestion.models import EN_COURS
 from ag.gestion.pdf import facture_response
 from ag.reference.models import Etablissement, Region, CODE_ASSOCIE, \
     CODE_TITULAIRE, CODE_ETAB_ENSEIGNEMENT, CODE_CENTRE_RECHERCHE, CODE_RESEAU
@@ -61,6 +62,8 @@ def participants_view(request):
             suivi = form.cleaned_data['suivi']
             instance_auf = form.cleaned_data['instance_auf']
             type_institution = form.cleaned_data['type_institution']
+            prise_en_charge_inscription = \
+                form.cleaned_data['prise_en_charge_inscription']
             prise_en_charge_transport = \
                 form.cleaned_data['prise_en_charge_transport']
             prise_en_charge_sejour = \
@@ -109,6 +112,11 @@ def participants_view(request):
                 participants = participants.filter(
                     fonction__type_institution=type_institution
                 )
+            if prise_en_charge_inscription:
+                participants = participants.filter(
+                    prise_en_charge_inscription=(
+                        critere_prise_en_charge_bool(
+                            prise_en_charge_inscription)))
             if prise_en_charge_transport:
                 participants = participants.filter(
                     prise_en_charge_transport=(
@@ -126,7 +134,8 @@ def participants_view(request):
                 participants = participants.filter(
                     etablissement__pays__code=pays_code
                 )
-            if region_vote:
+            if region_vote and \
+                    region_vote in consts.REGIONS_VOTANTS_DICT.keys():
                 participants = participants.filter_region_vote(region_vote)
             if region:
                 participants = participants.filter(
@@ -482,6 +491,71 @@ def table_points_de_suivi(participants, points_de_suivi, regions):
     return lignes
 
 
+def criteres_prise_en_charge():
+    return (
+        CritereTableau(u"Frais d'inscription",
+                       lambda p: p.prise_en_charge_inscription,
+                       {'prise_en_charge_inscription': forms.PEC_ACCEPTEE}),
+        CritereTableau(u"Transport",
+                       lambda p: p.prise_en_charge_transport,
+                       {'prise_en_charge_transport': forms.PEC_ACCEPTEE}),
+        CritereTableau(mark_safe(u"<span class=\"qualite\">Complétée</span>"),
+                       lambda p: p.prise_en_charge_transport and
+                                 p.statut_dossier_transport == EN_COURS,
+                       {'prise_en_charge_transport': forms.PEC_ACCEPTEE,
+                        'statut_dossier_transport': EN_COURS}),
+        CritereTableau(mark_safe(u"<span class=\"qualite\">À traiter</span>"),
+                       lambda p: p.transport_non_organise,
+                       {'probleme': 'transport_non_organise', }),
+        CritereTableau(u"Hébergement",
+                       lambda p: p.prise_en_charge_sejour,
+                       {'prise_en_charge_sejour': forms.PEC_ACCEPTEE}),
+        CritereTableau(mark_safe(u"<span class=\"qualite\">Complétée </span>"),
+                       lambda p: (
+                       p.prise_en_charge_sejour and not p.hotel_manquant and
+                       not p.nb_places_incorrect),
+                       {}),
+        CritereTableau(mark_safe(u"<span class=\"qualite\">À traiter </span>"),
+                       lambda p: p.hotel_manquant,
+                       {'probleme': 'hotel_manquant'}),
+        CritereTableau(mark_safe(u"<span class=\"qualite\">"
+                                 u"Occupation incorrecte</span>"),
+                       lambda p: p.nb_places_incorrect,
+                       {'probleme': 'nb_places_incorrect'}),
+    )
+
+PROBLEMES_TABLEAU_DE_BORD = (
+    'transport_non_organise',
+    'hotel_manquant',
+    'nb_places_incorrect',
+    'paiement_en_trop',
+    'solde_a_payer',
+)
+
+
+def table_prise_en_charge(participants, regions):
+    pairs = []
+    criteres = criteres_prise_en_charge()
+    for p in participants:
+        region_id = p.get_region_id()
+        for critere in criteres:
+            if critere.category_fn(p):
+                pairs.append((region_id, critere.code))
+                pairs.append(critere.code)
+    # noinspection PyArgumentList
+    counter = collections.Counter(pairs)
+    lignes = []
+    for critere in criteres:
+        sums = [make_sum_data(counter[critere.code], critere.search_params)]
+        for region in regions:
+            params = critere.search_params.copy()
+            params.update({'region': region.id})
+            sum_data = make_sum_data(counter[(region.id, critere.code)], params)
+            sums.append(sum_data)
+        lignes.append(SumsLine(critere.code, sums))
+    return lignes
+
+
 def tableau_de_bord(request):
     import time
     t = time.time()
@@ -491,16 +565,6 @@ def tableau_de_bord(request):
     total_problematiques = Participant.actifs \
         .sql_filter('%s', 'problematique') \
         .count()
-    par_probleme = [
-        {
-            'code': code,
-            'libelle': probleme['libelle'],
-            'nombre': Participant.actifs.sql_filter('%s',
-                                                    probleme['sql_expr']
-                                                    ).count()
-        }
-        for code, probleme in consts.PROBLEMES.items()
-    ]
     fonctions = Fonction.objects.all()
     regions = Region.objects.all()
     points_de_suivi = PointDeSuivi.objects.all()
@@ -516,6 +580,7 @@ def tableau_de_bord(request):
                         'fonction__type_institution',
                         'implantation__region', 'institution__region',
                         'inscription__invitation')\
+        .avec_problemes(*PROBLEMES_TABLEAU_DE_BORD)\
         .prefetch_related('suivi')
     participants = list(participants)
     print('req', time.time() - t)
@@ -529,6 +594,7 @@ def tableau_de_bord(request):
         table_votants(participants)
     par_point_de_suivi = table_points_de_suivi(participants, points_de_suivi,
                                                regions)
+    par_prise_en_charge = table_prise_en_charge(participants, regions)
     print('calc', time.time() - t)
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
@@ -543,12 +609,12 @@ def tableau_de_bord(request):
             'total_actifs': total_actifs,
             'total_desactives': total_participants - total_actifs,
             'total_problematiques': total_problematiques,
-            'par_probleme': par_probleme,
             'par_point_de_suivi': par_point_de_suivi,
             'totaux_regions': totaux_regions,
             'par_fonction': par_fonction,
             'par_statut_qualite': par_statut_qualite,
             'par_region_vote': par_region_vote,
+            'par_prise_en_charge': par_prise_en_charge,
             'categories_electeurs': categories_electeurs,
             'localisations_electeurs': localisations_electeurs,
             'nb_invites': nb_invites,

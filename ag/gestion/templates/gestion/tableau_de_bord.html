@@ -45,28 +45,13 @@
 		<td>Désactivés</td>
 		<td><a href="{% url "participants" %}?desactive=on">{{ total_desactives }}</a></td>
 	</tr>
-  <thead>
-	<tr>
-		<th>Problématiques</th>
-        <th><a href="{% url "participants" %}?probleme=problematique">{{ total_problematiques }}</a></th>
-	</tr>
-	</thead>
-  <tbody>
-{% for probleme in par_probleme %}
-    {% if probleme.nombre %}
-    <tr>
-    	<td>{{ probleme.libelle }}</td>
-    	<td><a href="{% url "participants" %}?probleme={{ probleme.code }}">{{ probleme.nombre }}</a></td>
-    </tr>
-    {% endif %}
-{% endfor %}
   </tbody>
 </table>
 </div>
     <div class="module">
         <h2>Par point de suivi</h2>
         <table>
-            <thead><tr><th>Point de suivi</th>
+            <thead><tr><th width="25%">Point de suivi</th>
               {% include "gestion/headers_regions.html" %}
               <th>Aucune</th>
             </tr></thead>
@@ -87,7 +72,7 @@
     <h2>Par fonction</h2>
     <table>
         <thead><tr>
-          <th>Fonction</th>
+          <th width="25%">Fonction</th>
           {% include "gestion/headers_regions.html" %}
           </tr></thead>
         <tbody>
@@ -113,12 +98,11 @@
   <table>
     <thead>
     <tr>
-      <th>Statut/Qualité</th>
+      <th width="25%">Statut/Qualité</th>
       {% include "gestion/headers_regions.html" %}
     </tr>
     </thead>
     <tbody>
-    <tr>
       {% for ligne in par_statut_qualite %}
         <tr>
           <td>{{ ligne.label }}</td>
@@ -127,18 +111,16 @@
           {% endfor %}
         </tr>
       {% endfor %}
-    </tr>
     </tbody>
   </table>
 </div>
-
 
 <div class="module">
     <h2>Votants</h2>
     <table>
         <thead>
             <tr>
-              <th>Membres votants</th>
+              <th width="25%">Membres votants</th>
               <th>Total</th>
               {% for localisation in localisations_electeurs %}
                 <th>{{localisation}}</th>
@@ -160,6 +142,28 @@
 </div>
 
 <div class="module">
+  <h2>Prise en charge</h2>
+  <table>
+    <thead>
+    <tr>
+      <th width="25%"></th>
+      {% include "gestion/headers_regions.html" %}
+    </tr>
+    </thead>
+    <tbody>
+      {% for ligne in par_prise_en_charge %}
+        <tr>
+          <td>{{ ligne.label }}</td>
+          {% for sum_data in ligne.sums %}
+            <td>{{ sum_data|sum_data }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+  <div class="module">
     <h2>Occupation des Hôtels</h2>
     <table>
         <thead><tr><th rowspan="2">Date</th>

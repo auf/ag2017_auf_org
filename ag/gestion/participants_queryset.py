@@ -238,6 +238,15 @@ class ParticipantsQuerySet(QuerySet):
     def filter_representants_mandates(self):
         return self.filter(inscription__invitation__pour_mandate=True)
 
+    def avec_problemes(self, *problemes_codes):
+        qs = self
+        for probleme_code in problemes_codes:
+            probleme = consts.PROBLEMES[probleme_code]
+            sql_expr_code = probleme['sql_expr']
+            qs = qs.extra(select={
+                sql_expr_code: self.sql_expr(sql_expr_code)})
+        return qs
+
     def avec_region_vote(self):
         """
         Attention: petite assymétrie avec filter_region_vote: les

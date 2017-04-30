@@ -78,6 +78,11 @@ class RechercheParticipantForm(Form):
     suivi = ModelChoiceField(
         label=u'Suivi', queryset=PointDeSuivi.objects.all(), widget=Select,
         required=False)
+    prise_en_charge_inscription = ChoiceField(
+        label=u"Prise en charge frais d'inscription",
+        choices=PRISE_EN_CHARGE_CHOICES,
+        required=False
+    )
     prise_en_charge_transport = ChoiceField(
         label=u"Prise en charge transport", choices=PRISE_EN_CHARGE_CHOICES,
         required=False
