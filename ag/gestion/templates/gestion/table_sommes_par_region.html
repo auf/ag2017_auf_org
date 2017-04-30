@@ -1,0 +1,24 @@
+{% load gestion %}
+<div class="module">
+  <h2>{{ titre }}</h2>
+  <table>
+    <thead>
+    <tr>
+      <th width="25%"></th>
+      {% include "gestion/headers_regions.html" %}
+        <th width="5%">Aucune</th>
+
+    </tr>
+    </thead>
+    <tbody>
+      {% for ligne in lignes %}
+        <tr>
+          <td>{{ ligne.label }}</td>
+          {% for sum_data in ligne.sums %}
+            <td>{{ sum_data|sum_data }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

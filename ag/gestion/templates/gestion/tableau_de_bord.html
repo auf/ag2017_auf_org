@@ -142,29 +142,8 @@
     </table>
 </div>
 
-<div class="module">
-  <h2>Prise en charge</h2>
-  <table>
-    <thead>
-    <tr>
-      <th width="25%"></th>
-      {% include "gestion/headers_regions.html" %}
-        <th width="5%">Aucune</th>
 
-    </tr>
-    </thead>
-    <tbody>
-      {% for ligne in par_prise_en_charge %}
-        <tr>
-          <td>{{ ligne.label }}</td>
-          {% for sum_data in ligne.sums %}
-            <td>{{ sum_data|sum_data }}</td>
-          {% endfor %}
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  {% include "gestion/table_sommes_par_region.html" with titre="Prise en charge" lignes=par_prise_en_charge %}
 
   <div class="module">
     <h2>Occupation des Hôtels</h2>
