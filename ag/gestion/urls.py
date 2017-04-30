@@ -12,7 +12,7 @@ from .views import (
 
 urlpatterns = patterns(
     'ag.gestion.views',
-    url(r'^$', 'tableau_de_bord', name='tableau_de_bord'),
+    url(r'^$', 'tableau_de_bord_view', name='tableau_de_bord'),
     url(r'^regles$',  TemplateView.as_view(template_name='gestion/regles.html'),
         name='regles'),
     url(r'^liste_etablissements_json/$', 'liste_etablissements_json',
