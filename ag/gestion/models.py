@@ -40,8 +40,6 @@ __all__ = ('Participant',
            'get_nombre_votants_par_region',
            'get_inscriptions_par_mois',
            'PointDeSuivi',
-           'get_donnees_activites',
-           'get_donnees_prise_en_charge',
            'Hotel',
            'Fichier',
            'VolGroupe',
@@ -1374,54 +1372,6 @@ def get_nombre_votants_par_region():
                                              nb_titulaires + nb_associes))
     return donnees_votants, (total_titulaires, total_associes,
                              total_titulaires + total_associes)
-
-
-def get_donnees_activites():
-    donnees_activites = []
-    for activite in Activite.objects.with_stats().all():
-        nombre_pris_en_charge = activite.nombre_pris_en_charge()
-        nombre_non_pris_en_charge = activite.nombre_non_pris_en_charge()
-        nombre_invites = activite.nombre_invites()
-        total = nombre_pris_en_charge + nombre_non_pris_en_charge + \
-            nombre_invites
-        donnees_activites.append((
-            activite.libelle,
-            nombre_pris_en_charge,
-            nombre_non_pris_en_charge,
-            nombre_invites,
-            total
-        ))
-    return donnees_activites
-
-
-# noinspection PyTypeChecker
-def get_donnees_prise_en_charge():
-    def representants(qs):
-        return qs.filter(fonction__code=consts.FONCTION_REPR_UNIVERSITAIRE)
-
-    qs_insc = Participant.actifs.filter(prise_en_charge_inscription=True)
-    qs_trans = Participant.actifs.filter(prise_en_charge_transport=True)
-    qs_hebergement = Participant.actifs.filter(prise_en_charge_sejour=True)
-    qs_activites = Participant.actifs.filter(prise_en_charge_activites=True)
-    qs_aucune = Participant.actifs.exclude(prise_en_charge_inscription=True,
-                                           prise_en_charge_activites=True,
-                                           prise_en_charge_sejour=True,
-                                           prise_en_charge_transport=True)
-    donnees = [(u"Participants",
-                qs_insc.count(),
-                qs_trans.count(),
-                qs_hebergement.count(),
-                qs_activites.count(),
-                qs_aucune.count(),
-                Participant.actifs.count()),
-               (u"Représentants mandatés avec droit de vote",
-                representants(qs_insc).count(),
-                representants(qs_trans).count(),
-                representants(qs_hebergement).count(),
-                representants(qs_activites).count(),
-                representants(qs_aucune).count(),
-                representants(Participant.actifs).count())]
-    return donnees
 
 
 class InscriptionWeb(Inscription):

@@ -671,14 +671,6 @@ def tableau_de_bord(request):
             'types_chambres': types_chambres,
             'donnees_hotels_par_jour': donnees_hotels_par_jour,
             'totaux_hotels': totaux_hotels,
-            'activites': get_donnees_activites(),
-            'prises_en_charge': get_donnees_prise_en_charge(),
-            'nb_tout_paye': Participant.actifs.filter(
-                suivi__code="frais_payes"
-            ).count(),
-            'nb_tout_paye_droit_de_vote': Participant.actifs.filter(
-                suivi__code="frais_payes",  # statut__droit_de_vote=True
-            ).count(),
         })
 
 
