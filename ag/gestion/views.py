@@ -74,6 +74,7 @@ def participants_view(request):
             fonction = form.cleaned_data['fonction']
             probleme = form.cleaned_data['probleme']
             hotel = form.cleaned_data['hotel']
+            activite = form.cleaned_data['activite']
             pas_de_solde_a_payer = form.cleaned_data['pas_de_solde_a_payer']
             desactive = form.cleaned_data['desactive']
 
@@ -152,6 +153,8 @@ def participants_view(request):
                 participants = participants.filter(fonction=fonction)
             if hotel:
                 participants = participants.filter(hotel=hotel)
+            if activite:
+                participants = participants.filter(activites=activite)
             if pas_de_solde_a_payer:
                 participants = participants.sql_filter(u"(%s)",
                                                        'aucun_solde_a_payer')
