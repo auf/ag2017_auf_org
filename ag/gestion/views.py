@@ -307,8 +307,8 @@ def renseignements_personnels_view(request, id_participant):
 
 
 def nb_par_region(participants, category_fn):
-    pairs = [(category_fn(p), p.get_region().id)
-             for p in participants if p.get_region()]
+    pairs = [(category_fn(p), p.get_region_id())
+             for p in participants]
     # noinspection PyArgumentList
     return collections.Counter(pairs)
 
@@ -345,6 +345,10 @@ def table_fonctions_regions(participants, fonctions, regions):
                                      {'fonction': fonction.id,
                                       'region': region.id})
             sums.append(sum_data)
+        sum_data = make_sum_data(region_counter[(fonction.id, None)],
+                                 {'fonction': fonction.id,
+                                  'region': forms.AUCUNE_REGION})
+        sums.append(sum_data)
         sums_lines.append(SumsLine(fonction.libelle, sums))
 
     return sums_lines
@@ -394,11 +398,11 @@ def table_membres(participants, regions):
 
 def ligne_regions(participants, regions):
     # noinspection PyArgumentList
-    counter = collections.Counter((p.get_region().id for p in participants
-                                   if p.get_region()))
+    counter = collections.Counter((p.get_region_id() for p in participants))
     sums = [make_sum_data(len(participants), {})]
     for region in regions:
         sums.append(make_sum_data(counter[region.id], {'region': region.id}))
+    sums.append(make_sum_data(counter[None], {'region': forms.AUCUNE_REGION}))
     return SumsLine(label=u"Tous", sums=sums)
 
 
