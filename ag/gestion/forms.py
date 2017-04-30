@@ -114,6 +114,8 @@ class RechercheParticipantForm(Form):
                              required=False)
     pays_code = CharField(max_length=5, required=False)
     region_vote = CharField(max_length=12, required=False)
+    pas_de_solde_a_payer = BooleanField(label=u"Aucun solde à payer",
+                                        required=False)
     desactive = BooleanField(
         label=u"Désactivés", required=False
     )

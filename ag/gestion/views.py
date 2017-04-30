@@ -75,6 +75,7 @@ def participants_view(request):
             fonction = form.cleaned_data['fonction']
             probleme = form.cleaned_data['probleme']
             hotel = form.cleaned_data['hotel']
+            pas_de_solde_a_payer = form.cleaned_data['pas_de_solde_a_payer']
             desactive = form.cleaned_data['desactive']
 
             participants = Participant.objects.filter(desactive=desactive) \
@@ -152,6 +153,9 @@ def participants_view(request):
                 participants = participants.filter(fonction=fonction)
             if hotel:
                 participants = participants.filter(hotel=hotel)
+            if pas_de_solde_a_payer:
+                participants = participants.sql_filter(u"(%s)",
+                                                       'aucun_solde_a_payer')
             if probleme:
                 if probleme == 'solde_a_payer':
                     participants = participants.sql_filter('%s > 0', 'solde')
@@ -540,12 +544,17 @@ PROBLEMES_TABLEAU_DE_BORD = (
     'nb_places_incorrect',
     'paiement_en_trop',
     'solde_a_payer',
+    'delinquant',
 )
 
 
 def table_prise_en_charge(participants, regions):
-    pairs = []
     criteres = criteres_prise_en_charge()
+    return make_sums_lines(participants, criteres, regions)
+
+
+def make_sums_lines(participants, criteres, regions):
+    pairs = []
     for p in participants:
         region_id = p.get_region_id()
         for critere in criteres:
@@ -567,6 +576,31 @@ def table_prise_en_charge(participants, regions):
         sums.append(make_sum_data(counter[(None, critere.code)], params))
         lignes.append(SumsLine(critere.code, sums))
     return lignes
+
+
+def criteres_paiement():
+    return (
+        CritereTableau(u"Cotisation impayée (3 ans en plus)",
+                       lambda p: p.delinquant,
+                       {'probleme': 'delinquant'}),
+        CritereTableau(u"Solde impayé",
+                       lambda p: p.solde_a_payer,
+                       {'probleme': 'solde_a_payer'}),
+        CritereTableau(u"Aucun solde à payer",
+                       lambda p: not p.solde_a_payer and not p.paiement_en_trop,
+                       {'pas_de_solde_a_payer': 'on'}),
+        CritereTableau(u"Paiement en trop",
+                       lambda p: p.paiement_en_trop,
+                       {'probleme': 'paiement_en_trop'}),
+        # CritereTableau(u"Paiement NDF nécessaire",
+        #                lambda p: p.paiement_en_trop,
+        #                {'probleme': 'paiement_en_trop'}),
+    )
+
+
+def table_paiements(participants, regions):
+    criteres = criteres_paiement()
+    return make_sums_lines(participants, criteres, regions)
 
 
 def tableau_de_bord(request):
@@ -608,6 +642,7 @@ def tableau_de_bord(request):
     par_point_de_suivi = table_points_de_suivi(participants, points_de_suivi,
                                                regions)
     par_prise_en_charge = table_prise_en_charge(participants, regions)
+    par_statut_paiement = table_paiements(participants, regions)
     print('calc', time.time() - t)
     nb_invites = Invite.objects.filter(participant__desactive=False).count()
     hotels, types_chambres, donnees_hotels_par_jour, totaux_hotels = \
@@ -628,6 +663,7 @@ def tableau_de_bord(request):
             'par_statut_qualite': par_statut_qualite,
             'par_region_vote': par_region_vote,
             'par_prise_en_charge': par_prise_en_charge,
+            'par_statut_paiement': par_statut_paiement,
             'categories_electeurs': categories_electeurs,
             'localisations_electeurs': localisations_electeurs,
             'nb_invites': nb_invites,

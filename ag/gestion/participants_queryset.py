@@ -217,6 +217,8 @@ class ParticipantsQuerySet(QuerySet):
                 SOMME_PAIEMENTS_PAYPAL)
         elif name == 'solde_a_payer':
             return "(%s > 0)" % self.sql_expr('solde')
+        elif name == 'aucun_solde_a_payer':
+            return "(%s = 0)" % self.sql_expr('solde')
         elif name == 'paiement_en_trop':
             return "(%s < 0)" % self.sql_expr('solde')
         elif name == 'total_deja_paye_sql':
