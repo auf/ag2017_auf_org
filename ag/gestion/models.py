@@ -671,7 +671,7 @@ class Participant(RenseignementsPersonnels):
     def nombre_invites(self):
         """ Retourne le nombre total d'invités
         """
-        return self.invite_set.count()
+        return len(self.invite_set.all())
 
     def reserver_chambres(self, type_chambre, nombre):
         """ Réserve le nombre de chambres du type demandé

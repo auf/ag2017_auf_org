@@ -10,6 +10,7 @@ from .models import (
     Fonction,
     Participant,
     PointDeSuivi,
+    Activite,
     EN_COURS,
 )
 
@@ -319,10 +320,38 @@ def table_paiements(participants, regions):
     return make_sums_lines(participants, criteres, regions)
 
 
+def table_activites(participants, activites, regions):
+    pairs = []
+    for p in participants:
+        region_id = p.get_region_id()
+        for pa in p.participationactivite_set.all():
+            pairs.append((region_id, pa.activite_id))
+            pairs.append(pa.activite_id)
+            if pa.avec_invites:
+                nb_invites = p.nombre_invites()
+                pairs.extend(
+                    [(region_id, pa.activite_id), pa.activite_id] * nb_invites)
+    # noinspection PyArgumentList
+    counter = collections.Counter(pairs)
+    lignes = []
+    for activite in activites:
+        sums = [make_sum_data(counter[activite.id], {'activite': activite.id})]
+        for region in regions:
+            params = {'activite': activite.id, 'region': region.id}
+            sums.append(make_sum_data(counter[(region.id, activite.id)],
+                                      params))
+        sums.append(make_sum_data(counter[(None, activite.id)],
+                                  {'activite': activite.id,
+                                   'region': forms.AUCUNE_REGION}))
+        lignes.append(SumsLine(activite.libelle, sums))
+    return lignes
+
+
 def get_donnees():
     fonctions = Fonction.objects.all()
     regions = Region.objects.all()
     points_de_suivi = PointDeSuivi.objects.all()
+    activites = Activite.objects.all()
     participants = Participant.actifs\
         .defer('nom', 'prenom', 'nationalite', 'poste', 'courriel',
                'adresse', 'ville', 'pays', 'code_postal', 'telephone',
@@ -335,7 +364,8 @@ def get_donnees():
                         'implantation__region', 'institution__region',
                         'inscription__invitation')\
         .avec_problemes(*PROBLEMES_TABLEAU_DE_BORD)\
-        .prefetch_related('suivi')
+        .prefetch_related('suivi', 'participationactivite_set',
+                          'invite_set')
     participants = list(participants)
     totaux_regions = ligne_regions(participants, regions)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
@@ -346,6 +376,7 @@ def get_donnees():
                                                regions)
     par_prise_en_charge = table_prise_en_charge(participants, regions)
     par_statut_paiement = table_paiements(participants, regions)
+    par_activite = table_activites(participants, activites, regions)
     return {
         'totaux_regions': totaux_regions,
         'par_fonction': par_fonction,
@@ -356,5 +387,6 @@ def get_donnees():
         'par_point_de_suivi': par_point_de_suivi,
         'par_prise_en_charge': par_prise_en_charge,
         'par_statut_paiement': par_statut_paiement,
-
+        'par_activite': par_activite,
+        'regions': regions,
     }
