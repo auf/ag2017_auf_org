@@ -28,7 +28,6 @@ from ag.gestion import pdf
 from ag.gestion import consts
 from ag.gestion import forms
 from ag.gestion.models import *
-from ag.gestion.models import EN_COURS
 from ag.gestion.pdf import facture_response
 from ag.reference.models import Etablissement, Region, CODE_ASSOCIE, \
     CODE_TITULAIRE, CODE_ETAB_ENSEIGNEMENT, CODE_CENTRE_RECHERCHE, CODE_RESEAU

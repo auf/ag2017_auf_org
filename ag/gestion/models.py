@@ -60,6 +60,7 @@ __all__ = ('Participant',
            'InfosDepartArrivee',
            'infos_depart_arrivee_from_infos_vols',
            'EMPTY_ARRIVEE', 'EMPTY_DEPART',
+           'EN_COURS',
            )
 
 
