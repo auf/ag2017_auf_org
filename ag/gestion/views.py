@@ -138,11 +138,16 @@ def participants_view(request):
                     region_vote in consts.REGIONS_VOTANTS_DICT.keys():
                 participants = participants.filter_region_vote(region_vote)
             if region:
-                participants = participants.filter(
-                    Q(etablissement__region=region) |
-                    Q(institution__region=region) |
-                    Q(implantation__region=region)
-                )
+                if region == forms.AUCUNE_REGION:
+                    participants = participants.filter(
+                        etablissement__isnull=True,
+                        institution__isnull=True,
+                        implantation__isnull=True)
+                else:
+                    participants = participants.filter(
+                        Q(etablissement__region_id=region) |
+                        Q(institution__region_id=region) |
+                        Q(implantation__region_id=region))
             if fonction:
                 participants = participants.filter(fonction=fonction)
             if hotel:
@@ -486,7 +491,7 @@ def table_points_de_suivi(participants, points_de_suivi, regions):
             params = {'suivi': pds.id, 'region': region.id}
             sums.append(make_sum_data(counter[(region.id, pds.id)], params))
         sums.append(make_sum_data(counter[(None, pds.id)],
-                                  {'suivi': pds.id, 'region': None}))
+                                  {'suivi': pds.id, 'region': 'aucune'}))
         lignes.append(SumsLine(pds.libelle, sums))
     return lignes
 

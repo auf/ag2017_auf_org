@@ -50,7 +50,7 @@
     <td>{{ participant.nom_institution }}</td>
     <td>{{ participant.fonction.type_institution.libelle }}</td>
     <td>{{ participant.pays }}</td>
-    <td>{{ participant.get_region }}</td>
+    <td>{{ participant.get_region|default_if_none:"N/A" }}</td>
     <td>{{ participant.numero }}</td>
     <td>{{ participant.get_prise_en_charge_transport_text }}</td>
     <td>{{ participant.get_prise_en_charge_sejour_text }}</td>

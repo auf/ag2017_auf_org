@@ -43,6 +43,17 @@ PRISE_EN_CHARGE_CHOICES = (
     (PEC_A_TRAITER, u'À traiter'),
 )
 
+AUCUNE_REGION = 'aucune'
+
+
+def region_choices():
+    return (
+        (None, u"--------"),
+        (AUCUNE_REGION, u'Sans région')
+    ) + tuple(
+        (region.id, region.nom) for region in Region.objects.all()
+    )
+
 
 class RechercheParticipantForm(Form):
     # noinspection PyTypeChecker
@@ -92,8 +103,8 @@ class RechercheParticipantForm(Form):
         required=False
     )
     pays = CharField(label=u"Pays", required=False)
-    region = ModelChoiceField(
-        label=u"Région", queryset=Region.objects.all(), required=False
+    region = ChoiceField(
+        label=u"Région", choices=region_choices, required=False
     )
     probleme = ChoiceField(
         label=u"Problématique", choices=PROBLEME_CHOICES,
