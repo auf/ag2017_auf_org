@@ -491,7 +491,8 @@ def table_points_de_suivi(participants, points_de_suivi, regions):
             params = {'suivi': pds.id, 'region': region.id}
             sums.append(make_sum_data(counter[(region.id, pds.id)], params))
         sums.append(make_sum_data(counter[(None, pds.id)],
-                                  {'suivi': pds.id, 'region': 'aucune'}))
+                                  {'suivi': pds.id,
+                                   'region': forms.AUCUNE_REGION}))
         lignes.append(SumsLine(pds.libelle, sums))
     return lignes
 
@@ -557,6 +558,9 @@ def table_prise_en_charge(participants, regions):
             params.update({'region': region.id})
             sum_data = make_sum_data(counter[(region.id, critere.code)], params)
             sums.append(sum_data)
+        params = critere.search_params.copy()
+        params.update({'region': forms.AUCUNE_REGION})
+        sums.append(make_sum_data(counter[(None, critere.code)], params))
         lignes.append(SumsLine(critere.code, sums))
     return lignes
 
