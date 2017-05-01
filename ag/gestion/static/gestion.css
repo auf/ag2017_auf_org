@@ -447,6 +447,10 @@ tr.th-formset th {
     line-height: 20px;
 }
 
+#form-candidatures .RES { 
+    color: #601a28;
+}
+
 #form-candidatures th { 
     background-color: #f1eedd;
     font-weight: normal;
