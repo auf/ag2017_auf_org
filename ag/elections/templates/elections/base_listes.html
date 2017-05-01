@@ -6,13 +6,23 @@
   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}elections.css" />
 </head>
 <body>
-<div class="surtitre">
-{% block surtitre %}
-{% endblock %}
+<div class="entete">
+      17e Assemblée générale des membres de l’AUF - 
+      Marrakech (Maroc) 2017
 </div>
-<div class="titre">
-  {% block titre %}
-  {% endblock %}
+<div class="logo">
+      <img src="{{ STATIC_URL }}img/logo.jpg"
+      alt="Logo AG AUF">
+</div>
+<div class="tetiere">
+    <div class="surtitre">
+      {% block surtitre %}
+      {% endblock %}
+    </div>
+    <div class="titre">
+      {% block titre %}
+      {% endblock %}
+    </div>
 </div>
 {% block tables %}
 {% endblock %}

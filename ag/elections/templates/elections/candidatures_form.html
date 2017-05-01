@@ -36,7 +36,7 @@
           <td width="10%"><strong>{{ form.candidat.nom }}, 
           {{ form.candidat.prenom }}</strong></td>
           <td width="5%">{{ form.candidat.poste }}</td>
-          <td width="20%"><strong>{{ form.candidat.etablissement_nom }}</strong></td>
+          <td width="20%" class="{% if 'cass-res' in  form.candidat.candidatures_possibles %}RES{% else %}{% endif %}"><strong>{{ form.candidat.etablissement_nom }}</strong></td>
           <td width="10%">
             {% if form.suppleant %}
             {{ form.suppleant.nom_complet }}
