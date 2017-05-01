@@ -11,53 +11,82 @@
 <h2>État des paiements</h2>
 <div id="utils">
     <p>Rapport généré le :  {% now "D, d-m-Y à H:s" %}</p>
-    <p><a href="{% url "etat_paiements_csv" %}">Télécharger la liste en format CSV
+    <p><a href="{% url "etat_paiements_csv" %}">Télécharger la liste complète 
+    en format CSV
     </a></p>
 </div>
-<table>
+<div id="filtre_region">
+Filter par Dir REg :
+<button target=".A" class="butt">DRA</button>
+<button target=".ACGL" class="butt">DRACGL</button>
+<button target=".AO" class="butt">DRAO</button>
+<button target=".AP" class="butt">DRAP</button>
+<button target=".C" class="butt">DRC</button>
+<button target=".ECO" class="butt">DRECO</button>
+<button target=".EO" class="butt">DREO</button>
+<button target=".M" class="butt">DRM</button>
+<button target=".MO" class="butt">DRMO</button>
+<button target=".OI" class="butt">DROI</button>
+<button target=".rangs" class="butt">Afficher tout</button>
+</div>
+<table id="payements">
     <thead>
         <tr>
-            <th colspan="6">Participant</th>
-            <th colspan="2">Établissement</th>
+            <th colspan="5">Participant</th>
+            <th colspan="3">Institution</th>
             <th>Invités</th>
             <th>Inscription</th>
             <th colspan="3">Transport</th>
-            <th colspan="2">Séjour</th>
+            <th colspan="">Séjour</th>
             <th>Activités</th>
-            <th colspan="3">Facturation</th>
-            <th colspan="2">Frais de séjour</th>
+            <th colspan="5">Facturation</th>
+            <th colspan="3">Note de frais</th>
         </tr>
         <tr>
             <th>Civilité</th><th>Nom</th><th>Prénom</th><th>Poste</th>
-            <th>Fonction</th><th>Région</th><th>Établissement</th>
-          <th>Délinquant ?</th>
-            <th>Nombre</th><th>Prise en charge</th>
-            <th>Prise en charge</th><th>Transport organisé AUF</th>
-            <th>Prise en charge</th><th>Réservation par AUF</th>
-            <th>Prise en charge</th><th>Fact. validée</th>
-            <th>Mode paiement</th><th>Accompte (&euro;)</th>
-            <th>Solde</th><th>Total (&euro;)</th><th>Modalité versement</th>
+            <th>Fonction AG</th>
+            <th>Intitulé</th><th>Région</th><th>Délinquant ?</th>
+            <th>Nombre</th>
+            <th>PEC inscription</th>
+            <th>PEC transport</th><th>Organisé AUF</th>
+            <th>PEC hotel</th><th>Réservation par AUF</th>
+            <th>PEC activite</th>
+            <th>TOTAL (&euro;)</th><th>Accompte (&euro;)</th><th>Mode paiement</th>
+            <th>Solde (&euro;)</th><th>Fact. validée</th><th>Montant (&euro;)</th>
+            <th>Modalité versement</th><th>Note versée</th>
         </tr>
     </thead>
     <tbody>
     {% for p in donnees %}
-        <tr class="liste_{% cycle 'odd' 'even' %}">
+        <tr class="rangs liste_{% cycle 'odd' 'even' %} {{ p.P_region }}">
             <td>{{ p.P_genre }}</td>
             <td><a href="{% url "fiche_participant" p.P_id %}">{{ p.P_nom }}</a></td>
             <td>{{ p.P_prenom }}</td><td>{{ p.P_poste }}</td>
             <td>{{ p.P_fonction }}</td>
-            <td>{{ p.P_region }}</td>
-            <td>{{ p.E_nom }}</td>
+            <td>{{ p.E_nom }}</td><td>{{ p.P_region }}</td>
             <td>{{ p.E_delinquant }}</td> <td>{{ p.P_invites }}</td>
             <td>{{ p.f_PEC_I }}</td><td>{{ p.f_PEC_T }}</td>
             <td>{{ p.f_AUF_T }}</td><td>{{ p.f_PEC_S }}</td>
             <td>{{ p.f_AUF_S }}</td><td>{{ p.f_PEC_A }}</td>
-            <td>{{ p.f_valide }}</td><td>{{ p.f_mode }}</td>
-            <td class='align-right'>{{ p.f_accompte }}</td>
-            <td class='align-right'>{{ p.f_solde }}</td>
+            <td>{{ p.f_TOTAL }}</td><td class='align-right'>{{ p.f_accompte }}</td>
+            <td>{{ p.f_mode }}</td>
+            <td class='align-right'>{{ p.f_solde }}</td><td>{{ p.f_valide }}</td>
             <td class='align-right'>{{ p.n_total }}</td><td>{{ p.n_mode }}</td>
+            <td>{{ p.n_statut }}</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
+{% endblock %}
+
+{% block js_initializations %}
+    {{ block.super }}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+$('.butt').click(function(){
+        var $target = $($(this).attr("target"));
+        $('.rangs').hide();
+  $target.show();
+});
+</script>
 {% endblock %}
