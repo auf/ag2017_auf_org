@@ -992,8 +992,8 @@ def etat_paiements_csv(request):
         'E_nom', 'E_delinquant', 'P_invites', 'f_PEC_I', 'f_total_I',
         'f_fact_I', 'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S',
         'f_AUF_S', 'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
-        'f_valide', 'f_mode', 'f_accompte', 'n_R', 'n_N', 'n_T', 'n_A',
-        'n_mode', 'n_statut',)
+        'f_TOTAL', 'f_accompte', 'f_mode', 'f_valide',
+        'n_R', 'n_N', 'n_T', 'n_A', 'n_mode', 'n_statut',)
     writer.writerow(fields)
     for p in donnees_etats.get_donnees_paiements(actifs_seulement=False):
         row = SortedDict([(field, "") for field in fields])
