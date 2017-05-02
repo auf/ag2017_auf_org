@@ -14,8 +14,16 @@ body {
     float: left;
     margin-right: 10px;
 }
+
+.toggle {
+    float: right;
+}
+
 .tetiere {
     
+}
+.hidden  {
+    display: none;
 }
 .surtitre {
     color: darkred;
@@ -43,23 +51,26 @@ th {
 
 .liste-salle-pays, .liste-emargement-pays {
     font-size: 2em;
+    color: darkred;
 }
 
 .liste-salle-pays td {
     padding-top: 0.5em;
 }
 
+
 .liste-salle-participant, .liste-candidats, .liste-candidats-bulletin {
-    border-top: 2px solid black;
-    border-bottom: 2px solid black;
+    border-top: 1px solid black;
 }
 
 .liste-emargement-participant {
     border: 1px solid black;
+    font-size: 1.1em;
 }
 
 .liste-emargement-participant td {
     border: 1px solid black;
+    padding: 5px;
 }
 
 .region-bulletin {
@@ -109,14 +120,21 @@ th {
     width: 89%;
 }
 
+td.noborder {
+    border: none;
+}
+
+
 
 /* ---end media screen--- */
 
 @media print {
 
+
 .body {
     padding: 10px;
 }
+
 .entete {
     clear: both;
     margin-bottom: 5px;
@@ -131,6 +149,9 @@ th {
     width: 25%;
     float: left;
     margin-top: 25px;
+}
+.noprint {
+    display: none !important;
 }
 .tetiere {
     display: inline;
