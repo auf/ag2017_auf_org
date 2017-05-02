@@ -3,15 +3,12 @@
 
 {% endblock %}
 
-{% block surtitre %}
-
-{% endblock %}
-
 {% block titre %}
-  {{ nom_election }}
-  {% if nom_region %}
-  <br/>
-  Membres titulaires {{ nom_region }}
+{{ nom_election }}
+{% endblock %}
+{% block surtitre %}
+{% if nom_region %}
+  Membres titulaires {{ nom_region }} -   Candidatures à l'élection
   {% endif %}
 {% endblock %}
 

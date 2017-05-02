@@ -10,7 +10,7 @@
   <h2>Formulaires candidatures</h2>
     <ul>
     {% for critere_candidature in criteres_candidatures.values %}
-      <li><a href="{% url "candidatures_region" critere_candidature.code %}">
+      <li><a target="_blank" href="{% url "candidatures_region" critere_candidature.code %}">
           {{ critere_candidature.titre }}
         </a></li>
     {% endfor %}
@@ -35,7 +35,7 @@
   <ul>
   {% for criterion in criteria_listes_candidats %}
     <li>
-    <a href="{% url "liste_candidats" criterion.code %}">
+    <a target="_blank" href="{% url "liste_candidats" criterion.code %}">
       {{ criterion.titre }}
     </a>
     </li>
