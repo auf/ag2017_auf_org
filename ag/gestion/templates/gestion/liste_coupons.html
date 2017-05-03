@@ -7,7 +7,8 @@
 {% for entete, lignes in donnees %}
     <table class="liste_coupons_hotels">
     <thead>
-    <tr class="ligne-titre">
+    <tr class="ligne-titre" class="{% if entete.depart_arrivee == DEPART %}depart
+        {% else %}arrive{% endif %}">
       <th colspan="8">
           {% if entete.depart_arrivee == DEPART %}
             Mogador → {{ entete.ville }}
@@ -35,7 +36,7 @@
     </tr>
     </thead>
     <tbody>
-    {% for ligne in lignes %}
+    {% for ligne in lignes|dictsort:"heure_arrivee" %}
       <tr>
         <td>{{ ligne.nom }}</td>
         <td>{{ ligne.type }}</td>
