@@ -39,7 +39,7 @@ SOMME_PAIEMENTS_PAYPAL = """SELECT coalesce(sum(montant), 0) FROM
                       (SELECT coalesce(min(montant), 0) as montant,
                       min(inscription_id) AS iid
                       FROM inscription_paypalresponse
-                      WHERE validated=1
+                      WHERE validated=1 AND statut='Completed'
                       GROUP BY invoice_uid) AS montants
                       where iid = gestion_participant.inscription_id"""
 
