@@ -36,7 +36,7 @@
     </tr>
     </thead>
     <tbody>
-    {% for ligne in lignes|dictsort:"heure_arrivee" %}
+    {% for ligne in lignes %}
       <tr>
         <td>{{ ligne.nom }}</td>
         <td>{{ ligne.type }}</td>
