@@ -558,6 +558,9 @@ def donnees_liste_coupons():
                 infos_depart_arrivee.arrivee_compagnie,
                 infos_depart_arrivee.arrivee_vol)
             listes_coupons[entete_arrivee].append(ligne_arrivee)
+    for liste in listes_coupons.itervalues():
+        liste.sort(key=lambda i: i.heure_arrivee if i.heure_arrivee else
+                   datetime.time(23, 59))
     return sorted(listes_coupons.iteritems(), key=lambda item: item[0])
 
 
