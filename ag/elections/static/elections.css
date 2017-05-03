@@ -1,12 +1,43 @@
+/* ---end media screen--- */
+
+body {
+
+    font-family: "Open Sans",sans-serif;
+    font-size: 0.9em;
+    /*background: url(img/fond.jpg);*/
+    padding: 0; margin: 0;
+}
+.entete {
+    float: right;
+}
+.logo {
+    float: left;
+    margin-right: 10px;
+}
+
+.toggle {
+    float: right;
+}
+
+.tetiere {
+    
+}
+.hidden  {
+    display: none;
+}
 .surtitre {
     color: darkred;
     font-weight: bold;
+    font-size: 1.5em;
+    padding-top: 50px;
 }
 
 .titre {
     color: white;
     background-color: darkred;
     font-weight: bold;
+    font-size: 2em;
+    float: left;
 }
 
 table {
@@ -20,23 +51,26 @@ th {
 
 .liste-salle-pays, .liste-emargement-pays {
     font-size: 2em;
+    color: darkred;
 }
 
 .liste-salle-pays td {
     padding-top: 0.5em;
 }
 
+
 .liste-salle-participant, .liste-candidats, .liste-candidats-bulletin {
-    border-top: 2px solid black;
-    border-bottom: 2px solid black;
+    border-top: 1px solid black;
 }
 
 .liste-emargement-participant {
     border: 1px solid black;
+    font-size: 1.1em;
 }
 
 .liste-emargement-participant td {
     border: 1px solid black;
+    padding: 5px;
 }
 
 .region-bulletin {
@@ -84,4 +118,55 @@ th {
 
 .table-depouillement {
     width: 89%;
+}
+
+td.noborder {
+    border: none;
+}
+
+
+
+/* ---end media screen--- */
+
+@media print {
+
+
+.body {
+    padding: 10px;
+}
+
+.entete {
+    clear: both;
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+
+.logo img {
+    width: 99%;
+}
+.logo {
+    display: inline;
+    width: 25%;
+    float: left;
+    margin-top: 25px;
+}
+.noprint {
+    display: none !important;
+}
+.tetiere {
+    display: inline;
+    width: 75%;
+}
+.surtitre {
+    font-size: 1em;
+    margin-top: 0px;
+    padding-left: 5px;
+}
+
+.titre {
+    font-size: 1.1em;
+    padding: 5px;
+    width: auto;
+}
+
 }

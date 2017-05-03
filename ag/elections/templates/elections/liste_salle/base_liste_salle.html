@@ -2,9 +2,10 @@
 
 {% block tables %}
 <table>
-  {% for pays, participants in participants_par_pays.iteritems %}
+  {% for pays, participants in participants_par_pays.iteritems %} 
     <tr class="liste-salle-pays">
-      <td colspan="4">{{ pays }}</td>
+      <td colspan="4">{{ pays }}</span>
+      </td>
     </tr>
     {% for participant in participants %}
     <tr class="liste-salle-participant">
@@ -17,4 +18,5 @@
   {% endfor %}
 </table>
 {% endblock %}
+
 

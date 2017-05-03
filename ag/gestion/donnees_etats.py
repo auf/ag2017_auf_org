@@ -396,8 +396,8 @@ PaiementParticipant = namedtuple('PaiementParticipant', (
     'E_cgrm', 'E_nom', 'E_delinquant', 'f_PEC_I', 'f_total_I',
     'f_fact_I', 'f_PEC_T', 'f_AUF_T', 'f_total_T', 'f_fact_T', 'f_PEC_S',
     'f_AUF_S', 'f_total_S', 'f_fact_S', 'f_supp_S', 'f_PEC_A', 'f_total_A',
-    'f_valide', 'f_mode', 'f_accompte', 'f_solde', 'n_R', 'n_N', 'n_T', 'n_A',
-    'n_total', 'n_mode', 'n_statut',))
+    'f_valide', 'f_TOTAL', 'f_mode', 'f_accompte', 'f_solde', 
+    'n_R', 'n_N', 'n_T', 'n_A', 'n_total', 'n_mode', 'n_statut',))
 
 
 def format_money(n):
@@ -490,6 +490,7 @@ def get_donnees_paiements(actifs_seulement):
             f_mode=p.get_moyens_paiement_display(),
             f_accompte=format_money(p.total_deja_paye),
             f_solde=format_money(p.get_solde()),
+            f_TOTAL=format_money(p.total_facture),
             n_R=format_money(frais['repas']),
             n_N=format_money(frais['nuitees']),
             n_T=format_money(frais['taxi']),
