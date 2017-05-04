@@ -76,6 +76,7 @@ def participants_view(request):
             hotel = form.cleaned_data['hotel']
             activite = form.cleaned_data['activite']
             pas_de_solde_a_payer = form.cleaned_data['pas_de_solde_a_payer']
+            statut = form.cleaned_data['statut']
             desactive = form.cleaned_data['desactive']
 
             participants = Participant.objects.filter(desactive=desactive) \
@@ -158,6 +159,9 @@ def participants_view(request):
             if pas_de_solde_a_payer:
                 participants = participants.sql_filter(u"(%s)",
                                                        'aucun_solde_a_payer')
+            if statut:
+                participants = participants\
+                    .filter(etablissement__statut=statut)
             if probleme:
                 if probleme == 'solde_a_payer':
                     participants = participants.sql_filter('%s > 0', 'solde')

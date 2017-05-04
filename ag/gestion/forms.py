@@ -119,6 +119,7 @@ class RechercheParticipantForm(Form):
     activite = ModelChoiceField(label=u"Activité",
                                 queryset=Activite.objects.all(),
                                 required=False)
+    statut = ChoiceField(choices=Etablissement.STATUT_CHOICES, required=False)
     desactive = BooleanField(
         label=u"Désactivés", required=False
     )
