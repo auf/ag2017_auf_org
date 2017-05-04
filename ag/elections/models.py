@@ -60,7 +60,8 @@ def get_candidatures_criteria():
         criteria.append(CritereElecteur(
             code=code_region,
             titre=nom_region,
-            filter=(make_filter_region(code_region), ),
+            filter=(make_filter_region(code_region),
+                    ParticipantsQuerySet.titulaires),
             une_seule_region=True,
         ))
     criteria.append(CritereElecteur(
