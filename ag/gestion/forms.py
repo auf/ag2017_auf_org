@@ -116,6 +116,8 @@ class RechercheParticipantForm(Form):
     region_vote = CharField(max_length=12, required=False)
     pas_de_solde_a_payer = BooleanField(label=u"Aucun solde à payer",
                                         required=False)
+    paiement_ndf = BooleanField(label=u"Paiement note de frais nécessaire",
+                                required=False)
     activite = ModelChoiceField(label=u"Activité",
                                 queryset=Activite.objects.all(),
                                 required=False)

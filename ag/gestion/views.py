@@ -76,6 +76,7 @@ def participants_view(request):
             hotel = form.cleaned_data['hotel']
             activite = form.cleaned_data['activite']
             pas_de_solde_a_payer = form.cleaned_data['pas_de_solde_a_payer']
+            paiement_ndf_necessaire = form.cleaned_data['paiement_ndf']
             statut = form.cleaned_data['statut']
             desactive = form.cleaned_data['desactive']
 
@@ -162,6 +163,8 @@ def participants_view(request):
             if statut:
                 participants = participants\
                     .filter(etablissement__statut=statut)
+            if paiement_ndf_necessaire:
+                participants = participants.filter_paiement_note_de_frais()
             if probleme:
                 if probleme == 'solde_a_payer':
                     participants = participants.sql_filter('%s > 0', 'solde')

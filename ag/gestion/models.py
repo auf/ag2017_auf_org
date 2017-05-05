@@ -610,6 +610,11 @@ class Participant(RenseignementsPersonnels):
         else:
             return 'B%04d' % self.id
 
+    @property
+    def note_versee(self):
+        return any(p for p in self.suivi.all()
+                   if p.code == consts.POINT_DE_SUIVI_NOTE_VERSEE)
+
     def get_noms_invites(self):
         return [i.nom_complet for i in self.invite_set.all()]
 

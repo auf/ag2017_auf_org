@@ -1,7 +1,9 @@
 # -*- encoding: utf-8 -*-
+from django.db.models import When, Value, Case, BooleanField, Q
+from django.db.models.query import QuerySet
+
 from ag.gestion import consts
 from ag.gestion.consts import *
-from django.db.models.query import QuerySet
 
 CASE_REGION_VOTE = "\n".join(["WHEN '{}' THEN '{}'".format(reg, reg_vote)
                               for reg, reg_vote
@@ -306,6 +308,17 @@ class ParticipantsQuerySet(QuerySet):
 
     def elus(self):
         return self.filter(candidat_statut=ELU)
+
+    def avec_presence_frais(self):
+        return self.annotate(presence_frais=Case(
+            When(Q(frais__montant__isnull=False) & Q(frais__montant__gt=0),
+                 then=Value(1)), default=0, output_field=BooleanField()))
+
+    def filter_paiement_note_de_frais(self):
+        return self.avec_presence_frais() \
+            .filter(presence_frais=True) \
+            .exclude(suivi__code=consts.POINT_DE_SUIVI_NOTE_VERSEE)\
+            .distinct()
 
     def filter_votants(self):
         """ Voir commentaire avec_region_vote()

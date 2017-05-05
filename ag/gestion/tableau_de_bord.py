@@ -309,9 +309,9 @@ def criteres_paiement():
         CritereTableau(u"Paiement en trop",
                        lambda p: p.paiement_en_trop,
                        {'probleme': 'paiement_en_trop'}),
-        # CritereTableau(u"Paiement NDF nécessaire",
-        #                lambda p: p.paiement_en_trop,
-        #                {'probleme': 'paiement_en_trop'}),
+        CritereTableau(u"Paiement NDF nécessaire",
+                       lambda p: p.presence_frais and not p.note_versee,
+                       {'paiement_ndf': 'on'}),
     )
 
 
@@ -364,6 +364,7 @@ def get_donnees():
                         'implantation__region', 'institution__region',
                         'inscription__invitation')\
         .avec_problemes(*PROBLEMES_TABLEAU_DE_BORD)\
+        .avec_presence_frais()\
         .prefetch_related('suivi', 'participationactivite_set',
                           'invite_set')
     participants = list(participants)
