@@ -45,7 +45,16 @@ Candidat = collections.namedtuple('Candidat', (
 
 
 CritereElecteur = collections.namedtuple(
-    'CritereElecteur', ('code', 'titre', 'filter', 'une_seule_region', ))
+    'CritereElecteur', ('code', 'titre', 'filter', 'une_seule_region',
+                        'categorie'))
+
+
+CATEGORIES_ELECTIONS = consts.REGIONS_VOTANTS + (
+    (consts.CODE_RESEAU, u"Titulaires Réseau" ),
+    (consts.CODE_ASSOCIE, u"Membres associés"),
+)
+
+CATEGORIES_DICT = dict([(c[0], c) for c in CATEGORIES_ELECTIONS])
 
 
 def get_candidatures_criteria():
@@ -54,7 +63,8 @@ def get_candidatures_criteria():
             code=CRITERE_TOUS,
             titre=u"Tous",
             filter=(),
-            une_seule_region=False
+            une_seule_region=False,
+            categorie=None,
         )]
     for code_region, nom_region in consts.REGIONS_VOTANTS:
         criteria.append(CritereElecteur(
@@ -63,6 +73,7 @@ def get_candidatures_criteria():
             filter=(make_filter_region(code_region),
                     ParticipantsQuerySet.titulaires),
             une_seule_region=True,
+            categorie=CATEGORIES_DICT[code_region],
         ))
     criteria.append(CritereElecteur(
         code=CRITERE_RESEAU,
@@ -70,12 +81,14 @@ def get_candidatures_criteria():
         filter=(ParticipantsQuerySet.reseau,
                 ParticipantsQuerySet.titulaires, ),
         une_seule_region=False,
+        categorie=CATEGORIES_DICT[consts.CODE_RESEAU],
     ))
     criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
         titre=u"Associés",
         filter=(ParticipantsQuerySet.associes, ),
         une_seule_region=False,
+        categorie=CATEGORIES_DICT[consts.CODE_ASSOCIE],
     ))
     # noinspection PyArgumentList
     return collections.OrderedDict(((c.code, c) for c in criteria))
@@ -249,6 +262,7 @@ def get_electeur_criteria():
                     make_filter_region(code_region)),
             titre=u"Membres titulaires - {}".format(nom_region),
             une_seule_region=True,
+            categorie=CATEGORIES_DICT[code_region],
         ))
     criteria.append(CritereElecteur(
         code=CRITERE_RESEAU,
@@ -256,12 +270,14 @@ def get_electeur_criteria():
                 ParticipantsQuerySet.reseau),
         titre=u"Membres titulaires des réseaux",
         une_seule_region=False,
+        categorie=CATEGORIES_DICT[consts.CODE_RESEAU],
     ))
     criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
         filter=(ParticipantsQuerySet.associes, ),
         titre=u"Membres associés",
         une_seule_region=False,
+        categorie=CATEGORIES_DICT[consts.CODE_ASSOCIE],
     ))
     # noinspection PyArgumentList
     return collections.OrderedDict(((c.code, c) for c in criteria))
@@ -282,7 +298,8 @@ def make_filter_election(election):
 
 CritereCandidat = collections.namedtuple(
     'CritereCandidat', ('code', 'titre', 'filter',
-                        'code_region', 'code_election', ))
+                        'code_region', 'code_election',
+                        'categorie'))
 
 
 def get_listes_candidat_par_region_criteria(election):
@@ -302,6 +319,7 @@ def get_listes_candidat_par_region_criteria(election):
                     make_filter_region(code_region)),
             code_region=code_region,
             code_election=election.code,
+            categorie=CATEGORIES_DICT[code_region],
         ))
     return criteria
 
@@ -319,6 +337,10 @@ def get_all_listes_candidat_criteria(elections):
         if election.code in liste_par_region:
             criteria.extend(get_listes_candidat_par_region_criteria(election))
         else:
+            if election.code == consts.ELEC_CASS_RES:
+                categorie = CATEGORIES_DICT[consts.CODE_RESEAU]
+            else:
+                categorie = CATEGORIES_DICT[consts.CODE_ASSOCIE]
             criteria.append(
                 CritereCandidat(
                     code=election.code,
@@ -326,6 +348,7 @@ def get_all_listes_candidat_criteria(elections):
                     filter=(make_filter_election(election), ),
                     code_region=None,
                     code_election=election.code,
+                    categorie=categorie,
                 )
             )
     # noinspection PyArgumentList

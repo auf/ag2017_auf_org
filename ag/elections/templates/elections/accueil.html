@@ -7,13 +7,13 @@
     </div>
 {% endblock %}
 {% block content %}
+  <div>
+<div style="float:left; width: 50%;">
   <h2>Formulaires candidatures</h2>
     <ul>
-    {% for critere_candidature in criteres_candidatures.values %}
-      <li><a target="_blank" href="{% url "candidatures_region" critere_candidature.code %}">
-          {{ critere_candidature.titre }}
-        </a></li>
-    {% endfor %}
+      <li><a target="_blank"
+             href="{% url "candidatures_region" critere_candidatures_tous.code %}">
+          {{ critere_candidatures_tous.titre }}</a></li>
     </ul>
   <h2>Listes salles</h2>
   <ul>
@@ -29,16 +29,6 @@
     <li><a target="_blank" href="{% url "liste_emargement" criterion.code %}">
       {{ criterion.titre }}
     </a></li>
-  {% endfor %}
-  </ul>
-  <h2>Listes candidats</h2>
-  <ul>
-  {% for criterion in criteria_listes_candidats %}
-    <li>
-    <a target="_blank" href="{% url "liste_candidats" criterion.code %}">
-      {{ criterion.titre }}
-    </a>
-    </li>
   {% endfor %}
   </ul>
   <h2>Bulletins</h2>
@@ -59,5 +49,17 @@
 
     {% endfor %}
   </ul>
+</div>
+<div style="width: 50%; float: left;">
+  {% for categorie in par_categorie %}
+    <h2>{{ categorie.0 }}</h2>
+    <ul>
+    {% for lien in categorie.1 %}
+      <li><a target="_blank" href="{{ lien.url }}">{{ lien.text }}</a></li>
+    {% endfor %}
+    </ul>
+  {% endfor %}
+</div></div>
+
 
 {% endblock %}

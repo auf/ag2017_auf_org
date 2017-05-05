@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import collections
 
+from django.core.urlresolvers import reverse
 from django.http.response import Http404
 from django.shortcuts import render
 
@@ -9,7 +10,7 @@ from ag.elections.models import (
     get_all_listes_candidat_criteria, Election, filter_participants,
     get_donnees_bulletin_ca, get_donnees_bulletin_cass_tit,
     get_donnees_bulletin, ParticipantModified, get_candidatures_criteria,
-    get_candidats_possibles, Candidats, CRITERE_TOUS)
+    get_candidats_possibles, Candidats, CRITERE_TOUS, CATEGORIES_ELECTIONS)
 from ag.gestion import consts
 from ag.gestion.consts import ELU
 from .forms import CandidatureFormset
@@ -206,6 +207,19 @@ def depouillement_autres(request, code_election):
                    'cells': depouillement_cells(), })
 
 
+def link_candidatures(critere_candidature):
+    text = u"Formulaire candidatures - {}".format(critere_candidature.titre)
+    return {'url': reverse('candidatures_region',
+                           args=(critere_candidature.code, )),
+            'text': text}
+
+
+def link_liste_candidats(critere_liste_candidats):
+    return {'url': reverse('liste_candidats',
+                           args=(critere_liste_candidats.code, )),
+            'text': critere_liste_candidats.titre}
+
+
 def accueil_elections(request):
     criteres_candidatures = get_candidatures_criteria()
     elections = list(Election.objects.exclude(code=consts.ELEC_CASS_RES))
@@ -214,10 +228,23 @@ def accueil_elections(request):
     criteria_listes_votants = get_electeur_criteria().values()
     criteria_listes_candidats = get_all_listes_candidat_criteria(elections)\
         .values()
+    par_categorie = []
+    categories = CATEGORIES_ELECTIONS
+    for categorie in categories:
+        liens_criteres_categories = []
+        for i, critere in reversed(list(enumerate(criteres_candidatures.values()))):
+            if critere.categorie == categorie:
+                liens_criteres_categories.append(link_candidatures(critere))
+        for i, critere in reversed(list(enumerate(criteria_listes_candidats))):
+            if critere.categorie == categorie:
+                liens_criteres_categories.append(link_liste_candidats(critere))
+        par_categorie.append((categorie[1], liens_criteres_categories))
+
+    critere_candidatures_tous = criteres_candidatures[CRITERE_TOUS]
     return render(request, 'elections/accueil.html', {
         'regions': regions,
         'elections': elections,
         'criteria_listes_votants': criteria_listes_votants,
-        'criteria_listes_candidats': criteria_listes_candidats,
-        'criteres_candidatures': criteres_candidatures,
+        'par_categorie': par_categorie,
+        'critere_candidatures_tous': critere_candidatures_tous,
     })
