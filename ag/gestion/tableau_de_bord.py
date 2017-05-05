@@ -366,7 +366,8 @@ def get_donnees():
         .avec_problemes(*PROBLEMES_TABLEAU_DE_BORD)\
         .avec_presence_frais()\
         .prefetch_related('suivi', 'participationactivite_set',
-                          'invite_set')
+                          'invite_set')\
+        .distinct()
     participants = list(participants)
     totaux_regions = ligne_regions(participants, regions)
     par_fonction = table_fonctions_regions(participants, fonctions, regions)
