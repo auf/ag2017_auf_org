@@ -834,6 +834,19 @@ def etat_vols_csv(request):
 def bool_to_01(b):
     return "1" if b else "0"
 
+def csv_date_format(d):
+    if d:
+        return d.strftime('%d/%m/%Y')
+    else:
+        return u""
+
+
+def csv_time_format(t):
+    if t:
+        return t.strftime('%H:%M')
+    else:
+        return u""
+
 
 def export_donnees_csv(request):
     require_permission(request.user, consts.PERM_LECTURE)
@@ -869,25 +882,10 @@ def export_donnees_csv(request):
     participants = Participant.objects.order_by('nom', 'prenom') \
         .avec_region_vote()\
         .select_related('fonction', 'etablissement', 'etablissement__region',
-                        'etablissement__pays', 'hotel', 'vol_groupe')
-    # Écriture des en-têtes
+                        'etablissement__pays', 'hotel', 'vol_groupe')\
+        .prefetch_related('infosvol_set', 'vol_groupe__infosvol_set') \
+        # Écriture des en-têtes
     writer.writerow(fields)
-    arrivees_vols_groupes = dict(
-        (info.vol_groupe_id, info) for info in
-        InfosVol.objects.filter(
-                                type_infos=consts.VOL_GROUPE))
-    departs_vols_groupes = dict(
-        (info.vol_groupe_id, info) for info in
-        InfosVol.objects.filter(
-                                type_infos=consts.VOL_GROUPE))
-    arrivees_autres = dict(
-        (info.participant_id, info) for info in
-        InfosVol.objects.filter()
-        .exclude(type_infos=consts.VOL_GROUPE))
-    departs_autres = dict(
-        (info.participant_id, info) for info in
-        InfosVol.objects.filter()
-        .exclude(type_infos=consts.VOL_GROUPE))
     invites_participants = defaultdict(list)
     for invite in Invite.objects.all():
         invites_participants[invite.participant_id].append(invite)
@@ -919,26 +917,16 @@ def export_donnees_csv(request):
             row['I_pays'] = p.etablissement.pays.code
         elif p.institution:
                 row['I_pays'] = p.institution.pays.code
-        if p.vol_groupe_id:
-            arrivee = arrivees_vols_groupes[p.vol_groupe_id]
-            depart = departs_vols_groupes[p.vol_groupe_id]
-        else:
-            arrivee = arrivees_autres.get(p.id, None)
-            depart = departs_autres.get(p.id, None)
-        if arrivee:
-            row["V_volA"] = arrivee.numero_vol
-            row["V_volACie"] = arrivee.compagnie
-            if arrivee.date_arrivee:
-                row["V_dateA"] = arrivee.date_arrivee.strftime('%d/%m/%Y')
-            if arrivee.heure_arrivee:
-                row["V_heureA"] = arrivee.heure_arrivee.strftime('%H:%M')
-        if depart:
-            row["V_volD"] = depart.numero_vol
-            row["V_volDCie"] = depart.compagnie
-            if depart.date_depart:
-                row["V_dateD"] = depart.date_depart.strftime('%d/%m/%Y')
-            if depart.heure_depart:
-                row["V_heureD"] = depart.heure_depart.strftime('%H:%M')
+
+        depart_arrivee = p.get_infos_depart_arrivee()
+        row["V_volA"] = depart_arrivee.arrivee_vol
+        row["V_volACie"] = depart_arrivee.arrivee_compagnie
+        row["V_dateA"] = csv_date_format(depart_arrivee.arrivee_date)
+        row["V_heureA"] = csv_time_format(depart_arrivee.arrivee_heure)
+        row["V_volD"] = depart_arrivee.depart_vol
+        row["V_volDCie"] = depart_arrivee.depart_compagnie
+        row["V_dateD"] = csv_date_format(depart_arrivee.depart_date)
+        row["V_heureD"] = csv_time_format(depart_arrivee.depart_heure)
         if p.hotel:
             row["H_id"] = p.hotel.id
             if p.date_arrivee_hotel:
