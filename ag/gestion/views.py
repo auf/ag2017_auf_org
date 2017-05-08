@@ -861,8 +861,9 @@ def export_donnees_csv(request):
         "P_actif", "P_id", "P_genre", "P_nom", "P_prenom", "P_poste",
         "P_fonction", "I_type", "E_cgrm", "E_qual", "E_statut",
         "I_nom", "I_pays", "I_region", "E_vote", "E_vote_region",
-        "V_volACie", "V_volA", "V_dateA", "V_heureA",
-        "V_volDCie", "V_volD", "V_dateD", "V_heureD", "H_id", "H_dateA",
+        "V_volACie", "V_volA", "V_dateA", "V_heureA", "V_villeA",
+        "V_volDCie", "V_volD", "V_dateD", "V_heureD", "V_villeD",
+        "H_id", "H_dateA",
         "H_dateD", "P_invite", "P_invite_nom", "AS_id", "PEC_t", "PEC_s",
         "vol_groupe", "P_courriel", "P_notes", "P_notes_statut", 
         "P_notes_facturation", "P_notes_transport", "P_remarques_transport",
@@ -923,10 +924,12 @@ def export_donnees_csv(request):
         row["V_volACie"] = depart_arrivee.arrivee_compagnie
         row["V_dateA"] = csv_date_format(depart_arrivee.arrivee_date)
         row["V_heureA"] = csv_time_format(depart_arrivee.arrivee_heure)
+        row["V_villeA"] = depart_arrivee.arrivee_a
         row["V_volD"] = depart_arrivee.depart_vol
         row["V_volDCie"] = depart_arrivee.depart_compagnie
         row["V_dateD"] = csv_date_format(depart_arrivee.depart_date)
         row["V_heureD"] = csv_time_format(depart_arrivee.depart_heure)
+        row["V_villeD"] = depart_arrivee.depart_de
         if p.hotel:
             row["H_id"] = p.hotel.id
             if p.date_arrivee_hotel:
