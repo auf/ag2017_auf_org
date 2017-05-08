@@ -147,8 +147,11 @@ def generer_factures(output_file, factures):
             numero_facture = u"-%02d" % facture.numero_facture
         else:
             numero_facture = None
-        date_facturation = date_format(facture.date_facturation,
-                                       'SHORT_DATE_FORMAT')
+        if facture.date_facturation:
+            date_facturation = date_format(facture.date_facturation,
+                                           'SHORT_DATE_FORMAT')
+        else:
+            date_facturation = u""
         adresse = facture.adresse
 
         # Logos
@@ -203,7 +206,8 @@ def generer_factures(output_file, factures):
         x += 8 * cm
         t = Table(
             [
-                [u"Date d'émission", date_facturation],
+                [u"Date d'émission", date_facturation] if date_facturation
+                else [u"", u""],
                 [u"# Facture", u"{}-{}".format(
                     facture.numero,
                     [numero_facture] if numero_facture else u"00")],
