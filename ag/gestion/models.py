@@ -1084,7 +1084,10 @@ class Participant(RenseignementsPersonnels):
         if hasattr(self, 'region_vote'):
             return self.region_vote
         elif self.inscription.invitation.pour_mandate:
+            if self.etablissement.id not in consts.EXCEPTIONS_DOM_TOM:
                 return consts.REGION_AUF_REGION_VOTANTS[self.get_region().code]
+            else:
+                return consts.REG_EUROPE_OUEST
         else:
             return None
 
