@@ -49,6 +49,7 @@ class CandidatureForm(Form):
             suppleant_de_id = None
         if code_election == SUPPLEANT or not code_election:
             code_election = None
+        statut = d.get('statut', consts.DANS_LA_COURSE) or consts.DANS_LA_COURSE
 
         # noinspection PyProtectedMember
         return self.candidat._replace(**{
@@ -56,7 +57,7 @@ class CandidatureForm(Form):
             'code_election': code_election,
             'libre': d['libre'],
             'last_modified': d['last_modified'],
-            'statut': d.get('statut', consts.DANS_LA_COURSE)
+            'statut': statut,
         })
 
 
