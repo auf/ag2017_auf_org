@@ -224,6 +224,7 @@ EXCEPTIONS_DOM_TOM = (
     # Université de la Polynésie française, Faa'a – Tahiti (Polynésie
     # française), France
     241,
+    1410,
 )
 
 PERM_MODIF_RENSEIGNEMENTS_PERSONNELS = 'renseignements_personnels'
