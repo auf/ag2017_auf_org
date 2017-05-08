@@ -8,7 +8,7 @@
     <table class="liste_coupons_hotels">
     <thead>
     <tr class="ligne-titre">
-      <th colspan="9">
+      <th colspan="10">
           {{ entete.hotel }}
       </th>
     </tr>
@@ -24,6 +24,7 @@
       <th width="5%">ETA</th>
       <th width="10%">JH Départ</th>
       <th width="2%">Passeport</th>
+      <th width="2%">Région</th>
     </tr>
     </thead>
     <tbody>
@@ -38,6 +39,7 @@
         <td>{{ ligne.heure_checkin|default_if_none:"" }}</td>
         <td>{{ ligne.depart_datetime|default_if_none:"" }}</td>
         <td>{{ ligne.passeport }}</td>
+        <td class="{{ ligne.region_code }}">{{ ligne.region_code }}</td>
       </tr>
     {% endfor %}
     </tbody>

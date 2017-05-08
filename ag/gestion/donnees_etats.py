@@ -580,7 +580,7 @@ EnteteListeHotel = namedtuple('EnteteListeHotel', ('hotel', 'arrivee_date'))
 LigneListeHotel = namedtuple('LigneListeHotel',
                              ('nom', 'type', 'PEC', 'occupants',
                               'nuitees', 'aeroport', 'heure_checkin',
-                              'depart_datetime', 'passeport'))
+                              'depart_datetime', 'passeport', 'region_code'))
 
 
 def donnees_liste_hotels():
@@ -634,7 +634,8 @@ def donnees_liste_hotels():
                 heure_checkin=heure_checkin,
                 depart_datetime=depart_datetime,
                 passeport=u"oui" if participant.a_televerse_passeport()
-                else u"-"
+                else u"-",
+                region_code=participant.get_region_code() or u""
             )
             listes_hotels[entete].append(ligne)
     return sorted(listes_hotels.iteritems(), key=lambda item: item[0])
