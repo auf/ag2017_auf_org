@@ -137,8 +137,7 @@ def liste_candidats(request, code_critere):
 
 
 def bulletin_ca(request):
-    candidats_par_region = get_donnees_bulletin_ca()
-    nb_sieges_total = sum(r['nb_sieges'] for r in candidats_par_region)
+    candidats_par_region, nb_sieges_total = get_donnees_bulletin_ca()
     nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[consts.ELEC_CA]
     return render(request, 'elections/bulletin/ca.html',
                   {'nom_election': nom_election,
@@ -173,7 +172,7 @@ def depouillement_cells():
 
 
 def depouillement_ca(request):
-    candidats_par_region = get_donnees_bulletin_ca()
+    candidats_par_region, nb_sieges_total = get_donnees_bulletin_ca()
     nb_sieges_total = sum(r['nb_sieges'] for r in candidats_par_region)
     nom_election = NOMS_ELECTIONS_LISTES_CANDIDATS[consts.ELEC_CA]
     return render(request, 'elections/depouillement/ca.html',

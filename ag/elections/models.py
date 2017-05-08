@@ -30,6 +30,17 @@ class Election(TableReferenceOrdonnee):
     nb_sieges_moyen_orient = IntegerField(u"Moyen-Orient", blank=True,
                                           null=True)
 
+    @property
+    def nb_sieges_total(self):
+        if self.nb_sieges_global:
+            return self.nb_sieges_global
+        else:
+            return sum(n for n in [
+                self.nb_sieges_afrique, self.nb_sieges_ameriques,
+                self.nb_sieges_asie_pacifique, self.nb_sieges_europe_est,
+                self.nb_sieges_europe_ouest, self.nb_sieges_moyen_orient,
+                self.nb_sieges_maghreb] if n)
+
     def __unicode__(self):
         return self.code
 
@@ -389,6 +400,7 @@ def get_donnees_bulletin_ca():
     grouped_participants = itertools.groupby(participants,
                                              key=lambda pr: pr.region_vote)
     candidats_par_region = []
+    nb_sieges_total = election.nb_sieges_total
     for code_region, participants in grouped_participants:
         region = {
             'code_region': code_region,
@@ -400,7 +412,7 @@ def get_donnees_bulletin_ca():
                 for p in participants]
         }
         candidats_par_region.append(region)
-    return candidats_par_region
+    return candidats_par_region, nb_sieges_total
 
 
 def get_donnees_bulletin_cass_tit():

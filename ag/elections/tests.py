@@ -145,7 +145,7 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
         )
 
     def test_bulletin_ca_mo(self):
-        d = get_donnees_bulletin_ca()
+        d, _ = get_donnees_bulletin_ca()
         self.assertEqual(len(d), 1)
         self.assertEqual(d[0]['code_region'], consts.REG_MOYEN_ORIENT)
         self.assertEqual(d[0]['nb_sieges'],
