@@ -15,10 +15,10 @@
   {% if forloop.first %}
     <td rowspan="{{ region.candidats|length }}"
         class="depouillement-cell-region">
-      {{ region.nom_region }}
+      <strong>{{ region.nom_region }}</strong>
     </td>
   {% endif %}
-  <td class="depouillement-cell-nom-candidat">{{ candidat.nom }}, {{ candidat.prenom }}</td>
+  <td class="depouillement-cell-nom-candidat"><strong>{{ candidat.nom }}</strong>, {{ candidat.prenom }}</td>
 {% include "elections/depouillement/cellules_candidat.html" %}
   </tr>
   {% endfor %}

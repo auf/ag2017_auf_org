@@ -1,19 +1,23 @@
 {% extends "elections/base_listes.html" %}
-
-{% block titre %}
-  {{ nom_election }}<br>
-  {{ nb_sieges }} siège{{ nb_sieges|pluralize }}
+{% block titre_doc %}17e Assemblée générale des membres de l’AUF – Marrakech (Maroc) 2017
 {% endblock %}
+{% block titre %}
+  {{ nom_election }}
+{% endblock %}
+{% block soustitre %}
+Bulletin de vote - Total de {{ nb_sieges_total }} sièges
+{% endblock %}
+{% block explication %}
+      Ne remplissez que {{ nb_sieges_total }} cases au total dans la liste, sinon votre vote sera annulé
+    {% endblock %}
 
 {% block tables %}
 <table class="liste-candidats-bulletin">
   {% for candidat in candidats %}
     <tr>
-      <td width="5%">&#x25a2;</td>
-      <td width="20%">{{ candidat.nom }}</td>
-      <td width="20%">{{ candidat.prenom }}</td>
-      <td width="20%">{{ candidat.poste }}</td>
-      <td width="20%">{{ candidat.nom_institution }}</td>
+      <td class="case" width="10%">&#x25a2;</td>
+      <td class="name" width="40%"><strong>{{ candidat.nom }}</strong>, {{ candidat.prenom }}</td>
+      <td width="50%">{{ candidat.poste }}<br/>{{ candidat.nom_institution }}</td>
     </tr>
   {% endfor %}
 </table>

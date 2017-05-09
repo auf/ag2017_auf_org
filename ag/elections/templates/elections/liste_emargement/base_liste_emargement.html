@@ -17,10 +17,10 @@
     </tr>
     {% for participant in participants %}
     <tr class="liste-emargement-participant">
-      <td class="noborder" width="10%">{{ participant.nom }}</td>
+      <td class="noborder" width="10%"><strong>{{ participant.nom }}</strong></td>
       <td class="noborder" width="10%">{{ participant.prenom }}</td>
-      <td class="noborder" width="10%">{{ participant.poste }}</td>
-      <td class="noborder" width="40%">{{ participant.nom_institution }}</td>
+      <td class="noborder" width="15%">{{ participant.poste }}</td>
+      <td class="noborder" width="35%">{{ participant.nom_institution }}</td>
       <td width="15%"></td>
       <td width="10%"></td>
       <td width="5%"></td>

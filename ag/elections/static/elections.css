@@ -37,8 +37,20 @@ body {
     background-color: darkred;
     font-weight: bold;
     font-size: 2em;
-    float: left;
 }
+
+.soustitre {
+    color: darkred;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+.soustitre::after {
+    clear:both;
+}
+.directive {
+    float: right;
+}
+
 
 table {
     width: 100%;
@@ -61,7 +73,14 @@ th {
 
 .liste-salle-participant, .liste-candidats, .liste-candidats-bulletin {
     border-top: 1px solid black;
+    line-height: 20px;
 }
+
+.liste-candidats-bulletin td {
+    padding-top: 15px;
+    font-size: 16px;
+}
+
 
 .liste-emargement-participant {
     border: 1px solid black;
@@ -77,12 +96,27 @@ th {
     color: darkred;
     font-weight: bold;
     font-size: 1.5em;
-    margin-top: 1em;
+    margin-top: 50px;
+}
+.case {
+    width: 5%;
+    font-size: 35px !important;
+    padding: 0px 5px 0 5px;
+}
+.name {
+    padding-top: 20px !important;
+}
+.explication {
+    display: inline !important;
+}
+
+.libelle {
+    font-size: 15px;
 }
 
 .depouillement-cell-total {
     border: 1px solid black;
-    background-color: #777777;
+    background-color: #ccc;
 }
 
 .depouillement-cell-compte {
@@ -91,11 +125,15 @@ th {
 
 .depouillement-cell-region {
     border: 1px solid black;
+    font-size: 20px;
+    color: darkred;
+    width: 300px;
 }
 
 .depouillement-cell-nom-candidat {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
+    font-size: 18px;
 }
 
 .depouillement-ligne-espace {
@@ -107,8 +145,12 @@ th {
 }
 
 .grille-nb-feuilles {
+    width: 100%;
+}
+#pages {
     float: right;
     width: 10%;
+    margin-bottom: 50px;
 }
 
 .grille-nb-feuilles td {
@@ -117,7 +159,7 @@ th {
 }
 
 .table-depouillement {
-    width: 89%;
+    width: 100%;
 }
 
 td.noborder {
@@ -163,10 +205,19 @@ td.noborder {
     padding-left: 5px;
 }
 
+.soustitre {
+    font-size: 1em;
+    display: inline !important;
+}
+
 .titre {
     font-size: 1.1em;
     padding: 5px;
     width: auto;
 }
+
+table tr td, table tr th {
+        page-break-inside: avoid;
+    }
 
 }

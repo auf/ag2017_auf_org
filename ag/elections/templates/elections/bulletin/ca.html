@@ -1,25 +1,29 @@
 {% extends "elections/base_listes.html" %}
-
-{% block titre %}
-  {{ nom_election }}<br>
-  {{ nb_sieges_total }} sièges
+{% block titre_doc %}17e Assemblée générale des membres de l’AUF – Marrakech (Maroc) 2017
 {% endblock %}
-
+{% block titre %}
+  {{ nom_election }}
+{% endblock %}
+{% block soustitre %}
+Bulletin de vote - Total de {{ nb_sieges_total }} sièges
+{% endblock %}
+{% block explication %}
+      Ne remplissez que le nombre de cases indiquées par région, sinon votre vote sera annulé
+    {% endblock %}
 {% block tables %}
 {% for region in regions %}
  <div class="region-bulletin">
 {{ region.nom_region }} ({{ region.nb_sieges }} sièges)
- <span style="float: right;">
+ <span class="directive">
    Cochez {{ region.nb_sieges }} case{{ region.nb_sieges|pluralize }}
- </span>
+ </span>  
  </div>
 <table class="liste-candidats-bulletin">
   {% for candidat in region.candidats %}
     <tr>
-      <td width="5%">&#x25a2;</td>
-      <td width="20%">{{ candidat.nom }}</td>
-      <td width="20%">{{ candidat.prenom }}</td>
-      <td>Suppléant<br>{{ candidat.suppleant }}</td>
+      <td class="case" width="10%">&#x25a2;</td>
+      <td class="name" width="40%"><strong>{{ candidat.nom }}</strong>, {{ candidat.prenom }}</td>
+      <td class="supp" width="50%"><span class="libelle">Suppléant</span><br/>{{ candidat.suppleant }}</td>
     </tr>
   {% endfor %}
 
