@@ -8,14 +8,14 @@
 {% endblock %}
 {% block content %}
   <div>
-<div style="float:left; width: 50%;">
-  <h2>Formulaires candidatures</h2>
+<div class="admin">
+  <h2>Formulaires de candidatures</h2>
     <ul>
       <li><a target="_blank"
              href="{% url "candidatures_region" critere_candidatures_tous.code %}">
           {{ critere_candidatures_tous.titre }}</a></li>
     </ul>
-  <h2>Listes salles</h2>
+  <h2>Listes des salles</h2>
   <ul>
   {% for criterion in criteria_listes_votants %}
     <li><a target="_blank" href="{% url "liste_salle" criterion.code %}">
@@ -23,7 +23,7 @@
     </a></li>
   {% endfor %}
   </ul>
-  <h2>Listes d'émargement</h2>
+  <h2>Listes d'émargements</h2>
   <ul>
   {% for criterion in criteria_listes_votants %}
     <li><a target="_blank" href="{% url "liste_emargement" criterion.code %}">
@@ -31,7 +31,7 @@
     </a></li>
   {% endfor %}
   </ul>
-  <h2>Bulletins</h2>
+  <h2>Bulletins de votes</h2>
   <ul>
     {% for election in elections %}
       <li><a target="_blank" href="{% url "bulletin_autres" election.code %}">

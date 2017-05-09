@@ -2,15 +2,17 @@
 
 {% block titre %}
   {{ nom_election }}<br>
+{% endblock %}
+{% block soustitre %}
   {{ nb_sieges_total }} siège{{ nb_sieges_total|pluralize }}
 {% endblock %}
 
 {% block tables %}
   <div class="grille-nb-feuilles">
-    <table>
+    <table id="pages">
       <tr>
         <td>Feuille #</td>
-        <td></td>
+        <td><br/><br/></td>
       </tr>
       <tr>
         <td>Nb. Total Feuilles</td>

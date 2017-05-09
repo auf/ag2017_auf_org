@@ -10,7 +10,7 @@
   </thead>
 {% for candidat in candidats %}
   <tr>
-  <td class="depouillement-cell-nom-candidat">{{ candidat.nom }}, {{ candidat.prenom }}</td>
+  <td class="depouillement-cell-nom-candidat"><strong>{{ candidat.nom }}</strong>, {{ candidat.prenom }}</td>
 {% include "elections/depouillement/cellules_candidat.html" %}
   </tr>
 {% endfor %}

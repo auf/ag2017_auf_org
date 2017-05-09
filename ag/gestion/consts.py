@@ -55,7 +55,7 @@ REGIONS_VOTANTS = (
     (REG_AFRIQUE, u'Afrique'),
     (REG_AMERIQUES, u'Amériques'),
     (REG_ASIE_PACIFIQUE, u"Asie-Pacifique"),
-    (REG_EUROPE_EST, u"Europe de l'Est"),
+    (REG_EUROPE_EST, u"Europe Centrale et Orientale"),
     (REG_EUROPE_OUEST, u"Europe de l'Ouest"),
     # (REG_FRANCE, u"France"),
     (REG_MOYEN_ORIENT, u"Moyen-Orient"),

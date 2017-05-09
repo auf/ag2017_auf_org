@@ -433,7 +433,15 @@ tr.th-formset th {
     border: solid #999 1px;
 }
 
-/*-- form-candidatures--*/
+/*-- elections--*/
+
+.admin {
+    float:left; 
+    width: 35%;
+    background-color: #dcdcdc;
+    margin-right: 10px;
+    padding-left: 10px;
+}
 
 #form-candidatures h2 { 
     margin: 0;
