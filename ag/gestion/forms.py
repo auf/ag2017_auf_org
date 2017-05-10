@@ -122,6 +122,8 @@ class RechercheParticipantForm(Form):
                                 queryset=Activite.objects.all(),
                                 required=False)
     statut = ChoiceField(choices=Etablissement.STATUT_CHOICES, required=False)
+    votant = BooleanField(required=False)
+    qualite = ChoiceField(choices=Etablissement.QUALITE_CHOICES, required=False)
     desactive = BooleanField(
         label=u"Désactivés", required=False
     )

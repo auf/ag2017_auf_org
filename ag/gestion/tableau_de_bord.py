@@ -133,11 +133,11 @@ CritereTableau = collections.namedtuple(
 
 CATEGORIES_VOTANTS = (
     (u'Titulaire', lambda p: p.etablissement.statut == consts.CODE_TITULAIRE,
-     {'statut': consts.CODE_TITULAIRE}),
+     {'statut': consts.CODE_TITULAIRE, 'votant': 'on'}),
     (u'Associé', lambda p: p.etablissement.statut == consts.CODE_ASSOCIE,
-     {'statut': consts.CODE_ASSOCIE}),
+     {'statut': consts.CODE_ASSOCIE, 'votant': 'on'}),
     (u'Réseau', lambda p: p.etablissement.qualite == consts.CODE_RESEAU,
-     {'qualite': consts.CODE_RESEAU}),
+     {'qualite': consts.CODE_RESEAU, 'votant': 'on'}),
 )
 
 
@@ -150,15 +150,13 @@ def localisation_votants():
         return CritereTableau(
             code=consts.REGIONS_VOTANTS_DICT[code_region],
             category_fn=lambda p: p.get_region_vote() == code_region,
-            search_params={'region_vote': code_region,
-                           'statut': consts.CODE_TITULAIRE, })
+            search_params={'region_vote': code_region})
 
     def critere_pays(code_pays, nom_pays):
         return CritereTableau(
             code=nom_pays,
             category_fn=lambda p: p.etablissement.pays.code == code_pays,
-            search_params={'pays_code': code_pays,
-                           'statut': consts.CODE_TITULAIRE, })
+            search_params={'pays_code': code_pays})
 
     return (
         critere_region(consts.REG_AFRIQUE),
@@ -174,8 +172,10 @@ def localisation_votants():
 
 
 def table_votants(participants):
+    # votants = [p for p in participants
+    #            if p.fonction.code == consts.FONCTION_REPR_UNIVERSITAIRE]
     votants = [p for p in participants
-               if p.fonction.code == consts.FONCTION_REPR_UNIVERSITAIRE]
+               if p.inscription and p.inscription.est_pour_mandate()]
     pairs = []
     criteres_localisation = localisation_votants()
     criteres_categorisation = categories_votants()
@@ -185,7 +185,9 @@ def table_votants(participants):
                 for categorie in criteres_categorisation:
                     if categorie.category_fn(p):
                         pairs.append((categorie.code, localisation.code))
-                        pairs.append(categorie.code)
+        for categorie in criteres_categorisation:
+            if categorie.category_fn(p):
+                pairs.append(categorie.code)
     # noinspection PyArgumentList
     counter = collections.Counter(pairs)
     lignes = []

@@ -78,6 +78,8 @@ def participants_view(request):
             pas_de_solde_a_payer = form.cleaned_data['pas_de_solde_a_payer']
             paiement_ndf_necessaire = form.cleaned_data['paiement_ndf']
             statut = form.cleaned_data['statut']
+            votant = form.cleaned_data['votant']
+            qualite = form.cleaned_data['qualite']
             desactive = form.cleaned_data['desactive'] or False
 
             participants = Participant.objects.filter(desactive=desactive) \
@@ -139,7 +141,10 @@ def participants_view(request):
                 )
             if region_vote and \
                     region_vote in consts.REGIONS_VOTANTS_DICT.keys():
-                participants = participants.filter_region_vote(region_vote)
+                participants = participants.filter_region_vote_(region_vote)
+                participants = participants.filter_representants_mandates()
+            if votant:
+                participants = participants.filter_representants_mandates()
             if region:
                 if region == forms.AUCUNE_REGION:
                     participants = participants.filter(
@@ -163,6 +168,9 @@ def participants_view(request):
             if statut:
                 participants = participants\
                     .filter(etablissement__statut=statut)
+            if qualite:
+                participants = participants.filter(
+                    etablissement__qualite=qualite)
             if paiement_ndf_necessaire:
                 participants = participants.filter_paiement_note_de_frais()
             if probleme:

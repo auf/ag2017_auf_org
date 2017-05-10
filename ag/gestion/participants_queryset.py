@@ -275,7 +275,6 @@ class ParticipantsQuerySet(QuerySet):
         """
         qs = self.select_related('etablissement', 'etablissement__region',
                                  'fonction')
-
         # Lors d'un count, django ne tient pas compte du select_related
         # ce qui fait échouer notre requête qui s'attend à ce que
         # certaines tables soient présentes. Pour cette raison, on est
@@ -286,6 +285,23 @@ class ParticipantsQuerySet(QuerySet):
                 "({0}) = '{1}'".format(CALCUL_REGION_VOTE_SQL, code_region_vote)
             ]
         )
+
+    def filter_region_vote_(self, code_region_vote):
+        """ Voir commentaire avec_region_vote()
+        """
+        regions_auf = []
+        for region, region_vote in consts.REGION_AUF_REGION_VOTANTS.items():
+            if region_vote == code_region_vote:
+                regions_auf.append(region)
+
+        q = Q(etablissement__region__code__in=regions_auf)
+        q_dom_tom = Q(etablissement__id__in=consts.EXCEPTIONS_DOM_TOM)
+        if code_region_vote == consts.REG_EUROPE_OUEST:
+            q = q | q_dom_tom
+        else:
+            q = q & ~q_dom_tom
+
+        return self.filter(q)
 
     def filter_statut_etablissement(self, *codes_statuts):
         return self.filter(etablissement__statut__in=codes_statuts)
