@@ -78,7 +78,7 @@ def participants_view(request):
             pas_de_solde_a_payer = form.cleaned_data['pas_de_solde_a_payer']
             paiement_ndf_necessaire = form.cleaned_data['paiement_ndf']
             statut = form.cleaned_data['statut']
-            desactive = form.cleaned_data['desactive']
+            desactive = form.cleaned_data['desactive'] or False
 
             participants = Participant.objects.filter(desactive=desactive) \
                 .order_by('nom', 'prenom') \
