@@ -150,13 +150,15 @@ def localisation_votants():
         return CritereTableau(
             code=consts.REGIONS_VOTANTS_DICT[code_region],
             category_fn=lambda p: p.get_region_vote() == code_region,
-            search_params={'region_vote': code_region})
+            search_params={'region_vote': code_region,
+                           'statut': consts.CODE_TITULAIRE, })
 
     def critere_pays(code_pays, nom_pays):
         return CritereTableau(
             code=nom_pays,
             category_fn=lambda p: p.etablissement.pays.code == code_pays,
-            search_params={'pays_code': code_pays})
+            search_params={'pays_code': code_pays,
+                           'statut': consts.CODE_TITULAIRE, })
 
     return (
         critere_region(consts.REG_AFRIQUE),
