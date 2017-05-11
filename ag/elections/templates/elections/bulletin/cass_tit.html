@@ -19,8 +19,12 @@ Bulletin de vote - Total de {{ nb_sieges }} sièges
   {% for candidat in region.candidats %}
     <tr>
       <td class="case" width="10%">&#x25a2;</td>
-      <td class="name" width="30%"><strong>{{ candidat.nom }}</strong>, {{ candidat.prenom }}</td>
-      <td width="50%">{{ candidat.poste }} -<br/>{{ candidat.nom_institution }}</td>
+      <td class="name" width="40%"><strong>{{ candidat.get_genre_display }}
+        {{ candidat.nom }}</strong>, {{ candidat.prenom }}</td>
+      <td width="50%">{{ candidat.poste }}<br/>
+        <strong>{{ candidat.nom_institution }}</strong><br/>
+        {{ candidat.etablissement.ville }}, {{ candidat.etablissement.pays.nom }}
+      </td>
     </tr>
   {% endfor %}
 

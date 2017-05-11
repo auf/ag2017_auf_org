@@ -417,7 +417,8 @@ def get_donnees_bulletin_cass_tit():
     election = Election.objects.get(code=consts.ELEC_CASS_TIT)
     candidats = filter_participants((make_filter_election(election), ))
     candidats = candidats.avec_region_vote()\
-        .select_related('etablissement') \
+        .select_related('etablissement', 'etablissement__pays',
+                        'fonction', 'fonction__type_institution') \
         .order_by('region_vote', 'nom', 'prenom', )
     candidats = candidats.filter(candidat_statut=consts.DANS_LA_COURSE)
     grouped_candidats = itertools.groupby(candidats,
@@ -435,7 +436,9 @@ def get_donnees_bulletin_cass_tit():
 
 def get_donnees_bulletin(election):
     candidats = filter_participants((make_filter_election(election),))
-    candidats = candidats.select_related('etablissement')\
+    candidats = candidats\
+        .select_related('etablissement', 'etablissement__pays',
+                        'fonction', 'fonction__type_institution')\
         .order_by('nom', 'prenom')
     candidats = candidats.filter(candidat_statut=consts.DANS_LA_COURSE)
     return list(candidats)
