@@ -396,7 +396,8 @@ def get_donnees_bulletin_ca():
     participants = participants.avec_region_vote()
     participants = participants.filter(candidat_statut=consts.DANS_LA_COURSE)
     participants = participants.order_by('region_vote', 'nom', 'prenom')
-    participants = participants.prefetch_related('suppleant')
+    participants = participants.prefetch_related('suppleant')\
+        .select_related('etablissement', 'etablissement__pays')
     grouped_participants = itertools.groupby(participants,
                                              key=lambda pr: pr.region_vote)
     candidats_par_region = []
@@ -406,10 +407,7 @@ def get_donnees_bulletin_ca():
             'code_region': code_region,
             'nom_region': consts.REGIONS_VOTANTS_DICT[code_region],
             'nb_sieges': getattr(election, REGIONS_FIELDS[code_region]),
-            'candidats': [
-                {'nom': p.nom, 'prenom': p.prenom,
-                 'suppleant': p.get_nom_suppleant()}
-                for p in participants]
+            'candidats': list(participants),
         }
         candidats_par_region.append(region)
     return candidats_par_region, nb_sieges_total
