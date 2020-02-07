@@ -1,0 +1,593 @@
+#!/bin/bash
+
+function initVars {
+	TMPFS_FOLDER='/tmp/tmpfs-mysql'
+	SOCKET_FILE="$TMPFS_FOLDER/tmpfs-mysqld.sock"
+
+	CONFIG_FILE='tmpfsmysql.cfg'
+
+	LOGFILE='./tmpfsmysql.log'
+	LOGFILE_LINES=1000
+
+	MESSAGE_INSTALLING_MYSQL="Installing the new mysql database in the tmpfs directory..."
+	MESSAGE_STARTING_MYSQL="Starting the tmpfs mysql server with specific parameters in order to use the tmpfs datadir..."
+	MESSAGE_SUDO_ACCESS_REQUIRED="\nThe script needs sudo access in order to work\n"
+}
+
+function loadConfig {
+	if ! ( test -e "$CONFIG_FILE" -a -r "$CONFIG_FILE" -a -f "$CONFIG_FILE" ); then
+		createConfig
+	fi
+
+	source "$CONFIG_FILE"
+}
+
+function createConfig {
+	echo -e "\n\E[1;29;45mLooks like this is the first run on the script, we'll now create\E[0m"
+	echo -e "\E[1;29;45mconfig file $CONFIG_FILE in the current folder.\E[0m"
+
+	touch "$CONFIG_FILE"
+
+	(
+	cat <<-CONFIGCONTENT
+	# tmpfs filesystem size in MB, values below 256 are not recommended
+	TMPFS_SIZE=256
+	PORT=3344
+	PASSWORD='drowssap'
+
+	# additional parameters for the mysqld command
+	# sql-mode could be used to make MySQL 5.7 behave more like MySQL 5.6
+	# see more here http://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_sql_mode
+	# --sql-mode=NO_ENGINE_SUBSTITUTION
+	MYSQLDPARAMS=''
+
+	DBNAMES[0]=''
+	DUMPFILES[0]=''
+	# import database, host:port:user:pass:dbname
+	# if host, port or user are not provided, they will default to 127.0.0.1, 3306 and root respectively
+	IMPORTSFROM[0]='::::'
+	RUNCOMMANDS[0]=''
+	CONFIGCONTENT
+	) > $CONFIG_FILE
+}
+
+function populatePID {
+	PID=`sudo cat $TMPFS_FOLDER/tmpfs-mysqld.pid 2>/dev/null`
+}
+
+function populateServerVersionVariables {
+	MYSQL_VERSION_RAW=`mysqld --version 2>>$LOGFILE`
+	SERVER_MODE='MySQL'
+
+	if [[ "$MYSQL_VERSION_RAW" == *"MariaDB"* ]]; then
+		SERVER_MODE='MariaDB'
+	fi
+
+	MYSQL_VERSION_XX=`echo "$MYSQL_VERSION_RAW" | awk '{ print $3 }' | awk -F"." '{ print $1 $2 }' | awk -F"-" '{ print $1 }'`
+	MYSQL_VERSION_XXX=`echo "$MYSQL_VERSION_RAW" | awk '{ print $3 }' | awk -F"." '{ print $1 $2 $3 }' | awk -F"-" '{ print $1 }'`
+	MYSQL_VERSION_Xxx=`echo "$MYSQL_VERSION_RAW" | awk '{ print $3 }' | awk -F"." '{ print $1 }' | awk -F"-" '{ print $1 }'`
+	MYSQL_VERSION_xXx=`echo "$MYSQL_VERSION_RAW" | awk '{ print $3 }' | awk -F"." '{ print $2 }' | awk -F"-" '{ print $1 }'`
+	MYSQL_VERSION_xxX=`echo "$MYSQL_VERSION_RAW" | awk '{ print $3 }' | awk -F"." '{ print $3 }' | awk -F"-" '{ print $1 }'`
+}
+
+function sudoStateCheck {
+	# Prompt user for sudo password only if needed
+	sudo -nv 2> /dev/null
+	if [ $? == 1 ]; then
+		echo -e $MESSAGE_SUDO_ACCESS_REQUIRED
+		sudo -v >>$LOGFILE
+	fi
+}
+
+function checkForMySQL {
+	local MYSQLDINSTALLED=`which mysqld 2>>$LOGFILE`
+	if [ "$MYSQLDINSTALLED" == "" ]
+	then
+		echo ""
+		echo "You don't seem to have MySQL server installed! Please install it before running this script."
+		echo ""
+		exit 0
+	fi
+}
+
+function displayMenu {
+	echo -ne "\n\E[1;32;40mTMPFS-MYSQL server management tool"
+	tput sgr0
+
+	echo -ne "\n\E[1;34;40mYou are using $SERVER_MODE version $MYSQL_VERSION_Xxx.$MYSQL_VERSION_xXx.$MYSQL_VERSION_xxX"
+	tput sgr0
+
+	echo -e "\n"
+	echo -ne " \E[1;32;49mAvailable command options are:\E[0m"
+	echo -e "\n"
+	echo " start|restart - Starts the tmpfs MySQL instance. This will kill any already started tmpfs mysql server."
+	echo " stop          - Stop the tmpfs mysql server instance."
+	echo " status        - Check whether the tmpfs mysql server is running."
+	echo "                 Script exit status will be 0 if the tmpfs mysql server is running, 1 if it's not."
+	echo " kill          - Kill any other instances of the mysqld daemon besides the normal MySQL server."
+	echo -ne "                 \E[2;31;49mIt will however gracefully restart the normal MySQL server!"; tput sgr0
+	echo -e "\n"
+	echo " showdb        - Show a list of the databases on the tmpfs mysql server."
+	echo -ne " createdb      - Create database with the given name. Example \E[1;36;44m./tmpfsmysql createdb testdb"; tput sgr0
+	echo -e ""
+	echo -ne " dropdb        - Drop database with the given name. Example \E[1;36;44m./tmpfsmysql dropdb testdb"; tput sgr0
+	echo -e "\n"
+	echo " store         - Persist the current data from the tmpfs-mysql server into the persist folder."
+	echo " store-clear   - Clears the data stored in the persist folder."
+	echo " load          - Load the persisted data from the persist folder into the tmpfs-mysql server data dir."
+	echo
+	echo " usage         - Shows how much of the memory, alocated to the tmpfs storage is in use."
+	echo " client        - You will be connected to the tmpfs mysql server using the mysql client."
+	echo " checkdump     - Check if the dump file configured in DUMPFILE exists and is readable."
+	echo -e ""
+	exit 0
+}
+
+function handleMenuChoice {
+	# call sudoStateCheck only if the requested action needs it
+	# populatePID requires sudo, so we include the 'status' action as well
+	if [ "$1" == "status" -o "$1" == "usage" -o "$1" == "store" -o "$1" == "load" -o "$1" == "stop" -o "$1" == "kill" -o "$1" == "start" -o "$1" == "restart" ]
+	then
+		sudoStateCheck
+	fi
+
+	if [ "$1" == "status" -o "$1" == "store" -o "$1" == "load" -o "$1" == "stop" -o "$1" == "kill" -o "$1" == "start" -o "$1" == "restart" ]
+	then
+		populatePID
+	fi
+
+	# now lets see what action has been requested
+	if [ "$1" == "" ]; then
+		displayMenu
+	fi
+
+	if [ "$1" == "client" ]; then
+		menuActionConnectAsClient
+	fi
+
+	if [ "$1" == "showdb" ]; then
+		menuActionShowDb
+	fi
+
+	if [ "$1" == "createdb" ]; then
+		menuActionCreateDb $1 $2
+	fi
+
+	if [ "$1" == "dropdb" ]; then
+		menuActionDropDb $1 $2
+	fi
+
+	if [ "$1" == "checkdump" ]; then
+		menuActionCheckSQLdumpFile $1 $2
+	fi
+
+	if [ "$1" == "stop" ]; then
+		menuActionStop
+	fi
+
+	if [ "$1" == "status" ]; then
+		menuActionStatus
+	fi
+
+	if [ "$1" == "kill" ]; then
+		menuActionKill
+	fi
+
+	if [ "$1" == "store" ]; then
+		menuActionStore
+	fi
+
+	if [ "$1" == "load" ]; then
+		menuActionLoad
+	fi
+
+	if [ "$1" == "store-clear" ]; then
+		menuActionStoreClear
+	fi
+
+	if [ "$1" == "usage" ]; then
+		menuActionUsage
+	fi
+
+	if [ "$1" == "start" ] || [ "$1" == "restart" ]; then
+		menuActionStartRestart
+	fi
+}
+
+function nicelyStopTmpfsServer {
+	if [ "$PID" != "" ]; then
+		echo "tmpfs-mysql PID is $PID"
+		sudo kill -s 15 "$PID" >>$LOGFILE 2>>$LOGFILE
+		echo "tmpfs-mysql server has been put to sleep"
+	fi
+}
+
+function killByPID {
+	if [ "$PID" != "" ]; then
+		echo "Terminating tmpfs mysqld process with id $PID..."
+		sudo kill -s 9 $PID >>$LOGFILE 2>>$LOGFILE
+	fi
+}
+
+function cleanTmpfsFilesystem {
+	echo "Delete the in memory temporary file system..."
+	sudo umount -l $TMPFS_FOLDER >>$LOGFILE 2>>$LOGFILE
+	sudo rm -rf $TMPFS_FOLDER >>$LOGFILE 2>>$LOGFILE
+}
+
+function prepareTmpfsFilesystem {
+	cleanTmpfsFilesystem
+
+	echo "Creating temporary file system in RAM..."
+	sudo mkdir $TMPFS_FOLDER >>$LOGFILE 2>>$LOGFILE
+	sudo mount -t tmpfs -o size="$TMPFS_SIZE"M tmpfs $TMPFS_FOLDER >>$LOGFILE 2>>$LOGFILE
+
+	sudo chown mysql:mysql $TMPFS_FOLDER
+	sudo -u mysql mkdir $TMPFS_FOLDER/datadir
+}
+
+function installBaseDatabaseMySQLold {
+	sudo mysql_install_db --user=mysql --datadir=$TMPFS_FOLDER/datadir >>$LOGFILE 2>>$LOGFILE
+	/bin/sleep 1
+}
+
+function installBaseDatabaseMySQLnew {
+	sudo -u mysql mysqld --initialize-insecure --user=mysql --datadir=$TMPFS_FOLDER/datadir >>$LOGFILE 2>>$LOGFILE
+	/bin/sleep 1
+}
+
+function installBaseDatabaseinitMariaDB {
+	sudo mysql_install_db --user=mysql --datadir=$TMPFS_FOLDER/datadir >>$LOGFILE 2>>$LOGFILE
+	/bin/sleep 1
+}
+
+function dbServerInstaller {
+	echo $MESSAGE_INSTALLING_MYSQL
+
+	if [ "$SERVER_MODE" == 'MariaDB' ]; then
+		installBaseDatabaseinitMariaDB
+	else
+		if [ "$MYSQL_VERSION_XX" == "55" -o "$MYSQL_VERSION_XX" == "56" ]; then
+			installBaseDatabaseMySQLold
+		fi
+
+		if [ "$MYSQL_VERSION_XX" == "57" -a "${MYSQL_VERSION_xxX}" -lt 6 ]; then
+			installBaseDatabaseMySQLold
+		fi
+
+		if [ "$MYSQL_VERSION_Xxx" -ge "5" -a "${MYSQL_VERSION_xXx}" -ge 7 -a "${MYSQL_VERSION_xxX}" -ge 6 ]; then
+			installBaseDatabaseMySQLnew
+		fi
+	fi
+}
+
+function dbServerStarter {
+	echo $MESSAGE_STARTING_MYSQL
+	sudo -u mysql mysqld --datadir=$TMPFS_FOLDER/datadir --pid-file=$TMPFS_FOLDER/tmpfs-mysqld.pid --socket=$SOCKET_FILE --port=$PORT \
+	--log-error=$TMPFS_FOLDER/error.log --bind-address=0.0.0.0 --innodb_flush_log_at_trx_commit=2 --performance_schema=0 $MYSQLDPARAMS >>$LOGFILE 2>>$LOGFILE &
+	/bin/sleep 1
+}
+
+function fixUserAccessAndPrivileges {
+	echo "Set default password and allow access from any host..."
+
+	if [ "$SERVER_MODE" == 'MariaDB' ];
+	then
+		sudo mysqladmin -u root --host=localhost --port=$PORT --socket=$SOCKET_FILE password $PASSWORD >>$LOGFILE 2>>$LOGFILE
+
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'0.0.0.0' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "CREATE USER 'tmpfs'@'%' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'tmpfs'@'%' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'tmpfs'@'localhost' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'tmpfs'@'0.0.0.0' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+
+		sudo mysql -u root --host=localhost --port=$PORT --password=$PASSWORD --socket=$SOCKET_FILE \
+		-e 'FLUSH PRIVILEGES;' >>$LOGFILE 2>>$LOGFILE
+	else
+		mysqladmin -u root --host=0.0.0.0 --port=$PORT password $PASSWORD >>$LOGFILE 2>>$LOGFILE
+		mysql -u root --host=0.0.0.0 --port=$PORT --password=$PASSWORD \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		mysql -u root --host=0.0.0.0 --port=$PORT --password=$PASSWORD \
+		-e "CREATE USER 'tmpfs'@'%' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		mysql -u root --host=0.0.0.0 --port=$PORT --password=$PASSWORD \
+		-e "GRANT ALL PRIVILEGES ON *.* TO 'tmpfs'@'%' IDENTIFIED BY '$PASSWORD';" >>$LOGFILE 2>>$LOGFILE
+		mysql -u root --host=0.0.0.0 --port=$PORT --password=$PASSWORD \
+		-e 'FLUSH PRIVILEGES;' >>$LOGFILE 2>>$LOGFILE
+	fi
+
+	echo
+}
+
+function performAfterStartUserConfigTasks {
+	for DBINDEX in "${!DBNAMES[@]}"
+	do
+		if [ "${DBNAMES[$DBINDEX]}" != "" ]
+		then
+			mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD -e "create database ${DBNAMES[$DBINDEX]};" >>$LOGFILE 2>>$LOGFILE
+
+			if [ "${DUMPFILES[$DBINDEX]}" != "" ]
+			then
+				if test -e "${DUMPFILES[$DBINDEX]}" -a -r "${DUMPFILES[$DBINDEX]}" -a -f "${DUMPFILES[$DBINDEX]}"
+				then
+					echo -ne '\E[1;29;42m';
+					echo -n "Importing sql dump file"; tput sgr0
+					echo ""
+					mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD "${DBNAMES[$DBINDEX]}" < "${DUMPFILES[$DBINDEX]}" >>$LOGFILE 2>>$LOGFILE
+				else
+					echo -ne '\E[1;29;41m';
+					echo -n "Couldn't find or read sql dump file, please check the path and try again"; tput sgr0
+					echo ""
+				fi
+			fi
+
+			if [ "${IMPORTSFROM[$DBINDEX]}" != "::::" -a "${IMPORTSFROM[$DBINDEX]}" != "" ]; then
+				IMPORT_HOST=`echo "${IMPORTSFROM[$DBINDEX]}" | awk -F":" '{ print $1 }' `
+				IMPORT_PORT=`echo "${IMPORTSFROM[$DBINDEX]}" | awk -F":" '{ print $2 }' `
+				IMPORT_USER=`echo "${IMPORTSFROM[$DBINDEX]}" | awk -F":" '{ print $3 }' `
+				IMPORT_PASS=`echo "${IMPORTSFROM[$DBINDEX]}" | awk -F":" '{ print $4 }' `
+				IMPORT_NAME=`echo "${IMPORTSFROM[$DBINDEX]}" | awk -F":" '{ print $5 }' `
+
+				if [ "$IMPORT_HOST" == "" ]; then IMPORT_HOST="127.0.0.1"; fi
+				if [ "$IMPORT_PORT" == "" ]; then IMPORT_PORT="3306"; fi
+				if [ "$IMPORT_USER" == "" ]; then IMPORT_USER="root"; fi
+
+				if [ "$IMPORT_PASS" != "" -a "$IMPORT_NAME" != "" ]; then
+					echo -ne "\E[1;33;45mImporting $IMPORT_NAME database from $IMPORT_HOST"; tput sgr0; echo -ne "\n"
+					mysqldump -u "$IMPORT_USER" --password="$IMPORT_PASS" --host="$IMPORT_HOST" --port="$IMPORT_PORT" "$IMPORT_NAME" > "./export.sql" 2>>$LOGFILE
+					if test -e "./export.sql" -a -r "./export.sql" -a -f "./export.sql"; then
+						mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD "${DBNAMES[$DBINDEX]}" < "./export.sql" >>$LOGFILE 2>>$LOGFILE
+					fi
+					rm -f "./export.sql" >>$LOGFILE 2>>$LOGFILE
+				fi
+
+			fi
+
+			if [ "${RUNCOMMANDS[$DBINDEX]}" != "" ]
+			then
+				echo -ne "\E[1;29;40mExecuting the command configured for database $DBINDEX..."; tput sgr0; echo
+				${RUNCOMMANDS[$DBINDEX]} >>$LOGFILE 2>>$LOGFILE
+			fi
+
+		fi
+	done
+}
+
+function checkStartSuccess {
+	local PIDONSTART=`sudo cat $TMPFS_FOLDER/tmpfs-mysqld.pid 2>/dev/null`
+	if [ "$PIDONSTART" != "" ]
+	then
+		echo -ne "\E[1;29;42mThe tmpfs mysql server has started"; tput sgr0; echo -ne '\n'
+		echo "The password for the tmpfs-mysql server is '$PASSWORD' and the port is '$PORT'."
+	else
+		echo -ne "\E[1;29;41mThe tmpfs mysql server failed to start "; tput sgr0; echo -ne '\n'
+	fi
+	echo -ne "\n"
+}
+
+function rotateLogFile {
+	if test -e "$LOGFILE" -a -r "$LOGFILE" -a -f "$LOGFILE"
+	then
+		logfileLines=`wc -l $LOGFILE | awk '{print $1}'`
+
+		if [ "${logfileLines}" -gt 1000 ]; then
+			cp "$LOGFILE" "$LOGFILE".bak
+			tail -n $LOGFILE_LINES "$LOGFILE".bak > "$LOGFILE"
+			rm -f "$LOGFILE".bak
+		fi
+	fi
+}
+
+function menuActionCheckSQLdumpFile {
+	if [ "$1" == "" ]; then
+		echo -ne "\E[1;33;43mNo database index from the config was specified, assuming 0..."; tput sgr0; echo -ne "\n"
+		local CHKDUMPINDEX=0
+	else
+		local CHKDUMPINDEX=$1
+	fi
+
+	if test -e "${DUMPFILES[$CHKDUMPINDEX]}" -a -r "${DUMPFILES[$CHKDUMPINDEX]}" -a -f "${DUMPFILES[$CHKDUMPINDEX]}"
+	then
+		echo -ne '\E[1;29;42m';
+		echo -n "The SQL dump file at '${DUMPFILES[$CHKDUMPINDEX]}' exists and is readable."
+		tput sgr0
+		echo ""
+	else
+		echo -ne '\E[1;29;41m';
+		echo -n "The SQL dump file at '${DUMPFILES[$CHKDUMPINDEX]}' either does not exists or is not readable."
+		tput sgr0
+		echo ""
+	fi
+
+	echo ""
+	exit 0
+}
+
+function menuActionConnectAsClient {
+	echo -ne '\n\E[3;29;44m'"Logging into the tmpfs mysql server..."; tput sgr0
+	echo ""
+	mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD 2>>$LOGFILE
+	exit 0
+}
+
+function menuActionShowDb {
+	echo -ne "\n\E[3;29;44mShowing databases on the tmpfs mysql server..."; tput sgr0
+	echo ""
+	mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD -e 'show databases' 2>>$LOGFILE
+	echo ""
+	exit 0
+}
+
+function menuActionCreateDb {
+	echo -ne "\n\E[3;29;44mCreating database $2 on the tmpfs mysql server..."; tput sgr0
+	echo ""
+	mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD -e "create database if not exists $2" 2>>$LOGFILE
+	echo ""
+	exit 0
+}
+
+function menuActionDropDb {
+	echo -ne "\n\E[3;29;44mDropping database $2 from the tmpfs mysql server..."; tput sgr0
+	echo ""
+	mysql -u tmpfs --host=0.0.0.0 --port=$PORT --password=$PASSWORD -e "drop database if exists $2" 2>>$LOGFILE
+	echo ""
+	exit 0
+}
+
+function menuActionStore {
+
+	if ! ( test -e $TMPFS_FOLDER/datadir -a -r $TMPFS_FOLDER/datadir -a -d $TMPFS_FOLDER/datadir )
+	then
+		echo -e "\n\E[3;31;40mThe tmpfs-mysql server doesn't seem to have been started, we cannot copy from it's datadir. Exiting with status 1.\E[0m\n"
+		exit 1
+	fi
+
+	echo -e "Storing the tmpfs-mysql server datadir into the persist folder..."
+
+	nicelyStopTmpfsServer
+
+	sleep 4
+
+	persistFolder=`pwd`/persist
+	persistFolderDatadir=`pwd`/persist/datadir
+
+	echo -e "We are about to delete the current data in the $persistFolderDatadir folder";
+
+	sudo rm -rf "$persistFolderDatadir"
+	mkdir -p "$persistFolder"
+	sudo cp -pr $TMPFS_FOLDER/datadir "$persistFolderDatadir"
+
+	dbServerStarter
+	echo -e "...completed persisting the tmpfs-mysql datadir."
+}
+
+function menuActionLoad {
+	# need to handle cases where load is called before tmpfs-mysql is started and we need to create the tmpfs folder
+
+	if ! ( test -e $TMPFS_FOLDER/datadir -a -r $TMPFS_FOLDER/datadir -a -d $TMPFS_FOLDER/datadir )
+	then
+		echo -e "\n\E[3;31;40mThe tmpfs-mysql server doesn't seem to have been started, we cannot copy to it's datadir. Exiting with status 1.\E[0m\n"
+		exit 1
+	fi
+
+	persistFolderDatadir=`pwd`/persist/datadir
+
+	if ! ( test -e "$persistFolderDatadir" -a -r "$persistFolderDatadir" -a -d "$persistFolderDatadir" )
+	then
+		echo -e "\nNo datadir is present in the persist folder, exiting with status 1!\n"
+		exit 1
+	fi
+
+	echo -e "Loading the tmpfs-mysql server datadir from the persist folder..."
+
+	nicelyStopTmpfsServer
+
+	echo -e "We are about to load the $persistFolderDatadir folder as tmpfs-mysql datadir";
+
+	sudo rm -rf $TMPFS_FOLDER/datadir
+	# figure out a better way than sleep, to wait for rm to complete and have the filesystem stats updated
+	sleep 2
+	sudo cp -pr "$persistFolderDatadir" $TMPFS_FOLDER/datadir
+
+	dbServerStarter
+
+	echo -e "...completed loading tmpfs-mysql datadir from the persist folder."
+}
+
+function menuActionStoreClear {
+	echo -e "Clearing the persist folder..."
+
+	persistFolderDatadir=`pwd`/persist/datadir
+	echo -e "We are about to delete the $persistFolderDatadir folder";
+
+	sudo rm -rf "$persistFolderDatadir"
+
+	echo -e "...completed clearing the persist folder."
+}
+
+function menuActionUsage {
+	if ! ( test -e $TMPFS_FOLDER/datadir -a -r $TMPFS_FOLDER/datadir -a -d $TMPFS_FOLDER/datadir )
+	then
+		echo -e "The tmpfs-mysql server doesn't seem to have been started, we cannot fetch stats.\nExiting with status 1."
+		exit 1
+	fi
+
+		usedMB=`sudo du -sm $TMPFS_FOLDER | awk '{ print $1 }'`; echo -e "\n\E[1;39;46m Memory used \E[0m\E[1;39;44m ${usedMB} of ${TMPFS_SIZE} MB \E[0m\n"
+}
+
+function menuActionStartRestart {
+	killByPID
+	prepareTmpfsFilesystem
+	dbServerInstaller
+	dbServerStarter
+
+	echo "Waiting for the new mysql server instance to fire up before we continue..."
+	/bin/sleep 1
+
+	fixUserAccessAndPrivileges
+	performAfterStartUserConfigTasks
+	checkStartSuccess
+}
+
+function menuActionStop {
+	nicelyStopTmpfsServer
+	echo "The tmpfs mysql server instance has been stopped."
+	cleanTmpfsFilesystem
+	echo -e "Done"
+	exit 0
+}
+
+function menuActionStatus {
+	if [ "$PID" != "" ]
+	then
+		echo -ne "\nThe tmpfs mysql server seems to be "; echo -ne '\E[1;29;42m'" running "; tput sgr0
+		echo -e "\n"
+		exit 0
+	else
+		echo -ne "\nThe tmpfs mysql server seems to be "; echo -ne '\E[1;29;41m'" down "; tput sgr0
+		echo -e "\n"
+		exit 1
+	fi
+}
+
+function menuActionKill {
+	killByPID
+	MYSQLSERVICEPID=`sudo cat /var/run/mysqld/mysqld.pid 2>/dev/null`
+
+	echo -e "You gave the kill order, we'll now stop the normal mysql server if it is running\n and kill any other instances of the mysqld daemon..."
+
+	if [ "$MYSQLSERVICEPID" != "" ]
+	then
+		echo "Gracefully stopping the normal mysql server and killing any other mysqld process..."
+		sudo service mysql stop >>$LOGFILE 2>>$LOGFILE
+		/bin/sleep 1
+	fi
+
+	sudo killall mysqld >>$LOGFILE 2>>$LOGFILE
+	/bin/sleep 1
+	cleanTmpfsFilesystem
+
+	if [ "$MYSQLSERVICEPID" != "" ]
+	then
+		echo "Starting up the normal mysql server..."
+		sudo service mysql restart >>$LOGFILE 2>>$LOGFILE #&
+	fi
+	exit 0
+}
+
+initVars
+checkForMySQL
+populateServerVersionVariables
+loadConfig
+handleMenuChoice $1 $2
+rotateLogFile
