@@ -1,6 +1,6 @@
 html5lib==0.9999999
 six==1.10.0
-Django==1.8.14
+Django==1.11.28
 django-cms==3.3
 djangocms-text-ckeditor==3.3.0
 djangocms-link==2.0.2
