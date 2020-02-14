@@ -1,0 +1,48 @@
+---
+- hosts: all
+  sudo: true
+  vars:
+
+
+  tasks:
+    - name: Run the equivalent of "apt-get update"
+      apt:
+        update_cache: yes
+
+    # MariaDb
+
+    - name: install MariaDb
+      apt: name={{ item }} state=latest
+      with_items:
+        - mariadb-server
+        - mariadb-client
+        - python-mysqldb
+
+    - name: add mysql user
+      mysql_user: name=vagrant
+                  host={{ item }}
+                  password=vagrant priv=*.*:ALL,GRANT
+                  login_user=root
+                  login_password=
+      with_items:
+        - '%'
+        - localhost
+
+    - name: load time zones in mysql
+      shell: mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+
+    - stat:
+        path: /var/lib/mysql/ag2021
+      register: db_exists
+
+#    - name: create mysql database
+#      shell: /vagrant/db_scripts/create_dev_databases.sh
+#      when: db_exists.stat.islnk is not defined
+
+    - name: install python stuff
+      apt: name={{ item }} state=latest
+      with_items:
+        - python-virtualenv
+        - python3-virtualenv
+        - git
+        - python-reportlab

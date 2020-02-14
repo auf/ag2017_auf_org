@@ -31,5 +31,6 @@
 /medias_participants
 
 .cache
+.vagrant
 
 auth_user.json

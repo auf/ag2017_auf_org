@@ -56,7 +56,7 @@ function populatePID {
 }
 
 function populateServerVersionVariables {
-	MYSQL_VERSION_RAW=`mysqld --version 2>>$LOGFILE`
+	MYSQL_VERSION_RAW=`mysql --version 2>>$LOGFILE`
 	SERVER_MODE='MySQL'
 
 	if [[ "$MYSQL_VERSION_RAW" == *"MariaDB"* ]]; then
@@ -80,7 +80,7 @@ function sudoStateCheck {
 }
 
 function checkForMySQL {
-	local MYSQLDINSTALLED=`which mysqld 2>>$LOGFILE`
+	local MYSQLDINSTALLED=`which mysqld_safe 2>>$LOGFILE`
 	if [ "$MYSQLDINSTALLED" == "" ]
 	then
 		echo ""
@@ -232,7 +232,7 @@ function installBaseDatabaseMySQLold {
 }
 
 function installBaseDatabaseMySQLnew {
-	sudo -u mysql mysqld --initialize-insecure --user=mysql --datadir=$TMPFS_FOLDER/datadir >>$LOGFILE 2>>$LOGFILE
+	sudo -u mysql mysqld_safe --initialize-insecure --user=mysql --datadir=$TMPFS_FOLDER/datadir >>$LOGFILE 2>>$LOGFILE
 	/bin/sleep 1
 }
 
@@ -263,7 +263,7 @@ function dbServerInstaller {
 
 function dbServerStarter {
 	echo $MESSAGE_STARTING_MYSQL
-	sudo -u mysql mysqld --datadir=$TMPFS_FOLDER/datadir --pid-file=$TMPFS_FOLDER/tmpfs-mysqld.pid --socket=$SOCKET_FILE --port=$PORT \
+	sudo -u mysql mysqld_safe --datadir=$TMPFS_FOLDER/datadir --pid-file=$TMPFS_FOLDER/tmpfs-mysqld.pid --socket=$SOCKET_FILE --port=$PORT \
 	--log-error=$TMPFS_FOLDER/error.log --bind-address=0.0.0.0 --innodb_flush_log_at_trx_commit=2 --performance_schema=0 $MYSQLDPARAMS >>$LOGFILE 2>>$LOGFILE &
 	/bin/sleep 1
 }
@@ -573,7 +573,7 @@ function menuActionKill {
 		/bin/sleep 1
 	fi
 
-	sudo killall mysqld >>$LOGFILE 2>>$LOGFILE
+	sudo killall mysqld_safe >>$LOGFILE 2>>$LOGFILE
 	/bin/sleep 1
 	cleanTmpfsFilesystem
 

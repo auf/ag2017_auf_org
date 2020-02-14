@@ -35,9 +35,10 @@ if 'test' in sys.argv or 'pytest_teamcity' in sys.argv or \
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'ag_dev',
-            'HOST' : '/var/run/mysqld/mysqld-ram.sock',
-            'USER': 'root',
-            'PORT' : '65432',
+            'HOST': '127.0.0.1',
+            'USER': 'tmpfs',
+            'PASSWORD': 'drowssap',
+            'PORT': '3344',
             'OPTIONS': {
                 "init_command": "SET storage_engine=INNODB",
             },
