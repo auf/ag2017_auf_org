@@ -15,7 +15,7 @@
 *.rej
 
 # Configuration du projet - par environnement
-/ag/conf.py
+ag/settings/conf.py
 
 # buildout
 /.installed.cfg

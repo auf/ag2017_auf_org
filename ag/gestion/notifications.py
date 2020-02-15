@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 from django.template import Template, Context
 from auf.django.mailing.models import ModeleCourriel
-from ag import settings
+from django.conf import settings
 from ag.gestion.transfert_inscription import inscription_transferee
 from ag.inscription.templatetags.inscription import adresse_email_region
 from ag.inscription.views import inscription_confirmee

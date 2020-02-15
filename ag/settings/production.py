@@ -5,7 +5,9 @@
 import sys
 sys.stdout = sys.stderr
 
-from ag.settings import *
+# noinspection PyUnresolvedReferences
+from ag.settings.base import *  # noqa
+
 CACHE_BACKEND = 'memcached://127.0.0.1:8000/'
 
 LOGGING = {
