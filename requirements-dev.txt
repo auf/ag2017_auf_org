@@ -4,7 +4,7 @@ django-debug-toolbar==1.9.1
 django-extensions==2.1.0
 mock
 lxml
-pytest-django
+pytest-django==3.1.2
 factory_boy==2.7.0
 fake-factory==0.6.0
 Pillow==3.3.1

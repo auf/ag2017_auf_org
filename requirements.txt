@@ -13,14 +13,9 @@ djangocms-attributes-field==0.3.0
 django-mptt==0.9.0
 django-classy-tags==0.8.0
 django-formtools==2.1
--e git://github.com/auf/auf_django_mailing.git@v0.6#egg=auf.django.mailing
 django-crispy-forms==1.6.0
 raven
-django-sendfile==0.3.10
-
--e git://github.com/auf/auf_django_permissions.git#egg=auf.django.permissions
--e git://github.com/auf/auf_django_piwik.git#egg=auf.django.piwik
--e git://github.com/auf/auf_django_saml.git#egg=auf.django.saml
+django-sendfile2==0.4.1
 
 python-memcached==1.48
 django-tinymce==2.3.0

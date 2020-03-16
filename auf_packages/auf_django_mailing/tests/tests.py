@@ -10,20 +10,21 @@ from django.test import TestCase
 from auf.django.mailing.models import EntreeLog, Enveloppe, envoyer,\
     ModeleCourriel, generer_jeton, TAILLE_JETON
 
-class TestDestinataire(models.Model):
+
+class FakeDestinataire(models.Model):
     adresse_courriel = CharField(max_length=128)
     nom = CharField(max_length=64)
 
 
-class TestEnveloppeParams(models.Model):
-    destinataire = ForeignKey(TestDestinataire)
+class FakeEnveloppeParams(models.Model):
+    destinataire = ForeignKey(FakeDestinataire)
     enveloppe = ForeignKey(Enveloppe, unique=True)
     jeton = CharField(max_length=TAILLE_JETON)
 
     def save(self, *args, **kwargs):
         if not self.jeton:
             self.jeton = generer_jeton(TAILLE_JETON)
-        super(TestEnveloppeParams, self).save(*args, **kwargs)
+        super(FakeEnveloppeParams, self).save(*args, **kwargs)
 
     def get_adresse(self):
         return self.destinataire.adresse_courriel
@@ -39,11 +40,11 @@ class TestEnveloppeParams(models.Model):
 class MailTest(TestCase):
 
     def setUp(self):
-        self.dest1 = TestDestinataire(adresse_courriel='dest1@test.org',
-            nom='nom dest1')
+        self.dest1 = FakeDestinataire(adresse_courriel='dest1@test.org',
+                                      nom='nom dest1')
         self.dest1.save()
-        self.dest2 = TestDestinataire(adresse_courriel='dest2@test.org',
-            nom='nom dest2')
+        self.dest2 = FakeDestinataire(adresse_courriel='dest2@test.org',
+                                      nom='nom dest2')
         self.dest2.save()
         self.modele_courriel = ModeleCourriel(code='mod_test',
             sujet='sujet_modele',  corps='{{ nom_destinataire }}{{ url }}',
@@ -57,7 +58,7 @@ class MailTest(TestCase):
     def create_enveloppe_params(self, dest):
         enveloppe = Enveloppe(modele=self.modele_courriel)
         enveloppe.save()
-        enveloppe_params = TestEnveloppeParams(enveloppe=enveloppe, destinataire=dest)
+        enveloppe_params = FakeEnveloppeParams(enveloppe=enveloppe, destinataire=dest)
         enveloppe_params.save()
         return enveloppe, enveloppe_params
 
