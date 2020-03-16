@@ -123,7 +123,6 @@ class EntreeLog(models.Model):
     date_heure_envoi = DateTimeField(default=datetime.datetime.now)
     erreur = TextField(null=True)
 
-@transaction.commit_manually
 def envoyer(code_modele, adresse_expediteur, site=None, url_name=None,
             limit=None, retry_errors=True):
     u"""
@@ -146,8 +145,8 @@ def envoyer(code_modele, adresse_expediteur, site=None, url_name=None,
     enveloppes = Enveloppe.objects.filter(modele=modele)
     temporisation = getattr(settings, 'MAILING_TEMPORISATION', 2)
     counter = 0
-    try:
-        for enveloppe in enveloppes:
+    for enveloppe in enveloppes:
+        with transaction.atomic():
             # on vérifie qu'on n'a pas déjà envoyé ce courriel à
             # cet établissement et à cette adresse
             adresse_envoi = enveloppe.get_adresse()
@@ -193,12 +192,5 @@ def envoyer(code_modele, adresse_expediteur, site=None, url_name=None,
             except (smtplib.socket.error, smtplib.SMTPException) as e:
                 entree_log.erreur = e.__str__()
             entree_log.save()
-            transaction.commit()
             if limit and counter >= limit:
                 break
-    except:
-        transaction.rollback()
-        raise
-
-    transaction.commit() # nécessaire dans le cas où rien n'est envoyé, à cause du décorateur commit_manually
-
