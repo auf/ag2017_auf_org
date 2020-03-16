@@ -1,3 +1,9 @@
+0.6
+---
+
+* Enlever les "namespace packages", renommer en "auf_django_mailing"
+* Faire fonctionner avec pytest
+
 0.5
 ---
 

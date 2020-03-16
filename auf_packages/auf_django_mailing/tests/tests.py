@@ -7,7 +7,7 @@ from django.db.models.fields.related import ForeignKey
 
 from django.test import TestCase
 
-from auf.django.mailing.models import EntreeLog, Enveloppe, envoyer,\
+from auf_django_mailing.models import EntreeLog, Enveloppe, envoyer,\
     ModeleCourriel, generer_jeton, TAILLE_JETON
 
 

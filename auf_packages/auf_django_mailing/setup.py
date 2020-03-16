@@ -2,8 +2,8 @@
 
 from setuptools import setup, find_packages
 
-name = 'auf.django.mailing'
-version = '0.5'
+name = 'auf_django_mailing'
+version = '0.6'
 
 setup(
     name=name,
@@ -14,7 +14,7 @@ setup(
     url='http://pypi.auf.org/%s' % name,
     license='GPL',
     packages=find_packages(exclude=['tests', 'tests.*']),
-    namespace_packages=['auf', 'auf.django'],
+    namespace_packages=[],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
