@@ -1,0 +1,57 @@
+0.8 (2013-01-17)
+================
+
+* Gestion des relations one-to-many et many-to-many
+
+0.7 (2013-01-16)
+================
+
+* Bugfix dans qeval()
+
+0.6 (2012-08-24)
+================
+
+* Bugfix dans qeval()
+
+* Retourner un code HTTP 403 pour les pages de déni de permission.
+
+0.5 (2012-07-26)
+================
+
+* Ne pas filtrer le queryset lorsqu'on a affaire à un superuser.
+
+0.4 (2012-07-23)
+================
+
+* API complètement différent: abandon des règles et des prédicats. On utilise
+  plutôt des rôles pour donner des permissions.
+
+* Ajout de la méthod with_perm() aux querysets Django.
+
+0.3 (2012-03-13)
+================
+
+* Ajouté des vérification de type sur les méthodes Rules.allow() et Rules.deny()
+
+* Ajouté un manager spécifique aux permissions globales avec les méthodes
+  add_permission(), remove_permission(), get_permissions()
+
+* Ajouté la classe GuardedModelAdmin qui est un ModelAdmin gérant les row-level
+  permissions
+
+* Ajouté le constructeur make_global_permissions_form() qui permet d'ajouter la
+  gestion des permissions globales aux formulaires des utilisateurs et des
+  groupes.
+
+* Commencé une documentation
+
+0.2 (2012-03-01)
+================
+
+* Changement à l'API: introduction des prédicats
+
+* Nouveau paramètre de configuration: AUF_PERMISSIONS_RULES pour définir les
+  règles de permissions.
+
+* Support pour l'affectation de permissions globales aux utilisateurs et
+  groupes.
