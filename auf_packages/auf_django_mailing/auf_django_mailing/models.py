@@ -35,16 +35,19 @@ import random
 import smtplib
 import string
 import time
+import django
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail.message import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
+from django.apps import apps
 from django.db.models.fields import CharField, TextField, BooleanField, DateTimeField
 from django.db.models.fields.related import ForeignKey
 import datetime
 from django.template.base import Template
 from django.template.context import Context
 from django.conf import settings
+
 
 class ModeleCourriel(models.Model):
     """
@@ -61,6 +64,7 @@ class ModeleCourriel(models.Model):
 
 
 TAILLE_JETON = 32
+
 
 def generer_jeton(taille=TAILLE_JETON):
     return ''.join(random.choice(string.letters + string.digits)\
@@ -100,7 +104,7 @@ class Enveloppe(models.Model):
             except ValueError:
                 raise EnveloppeParametersNotAvailable()
             try:
-                model = models.get_model(app_label, model_name)
+                model = apps.get_model(app_label, model_name)
                 if model is None:
                     raise EnveloppeParametersNotAvailable()
                 self._params_cache = model._default_manager.using(
@@ -117,11 +121,18 @@ class Enveloppe(models.Model):
     def get_adresse(self):
         return self.get_params().get_adresse()
 
+    def get_adresse_expediteur(self):
+        params = self.get_params()
+        if hasattr(params, 'get_adresse_expediteur'):
+            return params.get_adresse_expediteur()
+
+
 class EntreeLog(models.Model):
     enveloppe = ForeignKey(Enveloppe)
     adresse = CharField(max_length=256)
     date_heure_envoi = DateTimeField(default=datetime.datetime.now)
     erreur = TextField(null=True)
+
 
 def envoyer(code_modele, adresse_expediteur, site=None, url_name=None,
             limit=None, retry_errors=True):
@@ -146,51 +157,61 @@ def envoyer(code_modele, adresse_expediteur, site=None, url_name=None,
     temporisation = getattr(settings, 'MAILING_TEMPORISATION', 2)
     counter = 0
     for enveloppe in enveloppes:
-        with transaction.atomic():
-            # on vérifie qu'on n'a pas déjà envoyé ce courriel à
-            # cet établissement et à cette adresse
-            adresse_envoi = enveloppe.get_adresse()
-            entree_log = EntreeLog.objects.filter(enveloppe=enveloppe,
-                adresse=adresse_envoi)
-            if retry_errors:
-                entree_log = entree_log.filter(erreur__isnull=True)
+        # on vérifie qu'on n'a pas déjà envoyé ce courriel à
+        # cet établissement et à cette adresse
+        adresse_envoi = enveloppe.get_adresse()
+        entree_log = EntreeLog.objects.filter(enveloppe=enveloppe,
+                                              adresse=adresse_envoi)
+        if retry_errors:
+            entree_log = entree_log.filter(erreur__isnull=True)
 
-            if entree_log.count() > 0:
-                continue
+        if entree_log.count() > 0:
+            continue
 
-            modele_corps = Template(enveloppe.modele.corps)
-            contexte_corps = enveloppe.get_corps_context()
+        modele_corps = Template(enveloppe.modele.corps)
+        contexte_corps = enveloppe.get_corps_context()
 
-            if site and url_name and 'jeton' in contexte_corps:
-                url = 'http://%s%s' % (site.domain,
-                                    reverse(url_name,
-                                        kwargs={'jeton': contexte_corps['jeton']}))
-                contexte_corps['url'] = url
+        if site and url_name and 'jeton' in contexte_corps:
+            url = 'http://%s%s' % (
+                site.domain,
+                reverse(url_name,
+                        kwargs={'jeton': contexte_corps['jeton']}))
+            contexte_corps['url'] = url
 
-            corps = modele_corps.render(Context(contexte_corps))
-            message = EmailMessage(enveloppe.modele.sujet,
-                corps,
-                adresse_expediteur,     # adresse de retour
-                [adresse_envoi],                # adresse du destinataire
-                headers={'precedence' : 'bulk'} # selon les conseils de google
-            )
-            try:
-                # Attention en DEV, devrait simplement écrire le courriel
-                # dans la console, cf. paramètre EMAIL_BACKEND dans conf.py
-                # En PROD, supprimer EMAIL_BACKEND (ce qui fera retomber sur
-                # le défaut qui est d'envoyer par SMTP). Même chose en TEST,
-                # mais attention car les adresses qui sont dans la base
-                # seront utilisées: modifier les données pour y mettre des
-                # adresses de test plutôt que les vraies
-                message.content_subtype = "html" if enveloppe.modele.html else "text"
-                entree_log = EntreeLog()
-                entree_log.enveloppe = enveloppe
-                entree_log.adresse = adresse_envoi
-                message.send()
-                counter += 1
-                time.sleep(temporisation)
-            except (smtplib.socket.error, smtplib.SMTPException) as e:
-                entree_log.erreur = e.__str__()
-            entree_log.save()
-            if limit and counter >= limit:
-                break
+        adresse_expediteur_env = enveloppe.get_adresse_expediteur()
+        adresse_expediteur = adresse_expediteur_env or adresse_expediteur
+
+        corps = modele_corps.render(Context(contexte_corps))
+        message = EmailMessage(enveloppe.modele.sujet,
+                               corps,
+                               adresse_expediteur,  # adresse de retour
+                               [adresse_envoi],  # adresse du destinataire
+                               headers={'precedence': 'bulk'}
+                               # selon les conseils de google
+                               )
+        envoyer_message(adresse_envoi, enveloppe, message)
+        counter += 1
+        time.sleep(temporisation)
+        if limit and counter >= limit:
+            break
+
+
+def envoyer_message(adresse_envoi, enveloppe, message):
+    message.content_subtype = "html" if enveloppe.modele.html else "text"
+    new_entree_log = EntreeLog()
+    new_entree_log.enveloppe = enveloppe
+    new_entree_log.adresse = adresse_envoi
+    try:
+        # Attention en DEV, devrait simplement écrire le courriel
+        # dans la console, cf. paramètre EMAIL_BACKEND dans conf.py
+        # En PROD, supprimer EMAIL_BACKEND (ce qui fera retomber sur
+        # le défaut qui est d'envoyer par SMTP). Même chose en TEST,
+        # mais attention car les adresses qui sont dans la base
+        # seront utilisées: modifier les données pour y mettre des
+        # adresses de test plutôt que les vraies
+        message.send()
+    except (smtplib.socket.error, smtplib.SMTPException) as e:
+        new_entree_log.erreur = e.__str__()
+    new_entree_log.save()
+
+
