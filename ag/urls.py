@@ -39,26 +39,26 @@ urlpatterns += patterns(
     (r'^actualites/(?P<slug>[-\w]+)/$', 'actualite_detail'),
 )
 
-if settings.SAML_AUTH:
-    urlpatterns += patterns(
-        '',
-        (r'^', include('auf.django.saml.urls')),
-    )
-else:
-    urlpatterns += patterns(
-            '',
-            (r'^', include('auf.django.saml.mellon_urls')),
-    )
+# if settings.SAML_AUTH:
+#     urlpatterns += patterns(
+#         '',
+#         (r'^', include('auf.django.saml.urls')),
+#     )
+# else:
+#     urlpatterns += patterns(
+#             '',
+#             (r'^', include('auf.django.saml.mellon_urls')),
+#     )
 
 urlpatterns += patterns('',
     url(r'^', include('cms.urls')),
 )
 
-if not settings.SAML_AUTH:
-    urlpatterns += patterns(
-            '',
-            (r'^', include('auf.django.saml.mellon_urls')),
-    )
+# if not settings.SAML_AUTH:
+#     urlpatterns += patterns(
+#             '',
+#             (r'^', include('auf.django.saml.mellon_urls')),
+#     )
 
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # NOQA
