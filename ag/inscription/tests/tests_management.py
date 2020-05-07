@@ -22,27 +22,26 @@ class EnveloppeCreeTestCase(django.test.TestCase):
 
 
 class EtablissementsSansInvitationTestCase(django.test.TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        super(EtablissementsSansInvitationTestCase, cls).setUpTestData()
+    def setUp(self):
+        super(EtablissementsSansInvitationTestCase, self).setUpTestData()
         modele = make_modele_courriel_mandate()
-        cls.etablissement_avec_invitation = EtablissementFactory(
+        self.etablissement_avec_invitation = EtablissementFactory(
             membre=True, responsable_courriel='a@b.com')
         creer_invitation_enveloppe_mandate(modele,
-                                           cls.etablissement_avec_invitation)
-        cls.etablissement_pas_encore_d_invitation = EtablissementFactory(
+                                           self.etablissement_avec_invitation)
+        self.etablissement_pas_encore_d_invitation = EtablissementFactory(
             membre=True, responsable_courriel='c@d.com')
-        cls.etablissement_non_membre = EtablissementFactory(
+        self.etablissement_non_membre = EtablissementFactory(
             membre=False, responsable_courriel='e@f.com')
         modele2 = ModeleCourriel.objects.create(code='blabla', sujet='b',
                                                 corps='c', html=False)
-        cls.etablissement_avec_invitation_autre_modele = EtablissementFactory(
+        self.etablissement_avec_invitation_autre_modele = EtablissementFactory(
             membre=True, responsable_courriel='g@h.com')
         creer_invitation_enveloppe_mandate(
-            modele2, cls.etablissement_avec_invitation_autre_modele)
-        cls.etablissement_sans_courriel = EtablissementFactory(
+            modele2, self.etablissement_avec_invitation_autre_modele)
+        self.etablissement_sans_courriel = EtablissementFactory(
             membre=True, responsable_courriel='')
-        cls.etablissements_sans_invitation = get_etablissements_sans_invitation(
+        self.etablissements_sans_invitation = get_etablissements_sans_invitation(
             modele)
 
     def test_deja_invite(self):

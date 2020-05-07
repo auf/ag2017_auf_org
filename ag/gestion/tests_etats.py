@@ -249,10 +249,9 @@ NO_VOL_DEPART_AG_1500 = u'GH098'
 
 class EtatsVolsTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         call_command('loaddata', 'test_data.json')
-        create_fixtures(cls)
+        create_fixtures(self)
         vol_groupe1 = VolGroupe.objects.create(nom='volgroupe1')
         InfosVol.objects.create(
             ville_depart=VILLE_PARIS, date_depart=DATE_DEPART_ORIGINE,
@@ -285,44 +284,44 @@ class EtatsVolsTestCase(TestCase):
             heure_arrivee=HEURE_ARRIVEE_ORIGINE_0900,
             vol_groupe=vol_groupe2,  compagnie=COMPAGNIE,
             type_infos=consts.VOL_GROUPE)
-        cls.vol_groupe1, cls.vol_groupe2 = vol_groupe1, vol_groupe2
-        cls.participant1 = creer_participant(
+        self.vol_groupe1, self.vol_groupe2 = vol_groupe1, vol_groupe2
+        self.participant1 = creer_participant(
             'UN', 'a', genre='M', transport_organise_par_auf=True)
-        cls.participant1.prise_en_charge_transport = True
-        cls.participant1.prise_en_charge_sejour = True
-        cls.participant1.vol_groupe = vol_groupe1
-        cls.participant1.save()
-        cls.participant2 = creer_participant(
+        self.participant1.prise_en_charge_transport = True
+        self.participant1.prise_en_charge_sejour = True
+        self.participant1.vol_groupe = vol_groupe1
+        self.participant1.save()
+        self.participant2 = creer_participant(
             'DEUX', 'b', genre='F', transport_organise_par_auf=True)
-        cls.participant2.vol_groupe = vol_groupe2
-        cls.participant2.save()
-        cls.participant3 = creer_participant(
+        self.participant2.vol_groupe = vol_groupe2
+        self.participant2.save()
+        self.participant3 = creer_participant(
             'TROIS', 'c', genre='M', transport_organise_par_auf=True)
-        cls.participant3.vol_groupe = vol_groupe2
-        cls.participant3.save()
-        cls.participant4 = creer_participant(
+        self.participant3.vol_groupe = vol_groupe2
+        self.participant3.save()
+        self.participant4 = creer_participant(
             'QUATRE', 'd', genre='F', transport_organise_par_auf=True)
-        cls.participant4.vol_groupe = vol_groupe2
-        cls.participant4.save()
+        self.participant4.vol_groupe = vol_groupe2
+        self.participant4.save()
         # arrive dans le même avion que vol groupé 1, mais ne fait
         # pas partie de vol groupé 1
-        cls.participant5 = creer_participant(
+        self.participant5 = creer_participant(
             'CINQ', 'e', genre='M', transport_organise_par_auf=False)
-        cls.participant5.set_infos_arrivee(DATE_ARRIVEE_AG,
+        self.participant5.set_infos_arrivee(DATE_ARRIVEE_AG,
                                             HEURE_ARRIVEE_AG_1200,
                                             NO_VOL_ARRIVEE_AG_1200,
                                             COMPAGNIE,
                                             VILLE_SAO_PAULO)
-        cls.participant6 = creer_participant(
+        self.participant6 = creer_participant(
             'SIX', 'f', genre='F', transport_organise_par_auf=True)
-        cls.participant6.vol_groupe = vol_groupe2
-        cls.participant6.desactive = True
-        cls.participant6.save()
+        self.participant6.vol_groupe = vol_groupe2
+        self.participant6.desactive = True
+        self.participant6.save()
         # SEPT a des infos de vol non organise et des infos de vol
         # organise mais son transport est organise.
-        cls.participant7 = creer_participant(
+        self.participant7 = creer_participant(
             'SEPT', 'g', genre='M', transport_organise_par_auf=True)
-        cls.participant7.set_infos_arrivee(DATE_ARRIVEE_AG,
+        self.participant7.set_infos_arrivee(DATE_ARRIVEE_AG,
                                             HEURE_ARRIVEE_AG_1200,
                                             NO_VOL_ARRIVEE_AG_1200,
                                             COMPAGNIE,
@@ -333,14 +332,12 @@ class EtatsVolsTestCase(TestCase):
             ville_arrivee=VILLE_SAO_PAULO,
             date_arrivee=DATE_ARRIVEE_AG,
             heure_arrivee=HEURE_ARRIVEE_AG_1300,
-            participant=cls.participant7, type_infos=VOL_ORGANISE,
+            participant=self.participant7, type_infos=VOL_ORGANISE,
             numero_vol=NO_VOL_ARRIVEE_AG_1300, compagnie=COMPAGNIE)
-        Invite.objects.create(participant=cls.participant5,
+        Invite.objects.create(participant=self.participant5,
                               genre='M',
                               nom='INVITE_DU_5',
                               prenom='edouard')
-
-    def setUp(self):
         self.client.login(username='john', password='johnpassword')
 
     def tearDown(self):
@@ -436,45 +433,42 @@ class EtatsVolsTestCase(TestCase):
 
 class EtatParticipantsActivitesTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         call_command('loaddata', 'test_data.json')
-        create_fixtures(cls)
+        create_fixtures(self)
         hotel = Hotel.objects.get(code=CODE_HOTEL)
         activite1, activite2 = Activite.objects.all()[:2]
-        cls.participant1 = creer_participant('premier', 'alain')
-        cls.participant1.genre = 'M'
-        cls.participant1.hotel = hotel
-        cls.participant1.inscrire_a_activite(activite1, avec_invites=True)
-        cls.participant1.inscrire_a_activite(activite2, avec_invites=False)
-        cls.participant1.save()
-        cls.participant1.invite_set.add(Invite.objects.create(
+        self.participant1 = creer_participant('premier', 'alain')
+        self.participant1.genre = 'M'
+        self.participant1.hotel = hotel
+        self.participant1.inscrire_a_activite(activite1, avec_invites=True)
+        self.participant1.inscrire_a_activite(activite2, avec_invites=False)
+        self.participant1.save()
+        self.participant1.invite_set.add(Invite.objects.create(
             genre='F', nom='premier', prenom='invite',
-            participant=cls.participant1))
-        cls.participant2 = creer_participant('deuxième', 'thérèse')
-        cls.participant2.genre = 'F'
-        cls.participant2.hotel = hotel
-        cls.participant2.inscrire_a_activite(activite2, avec_invites=True)
-        cls.participant2.save()
-        cls.participant2.invite_set.add(Invite.objects.create(
+            participant=self.participant1))
+        self.participant2 = creer_participant('deuxième', 'thérèse')
+        self.participant2.genre = 'F'
+        self.participant2.hotel = hotel
+        self.participant2.inscrire_a_activite(activite2, avec_invites=True)
+        self.participant2.save()
+        self.participant2.invite_set.add(Invite.objects.create(
             genre='F', nom='deux1', prenom='invite',
-            participant=cls.participant2))
-        cls.participant2.invite_set.add(Invite.objects.create(
+            participant=self.participant2))
+        self.participant2.invite_set.add(Invite.objects.create(
             genre='F', nom='deux2', prenom='invite',
-            participant=cls.participant2))
-        cls.participant3 = creer_participant('desactivée', 'josette')
-        cls.participant3.desactive = True
-        cls.participant3.genre = 'F'
-        cls.participant3.hotel = hotel
-        cls.participant3.inscrire_a_activite(activite2, avec_invites=True)
-        cls.participant3.save()
-        cls.participant4 = creer_participant(u"pas d'hôtel", 'alain')
-        cls.participant4.desactive = True
-        cls.participant4.genre = 'M'
-        cls.participant4.inscrire_a_activite(activite2, avec_invites=True)
-        cls.participant4.save()
-
-    def setUp(self):
+            participant=self.participant2))
+        self.participant3 = creer_participant('desactivée', 'josette')
+        self.participant3.desactive = True
+        self.participant3.genre = 'F'
+        self.participant3.hotel = hotel
+        self.participant3.inscrire_a_activite(activite2, avec_invites=True)
+        self.participant3.save()
+        self.participant4 = creer_participant(u"pas d'hôtel", 'alain')
+        self.participant4.desactive = True
+        self.participant4.genre = 'M'
+        self.participant4.inscrire_a_activite(activite2, avec_invites=True)
+        self.participant4.save()
         self.client.login(username='john', password='johnpassword')
 
     def tearDown(self):

@@ -26,10 +26,9 @@ def create_etablissement(nom, pays, region, statut=TITULAIRE, qualite=ESR):
 class ElectionsCandidaturesTestCase(DjangoTestCase):
     fixtures = ['elections.json']
 
-    @classmethod
-    def setUpClass(cls):
-        super(ElectionsCandidaturesTestCase, cls).setUpClass()
-        create_fixtures(cls)
+    def setUp(self):
+        super(ElectionsCandidaturesTestCase, self).setUp()
+        create_fixtures(self)
         region_mo = Region.objects.create(code=u'MO',
                                           nom=u'Moyen-Orient')
         region_eo = Region.objects.create(code=u'EO',
@@ -38,9 +37,9 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             nom=u"France", code=u"FR", sud=False)
         pays_de = Pays.objects.create(
             nom=u"Allemagne", code=u"DE", sud=False)
-        pays_eg = cls.pays_eg = Pays.objects.create(
+        pays_eg = self.pays_eg = Pays.objects.create(
             nom=u"Égypte", code=u"EG", sud=True)
-        pays_lb = cls.pays_lb = Pays.objects.create(
+        pays_lb = self.pays_lb = Pays.objects.create(
             nom=u"Liban", code=u"LB", sud=True)
         etablissement_mo = create_etablissement(
             nom=u'etab_mo', pays=pays_eg, region=region_mo)
@@ -78,25 +77,25 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
             )
             return participant
 
-        elec_ca = cls.election_ca = Election.objects.get(code=consts.ELEC_CA)
+        elec_ca = self.election_ca = Election.objects.get(code=consts.ELEC_CA)
         elections = Election.objects.all()
-        cls.participant_mo = creer_participant_vote(
+        self.participant_mo = creer_participant_vote(
             etablissement_mo, nom='A', election=elec_ca)
-        cls.participant_mo2 = creer_participant_vote(etablissement_mo2,
-                                                     nom='B')
-        cls.participant_mo3 = creer_participant_vote(etablissement_mo3,
-                                                     nom='C')
-        cls.participant_fr = creer_participant_vote(etablissement_fr)
-        cls.participant_fr_sans_vote = creer_participant_vote(
+        self.participant_mo2 = creer_participant_vote(etablissement_mo2,
+                                                      nom='B')
+        self.participant_mo3 = creer_participant_vote(etablissement_mo3,
+                                                      nom='C')
+        self.participant_fr = creer_participant_vote(etablissement_fr)
+        self.participant_fr_sans_vote = creer_participant_vote(
             etablissement_fr, pour_mandate=False,
             code_fonction=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
-        cls.participant_de = creer_participant_vote(etablissement_de)
-        cls.participant_reseau_mo = creer_participant_vote(
+        self.participant_de = creer_participant_vote(etablissement_de)
+        self.participant_reseau_mo = creer_participant_vote(
             etablissement_reseau, nom='D', election=elec_ca)
-        cls.participant_associe = creer_participant_vote(etablissement_associe)
-        cls.criteria = get_electeur_criteria()
-        cls.candidats_criteria = get_all_listes_candidat_criteria(elections)
-        cls.candidats = get_candidats_possibles()
+        self.participant_associe = creer_participant_vote(etablissement_associe)
+        self.criteria = get_electeur_criteria()
+        self.candidats_criteria = get_all_listes_candidat_criteria(elections)
+        self.candidats = get_candidats_possibles()
 
     def get_participants_region(self, code_region):
         code = code_critere_region(code_region)
