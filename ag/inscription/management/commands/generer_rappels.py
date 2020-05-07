@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from optparse import make_option
-from auf.django.mailing.models import Enveloppe, ModeleCourriel
+from auf_django_mailing.models import Enveloppe, ModeleCourriel
 from ag.inscription.models import Invitation, InvitationEnveloppe
 from ag.reference.models import Etablissement
 from django.core.management.base import BaseCommand, CommandError

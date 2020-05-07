@@ -13,7 +13,7 @@ from django.core import mail
 from django.core.management import call_command
 
 
-from auf.django.mailing.models import Enveloppe, ModeleCourriel
+from auf_django_mailing.models import Enveloppe, ModeleCourriel
 
 from ag.inscription.templatetags.inscription import adresse_email_region
 from ag.reference.models import Etablissement, Pays

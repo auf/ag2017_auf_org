@@ -55,7 +55,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'auf.django.permissions',
-    'auf.django.mailing',
+    'auf_django_mailing',
     'auf.django.saml',
     'ag.reference',
     'ag.core',

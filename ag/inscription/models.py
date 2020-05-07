@@ -8,7 +8,7 @@ import uuid
 from urllib import unquote_plus
 
 import requests
-from auf.django.mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
+from auf_django_mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse

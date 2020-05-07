@@ -12,7 +12,7 @@ from ag.inscription.models import (
     Inscription,
     Adresse)
 import ag.inscription.views as inscription_views
-import auf.django.mailing.models as mailing
+import auf_django_mailing.models as mailing
 from ag.dossier_inscription import forms
 from ag.dossier_inscription.models import InscriptionFermee
 from ag.reference.models import Region, Pays

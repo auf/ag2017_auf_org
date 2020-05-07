@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-from auf.django.mailing.models import ModeleCourriel
+from auf_django_mailing.models import ModeleCourriel
 from django.core.management import call_command
 import django.test
 import pytest

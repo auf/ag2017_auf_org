@@ -10,7 +10,7 @@ from ag.gestion.models import (
     ROLE_ADMIN,
     Participant,
     Activite, get_fonction_instance_seulement, Fonction)
-from auf.django.mailing.models import ModeleCourriel
+from auf_django_mailing.models import ModeleCourriel
 from django.contrib.auth.models import User
 
 from ag.inscription.models import Forfait
