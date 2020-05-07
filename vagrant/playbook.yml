@@ -42,7 +42,15 @@
     - name: install python stuff
       apt: name={{ item }} state=latest
       with_items:
-        - python-virtualenv
-        - python3-virtualenv
+        - python-venv
+        - python3-venv
         - git
         - python-reportlab
+        - python3-reportlab
+
+    - name: Create a venv directory if it does not exist
+      file:
+        sudo: yes
+        path: /venvs
+        state: directory
+        owner: vagrant:vagrant
