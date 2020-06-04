@@ -17,6 +17,7 @@
         - mariadb-server
         - mariadb-client
         - python-mysqldb
+        - default-libmysqlclient-dev
 
     - name: add mysql user
       mysql_user: name=vagrant
