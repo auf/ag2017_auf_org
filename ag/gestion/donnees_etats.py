@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-from collections import namedtuple, defaultdict
+from collections import namedtuple, defaultdict, OrderedDict
 from functools import partial
 from itertools import groupby
 import datetime
@@ -11,7 +11,6 @@ from ag.gestion.models import (Participant, InfosVol, Invite, Activite, Hotel,
                                strip_accents, Frais, PointDeSuivi, Paiement)
 from django.db import connection
 from django.db.models import Q, Count, Prefetch
-from django.utils.datastructures import SortedDict
 
 from ag.inscription.models import get_forfaits, PaypalResponse
 
@@ -124,7 +123,7 @@ def get_donnees_arrivees_departs(arrivees_departs, ville, jour):
             .order_by('heure_depart', 'compagnie')
     arrivees_departs_display = \
         {ARRIVEES: u"Arrivées à", DEPARTS: u"Départs de"}[arrivees_departs]
-    vols = SortedDict()
+    vols = OrderedDict()
     for vol_object in vols_objects:
         heure, ville, jour = vol_object.get_heure_ville_jour(arrivees_departs)
         vol_key = (heure, vol_object.compagnie, vol_object.numero_vol)
@@ -221,14 +220,14 @@ HotelInfo = namedtuple('HotelInfo', ('libelle', 'hotel'))
 def get_donnees_participants_activites():
     activites = Activite.objects.order_by('libelle').all()
     invites_participants = get_invites_participants()
-    participants_activites = SortedDict()
+    participants_activites = OrderedDict()
     all_hotels = [HotelInfo(h.libelle, h) for h in Hotel.objects.all()]
     all_hotels += [HotelInfo(u"(Aucun hôtel sélectionné)", None)]
     for activite in activites:
-        hotels = SortedDict()
+        hotels = OrderedDict()
         participants_activites[activite] = hotels
         for hotel_info in all_hotels:
-            participants = SortedDict()
+            participants = OrderedDict()
             hotels[hotel_info.libelle] = participants
             participations_activite = ParticipationActivite.objects\
                 .filter(activite=activite, participant__hotel=hotel_info.hotel,

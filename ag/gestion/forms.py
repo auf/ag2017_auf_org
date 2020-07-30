@@ -9,7 +9,6 @@ from crispy_forms.layout import Field as crispy_Field
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import connection
-from django.forms import forms
 from django.forms.fields import (
     IntegerField, CharField, TypedChoiceField, ChoiceField, DateField,
     BooleanField, Field, TimeField, FloatField,
@@ -22,7 +21,7 @@ from django.forms.models import (
 )
 from django.forms.widgets import (
     HiddenInput, Select, TextInput, RadioSelect, DateInput,
-    CheckboxSelectMultiple
+    CheckboxSelectMultiple, Textarea
 )
 
 from ag.reference.models import Etablissement, Region
@@ -388,7 +387,7 @@ class SejourForm(GestionForm):
     activite_scientifique = ModelChoiceField(
         label=u'Atelier scientifique', required=False,
         queryset=ActiviteScientifique.objects.all())
-    notes_hebergement = CharField(widget=forms.Textarea(), required=False,
+    notes_hebergement = CharField(widget=Textarea(), required=False,
                                   label=u'Notes réservation')
 
     def __init__(self, *args, **kwargs):
@@ -543,7 +542,7 @@ class SuiviForm(GestionModelForm):
 
 # Affreux hack, mais le seul trouvé pour avoir une virgule comme séparateur
 # décimal dans les champs de formulaire
-class CurrencyInput(forms.TextInput):
+class CurrencyInput(TextInput):
     def render(self, name, value, attrs=None):
         if value != '' and value is not None:
             try:
@@ -557,6 +556,11 @@ class CurrencyField(RegexField):
     currencyRe = re.compile(r'^[0-9]*([,.][0-9]{1,2})?$')
 
     def __init__(self, *args, **kwargs):
+        try:
+            del kwargs["max_digits"]
+            del kwargs["decimal_places"]
+        except KeyError:
+            pass
         super(CurrencyField, self).__init__(
             self.currencyRe, None, None, *args, **kwargs)
 
@@ -853,7 +857,7 @@ class ValidationInscriptionForm(ModelForm):
         label=u"Facturer un supplément pour chambre double", required=False)
     paiement_paypal_total_str = CharField(
         label=u"Total des paiements par paypal", required=False,
-        widget=forms.TextInput(attrs={'readonly': 'readonly'}))
+        widget=TextInput(attrs={'readonly': 'readonly'}))
 
     def save(self, commit=True):
         obj = super(ValidationInscriptionForm, self).save(commit)

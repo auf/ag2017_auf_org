@@ -88,7 +88,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # /'auf.django.piwik.middleware.TrackMiddleware',
-    'auf.django.permissions.PermissionDeniedMiddleware',
+    'auf.django.permissions.middleware.PermissionDeniedMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',    

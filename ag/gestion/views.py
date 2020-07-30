@@ -18,7 +18,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, Prefetch
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
-from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from sendfile import sendfile
 from django.conf import settings
@@ -904,7 +903,7 @@ def export_donnees_csv(request):
         key = (part_activite.participant_id, part_activite.activite.code)
         activites_participants[key] = part_activite
     for p in participants:
-        row = SortedDict([(field, "") for field in fields])
+        row = collections.OrderedDict([(field, "") for field in fields])
         row['P_actif'] = bool_to_01(not p.desactive)
         row['P_id'] = p.id
         row['P_genre'] = p.genre
@@ -1002,7 +1001,7 @@ def etat_paiements_csv(request):
         'n_R', 'n_N', 'n_T', 'n_A', 'n_mode', 'n_statut',)
     writer.writerow(fields)
     for p in donnees_etats.get_donnees_paiements(actifs_seulement=False):
-        row = SortedDict([(field, "") for field in fields])
+        row = collections.OrderedDict([(field, "") for field in fields])
         for field in fields:
             row[field] = getattr(p, field)
         encode_csv_row(row)

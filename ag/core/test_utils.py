@@ -29,7 +29,7 @@ def create_table_ref_factory(table_reference_class, abbr, extra_fields=None):
                       lambda a: u"{0}{1}".format(class_name, a.code))}
     if extra_fields:
         class_dict.update(extra_fields)
-    if 'ordre' in table_reference_class._meta.get_all_field_names():
+    if 'ordre' in [f.name for f in table_reference_class._meta.get_fields()]:
         class_dict['ordre'] = factory.Sequence(lambda n: n)
     return type(class_name + 'Factory',
                 (factory.DjangoModelFactory, ), class_dict)

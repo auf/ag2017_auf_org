@@ -1376,19 +1376,19 @@ class PermissionsGestionTestCase(TestCase):
                                                        password='abc')
         self.user_lecteur = User.objects.create_user(username='lecteur',
                                                      password='abc')
-        self.user_lecteur.roles.add(AGRole(type_role=consts.ROLE_LECTEUR))
+        self.user_lecteur.roles.add(AGRole(type_role=consts.ROLE_LECTEUR), bulk=False)
         self.user_sai = User.objects.create_user(username='sai',
                                                  password='abc')
-        self.user_sai.roles.add(AGRole(type_role=consts.ROLE_SAI))
+        self.user_sai.roles.add(AGRole(type_role=consts.ROLE_SAI), bulk=False)
         self.user_sejour = User.objects.create_user(username='sejour',
                                                     password='abc')
-        self.user_sejour.roles.add(AGRole(type_role=consts.ROLE_SEJOUR))
+        self.user_sejour.roles.add(AGRole(type_role=consts.ROLE_SEJOUR), bulk=False)
         self.user_comptable = User.objects.create_user(username='comptable',
                                                        password='abc')
-        self.user_comptable.roles.add(AGRole(type_role=consts.ROLE_COMPTABLE))
+        self.user_comptable.roles.add(AGRole(type_role=consts.ROLE_COMPTABLE), bulk=False)
         self.user_admin = User.objects.create_user(username='admin',
                                                    password='abc')
-        self.user_admin.roles.add(AGRole(type_role=consts.ROLE_ADMIN))
+        self.user_admin.roles.add(AGRole(type_role=consts.ROLE_ADMIN), bulk=False)
 
     def tearDown(self):
         self.client.logout()
@@ -1567,9 +1567,9 @@ class PermissionsGestionTestCase(TestCase):
         )
 
         user_mo = User.objects.create_user(username='mo', password='abc')
-        user_mo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_MO))
+        user_mo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_MO), bulk=False)
         user_eo = User.objects.create_user(username='eo', password='abc')
-        user_eo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_EO))
+        user_eo.roles.add(AGRole(type_role=consts.ROLE_SAI, region=region_EO), bulk=False)
 
         self.try_url(reverse('renseignements_personnels',
                              args=[self.participant.id]), [],
@@ -1590,11 +1590,11 @@ class PermissionsGestionTestCase(TestCase):
         user_mo_lecteur = User.objects.create_user(username='mol',
                                                    password='abc')
         user_mo_lecteur.roles.add(
-            AGRole(type_role=consts.ROLE_LECTEUR, region=region_MO))
+            AGRole(type_role=consts.ROLE_LECTEUR, region=region_MO), bulk=False)
         user_eo_lecteur = User.objects.create_user(username='eol',
                                                    password='abc')
         user_eo_lecteur.roles.add(
-            AGRole(type_role=consts.ROLE_LECTEUR, region=region_EO))
+            AGRole(type_role=consts.ROLE_LECTEUR, region=region_EO), bulk=False)
         self.try_url(reverse('notes_de_frais',
                              args=[self.participant.id]), [],
                      [user_mo_lecteur, user_eo_lecteur])

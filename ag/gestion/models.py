@@ -17,7 +17,6 @@ from django.db.models import (
     ForeignKey, ManyToManyField, OneToOneField, FileField, Manager, Q)
 from django.db.models.aggregates import Sum, Max, Min, Count
 from django.dispatch.dispatcher import Signal
-from django.utils.datastructures import SortedDict
 
 from ag import reference
 from ag.core import models as core
@@ -193,7 +192,7 @@ class Hotel(core.TableReference):
         pour cet hôtel.
         """
         if not hasattr(self, "_infos_chambres"):
-            self._info_chambres = SortedDict([
+            self._info_chambres = collections.OrderedDict([
                 (chambre.type_chambre, {'nb_total': chambre.nb_total or 0})
                 for chambre in self.get_chambres()
             ])

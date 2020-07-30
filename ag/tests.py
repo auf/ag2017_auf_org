@@ -19,9 +19,9 @@ from ag.inscription.models import Forfait
 def create_fixtures(test_case):
     test_case.user = User.objects.create_user('john', 'lennon@thebeatles.com',
                                               'johnpassword')
-    test_case.user.roles.add(AGRole(type_role=ROLE_ADMIN))
     test_case.user.is_staff = True
     test_case.user.save()
+    test_case.user.roles.add(AGRole(type_role=ROLE_ADMIN), bulk=False)
 
     region = RegionFactory()
     test_case.region = region

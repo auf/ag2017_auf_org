@@ -16,3 +16,4 @@
 | django-tinymce             |       |       |       |       |       |       |
 | django-treebeard           | 4.3.1 | -     | -     | -     | -     | -     |
 | djangocms_admin_style      |       |       |       |       |       |       |
+| pytest-django              |
