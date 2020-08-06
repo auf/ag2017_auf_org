@@ -73,12 +73,12 @@ django.jQuery(function() {
   </p>
 <strong>
   {% if adminform.form.instance.est_pour_mandate %}
-      Représentant universitaire{% if  adminform.form.instance.atteste_pha = "P" %} (PHA) {% elif adminform.form.instance.atteste_pha = "R" %} (DELEGUE) {% else %}{% endif %}
+      Représentant universitaire{% if  adminform.form.instance.atteste_pha == "P" %} (PHA) {% elif adminform.form.instance.atteste_pha == "R" %} (DELEGUE) {% else %}{% endif %}
     {% else %}
       Accompagnateur universitaire
     {% endif %} </strong> <br/>
 <strong>
-    {% if  adminform.form.instance.get_etablissement.statut = "T" %} TITULAIRE {% elif adminform.form.instance.get_etablissement.statut = "A" %} Associé {% else %}{% endif %}
+    {% if  adminform.form.instance.get_etablissement.statut == "T" %} TITULAIRE {% elif adminform.form.instance.get_etablissement.statut == "A" %} Associé {% else %}{% endif %}
     - {{ adminform.form.instance.get_etablissement.pays.get_sud_display }}</strong> <br/>
     Prises en charge disponibles :<strong><br/>
   <span class="{% if adminform.form.instance.est_pour_mandate %}mandate{{ adminform.form.instance.get_etablissement.statut }}{{ adminform.form.instance.get_etablissement.pays.get_sud_display }}{% else %}accompagnateur{% endif %}"><span></strong>

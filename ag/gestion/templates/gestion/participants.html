@@ -46,7 +46,7 @@
       <a href="{% url "fiche_participant" participant.id %}">
         {{ participant.get_nom_prenom }}</a>
     </td>
-    <td>{{ participant.fonction.libelle }}{% if participant.inscription.atteste_pha = "P" %} <br> (PHA) {% elif participant.inscription.atteste_pha = "R" %} <br> (DELEGUE) {% else %}{% endif %}</td>
+    <td>{{ participant.fonction.libelle }}{% if participant.inscription.atteste_pha == "P" %} <br> (PHA) {% elif participant.inscription.atteste_pha == "R" %} <br> (DELEGUE) {% else %}{% endif %}</td>
     <td>{{ participant.nom_institution }}</td>
     <td>{{ participant.fonction.type_institution.libelle }}</td>
     <td>{{ participant.pays }}</td>
