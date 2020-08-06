@@ -8,8 +8,7 @@ from ag.elections.views import (
 from .views import candidatures
 
 
-urlpatterns = patterns(
-    'ag.elections.views',
+urlpatterns = [
     url(r'^$', accueil_elections,
         name='accueil_elections'),
     url(r'^candidatures/$', candidatures, name='candidatures'),
@@ -30,4 +29,4 @@ urlpatterns = patterns(
         name='depouillement_cass_tit'),
     url(r'^grille_depouillement/([_\-\w]+)/$', depouillement_autres,
         name='depouillement_autres'),
-)
+]
