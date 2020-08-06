@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-from optparse import make_option
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from auf_django_mailing.models import ModeleCourriel, envoyer
@@ -8,12 +6,13 @@ from auf_django_mailing.models import ModeleCourriel, envoyer
 
 class Command(BaseCommand):
 
-    option_list = BaseCommand.option_list + (
-        make_option('--limit',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--limit',
             action='store',
             dest='limit',
             default=None,
-            help=u"Nombre max. de courriels à envoyer"),
+            help=u"Nombre max. de courriels à envoyer"
         )
 
     def handle(self, *args, **options):

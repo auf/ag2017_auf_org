@@ -1,21 +1,21 @@
 # -*- encoding: utf-8 -*-
-from optparse import make_option
 from auf_django_mailing.models import Enveloppe, ModeleCourriel
 from ag.inscription.models import Invitation, InvitationEnveloppe
 from ag.reference.models import Etablissement
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 
+
 class Command(BaseCommand):
 
-    option_list = BaseCommand.option_list + (
-        make_option('--destinataires',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--destinataires',
             action='store',
             dest='destinataires',
             default=False,
-            help=u"Destinataires: `mandates` ou `invites`"),
+            help=u"Destinataires: `mandates` ou `invites`"
         )
-
 
     def handle(self, *args, **options):
         destinataires = options['destinataires']
