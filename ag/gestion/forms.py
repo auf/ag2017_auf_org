@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+from decimal import Decimal
+
 import re
 
 from django.utils.safestring import mark_safe
@@ -566,7 +568,7 @@ class CurrencyField(RegexField):
 
     def clean(self, value):
         value = super(CurrencyField, self).clean(value)
-        return float(value.replace(',', '.')) if value else None
+        return Decimal(value.replace(',', '.')) if value else None
 
 
 class VolForm(ModelForm):
