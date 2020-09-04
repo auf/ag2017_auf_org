@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView
 
 from ag.inscription.views import (

@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from ag.elections.views import (
     liste_votants, SALLE, EMARGEMENT, liste_candidats, bulletin_autres,
     bulletin_ca, bulletin_cass_tit, depouillement_ca, depouillement_cass_tit,

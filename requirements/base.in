@@ -1,7 +1,7 @@
-html5lib==0.9999999
+html5lib==0.999999999
 six==1.10.0
-Django>=1.9.0,<1.10
-django-cms==3.6.9
+Django>=1.10,<1.11
+django-cms==3.5.4
 djangocms-text-ckeditor==3.6.1
 djangocms-link==2.0.2
 easy_thumbnails
@@ -18,7 +18,7 @@ django-sendfile2==0.4.1
 
 python-memcached==1.48
 django-tinymce==2.3.0
-django-treebeard==4.0.1
+django-treebeard==4.3.1
 requests==2.11.1
 djangocms_admin_style==1.2.6
 
