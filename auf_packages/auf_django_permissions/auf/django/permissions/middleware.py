@@ -4,13 +4,14 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseForbidden
 from django.template.loader import render_to_string
+from django.utils.deprecation import MiddlewareMixin
 
 
-class PermissionDeniedMiddleware(object):
+class PermissionDeniedMiddleware(MiddlewareMixin):
 
     def process_exception(self, request, exception):
         if isinstance(exception, PermissionDenied):
-            if request.user.is_anonymous():
+            if request.user.is_anonymous:
 
                 # Code de redirection venant de
                 # django.contrib.auth.decorators.permission_required()

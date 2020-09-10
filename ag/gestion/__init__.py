@@ -9,7 +9,7 @@ def role_provider(user):
     """
     Cible pour le setting ROLE_PROVIDERS.
     """
-    if user.is_anonymous():
+    if user.is_anonymous:
         return []
     else:
         return user.roles.all()

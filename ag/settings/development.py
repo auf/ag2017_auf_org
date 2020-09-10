@@ -9,7 +9,7 @@ TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 if os.environ.get('DJDT', '0') == '1':
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS += ('debug_toolbar',)
-    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+    MIDDLEWARE += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 
 

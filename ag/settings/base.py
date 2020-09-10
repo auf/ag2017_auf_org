@@ -81,7 +81,7 @@ INSTALLED_APPS = (
     )
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'ag.FrenchAdminMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 from django.utils import translation
+from django.utils.deprecation import MiddlewareMixin
 
 
 def role_provider(user):
@@ -12,7 +13,7 @@ def role_provider(user):
         return user.roles.all()
 
 
-class FrenchAdminMiddleware(object):
+class FrenchAdminMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         if request.path.startswith('/admin/') or \
