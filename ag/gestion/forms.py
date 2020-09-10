@@ -545,7 +545,7 @@ class SuiviForm(GestionModelForm):
 # Affreux hack, mais le seul trouvé pour avoir une virgule comme séparateur
 # décimal dans les champs de formulaire
 class CurrencyInput(TextInput):
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         if value != '' and value is not None:
             try:
                 value = formats.number_format(value, 2)

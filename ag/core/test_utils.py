@@ -16,7 +16,7 @@ def find_input_by_name(tree, html_name):
 
 
 def find_checked_input_by_name(tree, html_name):
-    return tree.find("//input[@name='{0}'][@checked='checked']".format(html_name))
+    return tree.find("//input[@name='{0}'][@checked='']".format(html_name))
 
 
 def create_table_ref_factory(table_reference_class, abbr, extra_fields=None):

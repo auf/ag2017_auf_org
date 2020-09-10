@@ -13,7 +13,7 @@
 | django-formtools           | 2.1   | 2.1   | 2.1   | 2.1   | 2.2   | 2.2   |
 | django-crispy-forms        | 1.8.1 | -     | -     | -     | -     | 1.8.1 |
 | django-sendfile2           | 0.4.1 | -     | -     | 0.5.0 | -     | -     |
-| django-tinymce             |       |       |       |       |       |       |
+| django-tinymce             |       |       | 2.6.0 | 3.0.2 |       |       |
 | django-treebeard           | 4.3.1 | -     | -     | -     | -     | -     |
 | djangocms_admin_style      |       |       |       |       |       |       |
 | pytest-django              |

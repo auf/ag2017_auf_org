@@ -584,7 +584,7 @@ class GestionTestCase(TestCase):
                               namespaceHTMLElements=False)
         input_element = tree.find("//option[@value='{0}']".format(
             data[u'imputation']))
-        self.assertEqual(input_element.get('selected'), 'selected')
+        assert "selected" in input_element.attrib
 
     def test_numero_facture(self):
         participant = self.participant
