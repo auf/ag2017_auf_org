@@ -86,7 +86,7 @@ class MailTest(TestCase):
         self.assertEqual(len(entrees_log), 1)
 
         # par contre si une erreur s'est produite l'envoi devrait être retenté
-        entrees_log[0].erreur = u'libellé erreur'
+        entrees_log[0].erreur = 'libellé erreur'
         entrees_log[0].save()
         envoyer(self.modele_courriel.code, 'expediteur@test.org', self.get_site(), 'dummy')
         self.assertEqual(len(mail.outbox), 2)

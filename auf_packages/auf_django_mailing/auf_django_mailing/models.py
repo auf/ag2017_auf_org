@@ -57,10 +57,10 @@ class ModeleCourriel(models.Model):
     code = CharField(max_length=8, unique=True)
     sujet = CharField(max_length=256)
     corps = TextField()
-    html = BooleanField(verbose_name=u"Le corps est au format HTML")
+    html = BooleanField(verbose_name="Le corps est au format HTML")
     
     def __unicode__(self):
-        return self.code + u" / " + self.sujet
+        return self.code + " / " + self.sujet
 
 
 TAILLE_JETON = 32
@@ -68,7 +68,7 @@ TAILLE_JETON = 32
 
 def generer_jeton(taille=TAILLE_JETON):
     return ''.join(random.choice(string.letters + string.digits)\
-        for i in xrange(TAILLE_JETON))
+        for i in range(TAILLE_JETON))
 
 
 class EnveloppeParametersNotAvailable(Exception):
@@ -136,7 +136,7 @@ class EntreeLog(models.Model):
 
 def envoyer(code_modele, adresse_expediteur, site=None, url_name=None,
             limit=None, retry_errors=True):
-    u"""
+    """
     Cette fonction procède à l'envoi proprement dit, pour toutes les enveloppes
     du modele ayant pour code :code_modele. Si ``site``, ``url_name`` sont spécifiés
     et que les enveloppes passent un paramètre ``jeton`` dans leur contexte,

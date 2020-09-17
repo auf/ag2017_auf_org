@@ -23,3 +23,14 @@ MAILING_TEMPORISATION = 0
 SECRET_KEY = 'not-secret'
 
 ROOT_URLCONF = 'tests.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            # ... some options here ...
+        },
+    },
+]
