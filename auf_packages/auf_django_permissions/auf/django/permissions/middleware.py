@@ -1,4 +1,4 @@
-import urlparse
+import urllib.parse
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
@@ -19,8 +19,8 @@ class PermissionDeniedMiddleware(MiddlewareMixin):
                 login_url = settings.LOGIN_URL
                 # If the login url is the same scheme and net location then
                 # just use the path as the "next" url.
-                login_scheme, login_netloc = urlparse.urlparse(login_url)[:2]
-                current_scheme, current_netloc = urlparse.urlparse(path)[:2]
+                login_scheme, login_netloc = urllib.parse.urlparse(login_url)[:2]
+                current_scheme, current_netloc = urllib.parse.urlparse(path)[:2]
                 if ((not login_scheme or login_scheme == current_scheme) and
                     (not login_netloc or login_netloc == current_netloc)):
                     path = request.get_full_path()

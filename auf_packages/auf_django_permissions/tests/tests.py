@@ -1,12 +1,12 @@
-from __future__ import absolute_import
-
 from django.contrib.auth.models import User
+import pytest
 from django.test import TransactionTestCase
 
-from tests.simpletests.models import Food, Recipe
+from .models import Food, Recipe
 
 
-class HasPermTestCase(TransactionTestCase):
+@pytest.mark.django_db
+class HasPermTest(TransactionTestCase):
 
     def setUp(self):
         self.alice = User.objects.create(username='alice')
@@ -15,17 +15,17 @@ class HasPermTestCase(TransactionTestCase):
             username='superman', is_superuser=True
         )
         self.carrot = Food.objects.create(
-            owner=self.alice, name=u'carrot', is_meat=False
+            owner=self.alice, name='carrot', is_meat=False
         )
-        self.celery = Food.objects.create(name=u'celery', is_meat=False)
-        self.steak = Food.objects.create(name=u'steak', is_meat=True)
-        self.soup = Food.objects.create(name=u'canned soup', is_meat=False)
+        self.celery = Food.objects.create(name='celery', is_meat=False)
+        self.steak = Food.objects.create(name='steak', is_meat=True)
+        self.soup = Food.objects.create(name='canned soup', is_meat=False)
         self.vegetable_soup = Recipe.objects.create(
-            name=u'vegetable soup'
+            name='vegetable soup'
         )
         self.vegetable_soup.ingredients = [self.carrot, self.celery]
         self.beef_soup = Recipe.objects.create(
-            name=u'beef soup'
+            name='beef soup'
         )
         self.beef_soup.ingredients = [self.carrot, self.celery, self.steak]
 

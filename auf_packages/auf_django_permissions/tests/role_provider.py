@@ -1,9 +1,9 @@
-from __future__ import absolute_import
+
 
 from auf.django.permissions import Role
 from django.db.models import Q
 
-from tests.simpletests.models import Food, Recipe
+from .models import Food, Recipe
 
 
 def role_provider(user):

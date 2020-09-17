@@ -42,8 +42,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'auf.django.permissions'
-copyright = u'2012, Eric Mc Sween'
+project = 'auf.django.permissions'
+copyright = '2012, Eric Mc Sween'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -187,7 +187,7 @@ latex_elements = {
 # file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'aufdjangopermissions.tex',
-   u'auf.django.permissions Documentation', u'Eric Mc Sween', 'manual'),
+   'auf.django.permissions Documentation', 'Eric Mc Sween', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,8 +216,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'aufdjangopermissions', u'auf.django.permissions Documentation',
-     [u'Eric Mc Sween'], 1)
+    ('index', 'aufdjangopermissions', 'auf.django.permissions Documentation',
+     ['Eric Mc Sween'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -230,8 +230,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'aufdjangopermissions', u'auf.django.permissions Documentation',
-   u'Eric Mc Sween', 'aufdjangopermissions',
+  ('index', 'aufdjangopermissions', 'auf.django.permissions Documentation',
+   'Eric Mc Sween', 'aufdjangopermissions',
    'One line description of project.', 'Miscellaneous'),
 ]
 

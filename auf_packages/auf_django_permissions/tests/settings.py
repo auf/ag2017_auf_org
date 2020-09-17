@@ -9,7 +9,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'auf.django.permissions',
-    'tests.simpletests',
+    'tests',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -25,7 +25,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 ROLE_PROVIDERS = (
-    'tests.simpletests.role_provider',
+    'tests.role_provider.role_provider',
 )
 
 SECRET_KEY = 'not-very-secret'

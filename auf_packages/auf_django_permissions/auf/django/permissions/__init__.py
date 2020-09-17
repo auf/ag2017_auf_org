@@ -52,7 +52,7 @@ def get_role_providers():
             module_path, sep, provider_name = path.rpartition('.')
             try:
                 module = import_module(module_path)
-            except ImportError, e:
+            except ImportError as e:
                 raise ImproperlyConfigured(
                     "Error importing role provider %s: %s" % path, e
                 )
