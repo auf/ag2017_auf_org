@@ -15,7 +15,7 @@ inscription_transferee = Signal()
 def transfere(inscription, prise_en_charge_transport,
               prise_en_charge_hebergement, facturer_supplement_chambre_double):
     if Participant.objects.filter(inscription=inscription).count():
-        raise Exception(u"Cette inscription a déjà été transférée")
+        raise Exception("Cette inscription a déjà été transférée")
     participant = Participant()
     participant.inscription = inscription
     participant.genre = inscription.genre

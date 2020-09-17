@@ -20,14 +20,14 @@ def champ_fiche(form, field_name):
     else:
         value = None
     if isinstance(value, bool):
-        value = u'Oui' if value else u'Non'
+        value = 'Oui' if value else 'Non'
     elif not value:
-        value = u'------'
+        value = '------'
 
     return {'label': label, 'value': value}
 
 
 @register.filter
 def sum_data(data):
-    return mark_safe(u'<a href="{}">{}</a>'.format(data.search_url,
+    return mark_safe('<a href="{}">{}</a>'.format(data.search_url,
                                                    data.sum))

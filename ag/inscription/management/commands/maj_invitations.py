@@ -31,7 +31,7 @@ class Command(BaseCommand):
             enveloppes = [ie.enveloppe
                           for ie in invitation.invitationenveloppe_set.all()]
             for entree in EntreeLog.objects.filter(enveloppe__in=enveloppes):
-                print(u"{0} -> {1}".format(entree.adresse,
-                                           entree.enveloppe.get_adresse()))
+                print(("{0} -> {1}".format(entree.adresse,
+                                           entree.enveloppe.get_adresse())))
                 entree.adresse = entree.enveloppe.get_adresse()
                 entree.save(update_fields=['adresse'])

@@ -35,8 +35,8 @@ class Command(BaseCommand):
             modele_courriel = ModeleCourriel.objects.get(code="mand")
         except ModeleCourriel.DoesNotExist:
             raise CommandError(
-                u"Il est nécessaire de créer un modèle de courriel avec"
-                u"le code 'mand' pour lancer la génération des invitations.")
+                "Il est nécessaire de créer un modèle de courriel avec"
+                "le code 'mand' pour lancer la génération des invitations.")
 
         etablissements = get_etablissements_sans_invitation(modele_courriel)
         for etablissement in etablissements:

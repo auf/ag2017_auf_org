@@ -12,7 +12,7 @@ class Command(BaseCommand):
             action='store',
             dest='limit',
             default=None,
-            help=u"Nombre max. de courriels à envoyer"
+            help="Nombre max. de courriels à envoyer"
         )
 
     def handle(self, *args, **options):

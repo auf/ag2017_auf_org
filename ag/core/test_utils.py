@@ -24,9 +24,9 @@ def create_table_ref_factory(table_reference_class, abbr, extra_fields=None):
     meta_class = type('Meta', (), {
         'model': table_reference_class, })
     class_dict = {'Meta': meta_class,
-                  'code': factory.Sequence(lambda n: u"{0}{1}".format(abbr, n)),
+                  'code': factory.Sequence(lambda n: "{0}{1}".format(abbr, n)),
                   'libelle': factory.LazyAttribute(
-                      lambda a: u"{0}{1}".format(class_name, a.code))}
+                      lambda a: "{0}{1}".format(class_name, a.code))}
     if extra_fields:
         class_dict.update(extra_fields)
     if 'ordre' in [f.name for f in table_reference_class._meta.get_fields()]:
@@ -56,7 +56,7 @@ class RegionFactory(factory.DjangoModelFactory):
 class EtablissementFactory(factory.DjangoModelFactory):
     class Meta:
         model = ref_models.Etablissement
-    nom = factory.Sequence(lambda n: u"Etablissement {0}".format(n))
+    nom = factory.Sequence(lambda n: "Etablissement {0}".format(n))
     pays = factory.SubFactory(PaysFactory)
     region = factory.SubFactory(RegionFactory)
     qualite = consts.CODE_ETAB_ENSEIGNEMENT
@@ -65,8 +65,8 @@ class EtablissementFactory(factory.DjangoModelFactory):
 class ImplantationFactory(factory.DjangoModelFactory):
     class Meta:
         model = ref_models.Implantation
-    nom = factory.Sequence(lambda n: u"Impl{0}".format(n))
-    nom_court = factory.Sequence(lambda n: u"Impl{0}".format(n))
+    nom = factory.Sequence(lambda n: "Impl{0}".format(n))
+    nom_court = factory.Sequence(lambda n: "Impl{0}".format(n))
     region = factory.SubFactory(RegionFactory)
 
 
@@ -90,31 +90,31 @@ class ParticipantFactory(factory.DjangoModelFactory):
     class Meta:
         model = gestion_models.Participant
 
-    nom = factory.Sequence(lambda n: u"part{}".format(n))
+    nom = factory.Sequence(lambda n: "part{}".format(n))
 
 
 class PaiementFactory(factory.DjangoModelFactory):
     class Meta:
         model = gestion_models.Paiement
     date = datetime.date(2016, 10, 10)
-    ref = factory.Sequence(lambda n: u"ref{0}".format(n))
+    ref = factory.Sequence(lambda n: "ref{0}".format(n))
     implantation = factory.SubFactory(ImplantationFactory)
 
 
 TypeInstitutionFactory = create_table_ref_factory(
-    gestion_models.TypeInstitution, u"TI")
+    gestion_models.TypeInstitution, "TI")
 
 CategorieFonctionFactory = create_table_ref_factory(
-    gestion_models.CategorieFonction, u"CF")
+    gestion_models.CategorieFonction, "CF")
 
 FonctionFactory = create_table_ref_factory(
-    gestion_models.Fonction, u"Fn",
+    gestion_models.Fonction, "Fn",
     {'categorie': factory.SubFactory(CategorieFonctionFactory)})
 
 
 class InstitutionFactory(factory.DjangoModelFactory):
     class Meta:
         model = gestion_models.Institution
-    nom = factory.Sequence(lambda n: u"Inst{0}".format(n))
+    nom = factory.Sequence(lambda n: "Inst{0}".format(n))
     pays = factory.SubFactory(PaysFactory)
     region = factory.SubFactory(RegionFactory)

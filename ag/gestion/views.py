@@ -3,7 +3,7 @@ import csv
 import operator
 import json
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from datetime import datetime
 import itertools
 import collections
@@ -139,7 +139,7 @@ def participants_view(request):
                     etablissement__pays__code=pays_code
                 )
             if region_vote and \
-                    region_vote in consts.REGIONS_VOTANTS_DICT.keys():
+                    region_vote in list(consts.REGIONS_VOTANTS_DICT.keys()):
                 participants = participants.filter_region_vote_(region_vote)
                 participants = participants.filter_representants_mandates()
             if votant:
@@ -162,7 +162,7 @@ def participants_view(request):
             if activite:
                 participants = participants.filter(activites=activite)
             if pas_de_solde_a_payer:
-                participants = participants.sql_filter(u"(%s)",
+                participants = participants.sql_filter("(%s)",
                                                        'aucun_solde_a_payer')
             if statut:
                 participants = participants\
@@ -251,7 +251,7 @@ def ajout_participant(request):
 def fiche_participant(request, id_participant):
     require_permission(request.user, consts.PERM_LECTURE)
     extrafields = [probleme['sql_expr']
-                   for probleme in consts.PROBLEMES.values()]
+                   for probleme in list(consts.PROBLEMES.values())]
     extrafields.extend((
         'frais_inscription', 'frais_inscription_facture',
         'frais_transport', 'frais_transport_facture',
@@ -276,18 +276,18 @@ def fiche_participant(request, id_participant):
     facturation_form = forms.FacturationForm(instance=participant)
     prises_en_charge = []
     if participant.prise_en_charge_inscription:
-        prises_en_charge.append(u"Frais d'inscription")
+        prises_en_charge.append("Frais d'inscription")
     if participant.prise_en_charge_sejour:
         if participant.a_forfait(consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE):
-            prises_en_charge.append(u"Hébergement (supplément chambre double)")
+            prises_en_charge.append("Hébergement (supplément chambre double)")
         else:
-            prises_en_charge.append(u"Hébergement")
+            prises_en_charge.append("Hébergement")
     if participant.prise_en_charge_transport:
-        prises_en_charge.append(u"Transport")
+        prises_en_charge.append("Transport")
     if participant.prise_en_charge_activites:
-        prises_en_charge.append(u"Activités")
+        prises_en_charge.append("Activités")
     problemes = []
-    for probleme in consts.PROBLEMES.values():
+    for probleme in list(consts.PROBLEMES.values()):
         sql_expr = probleme['sql_expr']
         if getattr(participant, sql_expr):
             problemes.append(probleme)
@@ -396,7 +396,7 @@ def sejour(request, id_participant):
     chambres_hotels = {}
     for hotel in Hotel.objects.all():
         chambres = hotel.chambres()
-        for type_code, chambre in chambres.items():
+        for type_code, chambre in list(chambres.items()):
             chambre["field_name"] = form.chambre_fields_by_type[type_code]
         chambres_hotels[hotel.id] = chambres
     return render(request, 'gestion/sejour.html',
@@ -530,12 +530,12 @@ def facture_pdf(request, id_participant):
 def itineraire_pdf(request, id_participant):
     participant = Participant.objects.sql_extra_fields(
         'frais_autres').get(id=id_participant)
-    filename = u'Itinéraire - %s %s.pdf' % (
+    filename = 'Itinéraire - %s %s.pdf' % (
         participant.prenom, participant.nom
     )
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
-                                      urllib.quote(filename.encode('utf-8'))
+                                      urllib.parse.quote(filename.encode('utf-8'))
     return pdf.generer_itineraires(response, [participant])
 
 
@@ -597,7 +597,7 @@ def changement_mot_de_passe(request):
     form = PasswordChangeForm(user=request.user, data=request.POST or None)
     if form.is_valid():
         form.save()
-        messages.success(request, u'Votre mot de passe a été changé.')
+        messages.success(request, 'Votre mot de passe a été changé.')
         return redirect('tableau_de_bord')
     return render(request, 'gestion/changement_mot_de_passe.html', {
         'form': form
@@ -764,7 +764,7 @@ def votants_csv(request):
             participant.region_vote, etablissement.nom
         ]
         for index, value in enumerate(row):
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 row[index] = value.encode("UTF-8")
         writer.writerow(row)
     return response
@@ -781,7 +781,7 @@ def etat_votants(request):
         'maintenant': maintenant
     })
 
-TOUTES_VILLES = u'(Toutes)'
+TOUTES_VILLES = '(Toutes)'
 
 
 def etat_vols(request):
@@ -816,12 +816,12 @@ def etat_vols_csv(request):
     for row in donnees:
         # noinspection PyProtectedMember
         row_dict = row._asdict().copy()
-        for key, value in row_dict.iteritems():
+        for key, value in row_dict.items():
             if key in ('prise_en_charge_sejour', 'prise_en_charge_transport'):
                 row_dict[key] = "O" if row_dict[key] else "N"
             elif not row_dict[key]:
                 row_dict[key] = ""
-            elif isinstance(value, unicode):
+            elif isinstance(value, str):
                 row_dict[key] = value.encode("UTF-8")
             elif key in ('date1', 'date2'):
                 row_dict[key] = value.strftime('%d/%m/%Y')
@@ -845,14 +845,14 @@ def csv_date_format(d):
     if d:
         return d.strftime('%d/%m/%Y')
     else:
-        return u""
+        return ""
 
 
 def csv_time_format(t):
     if t:
         return t.strftime('%H:%M')
     else:
-        return u""
+        return ""
 
 
 def export_donnees_csv(request):
@@ -914,10 +914,10 @@ def export_donnees_csv(request):
         row['E_vote'] = bool_to_01(p.region_vote)
         row['E_vote_region'] = p.region_vote
         row['I_type'] = p.institution.type_institution.code \
-            if p.institution else u""
+            if p.institution else ""
         row['I_nom'] = p.nom_institution()
         region = p.get_region()
-        row['I_region'] = region.code if region else u""
+        row['I_region'] = region.code if region else ""
         if p.represente_etablissement:
             row['E_cgrm'] = p.etablissement.id
             row['E_qual'] = p.etablissement.qualite
@@ -970,7 +970,7 @@ def export_donnees_csv(request):
         row["P_commentaires"] = p.commentaires
         row["P_inscr_sur_place"] = bool_to_01(p.id in inscrits_sur_place)
         encode_csv_row(row)
-        writer.writerow(row.values())
+        writer.writerow(list(row.values()))
     # response.write("</body></html>")
     return response
 
@@ -1005,15 +1005,15 @@ def etat_paiements_csv(request):
         for field in fields:
             row[field] = getattr(p, field)
         encode_csv_row(row)
-        writer.writerow(row.values())
+        writer.writerow(list(row.values()))
     return response
 
 
 def encode_csv_row(row):
-    for key, value in row.iteritems():
-        if isinstance(value, basestring):
+    for key, value in row.items():
+        if isinstance(value, str):
             value = value.replace('\n', ' ').replace('\r', ' ')
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             value = value.encode("UTF-8")
         row[key] = value
 

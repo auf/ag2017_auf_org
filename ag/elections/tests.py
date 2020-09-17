@@ -29,33 +29,33 @@ class ElectionsCandidaturesTestCase(DjangoTestCase):
     def setUp(self):
         super(ElectionsCandidaturesTestCase, self).setUp()
         create_fixtures(self)
-        region_mo = Region.objects.create(code=u'MO',
-                                          nom=u'Moyen-Orient')
-        region_eo = Region.objects.create(code=u'EO',
-                                          nom=u"Europe de l'Ouest")
+        region_mo = Region.objects.create(code='MO',
+                                          nom='Moyen-Orient')
+        region_eo = Region.objects.create(code='EO',
+                                          nom="Europe de l'Ouest")
         pays_fr = Pays.objects.create(
-            nom=u"France", code=u"FR", sud=False)
+            nom="France", code="FR", sud=False)
         pays_de = Pays.objects.create(
-            nom=u"Allemagne", code=u"DE", sud=False)
+            nom="Allemagne", code="DE", sud=False)
         pays_eg = self.pays_eg = Pays.objects.create(
-            nom=u"Égypte", code=u"EG", sud=True)
+            nom="Égypte", code="EG", sud=True)
         pays_lb = self.pays_lb = Pays.objects.create(
-            nom=u"Liban", code=u"LB", sud=True)
+            nom="Liban", code="LB", sud=True)
         etablissement_mo = create_etablissement(
-            nom=u'etab_mo', pays=pays_eg, region=region_mo)
+            nom='etab_mo', pays=pays_eg, region=region_mo)
         etablissement_mo2 = create_etablissement(
-            nom=u'etab_mo2', pays=pays_eg, region=region_mo)
+            nom='etab_mo2', pays=pays_eg, region=region_mo)
         etablissement_mo3 = create_etablissement(
-            nom=u'etab_mo3', pays=pays_lb, region=region_mo)
+            nom='etab_mo3', pays=pays_lb, region=region_mo)
         etablissement_fr = create_etablissement(
-            nom=u'etab_fr', pays=pays_fr, region=region_eo)
+            nom='etab_fr', pays=pays_fr, region=region_eo)
         etablissement_de = create_etablissement(
-            nom=u'etab_de', pays=pays_de, region=region_eo)
+            nom='etab_de', pays=pays_de, region=region_eo)
         etablissement_reseau = create_etablissement(
-            nom=u'etab_reseau', pays=pays_eg, region=region_mo,
+            nom='etab_reseau', pays=pays_eg, region=region_mo,
             qualite=RES)
         etablissement_associe = create_etablissement(
-            u'etab assoc', pays_eg, region_mo, statut=ASSOCIE)
+            'etab assoc', pays_eg, region_mo, statut=ASSOCIE)
 
         fonctions = dict((fonction.code, fonction)
                          for fonction in Fonction.objects.all())

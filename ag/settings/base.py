@@ -98,15 +98,15 @@ MIDDLEWARE = (
 
 
 CMS_TEMPLATES = (
-    ('accueil.html', gettext(u'Page Accueil')),
-    ('page.html', gettext(u'Page Texte')),
-    ('page_sous_rubrique.html', gettext(u'Page sous rubrique')),
-    ('mot.html', gettext(u'Page Mot de recteur')),
-    ('partenaire.html', gettext(u'Page Partenaire')),
-    ('page_actu.html', gettext(u'Page Actualité')),
-    ('video.html', gettext(u'Page Vidéo')),
-    ('ateliers-scientifiques.html', gettext(u'Page Accueil ateliers')),
-    ('atelier.html', gettext(u'Page atelier')),
+    ('accueil.html', gettext('Page Accueil')),
+    ('page.html', gettext('Page Texte')),
+    ('page_sous_rubrique.html', gettext('Page sous rubrique')),
+    ('mot.html', gettext('Page Mot de recteur')),
+    ('partenaire.html', gettext('Page Partenaire')),
+    ('page_actu.html', gettext('Page Actualité')),
+    ('video.html', gettext('Page Vidéo')),
+    ('ateliers-scientifiques.html', gettext('Page Accueil ateliers')),
+    ('atelier.html', gettext('Page atelier')),
 )
 
 
@@ -134,7 +134,7 @@ FILER_CANONICAL_URL = 'permanent/'
 
 ROLE_PROVIDERS = ('ag.gestion.role_provider', )
 
-from conf import *  # NOQA
+from .conf import *  # NOQA
 
 TINYMCE_DEFAULT_CONFIG = {
     'theme': "advanced",

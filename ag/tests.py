@@ -95,7 +95,7 @@ def create_fixtures(test_case):
     modele_courriel_rappel.save()
 
     ModeleCourriel.objects.create(
-        sujet=u'reçu', code='recu_ok', corps=u"inscriptionreçue", html=False)
+        sujet='reçu', code='recu_ok', corps="inscriptionreçue", html=False)
 
     forfaits = forfaits_fixture()
 
@@ -119,14 +119,14 @@ def create_fixtures(test_case):
 def fonction_fixture():
     type_inst_etablissement = TypeInstitutionFactory(
         code=consts.TYPE_INST_ETABLISSEMENT,
-        libelle=u"Établissement")
+        libelle="Établissement")
 
     fonction_repr_etablissement = FonctionFactory(
         code=consts.FONCTION_REPR_UNIVERSITAIRE,
         type_institution=type_inst_etablissement)
 
     cat_obs = CategorieFonctionFactory(code=consts.CAT_FONCTION_OBSERVATEUR,
-                                       libelle=u"Observateur")
+                                       libelle="Observateur")
     FonctionFactory(categorie=cat_obs, code="repr_presse")
     FonctionFactory(code=consts.FONCTION_ACCOMP_UNIVERSITAIRE)
     FonctionFactory(code=consts.FONCTION_INSTANCE_SEULEMENT)
@@ -164,12 +164,12 @@ def make_modele_courriel_mandate():
 
 def creer_participant(nom=None, prenom=None, **kwargs):
     defaults = {
-        'nom': nom or u'Participant1',
-        'prenom':  prenom or u'Test1',
-        'adresse': u'adresse1',
-        'code_postal': u'HHH 333',
-        'courriel': u'adr.courriel@test.org',
-        'date_naissance': datetime.date(1973, 07, 04),
+        'nom': nom or 'Participant1',
+        'prenom':  prenom or 'Test1',
+        'adresse': 'adresse1',
+        'code_postal': 'HHH 333',
+        'courriel': 'adr.courriel@test.org',
+        'date_naissance': datetime.date(1973, 0o7, 0o4),
         'fonction': get_fonction_instance_seulement(),
         'instance_auf': 'A',
     }

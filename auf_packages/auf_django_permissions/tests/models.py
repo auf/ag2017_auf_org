@@ -7,7 +7,7 @@ class Food(models.Model):
     name = models.CharField(max_length=255)
     is_meat = models.BooleanField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -15,5 +15,5 @@ class Recipe(models.Model):
     name = models.CharField(max_length=255)
     ingredients = models.ManyToManyField(Food)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

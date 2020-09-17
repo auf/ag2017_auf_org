@@ -12,7 +12,7 @@ class Actualite(models.Model):
     class Meta:
         ordering = ('-date_pub',)
     
-    def __unicode__(self):
+    def __str__(self):
         return self.titre  
 
     def get_absolute_url(self):

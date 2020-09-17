@@ -17,17 +17,17 @@ class Election(TableReferenceOrdonnee):
     class Meta:
         ordering = ['ordre']
 
-    nb_sieges_global = IntegerField(u"Global", blank=True, null=True)
-    nb_sieges_afrique = IntegerField(u"Afrique", blank=True, null=True)
-    nb_sieges_ameriques = IntegerField(u"Amériques", blank=True, null=True)
-    nb_sieges_asie_pacifique = IntegerField(u"Asie-Pacifique",
+    nb_sieges_global = IntegerField("Global", blank=True, null=True)
+    nb_sieges_afrique = IntegerField("Afrique", blank=True, null=True)
+    nb_sieges_ameriques = IntegerField("Amériques", blank=True, null=True)
+    nb_sieges_asie_pacifique = IntegerField("Asie-Pacifique",
                                             blank=True, null=True)
-    nb_sieges_europe_ouest = IntegerField(u"Europe de l'ouest",
+    nb_sieges_europe_ouest = IntegerField("Europe de l'ouest",
                                           blank=True, null=True)
-    nb_sieges_europe_est = IntegerField(u"Europe centrale et orientale",
+    nb_sieges_europe_est = IntegerField("Europe centrale et orientale",
                                         blank=True, null=True)
-    nb_sieges_maghreb = IntegerField(u"Maghreb", blank=True, null=True)
-    nb_sieges_moyen_orient = IntegerField(u"Moyen-Orient", blank=True,
+    nb_sieges_maghreb = IntegerField("Maghreb", blank=True, null=True)
+    nb_sieges_moyen_orient = IntegerField("Moyen-Orient", blank=True,
                                           null=True)
 
     @property
@@ -41,7 +41,7 @@ class Election(TableReferenceOrdonnee):
                 self.nb_sieges_europe_ouest, self.nb_sieges_moyen_orient,
                 self.nb_sieges_maghreb] if n)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.code
 
 
@@ -61,8 +61,8 @@ CritereElecteur = collections.namedtuple(
 
 
 CATEGORIES_ELECTIONS = consts.REGIONS_VOTANTS + (
-    (consts.CODE_RESEAU, u"Titulaires Réseau" ),
-    (consts.CODE_ASSOCIE, u"Membres associés"),
+    (consts.CODE_RESEAU, "Titulaires Réseau" ),
+    (consts.CODE_ASSOCIE, "Membres associés"),
 )
 
 CATEGORIES_DICT = dict([(c[0], c) for c in CATEGORIES_ELECTIONS])
@@ -72,7 +72,7 @@ def get_candidatures_criteria():
     criteria = [
         CritereElecteur(
             code=CRITERE_TOUS,
-            titre=u"Tous",
+            titre="Tous",
             filter=(),
             une_seule_region=False,
             categorie=None,
@@ -88,7 +88,7 @@ def get_candidatures_criteria():
         ))
     criteria.append(CritereElecteur(
         code=CRITERE_RESEAU,
-        titre=u"Titulaires réseau",
+        titre="Titulaires réseau",
         filter=(ParticipantsQuerySet.reseau,
                 ParticipantsQuerySet.titulaires, ),
         une_seule_region=False,
@@ -96,7 +96,7 @@ def get_candidatures_criteria():
     ))
     criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
-        titre=u"Associés",
+        titre="Associés",
         filter=(ParticipantsQuerySet.associes, ),
         une_seule_region=False,
         categorie=CATEGORIES_DICT[consts.CODE_ASSOCIE],
@@ -189,7 +189,7 @@ class Candidats(object):
             if suppleant_possible(c, candidat) and
             (c.participant_id == candidat.suppleant_de_id or
              not self.get_suppleant(c))]
-        return [(u"", u"Personne")] + suppleants_de_possibles
+        return [("", "Personne")] + suppleants_de_possibles
 
     def grouped_by_region(self):
         enum_candidats = enumerate(self.candidats)
@@ -214,7 +214,7 @@ class Candidats(object):
             if (participant.last_modified and
                     participant.last_modified > candidat.last_modified):
                 raise ParticipantModified(
-                    u"Le participant {} a été modifié entre temps.".format(
+                    "Le participant {} a été modifié entre temps.".format(
                         participant.get_nom_complet()))
             participant.candidat_a = election
             participant.candidat_libre = candidat.libre
@@ -266,12 +266,12 @@ def code_critere_region(code_region):
 
 def get_electeur_criteria():
     criteria = []
-    for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
+    for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.items():
         criteria.append(CritereElecteur(
             code=code_critere_region(code_region),
             filter=(ParticipantsQuerySet.titulaires,
                     make_filter_region(code_region)),
-            titre=u"Membres titulaires - {}".format(nom_region),
+            titre="Membres titulaires - {}".format(nom_region),
             une_seule_region=True,
             categorie=CATEGORIES_DICT[code_region],
         ))
@@ -279,14 +279,14 @@ def get_electeur_criteria():
         code=CRITERE_RESEAU,
         filter=(ParticipantsQuerySet.titulaires,
                 ParticipantsQuerySet.reseau),
-        titre=u"Membres titulaires des réseaux",
+        titre="Membres titulaires des réseaux",
         une_seule_region=False,
         categorie=CATEGORIES_DICT[consts.CODE_RESEAU],
     ))
     criteria.append(CritereElecteur(
         code=CRITERE_ASSOCIES,
         filter=(ParticipantsQuerySet.associes, ),
-        titre=u"Membres associés",
+        titre="Membres associés",
         une_seule_region=False,
         categorie=CATEGORIES_DICT[consts.CODE_ASSOCIE],
     ))
@@ -299,7 +299,7 @@ def code_critere_candidat_region(code_election, code_region):
 
 
 def titre_liste_candidats(election):
-    return u"Candidats - {}".format(election.libelle)
+    return "Candidats - {}".format(election.libelle)
 
 
 def make_filter_election(election):
@@ -322,10 +322,10 @@ def get_listes_candidat_par_region_criteria(election):
     criteria = []
     filter_election = make_filter_election(election)
     base_titre = titre_liste_candidats(election)
-    for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.iteritems():
+    for code_region, nom_region in consts.REGIONS_VOTANTS_DICT.items():
         criteria.append(CritereCandidat(
             code=code_critere_candidat_region(election.code, code_region),
-            titre=u"{} - Membres titulaires {}".format(base_titre, nom_region),
+            titre="{} - Membres titulaires {}".format(base_titre, nom_region),
             filter=(filter_election,
                     make_filter_region(code_region)),
             code_region=code_region,

@@ -52,14 +52,14 @@ REGIONS_VOTANTS_CONSTS_DICT = {
 }
 
 REGIONS_VOTANTS = (
-    (REG_AFRIQUE, u'Afrique'),
-    (REG_AMERIQUES, u'Amériques'),
-    (REG_ASIE_PACIFIQUE, u"Asie-Pacifique"),
-    (REG_EUROPE_EST, u"Europe Centrale et Orientale"),
-    (REG_EUROPE_OUEST, u"Europe de l'Ouest"),
+    (REG_AFRIQUE, 'Afrique'),
+    (REG_AMERIQUES, 'Amériques'),
+    (REG_ASIE_PACIFIQUE, "Asie-Pacifique"),
+    (REG_EUROPE_EST, "Europe Centrale et Orientale"),
+    (REG_EUROPE_OUEST, "Europe de l'Ouest"),
     # (REG_FRANCE, u"France"),
-    (REG_MOYEN_ORIENT, u"Moyen-Orient"),
-    (REG_MAGHREB, u"Maghreb"),
+    (REG_MOYEN_ORIENT, "Moyen-Orient"),
+    (REG_MAGHREB, "Maghreb"),
     # (REG_RESEAU, u"Réseau institutionnel"),
 )
 
@@ -90,9 +90,9 @@ ELU = 'elu'
 ELIMINE = 'elimine'
 
 STATUTS_CANDIDATS = (
-    (DANS_LA_COURSE, u'Dans la course'),
-    (ELU, u'Élu'),
-    (ELIMINE, u'Éliminé'),
+    (DANS_LA_COURSE, 'Dans la course'),
+    (ELU, 'Élu'),
+    (ELIMINE, 'Éliminé'),
 )
 
 
@@ -106,43 +106,43 @@ CHAMBRE_ANTI_ALLERGENIQUE = 'A'
 TYPES_CHAMBRES = (
     {
         'code': CHAMBRE_SIMPLE,
-        'libelle_sing': u'Chambre simple',
-        'libelle_plur': u'Chambres simples',
+        'libelle_sing': 'Chambre simple',
+        'libelle_plur': 'Chambres simples',
     },
     {
         'code': CHAMBRE_DOUBLE,
-        'libelle_sing': u'Chambre double',
-        'libelle_plur': u'Chambres doubles',
+        'libelle_sing': 'Chambre double',
+        'libelle_plur': 'Chambres doubles',
     },
     {
         'code': CHAMBRE_SIMPLE_SUP,
-        'libelle_sing': u'Chambre simple supérieure',
-        'libelle_plur': u'Chambres simples supérieures',
+        'libelle_sing': 'Chambre simple supérieure',
+        'libelle_plur': 'Chambres simples supérieures',
     },
     {
         'code': CHAMBRE_DOUBLE_SUP,
-        'libelle_sing': u'Chambre double supérieure',
-        'libelle_plur': u'Chambres doubles supérieures',
+        'libelle_sing': 'Chambre double supérieure',
+        'libelle_plur': 'Chambres doubles supérieures',
     },
     {
         'code': CHAMBRE_LUXO,
-        'libelle_sing': u'Chambre Luxo (simple)',
-        'libelle_plur': u'Chambres Luxo (simples)',
+        'libelle_sing': 'Chambre Luxo (simple)',
+        'libelle_plur': 'Chambres Luxo (simples)',
     },
     {
         'code': CHAMBRE_ANTI_ALLERGENIQUE,
-        'libelle_sing': u'Chambre anti-allergénique',
-        'libelle_plur': u'Chambres anti-allergéniques',
+        'libelle_sing': 'Chambre anti-allergénique',
+        'libelle_plur': 'Chambres anti-allergéniques',
     },
 )
 
 TYPE_CHAMBRE_CHOICES = [(type['code'], type['libelle_sing'])
                         for type in TYPES_CHAMBRES]
-BUREAU_REGION = u'0'
-COMPTOIR_COMPAGNIE = u'1'
-COURRIER_POSTAL = u'2'
-BUREAU_REGION_TRAIN = u'3'
-COMPTOIR_COMPAGNIE_TRAIN = u'4'
+BUREAU_REGION = '0'
+COMPTOIR_COMPAGNIE = '1'
+COURRIER_POSTAL = '2'
+BUREAU_REGION_TRAIN = '3'
+COMPTOIR_COMPAGNIE_TRAIN = '4'
 
 PROBLEME_ERREUR = 'error'
 PROBLEME_AVERTISSEMENT = 'warning'
@@ -150,62 +150,62 @@ PROBLEME_AVERTISSEMENT = 'warning'
 PROBLEMES = {
     'hotel_manquant': {
         'sql_expr': 'hotel_manquant',
-        'libelle': u"Le séjour est pris en charge, mais aucun hôtel n'a été "
-                   u"sélectionné.",
-        'libelle_court': u"Hôtel non sélectionné",
+        'libelle': "Le séjour est pris en charge, mais aucun hôtel n'a été "
+                   "sélectionné.",
+        'libelle_court': "Hôtel non sélectionné",
         'niveau': PROBLEME_AVERTISSEMENT,
     },
     'reservation_hotel_manquante': {
         'sql_expr': 'reservation_hotel_manquante',
-        'libelle': u"Le séjour est pris en charge, mais aucun hébergement "
-                   u"n'a été réservé par l'AUF.",
-        'libelle_court': u"Réservation d'hôtel manquante",
+        'libelle': "Le séjour est pris en charge, mais aucun hébergement "
+                   "n'a été réservé par l'AUF.",
+        'libelle_court': "Réservation d'hôtel manquante",
         'niveau': PROBLEME_AVERTISSEMENT,
     },
     'trajet_manquant': {
         'sql_expr': 'trajet_manquant',
-        'libelle': u"Le transport est organisé par l'AUF mais le trajet "
-                   u"n'est pas déterminé.",
-        'libelle_court': u"Trajet manquant",
+        'libelle': "Le transport est organisé par l'AUF mais le trajet "
+                   "n'est pas déterminé.",
+        'libelle_court': "Trajet manquant",
         'niveau': PROBLEME_AVERTISSEMENT,
     },
     'transport_non_organise': {
         'sql_expr': 'transport_non_organise',
-        'libelle': u"Le transport du participant est pris en charge mais "
-                   u"n'est pas organisé.",
-        'libelle_court': u"Transport non organisé",
+        'libelle': "Le transport du participant est pris en charge mais "
+                   "n'est pas organisé.",
+        'libelle_court': "Transport non organisé",
         'niveau': PROBLEME_AVERTISSEMENT,
     },
     'prise_en_charge_a_completer': {
         'sql_expr': 'prise_en_charge_a_completer',
-        'libelle': u"Prise en charge à compléter.",
-        'libelle_court': u"Prise en charge à compléter",
+        'libelle': "Prise en charge à compléter.",
+        'libelle_court': "Prise en charge à compléter",
         'niveau': PROBLEME_ERREUR,
     },
     'nb_places_incorrect': {
         'sql_expr': 'nb_places_incorrect',
-        'libelle': u"Le nombre de places réservées à l'hôtel ne correspond pas"
-                   u" au nombre de participants et d'invités.",
-        'libelle_court': u"Nombre de places incorrect",
+        'libelle': "Le nombre de places réservées à l'hôtel ne correspond pas"
+                   " au nombre de participants et d'invités.",
+        'libelle_court': "Nombre de places incorrect",
         'niveau': PROBLEME_ERREUR,
     },
     'delinquant': {
         'sql_expr': 'delinquant',
-        'libelle': u"L'établissement a 3 années ou plus de cotisations "
-                   u"impayées.",
-        'libelle_court': u"Cotisations impayées",
+        'libelle': "L'établissement a 3 années ou plus de cotisations "
+                   "impayées.",
+        'libelle_court': "Cotisations impayées",
         'niveau': PROBLEME_ERREUR,
     },
     'solde_a_payer': {
         'sql_expr': 'solde_a_payer',
-        'libelle': u"Il reste un solde à payer.",
-        'libelle_court': u"Solde à payer",
+        'libelle': "Il reste un solde à payer.",
+        'libelle_court': "Solde à payer",
         'niveau': PROBLEME_ERREUR,
     },
     'paiement_en_trop': {
         'sql_expr': 'paiement_en_trop',
-        'libelle': u"Paiement en trop.",
-        'libelle_court': u"Paiement en trop",
+        'libelle': "Paiement en trop.",
+        'libelle_court': "Paiement en trop",
         'niveau': PROBLEME_AVERTISSEMENT,
     },
 }
@@ -283,14 +283,14 @@ ALLOWED_MEME_REGION = (
     (PERM_MODIF_FICHIERS, ROLE_LECTEUR),
 )
 
-ARRIVEES = u'A'
-DEPARTS = u'D'
+ARRIVEES = 'A'
+DEPARTS = 'D'
 
 PAIEMENT_CHOICES = (
-    ('CB', u'Carte bancaire'),
-    ('VB', u'Virement bancaire'),
-    ('CE', u'Chèque en euros'),
-    ('DL', u'Devises locales'),
+    ('CB', 'Carte bancaire'),
+    ('VB', 'Virement bancaire'),
+    ('CE', 'Chèque en euros'),
+    ('DL', 'Devises locales'),
 )
 
 PAIEMENT_CHOICES_DICT = dict(PAIEMENT_CHOICES)
@@ -300,9 +300,9 @@ CODE_CAT_INVITE = 'invi'
 CODE_CAT_HEBERGEMENT = 'hebe'
 
 CATEGORIES_FORFAITS = (
-    (CODE_CAT_INSCRIPTION, u"Inscription"),
-    (CODE_CAT_INVITE, u"Invité"),
-    (CODE_CAT_HEBERGEMENT, u"Hébergement")
+    (CODE_CAT_INSCRIPTION, "Inscription"),
+    (CODE_CAT_INVITE, "Invité"),
+    (CODE_CAT_HEBERGEMENT, "Hébergement")
 )
 
 CODE_SOIREE_9_MAI = 'soiree_9_mai'
@@ -351,8 +351,8 @@ COS = 'O'
 
 POINT_DE_SUIVI_NOTE_VERSEE = 'note_versee'
 
-MARRAKECH = u'Marrakech'
-CASABLANCA = u'Casablanca'
+MARRAKECH = 'Marrakech'
+CASABLANCA = 'Casablanca'
 VILLE_AG = MARRAKECH
 
 AEROPORTS_AG = (MARRAKECH, CASABLANCA)

@@ -38,10 +38,10 @@ PEC_REFUSEE = 'R'
 PEC_A_TRAITER = 'T'
 
 PRISE_EN_CHARGE_CHOICES = (
-    (u'', u'--------'),
-    (PEC_ACCEPTEE, u'Acceptée'),
-    (PEC_REFUSEE, u'Refusée'),
-    (PEC_A_TRAITER, u'À traiter'),
+    ('', '--------'),
+    (PEC_ACCEPTEE, 'Acceptée'),
+    (PEC_REFUSEE, 'Refusée'),
+    (PEC_A_TRAITER, 'À traiter'),
 )
 
 AUCUNE_REGION = 'aucune'
@@ -49,8 +49,8 @@ AUCUNE_REGION = 'aucune'
 
 def region_choices():
     return (
-        (None, u"--------"),
-        (AUCUNE_REGION, u'Sans région')
+        (None, "--------"),
+        (AUCUNE_REGION, 'Sans région')
     ) + tuple(
         (region.id, region.nom) for region in Region.objects.all()
     )
@@ -58,75 +58,75 @@ def region_choices():
 
 class RechercheParticipantForm(Form):
     # noinspection PyTypeChecker
-    PROBLEME_CHOICES = [(u'', u'--------'),
-                        (u'problematique', u'Tous les problèmes')] + \
+    PROBLEME_CHOICES = [('', '--------'),
+                        ('problematique', 'Tous les problèmes')] + \
                        [(code, probleme['libelle_court'])
-                        for code, probleme in PROBLEMES.items()]
+                        for code, probleme in list(PROBLEMES.items())]
 
-    nom = CharField(label=u'Nom', max_length=128, required=False,
+    nom = CharField(label='Nom', max_length=128, required=False,
                     widget=TextInput(attrs={'size': 80}))
     fonction = ModelChoiceField(
-        label=u"Fonction AG", queryset=Fonction.objects.all(),
+        label="Fonction AG", queryset=Fonction.objects.all(),
         required=False
     )
-    etablissement = IntegerField(label=u'Établissement',
+    etablissement = IntegerField(label='Établissement',
                                  widget=HiddenInput(attrs={
                                     'id': 'recherche_etablissement_id'}),
                                  required=False)
     etablissement_nom = CharField(
-        label=u'Établissement',
+        label='Établissement',
         widget=TextInput(
             attrs={'id': 'recherche_etablissement',
                    'class': 'recherche_etablissement_auto',
                    'size': 80}), required=False)
     instance_auf = ChoiceField(
-        label=u"Instance de l'AUF", choices=(('', u'------'), ) +
+        label="Instance de l'AUF", choices=(('', '------'), ) +
         Participant.INSTANCES_AUF, required=False
     )
     type_institution = ModelChoiceField(
-        label=u'Type institution', queryset=TypeInstitution.objects.all(),
+        label='Type institution', queryset=TypeInstitution.objects.all(),
         required=False
     )
     suivi = ModelChoiceField(
-        label=u'Suivi', queryset=PointDeSuivi.objects.all(), widget=Select,
+        label='Suivi', queryset=PointDeSuivi.objects.all(), widget=Select,
         required=False)
     prise_en_charge_inscription = ChoiceField(
-        label=u"Prise en charge frais d'inscription",
+        label="Prise en charge frais d'inscription",
         choices=PRISE_EN_CHARGE_CHOICES,
         required=False
     )
     prise_en_charge_transport = ChoiceField(
-        label=u"Prise en charge transport", choices=PRISE_EN_CHARGE_CHOICES,
+        label="Prise en charge transport", choices=PRISE_EN_CHARGE_CHOICES,
         required=False
     )
     prise_en_charge_sejour = ChoiceField(
-        label=u"Prise en charge séjour", choices=PRISE_EN_CHARGE_CHOICES,
+        label="Prise en charge séjour", choices=PRISE_EN_CHARGE_CHOICES,
         required=False
     )
-    pays = CharField(label=u"Pays", required=False)
+    pays = CharField(label="Pays", required=False)
     region = ChoiceField(
-        label=u"Région", choices=region_choices, required=False
+        label="Région", choices=region_choices, required=False
     )
     probleme = ChoiceField(
-        label=u"Problématique", choices=PROBLEME_CHOICES,
+        label="Problématique", choices=PROBLEME_CHOICES,
         required=False
     )
-    hotel = ModelChoiceField(label=u"Hôtel", queryset=Hotel.objects.all(),
+    hotel = ModelChoiceField(label="Hôtel", queryset=Hotel.objects.all(),
                              required=False)
     pays_code = CharField(max_length=5, required=False)
     region_vote = CharField(max_length=12, required=False)
-    pas_de_solde_a_payer = BooleanField(label=u"Aucun solde à payer",
+    pas_de_solde_a_payer = BooleanField(label="Aucun solde à payer",
                                         required=False)
-    paiement_ndf = BooleanField(label=u"Paiement note de frais nécessaire",
+    paiement_ndf = BooleanField(label="Paiement note de frais nécessaire",
                                 required=False)
-    activite = ModelChoiceField(label=u"Activité",
+    activite = ModelChoiceField(label="Activité",
                                 queryset=Activite.objects.all(),
                                 required=False)
     statut = ChoiceField(choices=Etablissement.STATUT_CHOICES, required=False)
     votant = BooleanField(required=False)
     qualite = ChoiceField(choices=Etablissement.QUALITE_CHOICES, required=False)
     desactive = BooleanField(
-        label=u"Désactivés", required=False
+        label="Désactivés", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -185,50 +185,50 @@ class RenseignementsPersonnelsForm(GestionModelForm):
             'notes_statut')
 
     etablissement = IntegerField(
-        label=u'Établissement',
+        label='Établissement',
         widget=HiddenInput(attrs={'id': 'recherche_etablissement_id'}),
         required=False)
 
     etablissement_nom = CharField(
-        label=u'Établissement',
+        label='Établissement',
         widget=TextInput(attrs={'id': 'recherche_etablissement',
                                 'class': 'recherche_etablissement_auto',
                                 'size': 80}), required=False)
 
     courriel = CharField(
-        label=u"Courriel", widget=TextInput(attrs={'size': 64})
+        label="Courriel", widget=TextInput(attrs={'size': 64})
     )
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.layout = Layout(Div(
             Fieldset(
-                u'Identification',
+                'Identification',
                 'genre', crispy_Field('nom', css_class='to-uppercase'),
                 'prenom', 'nationalite',
                 'courriel', crispy_Field('date_naissance', ),
                 css_id='rp_identification',
             ),
             Fieldset(
-                u'Coordonnées',
+                'Coordonnées',
                 'adresse', 'ville', 'code_postal',
                 'pays', 'telephone', 'telecopieur',
                 css_id='rp_coordonees',
             ),  id='col1'),
             Div(
                 Fieldset(
-                    u'Dossier',
+                    'Dossier',
                     'desactive',
                     'notes',
                     css_id='rp_dossier',
                 ),
                 Fieldset(
-                    u'Statut',
+                    'Statut',
                     'notes_statut',
                     css_id='rp_statut',
                 ),
                 Fieldset(
-                    u'Institution représentée',
+                    'Institution représentée',
                     'fonction', 'institution',
                     'etablissement', 'etablissement_nom',
                     'implantation', 'instance_auf',
@@ -302,7 +302,7 @@ class GestionForm(Form):
 
 class NotesDeFraisForm(GestionForm):
     modalite_versement_frais_sejour = ChoiceField(
-        label=u"Modalité de versement des frais",
+        label="Modalité de versement des frais",
         choices=Participant.MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES,
         required=False)
 
@@ -336,10 +336,10 @@ class NotesDeFraisForm(GestionForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u'Frais',
-                HTML(u'<table class="frais"><tbody>'),
+                'Frais',
+                HTML('<table class="frais"><tbody>'),
                 Div(*frais_multifields),
-                HTML(u"</table></tbody>"),
+                HTML("</table></tbody>"),
                 'modalite_versement_frais_sejour'
             ),
         )
@@ -360,37 +360,37 @@ class NotesDeFraisForm(GestionForm):
 class SejourForm(GestionForm):
     reservation_par_auf = TypedChoiceField(
         coerce=lambda x: bool(int(x)),
-        label=u"Réservation par l'AUF",
+        label="Réservation par l'AUF",
         choices=(
             (int(False),
-             u"Réservation effectuée par le participant lui-même"),
+             "Réservation effectuée par le participant lui-même"),
             (int(True),
-             u"Réservation effectuée par l'AUF")
+             "Réservation effectuée par l'AUF")
         ),
         widget=RadioSelect)
 
     hotel = ModelChoiceField(
-        label=u"Hôtel", queryset=Hotel.objects.all(), required=False,
+        label="Hôtel", queryset=Hotel.objects.all(), required=False,
         widget=RadioSelect()
     )
 
     date_arrivee = DateField(
-        label=u"Date d'arrivée", required=False,
+        label="Date d'arrivée", required=False,
         widget=DateInput(format='%d/%m/%Y')
     )
 
     date_depart = DateField(
-        label=u"Date de départ", required=False,
+        label="Date de départ", required=False,
         widget=DateInput(format='%d/%m/%Y')
     )
 
-    autres_frais = FloatField(label=u'Autres frais', required=False)
-    per_diem = FloatField(label=u'Per diem', required=False)
+    autres_frais = FloatField(label='Autres frais', required=False)
+    per_diem = FloatField(label='Per diem', required=False)
     activite_scientifique = ModelChoiceField(
-        label=u'Atelier scientifique', required=False,
+        label='Atelier scientifique', required=False,
         queryset=ActiviteScientifique.objects.all())
     notes_hebergement = CharField(widget=Textarea(), required=False,
-                                  label=u'Notes réservation')
+                                  label='Notes réservation')
 
     def __init__(self, *args, **kwargs):
         super(SejourForm, self).__init__(*args, **kwargs)
@@ -409,7 +409,7 @@ class SejourForm(GestionForm):
         for type_chambre in TYPES_CHAMBRES:
             code_chambre = type_chambre['code']
             field = IntegerField(
-                required=False, label=u'Nb. ' + type_chambre['libelle_plur']
+                required=False, label='Nb. ' + type_chambre['libelle_plur']
             )
             field_name = 'chambre_' + code_chambre
             self.chambre_fields_by_type[code_chambre] = field_name
@@ -432,7 +432,7 @@ class SejourForm(GestionForm):
                 label=activite.libelle, required=False
             )
             participant_field_name = 'activite_' + str(activite.pk)
-            invite_field = BooleanField(label=u'Avec invités', required=False)
+            invite_field = BooleanField(label='Avec invités', required=False)
             invite_field_name = 'invite_activite_' + str(activite.pk)
             self.fields[participant_field_name] = participant_field
             self.fields[invite_field_name] = invite_field
@@ -444,24 +444,24 @@ class SejourForm(GestionForm):
                 participant_field_name, invite_field_name
             )
             activite_field_containers.append(
-                MultiField(u'', participant_field_name, invite_field_name,
+                MultiField('', participant_field_name, invite_field_name,
                            template='gestion/activite_field.html'))
         self.activite_field_names = activite_field_names
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u'Hébergement',
+                'Hébergement',
                 'reservation_par_auf',
                 Div(HTML('{% include "gestion/nombre_invites.html" %}')),
                 'hotel', 'date_arrivee', 'date_depart',
                 Div(*hotel_fields, id='infos_hotel'),
             ),
             Fieldset(
-                u'Activités',
+                'Activités',
                 *activite_field_containers
             ),
             Fieldset(
-                u'Atelier scientifique',
+                'Atelier scientifique',
                 'activite_scientifique'
             )
         )
@@ -488,7 +488,7 @@ class SejourForm(GestionForm):
         participant.notes_hebergement = \
             self.cleaned_data['notes_hebergement']
         for type_chambre, chambre_field \
-                in self.chambre_fields_by_type.iteritems():
+                in self.chambre_fields_by_type.items():
             participant.reserver_chambres(
                 type_chambre, self.cleaned_data[chambre_field]
             )
@@ -514,11 +514,11 @@ class SejourForm(GestionForm):
             require_field(self, cleaned_data, 'date_depart')
             total_chambres = 0
             for type_chambre, chambre_field \
-                    in self.chambre_fields_by_type.iteritems():
+                    in self.chambre_fields_by_type.items():
                 total_chambres += int(cleaned_data.get(chambre_field) or 0)
             if not total_chambres:
                 raise ValidationError(
-                    u'Indiquez le nombre de chambres à réserver'
+                    'Indiquez le nombre de chambres à réserver'
                 )
         if 'date_arrivee' in cleaned_data \
            and 'date_depart' in cleaned_data:
@@ -526,8 +526,8 @@ class SejourForm(GestionForm):
             date_depart = cleaned_data['date_depart']
             if date_arrivee and date_depart:
                 if (date_depart - date_arrivee).days < 1:
-                    raise ValidationError(u"La date de départ doit être "
-                                          u"postérieure à la date d'arrivée")
+                    raise ValidationError("La date de départ doit être "
+                                          "postérieure à la date d'arrivée")
         return cleaned_data
 
 
@@ -572,10 +572,10 @@ class CurrencyField(RegexField):
 
 
 class VolForm(ModelForm):
-    date_arrivee = DateField(label=u"Date d'arrivée", required=False,
+    date_arrivee = DateField(label="Date d'arrivée", required=False,
                              input_formats=('%d/%m/%Y',),
                              widget=DateInput(format='%d/%m/%Y'))
-    date_depart = DateField(label=u"Date de départ", required=False,
+    date_depart = DateField(label="Date de départ", required=False,
                             input_formats=('%d/%m/%Y',),
                             widget=DateInput(format='%d/%m/%Y'))
     prix = CurrencyField(widget=CurrencyInput, required=False)
@@ -588,7 +588,7 @@ class VolForm(ModelForm):
         super(VolForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(MultiField(
-            u'', 'date_depart', 'heure_depart', 'ville_depart',
+            '', 'date_depart', 'heure_depart', 'ville_depart',
             'date_arrivee', 'heure_arrivee', 'ville_arrivee', 'compagnie',
             'numero_vol', 'prix', 'DELETE',
             template='gestion/ligne_vol.html'
@@ -598,8 +598,8 @@ class VolForm(ModelForm):
 
     def clean(self):
         return dict(
-            (k, v.strip().upper() if isinstance(v, basestring) else v)
-            for k, v in self.cleaned_data.iteritems()
+            (k, v.strip().upper() if isinstance(v, str) else v)
+            for k, v in self.cleaned_data.items()
         )
 
     def save(self, commit=True):
@@ -628,21 +628,21 @@ class TransportFormTop(GestionModelForm):
                   'numero_dossier_transport', 'modalite_retrait_billet',
                   'vol_groupe')
 
-    choices = ((False, u"par le participant lui-même"),
-               (True, u"par l'AUF"))
+    choices = ((False, "par le participant lui-même"),
+               (True, "par l'AUF"))
     transport_organise_par_auf = TypedChoiceField(
         coerce=lambda x: x == 'True',
-        label=u"Transport organisé", choices=choices,
+        label="Transport organisé", choices=choices,
         widget=RadioSelect, required=True)
-    vol_groupe = ModelChoiceField(VolGroupe.objects.all(), empty_label=u"Non",
-                                  label=u"Vol groupé", required=False)
+    vol_groupe = ModelChoiceField(VolGroupe.objects.all(), empty_label="Non",
+                                  label="Vol groupé", required=False)
 
     def __init__(self, *args, **kwargs):
         super(TransportFormTop, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u'Organisation',
+                'Organisation',
                 'transport_organise_par_auf',
                 crispy_Field('statut_dossier_transport',
                              css_class='required'),
@@ -665,7 +665,7 @@ class TransportFormBottom(GestionModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u'Notes',
+                'Notes',
                 'notes_transport', 'remarques_transport',
                 css_class='organise_par_auf'
             ),
@@ -677,32 +677,32 @@ class TransportFormBottom(GestionModelForm):
 class ArriveeDepartForm(GestionForm):
 
     date_arrivee = DateField(
-        label=u"Date d'arrivée", required=False,
+        label="Date d'arrivée", required=False,
         input_formats=('%d/%m/%Y',), widget=DateInput(format='%d/%m/%Y'))
-    heure_arrivee = TimeField(label=u"Heure d'arrivée", required=False)
-    compagnie_arrivee = CharField(label=u"Compagnie arrivée", required=False)
-    numero_vol_arrivee = CharField(label=u"No. vol arrivée", required=False)
-    ville_arrivee = CharField(label=u"Ville arrivée", required=False)
+    heure_arrivee = TimeField(label="Heure d'arrivée", required=False)
+    compagnie_arrivee = CharField(label="Compagnie arrivée", required=False)
+    numero_vol_arrivee = CharField(label="No. vol arrivée", required=False)
+    ville_arrivee = CharField(label="Ville arrivée", required=False)
     date_depart = DateField(
-        label=u"Date de départ", required=False,
+        label="Date de départ", required=False,
         input_formats=('%d/%m/%Y',), widget=DateInput(format='%d/%m/%Y'))
-    heure_depart = TimeField(label=u"Heure de départ", required=False)
-    compagnie_depart = CharField(label=u"Compagnie départ", required=False)
-    numero_vol_depart = CharField(label=u"No. vol départ", required=False)
-    ville_depart = CharField(label=u"Ville départ", required=False)
+    heure_depart = TimeField(label="Heure de départ", required=False)
+    compagnie_depart = CharField(label="Compagnie départ", required=False)
+    numero_vol_depart = CharField(label="No. vol départ", required=False)
+    ville_depart = CharField(label="Ville départ", required=False)
 
     def __init__(self, *args, **kwargs):
         super(ArriveeDepartForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u'Arrivée',
+                'Arrivée',
                 'date_arrivee', 'heure_arrivee', 'compagnie_arrivee',
                 'numero_vol_arrivee', 'ville_arrivee',
                 css_class='organise_par_participant'
             ),
             Fieldset(
-                u'Départ',
+                'Départ',
                 'date_depart', 'heure_depart', 'compagnie_depart',
                 'numero_vol_depart', 'ville_depart',
                 css_class='organise_par_participant'
@@ -748,7 +748,7 @@ class InviteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(InviteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(Fieldset(u'Invité',
+        self.helper.layout = Layout(Fieldset('Invité',
                                              'genre', 'nom', 'prenom',
                                              Div('DELETE',
                                                  css_class='hidden-row'),
@@ -783,22 +783,22 @@ class FacturationForm(GestionModelForm):
         if participant.inscription:
             if participant.inscription.prise_en_charge_hebergement:
                 self.fields['prise_en_charge_sejour'].help_text = \
-                    u'Prise en charge demandée'
+                    'Prise en charge demandée'
             if participant.inscription.prise_en_charge_transport:
                 self.fields['prise_en_charge_transport'].help_text = \
-                    u'Prise en charge demandée'
+                    'Prise en charge demandée'
         self.fields['forfaits'].required = False
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u"Prise en charge", 'prise_en_charge_inscription',
+                "Prise en charge", 'prise_en_charge_inscription',
                 'prise_en_charge_transport', 'prise_en_charge_sejour',
                 'prise_en_charge_activites',
             ),
             Fieldset(
-                u"Forfaits", 'forfaits',
+                "Forfaits", 'forfaits',
             ),
-            Fieldset(u"Autres informations", 'facturation_validee',
+            Fieldset("Autres informations", 'facturation_validee',
                      'date_facturation', 'imputation', 'notes_facturation'),
         )
 
@@ -817,7 +817,7 @@ class PaiementForm(ModelForm):
         super(PaiementForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            MultiField(u'', 'date', 'moyen', 'implantation', 'ref',
+            MultiField('', 'date', 'moyen', 'implantation', 'ref',
                        'montant_euros', 'montant_devise_locale',
                        'devise_locale', 'DELETE',
                        template='gestion/ligne_paiement.html'))
@@ -839,26 +839,26 @@ class ValidationInscriptionForm(ModelForm):
         self.initial['paiement_paypal_total_str'] = \
             montant_str(self.instance.paiement_paypal_total())
         self.fields['paiement_paypal_total_str'].help_text = mark_safe(
-            u'Reçu par paypal : ' + u";".join(
-                [u"{}-{}-{}".format(p.date, p.montant, escape(p.ref_paiement))
+            'Reçu par paypal : ' + ";".join(
+                ["{}-{}-{}".format(p.date, p.montant, escape(p.ref_paiement))
                  for p in self.instance.get_paiements_display()]))
         if self.instance.get_facturer_chambre_double():
             self.initial['facturer_supplement_chambre_double'] = True
 
     inscription_validee = BooleanField(
         label=(
-            u"Valider cette inscription et enregistrer le participant dans "
-            u"le système de gestion"
+            "Valider cette inscription et enregistrer le participant dans "
+            "le système de gestion"
         ), required=False
     )
     accepter_transport = BooleanField(
-        label=u"Prise en charge transport acceptée", required=False)
+        label="Prise en charge transport acceptée", required=False)
     accepter_hebergement = BooleanField(
-        label=u"Prise en charge hébergement acceptée", required=False)
+        label="Prise en charge hébergement acceptée", required=False)
     facturer_supplement_chambre_double = BooleanField(
-        label=u"Facturer un supplément pour chambre double", required=False)
+        label="Facturer un supplément pour chambre double", required=False)
     paiement_paypal_total_str = CharField(
-        label=u"Total des paiements par paypal", required=False,
+        label="Total des paiements par paypal", required=False,
         widget=TextInput(attrs={'readonly': 'readonly'}))
 
     def save(self, commit=True):
@@ -905,14 +905,14 @@ class VolGroupeForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                u'',
+                '',
                 'nom', 'nombre_de_sieges'
             ),
         )
         self.helper.form_tag = False
 
-ARRIVEES_DEPARTS_CHOICES = ((ARRIVEES, u"Arrivées"),
-                            (DEPARTS, u"Départs"))
+ARRIVEES_DEPARTS_CHOICES = ((ARRIVEES, "Arrivées"),
+                            (DEPARTS, "Départs"))
 
 
 def villes_vols():
@@ -927,7 +927,7 @@ def villes_vols():
 
 
 class FiltresEtatArriveesForm(Form):
-    arrivee_depart = ChoiceField(label=u"Arrivées/Départs",
+    arrivee_depart = ChoiceField(label="Arrivées/Départs",
                                  choices=ARRIVEES_DEPARTS_CHOICES,
                                  required=True, widget=HiddenInput)
 

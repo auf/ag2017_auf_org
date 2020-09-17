@@ -15,9 +15,9 @@ class TableReference(Model):
     class Meta:
         abstract = True
     code = CharField(max_length=16, blank=True)
-    libelle = CharField(u"Libellé", max_length=256)
+    libelle = CharField("Libellé", max_length=256)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.libelle
 
 

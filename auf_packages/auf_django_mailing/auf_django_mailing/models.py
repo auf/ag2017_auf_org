@@ -59,7 +59,7 @@ class ModeleCourriel(models.Model):
     corps = TextField()
     html = BooleanField(verbose_name="Le corps est au format HTML")
     
-    def __unicode__(self):
+    def __str__(self):
         return self.code + " / " + self.sujet
 
 
@@ -67,7 +67,7 @@ TAILLE_JETON = 32
 
 
 def generer_jeton(taille=TAILLE_JETON):
-    return ''.join(random.choice(string.letters + string.digits)\
+    return ''.join(random.choice(string.ascii_letters + string.digits)\
         for i in range(TAILLE_JETON))
 
 

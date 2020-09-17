@@ -4,7 +4,7 @@ from ag.tests import create_fixtures, creer_participant
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-COURRIEL_TEST = u"participant@activite.com"
+COURRIEL_TEST = "participant@activite.com"
 
 
 class LoginTestCase(TestCase):
@@ -80,7 +80,7 @@ class PickTestCase(TestCase):
         activites = ActiviteScientifique.objects.all()
         for activite in activites:
             self.assertContains(response, activite.libelle)
-        self.assertNotContains(response, u"COMPLET")
+        self.assertNotContains(response, "COMPLET")
 
     def test_complet(self):
         activite = ActiviteScientifique.objects.get(code="act1")
@@ -90,4 +90,4 @@ class PickTestCase(TestCase):
         self.login()
         response = self.client.get(reverse('act_sci_pick'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u"COMPLET")
+        self.assertContains(response, "COMPLET")

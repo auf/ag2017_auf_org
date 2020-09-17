@@ -48,7 +48,7 @@ def get_donnees_etat_participants():
         return recursive_group_by(
             participants,
             keys=[lambda p: (p.nom_institution(), p.get_region())],
-            titles=[lambda k: u"{0}, {1}".format(k[0], k[1].nom)])
+            titles=[lambda k: "{0}, {1}".format(k[0], k[1].nom)])
 
     def get_instances():
         participants = Participant.actifs \
@@ -81,15 +81,15 @@ def get_donnees_etat_participants():
         return recursive_group_by(
             participants,
             keys=[lambda p: (p.nom_institution(), p.get_region())],
-            titles=[lambda k: u"{0}, {1}".format(k[0],
-                                                 k[1].nom if k[1] else u"")])
+            titles=[lambda k: "{0}, {1}".format(k[0],
+                                                 k[1].nom if k[1] else "")])
 
     return (
-        Element(u'Établissements', get_participants_etablissements()),
-        Element(u'Observateurs', get_observateurs()),
-        Element(u'Instances', get_instances()),
-        Element(u'Personnel AUF', get_personnel_auf()),
-        Element(u'Autre', get_autres()),
+        Element('Établissements', get_participants_etablissements()),
+        Element('Observateurs', get_observateurs()),
+        Element('Instances', get_instances()),
+        Element('Personnel AUF', get_personnel_auf()),
+        Element('Autre', get_autres()),
     )
 
 
@@ -122,7 +122,7 @@ def get_donnees_arrivees_departs(arrivees_departs, ville, jour):
                     Q(participant__desactive=False)) \
             .order_by('heure_depart', 'compagnie')
     arrivees_departs_display = \
-        {ARRIVEES: u"Arrivées à", DEPARTS: u"Départs de"}[arrivees_departs]
+        {ARRIVEES: "Arrivées à", DEPARTS: "Départs de"}[arrivees_departs]
     vols = OrderedDict()
     for vol_object in vols_objects:
         heure, ville, jour = vol_object.get_heure_ville_jour(arrivees_departs)
@@ -156,7 +156,7 @@ def get_donnees_arrivees_departs(arrivees_departs, ville, jour):
         'arrivees_departs_display': arrivees_departs_display,
         'jour': jour,
         'ville': ville,
-        'vols': vols.values()
+        'vols': list(vols.values())
     }
 
 
@@ -222,7 +222,7 @@ def get_donnees_participants_activites():
     invites_participants = get_invites_participants()
     participants_activites = OrderedDict()
     all_hotels = [HotelInfo(h.libelle, h) for h in Hotel.objects.all()]
-    all_hotels += [HotelInfo(u"(Aucun hôtel sélectionné)", None)]
+    all_hotels += [HotelInfo("(Aucun hôtel sélectionné)", None)]
     for activite in activites:
         hotels = OrderedDict()
         participants_activites[activite] = hotels
@@ -257,7 +257,7 @@ def dictfetchall(cursor):
     repris de: https://docs.djangoproject.com/en/1.4/topics/db/sql/"""
     desc = cursor.description
     return [
-        dict(zip([col[0] for col in desc], row))
+        dict(list(zip([col[0] for col in desc], row)))
         for row in cursor.fetchall()
     ]
 
@@ -276,10 +276,10 @@ def ligne_vol_key(ligne):
     return (ligne.date1, ligne.heure1 if ligne.heure1 else datetime.time(0, 0),
             ligne.nom_normalise, ligne.prenom_normalise)
 
-ARRIVEE_STR = u"Arrivée"
-DEPART_STR = u"Départ"
-VERS_STR = u"vers"
-DE_STR = u"de"
+ARRIVEE_STR = "Arrivée"
+DEPART_STR = "Départ"
+VERS_STR = "vers"
+DE_STR = "de"
 
 
 def get_donnees_tous_vols(filtre_ville_depart=None,
@@ -400,11 +400,11 @@ PaiementParticipant = namedtuple('PaiementParticipant', (
 
 
 def format_money(n):
-    return u'{0:.2f}'.format(n).replace('.', ',')
+    return '{0:.2f}'.format(n).replace('.', ',')
 
 
 def bool_to_o_n(b):
-    return u"O" if b else u"N"
+    return "O" if b else "N"
 
 
 def get_donnees_paiements(actifs_seulement):
@@ -464,10 +464,10 @@ def get_donnees_paiements(actifs_seulement):
             P_fonction=p.fonction.libelle,
             P_invites=nombre_invites[p.id],
             P_region=p.get_region_code(),
-            E_cgrm=p.etablissement.id if p.etablissement else u"",
+            E_cgrm=p.etablissement.id if p.etablissement else "",
             E_nom=p.nom_institution(),
             E_delinquant=bool_to_o_n(p.delinquant) if p.etablissement
-            else u"n/a",
+            else "n/a",
             f_PEC_I=bool_to_o_n(p.prise_en_charge_inscription),
             f_total_I=format_money(p.frais_inscription),
             f_fact_I=format_money(p.frais_inscription_facture),
@@ -494,7 +494,7 @@ def get_donnees_paiements(actifs_seulement):
             n_N=format_money(frais['nuitees']),
             n_T=format_money(frais['taxi']),
             n_A=format_money(frais['autres']),
-            n_total=format_money(sum(frais.itervalues())),
+            n_total=format_money(sum(frais.values())),
             n_mode=p.get_modalite_versement_frais_sejour_display(),
             n_statut=bool_to_o_n(p.id in notes_versees),
         )
@@ -526,12 +526,12 @@ def make_entree_coupon(participant, depart_arrivee, ville, date_, heure,
         nom=participant.get_nom_complet(),
         type=participant.get_fonction_libelle(),
         region=participant.get_region_nom(),
-        hotel=participant.hotel or u"(Aucun)",
+        hotel=participant.hotel or "(Aucun)",
         heure_arrivee=heure,
         compagnie=compagnie,
         vol=vol,
         nb_passagers=nb_passagers,
-        autres_passagers=u",".join(noms_invites)
+        autres_passagers=",".join(noms_invites)
     )
     return entete, ligne
 
@@ -558,10 +558,10 @@ def donnees_liste_coupons():
                 infos_depart_arrivee.arrivee_compagnie,
                 infos_depart_arrivee.arrivee_vol)
             listes_coupons[entete_arrivee].append(ligne_arrivee)
-    for liste in listes_coupons.itervalues():
+    for liste in listes_coupons.values():
         liste.sort(key=lambda i: i.heure_arrivee if i.heure_arrivee else
                    datetime.time(23, 59))
-    return sorted(listes_coupons.iteritems(), key=lambda item: item[0])
+    return sorted(iter(listes_coupons.items()), key=lambda item: item[0])
 
 
 def participants_avec_vols():
@@ -626,15 +626,15 @@ def donnees_liste_hotels():
             ligne = LigneListeHotel(
                 nom=participant.get_nom_complet(),
                 type=participant.get_fonction_libelle(),
-                PEC=u"AUF" if participant.prise_en_charge_sejour else u"",
+                PEC="AUF" if participant.prise_en_charge_sejour else "",
                 occupants=len(participant.invite_set.all()) + 1,
                 nuitees=nuitees,
                 aeroport=infos_depart_arrivee.arrivee_a,
                 heure_checkin=heure_checkin,
                 depart_datetime=depart_datetime,
-                passeport=u"oui" if participant.a_televerse_passeport()
-                else u"-",
-                region_code=participant.get_region_code() or u""
+                passeport="oui" if participant.a_televerse_passeport()
+                else "-",
+                region_code=participant.get_region_code() or ""
             )
             listes_hotels[entete].append(ligne)
-    return sorted(listes_hotels.iteritems(), key=lambda item: item[0])
+    return sorted(iter(listes_hotels.items()), key=lambda item: item[0])

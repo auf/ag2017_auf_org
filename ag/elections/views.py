@@ -59,7 +59,7 @@ def candidatures(request, code_critere=CRITERE_TOUS):
     elections = list(Election.objects.all())
     template_data = make_candidatures_template_data(request.POST or None,
                                                     code_critere, elections)
-    message_echec = u""
+    message_echec = ""
     if request.method == 'POST':
         candidatures_formset = template_data['formset']
         if candidatures_formset.is_valid():
@@ -84,7 +84,7 @@ def liste_votants(request, code_critere, salle_ou_emargement):
     criteria = get_electeur_criteria()
     critere = critere_or_404(code_critere, criteria)
     donnees = get_donnees_liste_salle(critere)
-    template = u"elections/liste_{}/{}.html".format(
+    template = "elections/liste_{}/{}.html".format(
         salle_ou_emargement, critere.code)
     return render(request, template, {
         'participants_par_pays': donnees,
@@ -100,15 +100,15 @@ def critere_or_404(code_critere, criteria):
     return critere
 
 NOMS_ELECTIONS_LISTES_CANDIDATS = {
-    consts.ELEC_PRES: u"Présidence",
-    consts.ELEC_CA: u"Membres universitaires du Conseil d’administration et "
-                    u"leur suppléants",
-    consts.ELEC_CASS_TIT: u"Représentants des membres titulaires du Conseil "
-                          u"associatif",
-    consts.ELEC_CASS_ASS: u"Représentants des membres Associés du Conseil "
-                          u"associatif",
-    consts.ELEC_CASS_RES: u"Représentants des réseaux institutionnels du "
-                          u"Conseil associatif",
+    consts.ELEC_PRES: "Présidence",
+    consts.ELEC_CA: "Membres universitaires du Conseil d’administration et "
+                    "leur suppléants",
+    consts.ELEC_CASS_TIT: "Représentants des membres titulaires du Conseil "
+                          "associatif",
+    consts.ELEC_CASS_ASS: "Représentants des membres Associés du Conseil "
+                          "associatif",
+    consts.ELEC_CASS_RES: "Représentants des réseaux institutionnels du "
+                          "Conseil associatif",
 }
 
 
@@ -122,10 +122,10 @@ def liste_candidats(request, code_critere):
     if critere.code_region:
         nom_region = consts.REGIONS_VOTANTS_DICT[critere.code_region]
     else:
-        nom_region = u""
+        nom_region = ""
     return render(
         request,
-        u"elections/liste_candidats/base.html",
+        "elections/liste_candidats/base.html",
         {
             'participants': participants,
             'titre_critere': critere.titre,
@@ -168,7 +168,7 @@ def bulletin_autres(request, code_election):
 
 
 def depouillement_cells():
-    return range(1, 21)
+    return list(range(1, 21))
 
 
 def depouillement_ca(request):
@@ -207,7 +207,7 @@ def depouillement_autres(request, code_election):
 
 
 def link_candidatures(critere_candidature):
-    text = u"Formulaire candidatures - {}".format(critere_candidature.titre)
+    text = "Formulaire candidatures - {}".format(critere_candidature.titre)
     return {'url': reverse('candidatures_region',
                            args=(critere_candidature.code, )),
             'text': text}
@@ -224,9 +224,8 @@ def accueil_elections(request):
     elections = list(Election.objects.exclude(code=consts.ELEC_CASS_RES))
     regions = [{'code': code, 'nom': nom}
                for code, nom in consts.REGIONS_VOTANTS]
-    criteria_listes_votants = get_electeur_criteria().values()
-    criteria_listes_candidats = get_all_listes_candidat_criteria(elections)\
-        .values()
+    criteria_listes_votants = list(get_electeur_criteria().values())
+    criteria_listes_candidats = list(get_all_listes_candidat_criteria(elections).values())
     par_categorie = []
     categories = CATEGORIES_ELECTIONS
     for categorie in categories:

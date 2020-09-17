@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from collections import namedtuple
 from datetime import date
 from django.http import HttpResponse
@@ -47,11 +47,11 @@ def get_renseignement_personnels_fields(rp):
 def titre_facture(inscription_ou_participant):
     obj = inscription_ou_participant
     if obj.total_deja_paye == 0:
-        return u"Facture"
+        return "Facture"
     elif obj.get_verse_en_trop() or obj.get_solde_a_payer():
-        return u"État de compte"
+        return "État de compte"
     else:
-        return u"Reçu"
+        return "Reçu"
 
 
 def facture_from_participant(participant):
@@ -144,14 +144,14 @@ def generer_factures(output_file, factures):
             facture.nom
         ))
         if facture.numero_facture:
-            numero_facture = u"-%02d" % facture.numero_facture
+            numero_facture = "-%02d" % facture.numero_facture
         else:
             numero_facture = None
         if facture.date_facturation:
             date_facturation = date_format(facture.date_facturation,
                                            'SHORT_DATE_FORMAT')
         else:
-            date_facturation = u""
+            date_facturation = ""
         adresse = facture.adresse
 
         # Logos
@@ -167,14 +167,14 @@ def generer_factures(output_file, factures):
         x = margin_left + logo_width
         y = page_height - margin_top - 16
         canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawString(x, y, u"Secrétariat de l'assemblée générale")
+        canvas.drawString(x, y, "Secrétariat de l'assemblée générale")
         y -= 12
         canvas.setFont('Helvetica', 8)
         for s in [
-            u"Case postale du Musée C.P. 49714",
-            u"Montréal (Québec), H3T 2A5, Canada",
-            u"Courriel : ag2017@auf.org",
-            u"Site : www.ag2017.auf.org",
+            "Case postale du Musée C.P. 49714",
+            "Montréal (Québec), H3T 2A5, Canada",
+            "Courriel : ag2017@auf.org",
+            "Site : www.ag2017.auf.org",
         ]:
             canvas.drawString(x, y, s)
             y -= 10
@@ -188,11 +188,11 @@ def generer_factures(output_file, factures):
         # Adresse
         y -= 1.5 * cm
         canvas.setFont('Helvetica-Bold', 12)
-        canvas.drawString(x, y - 10, u"Pour:")
+        canvas.drawString(x, y - 10, "Pour:")
 
         x += 1.5 * cm
         canvas.setFont('Helvetica', 10)
-        p = Paragraph(u'<br/>'.join([
+        p = Paragraph('<br/>'.join([
             nom_participant,
             adresse.adresse,
             adresse.ville,
@@ -206,19 +206,19 @@ def generer_factures(output_file, factures):
         x += 8 * cm
         t = Table(
             [
-                [u"Date d'émission", date_facturation] if date_facturation
-                else [u"", u""],
-                [u"# Facture", u"{}-{}".format(
+                ["Date d'émission", date_facturation] if date_facturation
+                else ["", ""],
+                ["# Facture", "{}-{}".format(
                     facture.numero,
-                    [numero_facture] if numero_facture else u"00")],
-                [u"# Dossier", facture.numero_dossier],
+                    [numero_facture] if numero_facture else "00")],
+                ["# Dossier", facture.numero_dossier],
                 [
-                    u"# Membre",
-                    u"CGRM{}".format(
+                    "# Membre",
+                    "CGRM{}".format(
                         facture.etablissement_id)
-                    if facture.etablissement_id else u""
+                    if facture.etablissement_id else ""
                 ],
-                [u"# Imputation", u"70810." + facture.imputation]
+                ["# Imputation", "70810." + facture.imputation]
                 if facture.imputation else [],
             ],
             colWidths=(4 * cm, 4 * cm),
@@ -235,31 +235,31 @@ def generer_factures(output_file, factures):
         y -= 4 * cm
         t = Table(
             [
-                [u"Détails"],
+                ["Détails"],
                 [
-                    u"Frais de participation à la 17e assemblée générale - "
-                    u"Marrakech (Maroc) - 9 au 11 mai 2017"
+                    "Frais de participation à la 17e assemblée générale - "
+                    "Marrakech (Maroc) - 9 au 11 mai 2017"
                 ],
                 [
-                    u"- Frais d'inscription",
+                    "- Frais d'inscription",
                     montant_str(facture.frais_inscription)
                 ],
                 [
-                    u"- Forfaits supplémentaires",
+                    "- Forfaits supplémentaires",
                     montant_str(facture.frais_forfaits)
                 ],
             ] +
             (
                 [[
-                    u"- Frais de supplément chambre double",
+                    "- Frais de supplément chambre double",
                     montant_str(facture.frais_hebergement)
                 ]]
                 if facture.frais_hebergement else []
             ) +
             [
                 [
-                    u"",
-                    u"Montant total: " + montant_str(facture.total_frais)
+                    "",
+                    "Montant total: " + montant_str(facture.total_frais)
                 ],
             ],
             colWidths=(12 * cm, frame_width - 12 * cm),
@@ -280,7 +280,7 @@ def generer_factures(output_file, factures):
         t.drawOn(canvas, x, y - h)
 
         if facture.paiements:
-            lignes_paiement = [[u"Paiements reçus"]]
+            lignes_paiement = [["Paiements reçus"]]
             lignes_paiement.extend(
                 [[p.date, p.moyen, p.implantation, p.ref_paiement, p.montant]
                  for p in facture.paiements])
@@ -306,9 +306,9 @@ def generer_factures(output_file, factures):
 
         y -= h + 0.75 * cm
         if facture.verse_en_trop:
-            solde_text = u"Versé en trop: " + montant_str(facture.verse_en_trop)
+            solde_text = "Versé en trop: " + montant_str(facture.verse_en_trop)
         else:
-            solde_text = u"Solde à payer: " + montant_str(facture.solde_a_payer)
+            solde_text = "Solde à payer: " + montant_str(facture.solde_a_payer)
         p = Paragraph(solde_text,
                       styles['droite'])
         _, h = p.wrap(frame_width, 2 * cm)
@@ -316,7 +316,7 @@ def generer_factures(output_file, factures):
         if facture.verse_en_trop:
             y -= h + 0.5 * cm
             p = Paragraph(
-                u"""Votre remboursement s’effectuera automatiquement dans les
+                """Votre remboursement s’effectuera automatiquement dans les
                 prochains 30 jours utilisant la même méthode et versé même
                 compte du paiement initial.
                 """, styles['petit'])
@@ -380,14 +380,14 @@ def generer_itineraires(output_file, participants):
         x = margin_left + logo_width
         y = page_height - margin_top - 16
         canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawString(x, y, u"Secrétariat de l'assemblée générale")
+        canvas.drawString(x, y, "Secrétariat de l'assemblée générale")
         y -= 12
         canvas.setFont('Helvetica', 8)
         for s in [
-            u"Case postale du Musée C.P. 49714",
-            u"Montréal (Québec), H3T 2A5, Canada",
-            u"Courriel : ag2017@auf.org",
-            u"Site : www.ag2017.auf.org",
+            "Case postale du Musée C.P. 49714",
+            "Montréal (Québec), H3T 2A5, Canada",
+            "Courriel : ag2017@auf.org",
+            "Site : www.ag2017.auf.org",
         ]:
             canvas.drawString(x, y, s)
             y -= 10
@@ -395,24 +395,24 @@ def generer_itineraires(output_file, participants):
 
         # Titre
         contenu.append(Paragraph(
-            u"Imprimé le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
+            "Imprimé le " + date_format(date.today(), 'SHORT_DATE_FORMAT'),
             styles['right-aligned']))
         contenu.append(Spacer(0, 0.5 * cm))
 
-        contenu.append(Paragraph(u"VOTRE ITINÉRAIRE DE VOYAGE - "
-                                 u"Assemblée générale AUF 2017",
+        contenu.append(Paragraph("VOTRE ITINÉRAIRE DE VOYAGE - "
+                                 "Assemblée générale AUF 2017",
                                  styles['titre']))
         contenu.append(Spacer(0, 0.5 * cm))
 
         # Coordonnées
         contenu.append(Table(
             [
-                [u"Passager :", nom_participant],
-                [u"Réservation :", participant.numero_dossier_transport],
-                [u"Institution :", participant.nom_institution()],
-                [u"Téléphone :", participant.telephone],
-                [u"Télécopieur :", participant.telecopieur],
-                [u"Courriel :", participant.courriel],
+                ["Passager :", nom_participant],
+                ["Réservation :", participant.numero_dossier_transport],
+                ["Institution :", participant.nom_institution()],
+                ["Téléphone :", participant.telephone],
+                ["Télécopieur :", participant.telecopieur],
+                ["Courriel :", participant.courriel],
                 # [u"Bureau régional AUF :",
                 # participant.get_nom_bureau_regional()],
             ],
@@ -431,16 +431,16 @@ def generer_itineraires(output_file, participants):
         contenu.append(Spacer(0, 0.5 * cm))
 
         # Itinéraire
-        contenu.append(Paragraph(u"Plan de vol :", styles['section']))
+        contenu.append(Paragraph("Plan de vol :", styles['section']))
         contenu.append(Spacer(0, 0.25 * cm))
         contenu.append(Table(
             [[
                  Paragraph(header, styles['itineraire-header'])
                  for header in [
-                     u"Compagnie aérienne", u"Numéro de vol",
-                     u"Ville de départ", u"Date de départ",
-                     u"Heure départ", u"Ville d'arrivée",
-                     u"Date arrivée", u"Heure d'arrivée"
+                     "Compagnie aérienne", "Numéro de vol",
+                     "Ville de départ", "Date de départ",
+                     "Heure départ", "Ville d'arrivée",
+                     "Date arrivée", "Heure d'arrivée"
                  ]
                  ]] +
             [
@@ -451,14 +451,14 @@ def generer_itineraires(output_file, participants):
                         vol.numero_vol,
                         vol.ville_depart,
                         date_format(vol.date_depart, 'SHORT_DATE_FORMAT')
-                        if vol.date_depart else u'',
+                        if vol.date_depart else '',
                         time_format(vol.heure_depart, 'H:i')
-                        if vol.heure_depart else u'',
+                        if vol.heure_depart else '',
                         vol.ville_arrivee,
                         date_format(vol.date_arrivee, 'SHORT_DATE_FORMAT')
-                        if vol.date_arrivee else u'',
+                        if vol.date_arrivee else '',
                         time_format(vol.heure_arrivee, 'H:i')
-                        if vol.heure_arrivee else u'',
+                        if vol.heure_arrivee else '',
                     ]
                     ]
                 for vol in vols
@@ -479,13 +479,13 @@ def generer_itineraires(output_file, participants):
             ))
         contenu.append(Table(
             [
-                [u"Retrait des titres de transport :", 
+                ["Retrait des titres de transport :", 
                  participant.get_modalite_retrait_billet_display()],
-                [u"Documents requis :",
-                 Paragraph(u"&bull; Passeport en cours de validité <br/>"
-                           u"&bull; Visa d'entrée pour le Maroc",
+                ["Documents requis :",
+                 Paragraph("&bull; Passeport en cours de validité <br/>"
+                           "&bull; Visa d'entrée pour le Maroc",
                            styles['petit'])],
-                [u"Remarques :", 
+                ["Remarques :", 
                  Paragraph(participant.remarques_transport, styles['remarque'])
                  ],
             ],
@@ -505,12 +505,12 @@ def generer_itineraires(output_file, participants):
         
         # Note de frais
         if participant.frais_autres:
-            contenu.append(Paragraph(u"Note de frais :", styles['section']))
+            contenu.append(Paragraph("Note de frais :", styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table(
                 [
-                    [u"Montant :", u"%.2d €" % participant.frais_autres],
-                    [u"Versement :",
+                    ["Montant :", "%.2d €" % participant.frais_autres],
+                    ["Versement :",
                      participant.get_modalite_versement_frais_sejour_display()]
                 ],
                 colWidths=(5 * cm, 13.5 * cm),
@@ -526,28 +526,28 @@ def generer_itineraires(output_file, participants):
         contenu.append(Spacer(0, 0.5 * cm))
         # Hôtel
         if participant.hotel:
-            contenu.append(Paragraph(u"Séjour :", styles['section']))
+            contenu.append(Paragraph("Séjour :", styles['section']))
             contenu.append(Spacer(0, 0.25 * cm))
             contenu.append(Table(
                 [
-                    [u"Dates du séjour :", Paragraph("du {0} au {1}".format(
+                    ["Dates du séjour :", Paragraph("du {0} au {1}".format(
                         date_format(participant.date_arrivee_hotel,
                                     'SHORT_DATE_FORMAT'),
                         date_format(participant.date_depart_hotel,
                                     'SHORT_DATE_FORMAT')),
                         styles['normal'])],
-                    [u"Hôtel :", Paragraph(participant.hotel.libelle,
+                    ["Hôtel :", Paragraph(participant.hotel.libelle,
                                             styles['bold'])],
-                    [u"Adresse :", Paragraph(participant.hotel.adresse,
+                    ["Adresse :", Paragraph(participant.hotel.adresse,
                                              styles['petit'])],
-                    [u"Remarques:", Paragraph(
-                        u"<i>Présentez-vous à l'accueil de l'hôtel avec votre "
-                        u"passeport <br/>pour l'attribution de votre chambre."
-                        u"</i>",
+                    ["Remarques:", Paragraph(
+                        "<i>Présentez-vous à l'accueil de l'hôtel avec votre "
+                        "passeport <br/>pour l'attribution de votre chambre."
+                        "</i>",
                         styles['remarque'])],
-                    [u"", Paragraph(
-                        u"N.B. Prévoyez de libérer votre chambre avant midi, "
-                        u"le jour de votre départ.",
+                    ["", Paragraph(
+                        "N.B. Prévoyez de libérer votre chambre avant midi, "
+                        "le jour de votre départ.",
                         styles['remarque'])]
                 ],
                 colWidths=(5 * cm, 13.5 * cm),
@@ -588,7 +588,7 @@ class StyleSheet(StyleSheet1):
 
 
 def facture_response(inscription_ou_participant):
-    filename = u'Facture - %s %s.pdf' % (inscription_ou_participant.prenom,
+    filename = 'Facture - %s %s.pdf' % (inscription_ou_participant.prenom,
                                          inscription_ou_participant.nom)
     response = pdf_response(filename)
 
@@ -602,7 +602,7 @@ def facture_response(inscription_ou_participant):
 def pdf_response(filename):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
-                                      urllib.quote(filename.encode('utf-8'))
+                                      urllib.parse.quote(filename.encode('utf-8'))
     return response
 
 
@@ -652,8 +652,8 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
     contenu = []
     contenu.append(
         Table(
-            [[[Paragraph(u"Coupon navette", styles['grand-bold']),
-               Paragraph(u"Bon pour transport par autobus réservé",
+            [[[Paragraph("Coupon navette", styles['grand-bold']),
+               Paragraph("Bon pour transport par autobus réservé",
                          styles['normal'])],
               Paragraph(str(nb_personnes), styles['gros-numero'])]
              ],
@@ -664,22 +664,22 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
                    ('VALIGN', (0, 0), (-1, -1), 'TOP')]
               ))
     )
-    hotel = u"MOGADOR AGDAL 2"
+    hotel = "MOGADOR AGDAL 2"
     if arrivee_depart == "arrivee":
         trajet = [aeroport, hotel]
-        presenter = u"Veuillez présenter ce coupon au point de " \
-                    u"rencontre aux couleurs de l'AUF à la sortie de " \
-                    u"l'aéroport."
+        presenter = "Veuillez présenter ce coupon au point de " \
+                    "rencontre aux couleurs de l'AUF à la sortie de " \
+                    "l'aéroport."
     else:
         trajet = [hotel, aeroport]
-        presenter = u"Veuillez présenter ce coupon au conducteur de la navette."
-    contenu.append(Paragraph(trajet[0] + u"&nbsp;&nbsp;→&nbsp;&nbsp;" + trajet[1],
+        presenter = "Veuillez présenter ce coupon au conducteur de la navette."
+    contenu.append(Paragraph(trajet[0] + "&nbsp;&nbsp;→&nbsp;&nbsp;" + trajet[1],
                              styles['grand-bold']))
     contenu.append(Spacer(1, COUPON_SPACING))
     contenu.append(
         Table([[Paragraph(date_format(date_vol),
                           styles['normal']),
-                Paragraph(u"<br/> + ".join([nom_participant] + noms_invites),
+                Paragraph("<br/> + ".join([nom_participant] + noms_invites),
                           styles['grand'])]],
               colWidths=[2.5 * cm, frame_width - 2.5 * cm],
               style=TableStyle(
@@ -695,9 +695,9 @@ def draw_coupon(canvas, styles, nom_participant, noms_invites,
     frame.addFromList(contenu, canvas)
     notice_y = coupon_y + 0.1 * cm
     canvas.setFont('Helvetica', 10)
-    canvas.drawString(frame_x, notice_y, u"© AUF 2017")
+    canvas.drawString(frame_x, notice_y, "© AUF 2017")
     canvas.drawRightString(frame_x + frame_width, notice_y,
-                           u"Ce bon n'est pas transférable ni monnayable.")
+                           "Ce bon n'est pas transférable ni monnayable.")
 
 
 def generer_coupons(output_file, coupon):
@@ -736,7 +736,7 @@ def generer_coupons(output_file, coupon):
     frame_height = 10 * cm
     frame = Frame(COUPON_MARGIN_SIDE, calc_coupon_y('depart') - frame_height,
                   page_width - COUPON_MARGIN_SIDE * 2, frame_height)
-    frame.addFromList([Paragraph(u"""<br/><br/><u>Veuillez noter que les transferts en 
+    frame.addFromList([Paragraph("""<br/><br/><u>Veuillez noter que les transferts en 
     navette ne s'effectuent que dans les conditions suivantes:</u><br/><br/>     
         À votre arrivée, les transferts en navette organisés des aéroports de 
         Casablanca et de Marrakech sont uniquement à destination du lieu de 
@@ -775,7 +775,7 @@ def coupon_transport_response(participant):
         infos_depart_arrivee=participant.get_infos_depart_arrivee(),
         nb_personnes=1 + len(noms_invites),
     )
-    filename = u'Coupon transport - {}.pdf'.format(coupon.nom_participant)
+    filename = 'Coupon transport - {}.pdf'.format(coupon.nom_participant)
     response = pdf_response(filename)
     generer_coupons(response, coupon)
     return response

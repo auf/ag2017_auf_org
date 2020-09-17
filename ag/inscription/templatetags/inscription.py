@@ -22,18 +22,18 @@ def inline_radio(field):
 
 
 def adresse_email_region(code_region):
-    return u"AG2017.B{}@auf.org".format(code_region)
+    return "AG2017.B{}@auf.org".format(code_region)
 
 
 @register.simple_tag(takes_context=True)
-def email_region(context, subject=u""):
+def email_region(context, subject=""):
     if subject:
-        subject = u"?subject={}".format(subject)
+        subject = "?subject={}".format(subject)
     code_region = context["inscription"].get_region().code
     adresse_region = adresse_email_region(code_region)
     return mark_safe(
-        u'<a href="mailto:{adresse_region}{subject}">'
-        u'{adresse_region}</a>'.format(
+        '<a href="mailto:{adresse_region}{subject}">'
+        '{adresse_region}</a>'.format(
             adresse_region=adresse_region,
             subject=subject)
     )
@@ -41,5 +41,5 @@ def email_region(context, subject=u""):
 
 @register.simple_tag()
 def unicode_checkbox(checked):
-    s = u'&#x2611;' if checked else u'&#x2610;'
+    s = '&#x2611;' if checked else '&#x2610;'
     return mark_safe(s)

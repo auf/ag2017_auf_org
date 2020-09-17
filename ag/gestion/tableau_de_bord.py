@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 import collections
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import operator
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
@@ -43,8 +43,8 @@ SumData = collections.namedtuple('SumData', ('sum', 'search_url'))
 
 
 def make_sum_data(sum_, search_params):
-    search_url = u"{}?{}".format(reverse('participants'),
-                                 urllib.urlencode(search_params), )
+    search_url = "{}?{}".format(reverse('participants'),
+                                 urllib.parse.urlencode(search_params), )
     return SumData(sum=sum_,
                    search_url=search_url)
 
@@ -111,7 +111,7 @@ def table_membres(participants, regions):
                 params = dict(region=region.id, **statut_qualite_params)
                 sum_data = make_sum_data(sum_, params)
                 sums.append(sum_data)
-            libelle = mark_safe(u'<span class="qualite">{}</span>'
+            libelle = mark_safe('<span class="qualite">{}</span>'
                                 .format(qualite))
             sums_lines.append(SumsLine(libelle, sums))
     return sums_lines
@@ -124,7 +124,7 @@ def ligne_regions(participants, regions):
     for region in regions:
         sums.append(make_sum_data(counter[region.id], {'region': region.id}))
     sums.append(make_sum_data(counter[None], {'region': forms.AUCUNE_REGION}))
-    return SumsLine(label=u"Tous", sums=sums)
+    return SumsLine(label="Tous", sums=sums)
 
 
 CritereTableau = collections.namedtuple(
@@ -132,11 +132,11 @@ CritereTableau = collections.namedtuple(
 
 
 CATEGORIES_VOTANTS = (
-    (u'Titulaire', lambda p: p.etablissement.statut == consts.CODE_TITULAIRE,
+    ('Titulaire', lambda p: p.etablissement.statut == consts.CODE_TITULAIRE,
      {'statut': consts.CODE_TITULAIRE, 'votant': 'on'}),
-    (u'Associé', lambda p: p.etablissement.statut == consts.CODE_ASSOCIE,
+    ('Associé', lambda p: p.etablissement.statut == consts.CODE_ASSOCIE,
      {'statut': consts.CODE_ASSOCIE, 'votant': 'on'}),
-    (u'Réseau', lambda p: p.etablissement.qualite == consts.CODE_RESEAU,
+    ('Réseau', lambda p: p.etablissement.qualite == consts.CODE_RESEAU,
      {'qualite': consts.CODE_RESEAU, 'votant': 'on'}),
 )
 
@@ -161,11 +161,11 @@ def localisation_votants():
     return (
         critere_region(consts.REG_AFRIQUE),
         critere_region(consts.REG_AMERIQUES),
-        critere_pays(consts.CODE_PAYS_CANADA, u"dont Canada"),
+        critere_pays(consts.CODE_PAYS_CANADA, "dont Canada"),
         critere_region(consts.REG_ASIE_PACIFIQUE),
         critere_region(consts.REG_EUROPE_EST),
         critere_region(consts.REG_EUROPE_OUEST),
-        critere_pays(consts.CODE_PAYS_FRANCE, u"dont France"),
+        critere_pays(consts.CODE_PAYS_FRANCE, "dont France"),
         critere_region(consts.REG_MAGHREB),
         critere_region(consts.REG_MOYEN_ORIENT),
     )
@@ -228,33 +228,33 @@ def table_points_de_suivi(participants, points_de_suivi, regions):
 
 def criteres_prise_en_charge():
     return (
-        CritereTableau(u"Frais d'inscription",
+        CritereTableau("Frais d'inscription",
                        lambda p: p.prise_en_charge_inscription,
                        {'prise_en_charge_inscription': forms.PEC_ACCEPTEE}),
-        CritereTableau(u"Transport",
+        CritereTableau("Transport",
                        lambda p: p.prise_en_charge_transport,
                        {'prise_en_charge_transport': forms.PEC_ACCEPTEE}),
-        CritereTableau(mark_safe(u"<span class=\"qualite\">Complétée</span>"),
+        CritereTableau(mark_safe("<span class=\"qualite\">Complétée</span>"),
                        lambda p: (p.prise_en_charge_transport and
                                   p.statut_dossier_transport == EN_COURS),
                        {'prise_en_charge_transport': forms.PEC_ACCEPTEE,
                         'statut_dossier_transport': EN_COURS}),
-        CritereTableau(mark_safe(u"<span class=\"qualite\">À traiter</span>"),
+        CritereTableau(mark_safe("<span class=\"qualite\">À traiter</span>"),
                        lambda p: p.transport_non_organise,
                        {'probleme': 'transport_non_organise', }),
-        CritereTableau(u"Hébergement",
+        CritereTableau("Hébergement",
                        lambda p: p.prise_en_charge_sejour,
                        {'prise_en_charge_sejour': forms.PEC_ACCEPTEE}),
-        CritereTableau(mark_safe(u"<span class=\"qualite\">Complétée </span>"),
+        CritereTableau(mark_safe("<span class=\"qualite\">Complétée </span>"),
                        lambda p: (
                        p.prise_en_charge_sejour and not p.hotel_manquant and
                        not p.nb_places_incorrect),
                        {}),
-        CritereTableau(mark_safe(u"<span class=\"qualite\">À traiter </span>"),
+        CritereTableau(mark_safe("<span class=\"qualite\">À traiter </span>"),
                        lambda p: p.hotel_manquant,
                        {'probleme': 'hotel_manquant'}),
-        CritereTableau(mark_safe(u"<span class=\"qualite\">"
-                                 u"Occupation incorrecte</span>"),
+        CritereTableau(mark_safe("<span class=\"qualite\">"
+                                 "Occupation incorrecte</span>"),
                        lambda p: p.nb_places_incorrect,
                        {'probleme': 'nb_places_incorrect'}),
     )
@@ -301,19 +301,19 @@ def make_sums_lines(participants, criteres, regions):
 
 def criteres_paiement():
     return (
-        CritereTableau(u"Cotisation impayée (3 ans en plus)",
+        CritereTableau("Cotisation impayée (3 ans en plus)",
                        lambda p: p.delinquant,
                        {'probleme': 'delinquant'}),
-        CritereTableau(u"Solde impayé",
+        CritereTableau("Solde impayé",
                        lambda p: p.solde_a_payer,
                        {'probleme': 'solde_a_payer'}),
-        CritereTableau(u"Aucun solde à payer",
+        CritereTableau("Aucun solde à payer",
                        lambda p: not p.solde_a_payer and not p.paiement_en_trop,
                        {'pas_de_solde_a_payer': 'on'}),
-        CritereTableau(u"Paiement en trop",
+        CritereTableau("Paiement en trop",
                        lambda p: p.paiement_en_trop,
                        {'probleme': 'paiement_en_trop'}),
-        CritereTableau(u"Paiement NDF nécessaire",
+        CritereTableau("Paiement NDF nécessaire",
                        lambda p: p.presence_frais and not p.note_versee,
                        {'paiement_ndf': 'on'}),
     )

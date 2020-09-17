@@ -56,20 +56,20 @@ def transfert_handler(sender, **kwargs):
         subject, body = get_nouveau_participant_mail(sender)
         envoyer_a_service('service_institutions', subject, body)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         raise
 
 
 @receiver(paypal_signal)
 def paypal_handler(sender, **kwargs):
-    body = u"Un paiement paypal a été effectué pour l'inscription"\
-           u" numéro {} au nom de {} de l'établissement {}".format(
+    body = "Un paiement paypal a été effectué pour l'inscription"\
+           " numéro {} au nom de {} de l'établissement {}".format(
                sender.inscription.numero, sender.get_nom_prenom(),
                sender.inscription.get_etablissement().nom)
     if sender.montant and sender.devise:
-        body += u" Montant: " + sender.montant + sender.devise
+        body += " Montant: " + sender.montant + sender.devise
     if sender.statut:
-        body += u", Statut:" + sender.statut
+        body += ", Statut:" + sender.statut
 
     envoyer_a_service('finance', 'Paiement paypal reçu', body)
 
@@ -77,34 +77,34 @@ def paypal_handler(sender, **kwargs):
 @receiver(facturation_validee)
 def facturation_validee_handler(sender, **kwargs):
     objet, body = get_nouveau_participant_mail(sender)
-    subject = u"Facturation validée : %s" % objet
+    subject = "Facturation validée : %s" % objet
     envoyer_a_service('finance', subject, body)
     envoyer_a_service('service_institutions', subject, body)
     envoyer_a_service('bureau_missions', subject, body)
 
 
 def get_nouveau_participant_mail(participant):
-    region = participant.get_region().nom if participant.get_region() else u"Région?"
-    etablissement = participant.etablissement.nom if participant.etablissement else u"Établissement?"
+    region = participant.get_region().nom if participant.get_region() else "Région?"
+    etablissement = participant.etablissement.nom if participant.etablissement else "Établissement?"
     fonction = participant.fonction.libelle if participant.fonction else \
-        u"Fonction?"
-    subject = u"AG2017 Nouveau participant - " + region + u"-" + fonction +\
-              u"-" + etablissement
+        "Fonction?"
+    subject = "AG2017 Nouveau participant - " + region + "-" + fonction +\
+              "-" + etablissement
     # todo: rétablir paiement dans mail transfert
     # body = participant.get_paiement_display() + u"-"
-    body = u"Prise en charge transport:" +\
-            participant.get_prise_en_charge_transport_text() + u"-"
-    body += u"Prise en charge hébergement:" +\
-            participant.get_prise_en_charge_sejour_text() + u"-"
-    body += u" " + format_url(
+    body = "Prise en charge transport:" +\
+            participant.get_prise_en_charge_transport_text() + "-"
+    body += "Prise en charge hébergement:" +\
+            participant.get_prise_en_charge_sejour_text() + "-"
+    body += " " + format_url(
         reverse('fiche_participant', args=(participant.id,)))
     return subject, body
 
 
 @receiver(nouveau_participant)
 def nouveau_participant_handler(sender, **kwargs):
-    body = u"Le participant " + sender.get_nom_prenom()\
-           + u" a été créé " + url_participant(sender)
+    body = "Le participant " + sender.get_nom_prenom()\
+           + " a été créé " + url_participant(sender)
     subject, body = get_nouveau_participant_mail(sender)
     envoyer_a_service('gestion', subject, body)
 
@@ -144,12 +144,12 @@ def inscription_confirmee_handler(sender, **kwargs):
 #
     region = sender.get_etablissement().region
     nom_region = region.nom
-    type_inscription = u"mandaté" if sender.est_pour_mandate() \
-        else u"accompagnateur"
+    type_inscription = "mandaté" if sender.est_pour_mandate() \
+        else "accompagnateur"
 
-    subject = u"ag2017 nouvelle inscription web " + nom_region + u"-" +\
-              type_inscription + u"-" + sender.get_etablissement().nom
-    body = u"" + format_url(
+    subject = "ag2017 nouvelle inscription web " + nom_region + "-" +\
+              type_inscription + "-" + sender.get_etablissement().nom
+    body = "" + format_url(
         reverse('admin:gestion_inscriptionweb_change', args=(sender.id,)))
     envoyer_a_service('inscription', subject, body)
 

@@ -3,9 +3,9 @@ import collections
 import datetime
 import random
 import string
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import uuid
-from urllib import unquote_plus
+from urllib.parse import unquote_plus
 
 import requests
 from auf_django_mailing.models import Enveloppe, TAILLE_JETON, generer_jeton
@@ -49,33 +49,33 @@ class RenseignementsPersonnels(models.Model):
         abstract = True
 
     GENRE_CHOICES = (
-        ('M', u'M.'),
-        ('F', u'Mme'),
+        ('M', 'M.'),
+        ('F', 'Mme'),
         )
 
     genre = models.CharField(
         'civilité', max_length=1, choices=GENRE_CHOICES, blank=True
     )
     nom = models.CharField(
-        'nom', max_length=100, help_text=u'identique au passeport'
+        'nom', max_length=100, help_text='identique au passeport'
     )
     prenom = models.CharField(
-        'prénom(s)', max_length=100, help_text=u'identique au passeport'
+        'prénom(s)', max_length=100, help_text='identique au passeport'
     )
     nationalite = models.CharField(
-        'nationalité', max_length=100, help_text=u'identique au passeport',
+        'nationalité', max_length=100, help_text='identique au passeport',
         blank=True)
     date_naissance = models.DateField(
         '   Date de naissance', blank=True, null=True,
-        help_text=u'format: jj/mm/aaaa'
+        help_text='format: jj/mm/aaaa'
     )
     poste = models.CharField('poste occupé', max_length=100, blank=True)
     courriel = models.EmailField(blank=True)
     adresse = models.TextField(
         'Adresse de facturation', blank=True,
         help_text=(
-            u"Ceci est l'adresse de votre établissement. "
-            u"Modifiez ces données pour changer l'adresse de facturation."
+            "Ceci est l'adresse de votre établissement. "
+            "Modifiez ces données pour changer l'adresse de facturation."
         )
     )
     ville = models.CharField(max_length=100, blank=True)
@@ -88,10 +88,10 @@ class RenseignementsPersonnels(models.Model):
     DATE_HOTEL_MAX = datetime.date(2017, 5, 12)
 
     date_arrivee_hotel = models.DateField(
-        u"Date d'arrivée", null=True, blank=True
+        "Date d'arrivée", null=True, blank=True
     )
     date_depart_hotel = models.DateField(
-        u"Date de départ", null=True, blank=True
+        "Date de départ", null=True, blank=True
     )
 
     def save(self, **kwargs):
@@ -222,22 +222,22 @@ class Inscription(RenseignementsPersonnels):
 
     # Accueil
     atteste_pha = models.CharField(max_length=1, choices=(
-        ('P', u"J'atteste être la plus haute autorité de mon établissement et "
-              u"participerai à la 17ème Assemblée générale de l'AUF"),
-        ('R', u"J'atteste être le représentant dûment mandaté par la plus "
-              u"haute autorité de mon établissement pour participer à la "
-              u"17ème Assemblée générale de l'AUF"),
+        ('P', "J'atteste être la plus haute autorité de mon établissement et "
+              "participerai à la 17ème Assemblée générale de l'AUF"),
+        ('R', "J'atteste être le représentant dûment mandaté par la plus "
+              "haute autorité de mon établissement pour participer à la "
+              "17ème Assemblée générale de l'AUF"),
     ), null=True)
 
     identite_accompagnateur_confirmee = models.BooleanField(
         'identité confirmée', default=False)
     conditions_acceptees = models.BooleanField(
         mark_safe(
-            u'J\'ai lu et j\'accepte les '
-            u'<a href="https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf" '
-            u'onclick="javascript:window.open'
-            u'(\'https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf\');return false;" '
-            u'target="_blank">conditions générales d\'inscription</a>'
+            'J\'ai lu et j\'accepte les '
+            '<a href="https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf" '
+            'onclick="javascript:window.open'
+            '(\'https://ag2017.auf.org/media/filer_public/7f/00/7f003ea6-7fa6-44f6-a992-14bcd5acf654/auf_conditions_inscritpion_ag2017.pdf\');return false;" '
+            'target="_blank">conditions générales d\'inscription</a>'
         ),
         default=False
     )
@@ -246,41 +246,41 @@ class Inscription(RenseignementsPersonnels):
 
     # Accompagnateur
     accompagnateur = models.BooleanField(
-        u"Je serai accompagné(e) par une autre personne qui ne participera "
-        u"pas à l'assemblée générale",
+        "Je serai accompagné(e) par une autre personne qui ne participera "
+        "pas à l'assemblée générale",
         default=False
     )
     accompagnateur_genre = models.CharField(
-        u'genre', max_length=1,
+        'genre', max_length=1,
         choices=RenseignementsPersonnels.GENRE_CHOICES, blank=True
     )
     accompagnateur_nom = models.CharField('nom', max_length=100, blank=True)
     accompagnateur_prenom = models.CharField(
-        u'prénom(s)', max_length=100, blank=True
+        'prénom(s)', max_length=100, blank=True
     )
 
     # Programmation
     programmation_soiree_9_mai = models.BooleanField(
-        u"Dîner du 9 mai à l’hôtel Mogador", default=False)
+        "Dîner du 9 mai à l’hôtel Mogador", default=False)
     programmation_soiree_9_mai_invite = models.BooleanField(
-        u"Dîner du 9 mai à l’hôtel Mogador", default=False)
+        "Dîner du 9 mai à l’hôtel Mogador", default=False)
     programmation_soiree_10_mai = models.BooleanField(
-        u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
+        "Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_soiree_10_mai_invite = models.BooleanField(
-        u"Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
+        "Soirée Fantasia \"Chez Ali\" du 10 mai.", default=False)
     programmation_gala = models.BooleanField(
-        u"Soirée de gala de l'Assemblée générale le 11 mai.",
+        "Soirée de gala de l'Assemblée générale le 11 mai.",
         default=False)
     programmation_gala_invite = models.BooleanField(
-        u"Soirée de gala de l'Assemblée générale le 11 mai.",
+        "Soirée de gala de l'Assemblée générale le 11 mai.",
         default=False)
     programmation_soiree_12_mai = models.BooleanField(
-        u"Cocktail dînatoire de clôture le 12 mai.", default=False)
+        "Cocktail dînatoire de clôture le 12 mai.", default=False)
     forfait_invite_dejeuners = models.BooleanField(
-        u"Forfait 3 Déjeuners (9,10 et 11)", default=False)
+        "Forfait 3 Déjeuners (9,10 et 11)", default=False)
     forfait_invite_transfert = models.BooleanField(
-        u"2 transferts aéroport et hôtel (seulement si votre accompagnateur "
-        u"voyage avec vous)", default=False)
+        "2 transferts aéroport et hôtel (seulement si votre accompagnateur "
+        "voyage avec vous)", default=False)
 
     # Transport et hébergement
     prise_en_charge_hebergement = models.NullBooleanField(
@@ -319,9 +319,9 @@ class Inscription(RenseignementsPersonnels):
                                         null=True)
 
     fermee = models.BooleanField(
-        u"Confirmée par le participant", default=False
+        "Confirmée par le participant", default=False
     )
-    date_fermeture = models.DateField(u"Confirmée le", null=True)
+    date_fermeture = models.DateField("Confirmée le", null=True)
 #     paypal_cancel = models.NullBooleanField()
 
     numero_dossier = models.CharField(max_length=8, unique=True, null=True)
@@ -510,15 +510,15 @@ class Inscription(RenseignementsPersonnels):
         return sum(reponse.montant for reponse in reponses)
 
     def numeros_confirmation_paypal(self):
-        return u', '.join([
+        return ', '.join([
             paiement.txn_id
             for paiement in PaypalResponse.objects.accepted(self)])
 
     def statut_paypal_text(self):
         if self.paiement_paypal_ok():
-            return u' (PAYPAL OK, ' + str(self.paiement_paypal_total()) + u'€)'
+            return ' (PAYPAL OK, ' + str(self.paiement_paypal_total()) + '€)'
         else:
-            return u' (PAYPAL NON REÇU)'
+            return ' (PAYPAL NON REÇU)'
 
     def fermer(self):
         if not self.prise_en_charge_hebergement_possible():
@@ -537,16 +537,16 @@ class Inscription(RenseignementsPersonnels):
                                 moyen='CB',
                                 montant=reponse.montant,
                                 ref_paiement=reponse.txn_id,
-                                implantation=u"ICA1")
+                                implantation="ICA1")
             paiements.append(paiement)
         return paiements
 
     def get_inscription_representant_etablissement(self):
         return get_inscription_representant(self.get_etablissement())
 
-    def __unicode__(self):
-        return self.nom.upper() + u', ' + self.prenom + u' (' \
-            + self.get_etablissement().nom + u')'
+    def __str__(self):
+        return self.nom.upper() + ', ' + self.prenom + ' (' \
+            + self.get_etablissement().nom + ')'
 
 
 class PaypalInvoice(models.Model):
@@ -571,14 +571,14 @@ class PaypalResponse(models.Model):
     STATUS_ACCEPTED = ['Processed', 'Completed']
 
     type_reponse = models.CharField(max_length=3, choices=(
-        ('IPN', u"Instant Payment Notification"),
-        ('PDT', u"Payment Data Transfer"),
-        ('CAN', u"Cancelled"),
+        ('IPN', "Instant Payment Notification"),
+        ('PDT', "Payment Data Transfer"),
+        ('CAN', "Cancelled"),
     ))
     inscription = models.ForeignKey(Inscription, null=True)
 
     date_heure = models.DateTimeField(
-        verbose_name=u'Date et heure du paiement', null=True
+        verbose_name='Date et heure du paiement', null=True
     )
     montant = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     devise = models.CharField(max_length=32, null=True)
@@ -604,7 +604,7 @@ def validate_pdt(tx_id):
         'tx': tx_id,
     }
     postback_params = urlencode(postback_dict)
-    response = urllib2.urlopen(settings.PAYPAL_URL, postback_params).read()
+    response = urllib.request.urlopen(settings.PAYPAL_URL, postback_params).read()
     lignes = response.split('\n')
     valid = unquote_plus(lignes[0]) == 'SUCCESS'
     d = {}
@@ -624,7 +624,7 @@ def is_ipn_valid(request):
 
 
 def montant_str(montant):
-    return u"{} €".format(number_format(montant, 2))
+    return "{} €".format(number_format(montant, 2))
 
 
 class Forfait(core.TableReference):

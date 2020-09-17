@@ -15,7 +15,7 @@ class AdresseForm(forms.Form):
 
 class InviteForm(forms.Form):
     nom = forms.CharField(max_length=100, required=True)
-    prenom = forms.CharField(label=u"prénom", max_length=100, required=True)
+    prenom = forms.CharField(label="prénom", max_length=100, required=True)
     courriel = forms.EmailField(required=True)
 
     def __init__(self, *args, **kwargs):
@@ -27,7 +27,7 @@ InvitesFormSet = forms.formset_factory(InviteForm, extra=2)
 
 
 class FiltreReseautageForm(forms.Form):
-    region = forms.ChoiceField(label=u"Région", required=False)
+    region = forms.ChoiceField(label="Région", required=False)
     pays = forms.ChoiceField(required=False)
 
     def __init__(self, regions, pays, *args, **kwargs):
@@ -57,7 +57,7 @@ class AjoutPasseportForm(forms.ModelForm):
         exclude = ('participant', 'cree_le', 'cree_par', 'efface_par',
                    'efface_le', 'type_fichier')
         labels = {
-            'fichier': u"Sélectionnez le fichier image de votre passeport"
+            'fichier': "Sélectionnez le fichier image de votre passeport"
         }
 
     def save(self, commit=True):

@@ -47,37 +47,37 @@ class HotelAdmin(ModelAdmin):
 class InscriptionAdmin(ModelAdmin):
     form = ValidationInscriptionForm
     fieldsets = (
-        (u"Participant", {'fields': (
+        ("Participant", {'fields': (
             'genre', 'nom', 'prenom', 'nationalite', 'date_naissance',
             'poste', 'courriel', 'adresse', 'ville', 'pays', 'code_postal',
             'telephone', 'telecopieur',
         )}),
-        (u"Invité", {'fields': (
+        ("Invité", {'fields': (
             'accompagnateur', 'accompagnateur_genre', 'accompagnateur_nom',
             'accompagnateur_prenom',
         )}),
-        (u"Transport et hébergement", {'fields': (
+        ("Transport et hébergement", {'fields': (
             'prise_en_charge_hebergement', 'facturer_supplement_chambre_double',
             'date_arrivee_hotel', 'date_depart_hotel',
             'prise_en_charge_transport', 'arrivee_date', 'arrivee_heure',
             'arrivee_vol', 'depart_de', 'depart_date',
             'depart_heure', 'depart_vol',
         )}),
-        (u"Programmation", {'fields': (
+        ("Programmation", {'fields': (
             'programmation_soiree_9_mai',
             'programmation_soiree_10_mai',
             'programmation_gala',
             'programmation_soiree_12_mai'
         )}),
-        (u"Forfaits supplémentaires pour accompagnateurs personnels",
+        ("Forfaits supplémentaires pour accompagnateurs personnels",
          {'fields': (
              'programmation_soiree_9_mai_invite',
              'programmation_soiree_10_mai_invite',
              'programmation_gala_invite',
              'forfait_invite_dejeuners', 'forfait_invite_transfert'
          )}),
-        (u"Paiement par Paypal", {'fields': ('paiement_paypal_total_str',)}),
-        (u"Validation", {'fields': (
+        ("Paiement par Paypal", {'fields': ('paiement_paypal_total_str',)}),
+        ("Validation", {'fields': (
             'fermee', 'date_fermeture',
             'accepter_hebergement',
             'accepter_transport', 'inscription_validee',
@@ -92,20 +92,20 @@ class InscriptionAdmin(ModelAdmin):
     list_select_related = True
 
     def get_date_fermeture(self, obj):
-        return date_format(obj.date_fermeture) if obj.date_fermeture else u''
-    get_date_fermeture.short_description = u'Confirmation'
+        return date_format(obj.date_fermeture) if obj.date_fermeture else ''
+    get_date_fermeture.short_description = 'Confirmation'
 
     def get_nom_region(self, obj):
         return obj.get_etablissement().region.nom
-    get_nom_region.short_description = u'Région'
+    get_nom_region.short_description = 'Région'
 
     def get_nom_prenom(self, obj):
         return obj.nom + ", " + obj.prenom
-    get_nom_prenom.short_description = u'Nom du participant'
+    get_nom_prenom.short_description = 'Nom du participant'
 
     def get_nom_etablissement(self, obj):
         return obj.get_etablissement().nom
-    get_nom_etablissement.short_description = u'Établissement'
+    get_nom_etablissement.short_description = 'Établissement'
 
 #    def get_total_paypal(self, obj):
 #        return obj.get_etablissement()

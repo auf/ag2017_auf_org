@@ -14,7 +14,7 @@ class Command(BaseCommand):
             action='store',
             dest='destinataires',
             default=False,
-            help=u"Destinataires: `mandates` ou `invites`"
+            help="Destinataires: `mandates` ou `invites`"
         )
 
     def handle(self, *args, **options):

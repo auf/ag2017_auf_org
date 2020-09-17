@@ -35,21 +35,21 @@ from ag.gestion import consts
 ETAPES_INSCRIPTION_TEST = (
     {
         "url_title": "accueil",
-        "label": u"Accueil",
+        "label": "Accueil",
         "template": "accueil.html",
         "form_class": AccueilForm,
         "tab_visible": True,
     },
     {
         "url_title": "participant",
-        "label": u"Renseignements personnels",
+        "label": "Renseignements personnels",
         "template": "participant.html",
         "form_class": RenseignementsPersonnelsForm,
         "tab_visible": True,
     },
     {
         "url_title": "transport-hebergement",
-        "label": u"Transport et hébergement",
+        "label": "Transport et hébergement",
         "template": "transport_hebergement.html",
         "form_class": TransportHebergementForm,
         "tab_visible": False,
@@ -64,7 +64,7 @@ def url_etape(inscription, etape):
 
 def to_form_data(data):
     form_data = {}
-    for key, value in data.iteritems():
+    for key, value in data.items():
         if type(value) == int:
             value = str(int)
         elif type(value) == datetime.date:
@@ -79,26 +79,26 @@ def to_form_data(data):
 class InscriptionTestMixin(object):
     INSCRIPTION_TEST_DATA = {
         'participant': {
-            'genre': u'M',
-            'nom': u'nom test',
-            'prenom': u'prenom test',
-            'nationalite': u'nationalite test',
-            'adresse': u'adresse test',
-            'ville': u'ville test',
-            'pays': u'pays test',
-            'code_postal': u'12345',
-            'telephone': u'7894561',
-            'poste': u'poste test',
-            'courriel': u'test@test.auf',
+            'genre': 'M',
+            'nom': 'nom test',
+            'prenom': 'prenom test',
+            'nationalite': 'nationalite test',
+            'adresse': 'adresse test',
+            'ville': 'ville test',
+            'pays': 'pays test',
+            'code_postal': '12345',
+            'telephone': '7894561',
+            'poste': 'poste test',
+            'courriel': 'test@test.auf',
             'accompagnateur': False,
         },
         'transport-hebergement': {
-            u'prise_en_charge_hebergement': False,
-            u'prise_en_charge_transport': True,
+            'prise_en_charge_hebergement': False,
+            'prise_en_charge_transport': True,
         },
         'programmation': {
-            u'programmation_soiree_9_mai': True,
-            u'programmation_soiree_10_mai': True,
+            'programmation_soiree_9_mai': True,
+            'programmation_soiree_10_mai': True,
         },
     }
 
@@ -216,11 +216,11 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription = self.create_inscription([])
         response = self.client.get(url_etape(inscription, 'accueil'))
         self.assertContains(response,
-                            u'représentent officiellement un établissement')
+                            'représentent officiellement un établissement')
         response = self.client.post(url_etape(inscription, 'accueil'),
                                     data={
-                                        'atteste_pha': u'P',
-                                        'conditions_acceptees': u'on',
+                                        'atteste_pha': 'P',
+                                        'conditions_acceptees': 'on',
                                     })
         self.assertRedirects(
             response,
@@ -237,9 +237,9 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
             response, reverse('processus_inscription',
                               kwargs={'url_title': 'programmation'}))
         inscription = Inscription.objects.all()[0]
-        self.assertEquals(inscription.genre, rp_data['genre'])
-        self.assertEquals(inscription.nom, rp_data['nom'].upper())
-        self.assertEquals(inscription.prenom, rp_data['prenom'])
+        self.assertEqual(inscription.genre, rp_data['genre'])
+        self.assertEqual(inscription.nom, rp_data['nom'].upper())
+        self.assertEqual(inscription.prenom, rp_data['prenom'])
 
     def ajouter_accompagnateur(self, inscription):
         inscription.accompagnateur = True
@@ -379,11 +379,11 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                               kwargs={
                                   'url_title': 'transport-hebergement'}))
         inscription = Inscription.objects.get(id=inscription.id)
-        self.assertEquals(inscription.programmation_soiree_9_mai, True)
-        self.assertEquals(inscription.programmation_soiree_9_mai_invite, False)
-        self.assertEquals(inscription.programmation_soiree_10_mai,
+        self.assertEqual(inscription.programmation_soiree_9_mai, True)
+        self.assertEqual(inscription.programmation_soiree_9_mai_invite, False)
+        self.assertEqual(inscription.programmation_soiree_10_mai,
                           True)
-        self.assertEquals(
+        self.assertEqual(
             inscription.programmation_soiree_10_mai_invite, False)
 
     def test_post_programmation_nord_etape_suivante_apercu(self):
@@ -402,11 +402,11 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                               kwargs={
                                   'url_title': 'apercu'}))
         inscription = Inscription.objects.get(id=inscription.id)
-        self.assertEquals(inscription.programmation_soiree_9_mai, True)
-        self.assertEquals(inscription.programmation_soiree_9_mai_invite, False)
-        self.assertEquals(inscription.programmation_soiree_10_mai,
+        self.assertEqual(inscription.programmation_soiree_9_mai, True)
+        self.assertEqual(inscription.programmation_soiree_9_mai_invite, False)
+        self.assertEqual(inscription.programmation_soiree_10_mai,
                           True)
-        self.assertEquals(
+        self.assertEqual(
             inscription.programmation_soiree_10_mai_invite, False)
 
     def test_apercu_chambre_double(self):
@@ -417,7 +417,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         inscription.prise_en_charge_hebergement = True
         inscription.save()
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertContains(response, u"supplément occupation double")
+        self.assertContains(response, "supplément occupation double")
         self.assertContains(response, Forfait.objects.get(
             code=consts.CODE_SUPPLEMENT_CHAMBRE_DOUBLE).affiche())
 
@@ -426,14 +426,14 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                                                'transport-hebergement',
                                                'programmation', ))
         response = self.client.get(url_etape(inscription, 'apercu'))
-        self.assertNotContains(response, u"supplément")
+        self.assertNotContains(response, "supplément")
 
     def test_apercu_modifier_redirect_participant(self):
         inscription = self.create_inscription(('participant',
                                                'transport-hebergement',
                                                'programmation', ))
         response = self.client.post(url_etape(inscription, 'apercu'),
-                                    data={u'modifier': u'on'})
+                                    data={'modifier': 'on'})
         self.assertRedirects(
             response,
             reverse('processus_inscription',
@@ -445,7 +445,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
                                                'programmation', ))
         outbox_len = len(mail.outbox)
         response = self.client.post(url_etape(inscription, 'apercu'),
-                                    data={u'confirmer': u'on'})
+                                    data={'confirmer': 'on'})
         self.assertRedirects(
             response,
             reverse('dossier_inscription'))
@@ -462,7 +462,7 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
             etablissement=Etablissement.objects.get(
                 id=self.etablissement_nord_id))
         response = self.client.post(url_etape(inscription, 'apercu'),
-                                    data={u'confirmer': u'on'})
+                                    data={'confirmer': 'on'})
         self.assertRedirects(
             response, reverse('dossier_inscription'))
         inscription = Inscription.objects.get(id=inscription.id)
@@ -472,14 +472,14 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
 
     def test_liste_frais(self):
         inscription = Inscription()
-        self.assertEquals(inscription.get_montant_total(),
+        self.assertEqual(inscription.get_montant_total(),
                           inscription.get_frais_inscription())
-        self.assertEquals(inscription.get_frais_inscription(),
+        self.assertEqual(inscription.get_frais_inscription(),
                           self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant)
         inscription.accompagnateur = True
         liste = frozenset(inscription.get_liste_codes_frais())
         self.assertEqual(liste, frozenset((consts.CODE_FRAIS_INSCRIPTION,)))
-        self.assertEquals(
+        self.assertEqual(
             inscription.get_frais_inscription(),
             self.forfaits[consts.CODE_FRAIS_INSCRIPTION].montant)
 
@@ -487,12 +487,12 @@ class TestsInscription(django.test.TestCase, InscriptionTestMixin):
         call_command('generer_invitations_mandates')
         # il y a trois établissements mais l'un d'entre eux n'a pas d'adresse
         # de courriel et ne peut donc pas recevoir d'invitation
-        self.assertEquals(Invitation.objects.count(),
+        self.assertEqual(Invitation.objects.count(),
                           self.total_etablissements_membres_avec_courriel)
         invitation = Invitation.objects.get(
             etablissement__id=self.etablissement_id)
         enveloppe = invitation.invitationenveloppe_set.all()[0].enveloppe
-        self.assertEquals(enveloppe.get_adresse(),
+        self.assertEqual(enveloppe.get_adresse(),
                           invitation.etablissement.responsable_courriel)
         self.assertNotEqual(invitation.jeton, None)
         self.assertNotEqual(invitation.jeton, "")
@@ -633,13 +633,13 @@ def test_inscription_terminee():
 class PreremplirTest(unittest.TestCase):
 
     def setUp(self):
-        p = Pays(nom=u"pppp")
+        p = Pays(nom="pppp")
         self.etablissement = Etablissement(
-            nom=u"eeee", adresse=u"adr", ville=u"laville",
-            code_postal=u"60240", pays=p, telephone=u"123123123",
-            responsable_nom=u"rn", responsable_prenom=u"rp",
-            responsable_courriel=u"rc", responsable_fonction=u"rf",
-            responsable_genre=u"F")
+            nom="eeee", adresse="adr", ville="laville",
+            code_postal="60240", pays=p, telephone="123123123",
+            responsable_nom="rn", responsable_prenom="rp",
+            responsable_courriel="rc", responsable_fonction="rf",
+            responsable_genre="F")
 
     def make_donnees_preremplir(self, pour_mandate, nom=None, prenom=None,
                                 pha='P', courriel=None):

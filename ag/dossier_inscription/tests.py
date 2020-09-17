@@ -25,7 +25,7 @@ class InscriptionFermeeTests(django.test.TestCase):
         adresse = Adresse(adresse="adr", code_postal="12345", ville="laville",
                           pays="unpays", telephone='123-222-2222',
                           telecopieur='123-222-2222')
-        i = InscriptionFermee(**adresse.__dict__)
+        i = InscriptionFermee(**adresse._asdict())
         assert i.get_adresse() == adresse
 
     def create_inscription_paiement(self):
@@ -126,8 +126,8 @@ class PlanVolFormTest(django.test.TestCase):
         p = i.get_participant()
         infos_arrivee = p.get_infos_arrivee()
         infos_depart = p.get_infos_depart()
-        date_arrivee = datetime.date(2017, 05, 01)
-        date_depart = datetime.date(2017, 05, 05)
+        date_arrivee = datetime.date(2017, 0o5, 0o1)
+        date_depart = datetime.date(2017, 0o5, 0o5)
         assert infos_arrivee.date_arrivee == date_arrivee
         assert infos_arrivee.heure_arrivee == datetime.time(11, 11)
         assert infos_arrivee.numero_vol == 'AF123'
@@ -150,8 +150,8 @@ class PlanVolFormTest(django.test.TestCase):
 
 
 class SetAdresseTestCase(django.test.TestCase):
-    DATA = {'adresse': u"Nouvelle adresse", 'code_postal': u"1234",
-            'ville': u"neuf", 'pays': u"un pays"}
+    DATA = {'adresse': "Nouvelle adresse", 'code_postal': "1234",
+            'ville': "neuf", 'pays': "un pays"}
 
     def get_expected_adresse(self, rp):
         adresse = rp.get_adresse()

@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-import StringIO
+import io
 import csv
 import pytest
 from django.core.management import call_command
@@ -35,78 +35,78 @@ class EtatParticipantsTestCase(TestCase):
             region=cls.region,
             type_institution=type_institution_obs)
         cls.membre_nord = creer_participant(
-            nom=u'DUNORD', prenom=u'Haggar',
+            nom='DUNORD', prenom='Haggar',
             fonction=fonction_repr_univ,
             etablissement_id=cls.etablissement_nord_id)
         cls.membre_sud = creer_participant(
-            nom=u'LESUD', prenom=u'Ganoub',
+            nom='LESUD', prenom='Ganoub',
             fonction=fonction_repr_univ,
             etablissement_id=cls.etablissement_id)
         cls.observateur1 = creer_participant(
-            nom=u'OFTHESKIES', prenom=u'Watcher',
+            nom='OFTHESKIES', prenom='Watcher',
             fonction=fonction_obs,
             institution=institution_oif,
             region=cls.region)
         cls.observateur2 = creer_participant(
-            nom=u'BLEU', prenom=u'Casque',
+            nom='BLEU', prenom='Casque',
             fonction=fonction_obs,
             institution=institution_onu,
             region=cls.region)
         cls.observateur3 = creer_participant(
-            nom=u'MOON', prenom=u'Ban Ki',
+            nom='MOON', prenom='Ban Ki',
             fonction=fonction_obs,
             institution=institution_onu,
             region=cls.region)
         cls.observateur4_desactive = creer_participant(
-            nom=u'BOUTROS GHALI', prenom=u'BOUTROS',
+            nom='BOUTROS GHALI', prenom='BOUTROS',
             fonction=fonction_obs,
             institution=institution_onu,
             desactive=True,
             region=cls.region)
         fonction_instance_seulement = get_fonction_instance_seulement()
         cls.instance_admin1 = creer_participant(
-            nom=u'PRESIDENT', prenom=u'Francis',
+            nom='PRESIDENT', prenom='Francis',
             fonction=fonction_instance_seulement,
             instance_auf="A",
             region=cls.region)
         cls.instance_admin2 = creer_participant(
-            nom=u'SECRETAIRE', prenom=u'Albert',
+            nom='SECRETAIRE', prenom='Albert',
             fonction=fonction_instance_seulement,
             instance_auf="A",
             region=cls.region)
         cls.instance_scient1 = creer_participant(
-            nom=u'REEVES', prenom=u'Hubert',
+            nom='REEVES', prenom='Hubert',
             instance_auf="S",
             fonction=fonction_instance_seulement)
         cls.personnel_auf1 = creer_participant(
-            nom=u"PELLETIER", prenom=u'Marie-Claude',
+            nom="PELLETIER", prenom='Marie-Claude',
             type_institution=Participant.AUTRE_INSTITUTION,
-            code_statut=u'pers_auf',
-            nom_autre_institution=u'Bureau des Amériques',
+            code_statut='pers_auf',
+            nom_autre_institution='Bureau des Amériques',
             region=cls.region
         )
         cls.personnel_auf2 = creer_participant(
-            nom=u"BRUNEAU", prenom=u'Victor',
+            nom="BRUNEAU", prenom='Victor',
             type_institution=Participant.AUTRE_INSTITUTION,
-            code_type_autre_institution=u'pers_auf',
-            code_statut=u'pers_auf',
-            nom_autre_institution=u'Bureau des Amériques',
+            code_type_autre_institution='pers_auf',
+            code_statut='pers_auf',
+            nom_autre_institution='Bureau des Amériques',
             region=cls.region
         )
         cls.participant_autre1 = creer_participant(
-            nom=u"JENSEN", prenom=u'Tomas',
+            nom="JENSEN", prenom='Tomas',
             type_institution=Participant.AUTRE_INSTITUTION,
-            code_type_autre_institution=u'repr_press',
-            code_statut=u'accomp',
-            nom_autre_institution=u'Le Devoir',
+            code_type_autre_institution='repr_press',
+            code_statut='accomp',
+            nom_autre_institution='Le Devoir',
             region=cls.region
         )
         cls.participant_autre2 = creer_participant(
-            nom=u"FABREG", prenom=u'Doriane',
+            nom="FABREG", prenom='Doriane',
             type_institution=Participant.AUTRE_INSTITUTION,
-            code_type_autre_institution=u'repr_press',
-            code_statut=u'accomp',
-            nom_autre_institution=u'La Presse',
+            code_type_autre_institution='repr_press',
+            code_statut='accomp',
+            nom_autre_institution='La Presse',
             region=cls.region
         )
         cls.donnees = get_donnees_etat_participants()
@@ -118,11 +118,11 @@ class EtatParticipantsTestCase(TestCase):
         donnees = self.donnees
         titres_premier_niveau = [donnee.titre for donnee in donnees]
         self.assertEqual(titres_premier_niveau,
-                         [u'Établissements',
-                          u'Observateurs',
-                          u'Instances',
-                          u'Personnel AUF',
-                          u'Autre', ])
+                         ['Établissements',
+                          'Observateurs',
+                          'Instances',
+                          'Personnel AUF',
+                          'Autre', ])
 
     def test_donnees_etablissement_premier_niveau_pays_tries(self):
         elements = self.donnees[0].elements
@@ -146,10 +146,10 @@ class EtatParticipantsTestCase(TestCase):
         elements = self.donnees[1].elements
         self.assertEqual(len(elements), 2)
         self.assertEqual(elements[0],
-                         (u"OIF, " + self.region.nom,
+                         ("OIF, " + self.region.nom,
                           [self.observateur1]))
         self.assertEqual(elements[1],
-                         (u"ONU, " + self.region.nom,
+                         ("ONU, " + self.region.nom,
                           [self.observateur2, self.observateur3]))
 
     def test_donnees_instances(self):
@@ -177,7 +177,7 @@ class EtatParticipantsTestCase(TestCase):
         self.assertEqual(len(elements), 2)
         self.assertEqual(
             elements[0],
-            (self.participant_autre2.nom_autre_institution + u", "
+            (self.participant_autre2.nom_autre_institution + ", "
              + self.region.nom,
              [self.participant_autre2])
         )
@@ -189,34 +189,34 @@ class EtatParticipantsTestCase(TestCase):
 
 def test_recursive_group_by():
     l = [
-        ((u'I', u'Italie'), u'Entrées', u'Salades', u'Salade d\'artichauts'),
-        ((u'I', u'Italie'), u'Entrées', u'Salades', u'Salade de poivrons'),
-        ((u'I', u'Italie'), u'Entrées', u'Salades', u'Salade verte'),
-        ((u'I', u'Italie'), u'Plats', u'Pasta', u'Fetuccine Carbonara'),
-        ((u'I', u'Italie'), u'Plats', u'Pizza', u'Margherita'),
-        ((u'I', u'Italie'), u'Plats', u'Pizza', u'Napolitaine'),
-        ((u'L', u'Liban'), u'Entrées', u'Salades', u'Fatouche'),
-        ((u'L', u'Liban'), u'Entrées', u'Salades', u'Riz-lentilles'),
-        ((u'L', u'Liban'), u'Entrées', u'Salades', u'Tabbouleh'),
-        ((u'L', u'Liban'), u'Plats', u'Légumes', u'Chou farci'),
-        ((u'L', u'Liban'), u'Plats', u'Légumes', u'Feuilles de vigne'),
-        ((u'L', u'Liban'), u'Plats', u'Viande', u'Kebab'),
+        (('I', 'Italie'), 'Entrées', 'Salades', 'Salade d\'artichauts'),
+        (('I', 'Italie'), 'Entrées', 'Salades', 'Salade de poivrons'),
+        (('I', 'Italie'), 'Entrées', 'Salades', 'Salade verte'),
+        (('I', 'Italie'), 'Plats', 'Pasta', 'Fetuccine Carbonara'),
+        (('I', 'Italie'), 'Plats', 'Pizza', 'Margherita'),
+        (('I', 'Italie'), 'Plats', 'Pizza', 'Napolitaine'),
+        (('L', 'Liban'), 'Entrées', 'Salades', 'Fatouche'),
+        (('L', 'Liban'), 'Entrées', 'Salades', 'Riz-lentilles'),
+        (('L', 'Liban'), 'Entrées', 'Salades', 'Tabbouleh'),
+        (('L', 'Liban'), 'Plats', 'Légumes', 'Chou farci'),
+        (('L', 'Liban'), 'Plats', 'Légumes', 'Feuilles de vigne'),
+        (('L', 'Liban'), 'Plats', 'Viande', 'Kebab'),
     ]
     result = recursive_group_by(l,
                                 keys=[lambda item: item[0][0],
                                       lambda item: item[1],
                                       lambda item: item[2]],
-                                titles=[lambda item: u'Pays:' + item,
-                                        lambda item: u'Service:' + item,
-                                        lambda item: u'Type:' + item])
+                                titles=[lambda item: 'Pays:' + item,
+                                        lambda item: 'Service:' + item,
+                                        lambda item: 'Type:' + item])
     assert(len(result) == 2)
-    assert(result[0].titre == u'Pays:I')
-    assert(result[1].titre == u'Pays:L')
+    assert(result[0].titre == 'Pays:I')
+    assert(result[1].titre == 'Pays:L')
     assert(len(result[0].elements) == 2)
     assert(len(result[1].elements) == 2)
-    assert(result[0].elements[0].titre == u'Service:Entrées')
-    assert(result[0].elements[1].titre == u'Service:Plats')
-    assert(result[0].elements[0].elements[0].titre == u'Type:Salades')
+    assert(result[0].elements[0].titre == 'Service:Entrées')
+    assert(result[0].elements[1].titre == 'Service:Plats')
+    assert(result[0].elements[0].elements[0].titre == 'Type:Salades')
     assert(result[0].elements[0].elements[0].elements == [l[0], l[1], l[2]])
     assert(result[0].elements[1].elements[0].elements == [l[3]])
     assert(result[0].elements[1].elements[1].elements == [l[4], l[5]])
@@ -224,15 +224,15 @@ def test_recursive_group_by():
     assert(result[1].elements[1].elements[0].elements == [l[9], l[10]])
     assert(result[1].elements[1].elements[1].elements == [l[11]])
 
-VILLE_PARIS = u'PARIS'
-VILLE_BORDEAUX = u'BORDEAUX'
-VILLE_SAO_PAULO = u'SAO PAULO'
+VILLE_PARIS = 'PARIS'
+VILLE_BORDEAUX = 'BORDEAUX'
+VILLE_SAO_PAULO = 'SAO PAULO'
 DATE_DEPART_ORIGINE = datetime.date(2013, 5, 4)
 DATE_ARRIVEE_AG = datetime.date(2013, 5, 5)
 DATE_DEPART_AG = datetime.date(2013, 5, 6)
 DATE_ARRIVEE_ORIGINE = datetime.date(2013, 5, 7)
 DATE_ARRIVEE_ORIGINE2 = datetime.date(2013, 5, 8)
-COMPAGNIE = u'AIR BRESIL'
+COMPAGNIE = 'AIR BRESIL'
 HEURE_DEPART_ORIGINE_1900 = datetime.time(19, 00)
 HEURE_DEPART_ORIGINE_2000 = datetime.time(20, 00)
 HEURE_ARRIVEE_AG_1200 = datetime.time(12, 00)
@@ -241,10 +241,10 @@ HEURE_DEPART_AG_1400 = datetime.time(14, 00)
 HEURE_DEPART_AG_1500 = datetime.time(15, 00)
 HEURE_ARRIVEE_ORIGINE_0800 = datetime.time(8, 00)
 HEURE_ARRIVEE_ORIGINE_0900 = datetime.time(9, 00)
-NO_VOL_ARRIVEE_AG_1200 = u'AB123'
-NO_VOL_ARRIVEE_AG_1300 = u'CD345'
-NO_VOL_DEPART_AG_1400 = u'EF789'
-NO_VOL_DEPART_AG_1500 = u'GH098'
+NO_VOL_ARRIVEE_AG_1200 = 'AB123'
+NO_VOL_ARRIVEE_AG_1300 = 'CD345'
+NO_VOL_DEPART_AG_1400 = 'EF789'
+NO_VOL_DEPART_AG_1500 = 'GH098'
 
 
 class EtatsVolsTestCase(TestCase):
@@ -399,7 +399,7 @@ class EtatsVolsTestCase(TestCase):
             donnees,
             self.gen_donnees_tous_vols(
                 DATE_ARRIVEE_AG, HEURE_ARRIVEE_AG_1200, NO_VOL_ARRIVEE_AG_1200,
-                VILLE_SAO_PAULO, ARRIVEE_STR, u"", None, [self.participant5]) +
+                VILLE_SAO_PAULO, ARRIVEE_STR, "", None, [self.participant5]) +
             self.gen_donnees_tous_vols(
                 DATE_ARRIVEE_AG, HEURE_ARRIVEE_AG_1200, NO_VOL_ARRIVEE_AG_1200,
                 VILLE_SAO_PAULO, ARRIVEE_STR, VILLE_PARIS, DATE_DEPART_ORIGINE,
@@ -421,14 +421,14 @@ class EtatsVolsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         for p in [self.participant1, self.participant2, self.participant3,
                   self.participant4, self.participant5]:
-            self.assertIn(p.nom, response.content)
+            self.assertIn(p.nom, response.content.decode("utf-8"))
 
     def test_etat_tous_vols_csv(self):
         response = self.client.get(reverse('etat_vols_csv'))
         self.assertEqual(response.status_code, 200)
         for p in [self.participant1, self.participant2, self.participant3,
                   self.participant4, self.participant5]:
-            self.assertIn(p.nom, response.content)
+            self.assertIn(p.nom, response.content.decode("utf-8"))
 
 
 class EtatParticipantsActivitesTestCase(TestCase):
@@ -464,7 +464,7 @@ class EtatParticipantsActivitesTestCase(TestCase):
         self.participant3.hotel = hotel
         self.participant3.inscrire_a_activite(activite2, avec_invites=True)
         self.participant3.save()
-        self.participant4 = creer_participant(u"pas d'hôtel", 'alain')
+        self.participant4 = creer_participant("pas d'hôtel", 'alain')
         self.participant4.desactive = True
         self.participant4.genre = 'M'
         self.participant4.inscrire_a_activite(activite2, avec_invites=True)
@@ -494,15 +494,15 @@ class EtatParticipantsActivitesTestCase(TestCase):
                         attendu.get_participation_activite(activite))
 
         donnees = get_donnees_participants_activites()
-        itdonnees = iter(donnees.items())
+        itdonnees = iter(list(donnees.items()))
         for activite_attendue in Activite.objects.order_by('libelle').all():
             activite, hotels = next(itdonnees)
             self.assertEqual(activite.libelle, activite_attendue.libelle)
-            ithotels = iter(hotels.items())
+            ithotels = iter(list(hotels.items()))
             for hotel in Hotel.objects.order_by('libelle').all():
                 hotel_libelle, participants = next(ithotels)
                 self.assertEqual(hotel_libelle, hotel.libelle)
-                itparticipants = iter(participants.items())
+                itparticipants = iter(list(participants.items()))
                 for participant in Participant.objects.filter(
                         hotel=hotel,
                         participationactivite__activite=activite_attendue)\
@@ -510,8 +510,8 @@ class EtatParticipantsActivitesTestCase(TestCase):
                     check_participant(participant, activite_attendue,
                                       itparticipants)
             sans_hotel_libelle, participants = next(ithotels)
-            self.assertEqual(sans_hotel_libelle, u"(Aucun hôtel sélectionné)")
-            itparticipants = iter(participants.items())
+            self.assertEqual(sans_hotel_libelle, "(Aucun hôtel sélectionné)")
+            itparticipants = iter(list(participants.items()))
             for participant in Participant.objects.filter(
                 hotel=None, participationactivite__activite=activite_attendue
             ).order_by('nom', 'prenom'):

@@ -7,7 +7,7 @@ from ag.gestion.consts import *
 
 CASE_REGION_VOTE = "\n".join(["WHEN '{}' THEN '{}'".format(reg, reg_vote)
                               for reg, reg_vote
-                              in REGION_AUF_REGION_VOTANTS.items()])
+                              in list(REGION_AUF_REGION_VOTANTS.items())])
 
 EXCEPT_DOM_TOM_SQL = "reference_etablissement.id in ({0})". \
     format(', '.join(map(str, EXCEPTIONS_DOM_TOM)))
@@ -131,7 +131,7 @@ class ParticipantsQuerySet(QuerySet):
         elif name == 'problematique':
             return '(%s)' % ' OR '.join(
                 self.sql_expr(probleme['sql_expr'])
-                for probleme in PROBLEMES.values()
+                for probleme in list(PROBLEMES.values())
             )
         elif name == 'nombre_invites':
             return """(
@@ -290,7 +290,7 @@ class ParticipantsQuerySet(QuerySet):
         """ Voir commentaire avec_region_vote()
         """
         regions_auf = []
-        for region, region_vote in consts.REGION_AUF_REGION_VOTANTS.items():
+        for region, region_vote in list(consts.REGION_AUF_REGION_VOTANTS.items()):
             if region_vote == code_region_vote:
                 regions_auf.append(region)
 

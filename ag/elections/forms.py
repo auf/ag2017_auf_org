@@ -30,9 +30,9 @@ class CandidatureForm(Form):
         kwargs['initial'] = candidat_to_form_data(candidat)
         super(CandidatureForm, self).__init__(*args, **kwargs)
         self.fields['election'].choices = \
-            [(u"", u"Aucune")] + \
+            [("", "Aucune")] + \
             [(e.code, e.code) for e in elections] + \
-            [(u"S", u"Suppléant")]
+            [("S", "Suppléant")]
         self.fields['suppleant_de_id'].choices = \
             candidats.get_suppleant_de_choices(self.candidat)
         candidatures_possibles = self.candidat.candidatures_possibles
@@ -61,14 +61,14 @@ class CandidatureForm(Form):
         })
 
 
-SUPPLEANT = u"S"
+SUPPLEANT = "S"
 
 
 def candidat_to_form_data(candidat):
     election = SUPPLEANT if candidat.suppleant_de_id else candidat.code_election
     return {
         'participant_id': candidat.participant_id,
-        'election': election or u"",
+        'election': election or "",
         'suppleant_de_id': candidat.suppleant_de_id,
         'libre': candidat.libre or False,
         'statut': candidat.statut,
@@ -97,7 +97,7 @@ class BaseCandidatureFormset(BaseFormSet):
         kwargs['elections'] = self.elections
         kwargs['candidats'] = self.candidats
         if self.is_bound:
-            participant_id_field = u"{}-{}".format(self.add_prefix(i),
+            participant_id_field = "{}-{}".format(self.add_prefix(i),
                                                    'participant_id')
             participant_id = int(self.data[participant_id_field])
             candidat = self.candidats.get_candidat(participant_id)

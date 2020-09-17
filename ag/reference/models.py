@@ -18,13 +18,13 @@ class Pays(models.Model):
     sud = models.BooleanField()
 
     def get_sud_display(self):
-        return u"sud" if self.sud else u"nord"
+        return "sud" if self.sud else "nord"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nom
 
     def __repr__(self):
-        return u"<Pays: {}>".format(self.nom)
+        return "<Pays: {}>".format(self.nom)
 
 
 class Region(models.Model):
@@ -37,7 +37,7 @@ class Region(models.Model):
     implantation_bureau = models.ForeignKey('Implantation', null=True,
                                             related_name='gere_region')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nom
 
     def __repr__(self):
@@ -65,35 +65,35 @@ class Etablissement(models.Model):
     region = models.ForeignKey(Region, blank=True, null=True,
                                verbose_name='région')
     adresse = models.CharField(max_length=255, blank=True)
-    code_postal = models.CharField(u'code postal', max_length=20, blank=True)
+    code_postal = models.CharField('code postal', max_length=20, blank=True)
     ville = models.CharField(max_length=255, blank=True)
-    telephone = models.CharField(u'téléphone', max_length=255, blank=True)
+    telephone = models.CharField('téléphone', max_length=255, blank=True)
     fax = models.CharField(max_length=255, blank=True)
 
-    responsable_genre = models.CharField(u'genre', max_length=1, blank=True)
-    responsable_nom = models.CharField(u'nom', max_length=255, blank=True)
+    responsable_genre = models.CharField('genre', max_length=1, blank=True)
+    responsable_nom = models.CharField('nom', max_length=255, blank=True)
     responsable_prenom = models.CharField(
-        u'prénom', max_length=255, blank=True
+        'prénom', max_length=255, blank=True
     )
     responsable_fonction = models.CharField(
-        u'fonction', max_length=255, blank=True
+        'fonction', max_length=255, blank=True
     )
-    responsable_courriel = models.EmailField(u'courriel', blank=True)
+    responsable_courriel = models.EmailField('courriel', blank=True)
 
     statut = models.CharField(
         max_length=1, choices=STATUT_CHOICES, blank=True, null=True)
 
     qualite = models.CharField(
-        u'qualité', max_length=3, choices=QUALITE_CHOICES, blank=True,
+        'qualité', max_length=3, choices=QUALITE_CHOICES, blank=True,
         null=True
     )
     membre = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nom
 
     def __repr__(self):
-        return u"<Établissement: {}-{}>".format(self.id, self.nom)
+        return "<Établissement: {}-{}>".format(self.id, self.nom)
 
 
 class Implantation(models.Model):
@@ -104,5 +104,5 @@ class Implantation(models.Model):
     nom_court = models.CharField(max_length=255, blank=True)
     region = models.ForeignKey(Region, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nom_court

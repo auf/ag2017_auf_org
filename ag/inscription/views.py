@@ -56,9 +56,6 @@ class Etape(object):
     def __str__(self):
         return '<etape %s>' % getattr(self, 'url_title', '?')
 
-    def __unicode__(self):
-        return self.__str__()
-
 
 class EtapesProcessus(list):
 
@@ -263,7 +260,7 @@ def programmation(appel_etape_processus):
 ETAPES_INSCRIPTION = (
     {
         "url_title": "accueil",
-        "label": u"Accueil",
+        "label": "Accueil",
         "template": "accueil.html",
         "form_class": AccueilForm,
         "tab_visible": True,
@@ -271,7 +268,7 @@ ETAPES_INSCRIPTION = (
     },
     {
         "url_title": "participant",
-        "label": u"Informations du participant",
+        "label": "Informations du participant",
         "template": "participant.html",
         "form_class": RenseignementsPersonnelsForm,
         "tab_visible": True,
@@ -279,7 +276,7 @@ ETAPES_INSCRIPTION = (
     },
     {
         "url_title": "programmation",
-        "label": u"Frais de participation",
+        "label": "Frais de participation",
         "template": "programmation.html",
         "form_class": ProgrammationForm,
         "tab_visible": True,
@@ -287,7 +284,7 @@ ETAPES_INSCRIPTION = (
     },
     {
         "url_title": "transport-hebergement",
-        "label": u"Transport et hébergement",
+        "label": "Transport et hébergement",
         "template": "transport_hebergement.html",
         "form_class": TransportHebergementForm,
         "tab_visible": True,
@@ -295,7 +292,7 @@ ETAPES_INSCRIPTION = (
     },
     {
         "url_title": "apercu",
-        "label": u"Aperçu",
+        "label": "Aperçu",
         "template": "apercu.html",
         "form_class": None,
         "tab_visible": True,

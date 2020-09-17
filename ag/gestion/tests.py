@@ -35,20 +35,20 @@ CODE_HOTEL = 'gtulip'
 TYPE_CHAMBRE_TEST = consts.CHAMBRE_DOUBLE
 
 VOL_TEST_DATA = {
-    u'vols-TOTAL_FORMS': u'2',
-    u'vols-INITIAL_FORMS': u'0',
-    u'vols-MAX_NUM_FORMS': u'',
-    u'vols-0-date_depart': u'02/06/2013',
-    u'vols-0-heure_depart': u'12:00',
-    u'vols-0-ville_depart': u'MONTREAL',
-    u'vols-0-date_arrivee': u'03/06/2013',
-    u'vols-0-heure_arrivee': u'15:00',
-    u'vols-0-ville_arrivee': u'SAO PAOLO',
-    u'vols-0-compagnie': u'AIR CANADA',
-    u'vols-0-numero_vol': u'AC455',
-    u'vols-0-prix': u'123,0',
-    u'vols-0-DELETE': u'',
-    u'vols-0-id': u'',
+    'vols-TOTAL_FORMS': '2',
+    'vols-INITIAL_FORMS': '0',
+    'vols-MAX_NUM_FORMS': '',
+    'vols-0-date_depart': '02/06/2013',
+    'vols-0-heure_depart': '12:00',
+    'vols-0-ville_depart': 'MONTREAL',
+    'vols-0-date_arrivee': '03/06/2013',
+    'vols-0-heure_arrivee': '15:00',
+    'vols-0-ville_arrivee': 'SAO PAOLO',
+    'vols-0-compagnie': 'AIR CANADA',
+    'vols-0-numero_vol': 'AC455',
+    'vols-0-prix': '123,0',
+    'vols-0-DELETE': '',
+    'vols-0-id': '',
 }
 
 
@@ -69,7 +69,7 @@ class GestionTestCase(TestCase):
         participant_etablissement_membre.code_postal = 'HHH 333'
         participant_etablissement_membre.courriel = 'adr.courriel@test.org'
         participant_etablissement_membre.date_naissance = \
-            datetime.date(1973, 07, 04)
+            datetime.date(1973, 0o7, 0o4)
         participant_etablissement_membre.fonction = \
             self.fonction_repr_etablissement
         participant_etablissement_membre.etablissement \
@@ -93,18 +93,18 @@ class GestionTestCase(TestCase):
         participant.fonction = get_fonction_repr_universitaire()
         etablissement = Etablissement.objects.get(id=self.etablissement_id)
         participant.etablissement = etablissement
-        self.assertEquals(participant.nom_institution(), etablissement.nom)
+        self.assertEqual(participant.nom_institution(), etablissement.nom)
 
     def test_nom_institution_instance_seulement(self):
         participant = self.participant
         participant.fonction = get_fonction_instance_seulement()
         participant.instance_auf = 'A'
-        assert u"administration" in participant.nom_institution()
+        assert "administration" in participant.nom_institution()
 
     def test_nom_institution_personnel_auf(self):
         participant = self.participant
         participant.fonction = get_fonction_personnel_auf()
-        participant.implantation = ImplantationFactory(nom=u"impltest")
+        participant.implantation = ImplantationFactory(nom="impltest")
         assert participant.implantation.nom in participant.nom_institution()
 
     def test_nom_autre_institution(self):
@@ -114,12 +114,12 @@ class GestionTestCase(TestCase):
         institution = InstitutionFactory(type_institution=type_institution)
         participant.fonction = fonction
         participant.institution = institution
-        self.assertEquals(participant.nom_institution(),
+        self.assertEqual(participant.nom_institution(),
                           institution.nom)
 
     def test_recherche_participant(self):
         response = self.client.get(reverse('participants'))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         response = self.client.get(
             reverse('participants'),
             data={
@@ -145,74 +145,74 @@ class GestionTestCase(TestCase):
 
     def test_nouveau_participant_get_form(self):
         response = self.client.get(reverse('ajout_participant'))
-        self.assertEquals(response.status_code, 200)
-        self.assertContains(response, u"Enregistrer et ajouter")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Enregistrer et ajouter")
 
     def test_nouveau_participant_cancel_form(self):
         response = self.client.post(reverse('ajout_participant'),
-                                    data={u'annuler': u'on'})
+                                    data={'annuler': 'on'})
         self.assertRedirects(response, reverse('participants'))
 
     def nouveau_participant_data(self):
         return {
-            u'nom': u'test_ajout_nom',
-            u'prenom': u'test_prenom',
-            u'courriel': u'test@test.com',
-            u'etablissement': str(self.etablissement_id),
-            u'etablissement_nom': u"jkjhjhghj",
-            u'fonction': str(get_fonction_repr_universitaire().id),
+            'nom': 'test_ajout_nom',
+            'prenom': 'test_prenom',
+            'courriel': 'test@test.com',
+            'etablissement': str(self.etablissement_id),
+            'etablissement_nom': "jkjhjhghj",
+            'fonction': str(get_fonction_repr_universitaire().id),
         }
 
     def test_nouveau_participant(self):
         nb_participant_avant = Participant.objects.count()
         data = self.nouveau_participant_data()
         response = self.client.post(reverse('ajout_participant'), data=data)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Participant.objects.count(), nb_participant_avant + 1)
-        participant = Participant.objects.get(nom=u'test_ajout_nom')
+        participant = Participant.objects.get(nom='test_ajout_nom')
         self.assertRedirects(response, reverse('fiche_participant',
                                                args=[participant.id]))
 
     def test_nouveau_participant_puis_nouveau(self):
         data = self.nouveau_participant_data()
-        data[u'enregistrer_et_nouveau'] = u'on'
+        data['enregistrer_et_nouveau'] = 'on'
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertRedirects(response, reverse('ajout_participant', args=[]))
 
     def test_nouveau_participant_sans_etablissement(self):
         data = self.nouveau_participant_data()
-        data[u'etablissement'] = u''
+        data['etablissement'] = ''
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertContains(response, 'errors')
 
     def test_nouveau_participant_sans_institution(self):
         data = self.nouveau_participant_data()
-        data[u'fonction'] = FonctionFactory(
+        data['fonction'] = FonctionFactory(
             type_institution=TypeInstitutionFactory()).id
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertContains(response, 'errors')
 
     def test_nouveau_participant_instance_seulement_pas_d_instance(self):
         data = self.nouveau_participant_data()
-        data[u'fonction'] = get_fonction_instance_seulement().id
+        data['fonction'] = get_fonction_instance_seulement().id
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertContains(response, 'errors')
 
     def test_nouveau_participant_instance_seulement_ca(self):
         data = self.nouveau_participant_data()
-        data[u'fonction'] = get_fonction_instance_seulement().id
-        data[u'instance_auf'] = consts.CA
+        data['fonction'] = get_fonction_instance_seulement().id
+        data['instance_auf'] = consts.CA
         response = self.client.post(reverse('ajout_participant'), data=data)
         self.assertContains(response, 'errors')
 
     def test_nouveau_participant_avec_institution(self):
         data = self.nouveau_participant_data()
-        data[u'type_institution'] = u'I'
-        data[u'nom'] = u'test_inst_auf'
-        data[u'instance_auf'] = u'A'
-        data[u'region'] = self.region.id
+        data['type_institution'] = 'I'
+        data['nom'] = 'test_inst_auf'
+        data['instance_auf'] = 'A'
+        data['region'] = self.region.id
         response = self.client.post(reverse('ajout_participant'), data=data)
-        participant = Participant.objects.get(nom=u'test_inst_auf')
+        participant = Participant.objects.get(nom='test_inst_auf')
         self.assertRedirects(response, reverse('fiche_participant',
                                                args=[participant.id]))
 
@@ -233,9 +233,9 @@ class GestionTestCase(TestCase):
         self.assertEqual(reservation.type_chambre, 'S')
         self.assertEqual(reservation.nombre, 1)
         hotel = Hotel.objects.get(code=CODE_HOTEL)
-        self.assertEquals(
+        self.assertEqual(
             hotel.nombre_chambres_simples_reservees(), 1)
-        self.assertEquals(
+        self.assertEqual(
             hotel.nombre_chambres_doubles_reservees(), 0)
         participant.reserver_chambres('D', 2)
         participant.save()
@@ -256,16 +256,16 @@ class GestionTestCase(TestCase):
         self.assertEqual(reservation.type_chambre, consts.CHAMBRE_DOUBLE)
         self.assertEqual(reservation.nombre, 2)
         hotel = Hotel.objects.get(code=CODE_HOTEL)
-        self.assertEquals(
+        self.assertEqual(
             hotel.nombre_chambres_simples_reservees(), 1)
-        self.assertEquals(
+        self.assertEqual(
             hotel.nombre_chambres_doubles_reservees(), 2)
-        self.assertEquals(
+        self.assertEqual(
             hotel.nombre_total_chambres_reservees(), 3)
         chambres = hotel.chambres()
-        self.assertEquals(
+        self.assertEqual(
             chambres[consts.CHAMBRE_SIMPLE]['nb_reservees'], 1)
-        self.assertEquals(
+        self.assertEqual(
             chambres[consts.CHAMBRE_DOUBLE]['nb_reservees'], 2)
 
     def test_fiche_participant(self):
@@ -276,15 +276,15 @@ class GestionTestCase(TestCase):
 
     def test_renseignements_personnels_type_etablissement_obligatoire(self):
         data = {
-            'nom': u'nom_nouveau',
-            'prenom': u'prenom_nouveau',
-            'courriel': u'nouveau@nouveau.org',
-            'etablissement_nom': u'',
+            'nom': 'nom_nouveau',
+            'prenom': 'prenom_nouveau',
+            'courriel': 'nouveau@nouveau.org',
+            'etablissement_nom': '',
             'fonction': str(get_fonction_repr_universitaire().id),
         }
         response = self.client.post(reverse('ajout_participant'), data)
-        self.assertEquals(response.status_code, 200)
-        self.assertContains(response, u"Ce champ est obligatoire")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ce champ est obligatoire")
 
     def test_sejour_form(self):
         participant = self.participant
@@ -293,8 +293,8 @@ class GestionTestCase(TestCase):
         data = {}
         for activite in Activite.objects.all():
             self.assertContains(response, activite.libelle)
-            data[u'activite_' + str(activite.id)] = u'on'
-        data[u'reservation_par_auf'] = u'0'
+            data['activite_' + str(activite.id)] = 'on'
+        data['reservation_par_auf'] = '0'
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
         self.assertRedirects(response, self.url_fiche_participant())
@@ -308,25 +308,25 @@ class GestionTestCase(TestCase):
             reverse('notes_de_frais', args=[participant.id]))
         self.assertEqual(response.status_code, 200)
         data = {
-            u'frais_quantite_autres': u'1',
-            u'frais_montant_autres': u'100',
-            u'frais_quantite_taxi': u'2',
-            u'frais_montant_taxi': u'100',
-            u'modalite_versement_frais_sejour': u'I'
+            'frais_quantite_autres': '1',
+            'frais_montant_autres': '100',
+            'frais_quantite_taxi': '2',
+            'frais_montant_taxi': '100',
+            'modalite_versement_frais_sejour': 'I'
         }
         response = self.client.post(
             reverse('notes_de_frais', args=[participant.id]),
             data=data)
         self.assertRedirects(response, self.url_fiche_participant())
         participant = Participant.objects.get(pk=participant.id)
-        self.assertEquals(participant.get_frais(
+        self.assertEqual(participant.get_frais(
             TypeFrais.AUTRES_FRAIS).total(), 100)
-        self.assertEquals(participant.get_frais(TypeFrais.TAXI).total(), 200)
-        self.assertEquals(participant.modalite_versement_frais_sejour, u'I')
+        self.assertEqual(participant.get_frais(TypeFrais.TAXI).total(), 200)
+        self.assertEqual(participant.modalite_versement_frais_sejour, 'I')
 
     def test_sejour_form_reservation_sans_hotel_sans_date_sans_chambre(self):
         participant = self.participant
-        data = {u'reservation_par_auf': u'1'}
+        data = {'reservation_par_auf': '1'}
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
         self.assertRedirects(response, self.url_fiche_participant())
@@ -334,8 +334,8 @@ class GestionTestCase(TestCase):
     def test_sejour_form_reservation_avec_hotel_sans_date_sans_chambre(self):
         participant = self.participant
         data = {
-            u'reservation_par_auf': u'1',
-            u'hotel': unicode(str(Hotel.objects.get(code=CODE_HOTEL).id)),
+            'reservation_par_auf': '1',
+            'hotel': str(str(Hotel.objects.get(code=CODE_HOTEL).id)),
         }
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
@@ -345,12 +345,12 @@ class GestionTestCase(TestCase):
     def test_sejour_form_reservation_avec_hotel_avec_date_avec_chambre(self):
         participant = self.participant
         data = {
-            u'reservation_par_auf': u'1',
-            u'hotel': unicode(str(Hotel.objects.get(code=CODE_HOTEL).id)),
-            u'chambre_S': u'1',
-            u'chambre_D': u'0',
-            u'date_arrivee': u'02/06/2013',
-            u'date_depart': u'04/06/2013',
+            'reservation_par_auf': '1',
+            'hotel': str(str(Hotel.objects.get(code=CODE_HOTEL).id)),
+            'chambre_S': '1',
+            'chambre_D': '0',
+            'date_arrivee': '02/06/2013',
+            'date_depart': '04/06/2013',
         }
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
@@ -363,12 +363,12 @@ class GestionTestCase(TestCase):
     def test_sejour_form_reservation_avec_hotel_avec_date_erronee(self):
         participant = self.participant
         data = {
-            u'reservation_par_auf': u'1',
-            u'hotel': unicode(str(Hotel.objects.get(code=CODE_HOTEL).id)),
-            u'chambre_S': u'1',
-            u'chambre_D': u'0',
-            u'date_arrivee': u'04/06/2013',
-            u'date_depart': u'02/06/2013',
+            'reservation_par_auf': '1',
+            'hotel': str(str(Hotel.objects.get(code=CODE_HOTEL).id)),
+            'chambre_S': '1',
+            'chambre_D': '0',
+            'date_arrivee': '04/06/2013',
+            'date_depart': '02/06/2013',
         }
         # erreur si la date d'arrivée est postérieure à la date de départ
         response = self.client.post(reverse('sejour', args=[participant.id]),
@@ -378,12 +378,12 @@ class GestionTestCase(TestCase):
     def test_sejour_form_reservation_avec_hotel_avec_date_sans_chambre(self):
         participant = self.participant
         data = {
-            u'reservation_par_auf': u'1',
-            u'hotel': unicode(str(Hotel.objects.get(code=CODE_HOTEL).id)),
-            u'chambre_S': u'0',
-            u'chambre_D': u'0',
-            u'date_arrivee': u'02/06/2013',
-            u'date_depart': u'04/06/2013',
+            'reservation_par_auf': '1',
+            'hotel': str(str(Hotel.objects.get(code=CODE_HOTEL).id)),
+            'chambre_S': '0',
+            'chambre_D': '0',
+            'date_arrivee': '02/06/2013',
+            'date_depart': '04/06/2013',
         }
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
@@ -392,10 +392,10 @@ class GestionTestCase(TestCase):
     def test_sejour_form_reservation_avec_hotel_sans_date_avec_chambre(self):
         participant = self.participant
         data = {
-            u'reservation_par_auf': u'1',
-            u'hotel': unicode(str(Hotel.objects.get(code=CODE_HOTEL).id)),
-            u'chambre_S': u'1',
-            u'chambre_D': u'0',
+            'reservation_par_auf': '1',
+            'hotel': str(str(Hotel.objects.get(code=CODE_HOTEL).id)),
+            'chambre_S': '1',
+            'chambre_D': '0',
         }
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
@@ -405,8 +405,8 @@ class GestionTestCase(TestCase):
             self):
         participant = self.participant
         data = {
-            u'reservation_par_auf': u'0',
-            u'hotel': unicode(str(Hotel.objects.get(code=CODE_HOTEL).id)),
+            'reservation_par_auf': '0',
+            'hotel': str(str(Hotel.objects.get(code=CODE_HOTEL).id)),
         }
         response = self.client.post(reverse('sejour', args=[participant.id]),
                                     data=data)
@@ -445,29 +445,29 @@ class GestionTestCase(TestCase):
         response = self.client.get(reverse('transport', args=[participant.id]))
         self.assertEqual(response.status_code, 200)
         data = {
-            u'vols-TOTAL_FORMS': u'1',
-            u'vols-INITIAL_FORMS': u'0',
-            u'vols-MAX_NUM_FORMS': u'',
-            u'vols-0-date_depart': u'',
-            u'vols-0-heure_depart': u'',
-            u'vols-0-ville_depart': u'',
-            u'vols-0-date_arrivee': u'',
-            u'vols-0-heure_arrivee': u'',
-            u'vols-0-ville_arrivee': u'',
-            u'vols-0-compagnie': u'',
-            u'vols-0-numero_vol': u'',
-            u'vols-0-prix': u'',
-            u'vols-0-DELETE': u'',
-            u'vols-0-id': u'',
-            u'top-transport_organise_par_auf': u'False',
-            u'arrdep-date_depart': u'2/6/2013',
-            u'arrdep-heure_depart': u'12:00',
-            u'arrdep-compagnie_depart': u'AIR FRANCE',
-            u'arrdep-numero_vol_depart': u'AF627',
-            u'arrdep-date_arrivee': u'5/6/2013',
-            u'arrdep-heure_arrivee': u'15:00',
-            u'arrdep-compagnie_arrivee': u'AIR FRANCE',
-            u'arrdep-numero_vol_arrivee': u'AF627',
+            'vols-TOTAL_FORMS': '1',
+            'vols-INITIAL_FORMS': '0',
+            'vols-MAX_NUM_FORMS': '',
+            'vols-0-date_depart': '',
+            'vols-0-heure_depart': '',
+            'vols-0-ville_depart': '',
+            'vols-0-date_arrivee': '',
+            'vols-0-heure_arrivee': '',
+            'vols-0-ville_arrivee': '',
+            'vols-0-compagnie': '',
+            'vols-0-numero_vol': '',
+            'vols-0-prix': '',
+            'vols-0-DELETE': '',
+            'vols-0-id': '',
+            'top-transport_organise_par_auf': 'False',
+            'arrdep-date_depart': '2/6/2013',
+            'arrdep-heure_depart': '12:00',
+            'arrdep-compagnie_depart': 'AIR FRANCE',
+            'arrdep-numero_vol_depart': 'AF627',
+            'arrdep-date_arrivee': '5/6/2013',
+            'arrdep-heure_arrivee': '15:00',
+            'arrdep-compagnie_arrivee': 'AIR FRANCE',
+            'arrdep-numero_vol_arrivee': 'AF627',
         }
         response = self.client.post(
             reverse('transport', args=[participant.id]),
@@ -476,9 +476,9 @@ class GestionTestCase(TestCase):
         self.assertRedirects(response, self.url_fiche_participant())
         response = self.client.get(reverse('transport', args=[participant.id]))
         infos = participant.get_infos_depart()
-        self.assertEquals(infos.compagnie, u'AIR FRANCE')
+        self.assertEqual(infos.compagnie, 'AIR FRANCE')
         infos = participant.get_infos_arrivee()
-        self.assertEquals(infos.numero_vol, u'AF627')
+        self.assertEqual(infos.numero_vol, 'AF627')
         tree = html5lib.parse(response.content, treebuilder='lxml',
                               namespaceHTMLElements=False)
         input_element = find_input_by_name(tree,
@@ -492,10 +492,10 @@ class GestionTestCase(TestCase):
     def test_transport_organise_auf(self):
         participant = self.participant
         data = {
-            u'top-transport_organise_par_auf': u'True',
-            u'top-statut_dossier_transport': u'E',
-            u'top-numero_dossier_transport': u'4544',
-            u'top-modalite_retrait_billet': u'0'
+            'top-transport_organise_par_auf': 'True',
+            'top-statut_dossier_transport': 'E',
+            'top-numero_dossier_transport': '4544',
+            'top-modalite_retrait_billet': '0'
         }
         data.update(VOL_TEST_DATA)
         response = self.client.post(
@@ -521,18 +521,18 @@ class GestionTestCase(TestCase):
     def test_invites(self):
         participant = self.participant
         response = self.client.get(reverse('transport', args=[participant.id]))
-        self.assertContains(response, u'Aucun invité')
+        self.assertContains(response, 'Aucun invité')
         response = self.client.get(reverse('invites', args=[participant.id]))
         self.assertEqual(response.status_code, 200)
         data = {
-            u'invite_set-TOTAL_FORMS': u'1',
-            u'invite_set-INITIAL_FORMS': u'0',
-            u'invite_set-MAX_NUM_FORMS': u'',
-            u'invite_set-0-genre': u'M',
-            u'invite_set-0-nom': u'nom_invite',
-            u'invite_set-0-prenom': u'prenom_invite',
-            u'invite_set-0-DELETE': u'',
-            u'invite_set-0-participant': unicode(participant.id),
+            'invite_set-TOTAL_FORMS': '1',
+            'invite_set-INITIAL_FORMS': '0',
+            'invite_set-MAX_NUM_FORMS': '',
+            'invite_set-0-genre': 'M',
+            'invite_set-0-nom': 'nom_invite',
+            'invite_set-0-prenom': 'prenom_invite',
+            'invite_set-0-DELETE': '',
+            'invite_set-0-participant': str(participant.id),
             # u'invite_set-0-id': u'None',
         }
         response = self.client.post(reverse('invites', args=[participant.id]),
@@ -544,7 +544,7 @@ class GestionTestCase(TestCase):
         input_element = find_input_by_name(tree, "invite_set-0-nom")
         self.assertEqual(input_element.get('value'), "nom_invite")
         response = self.client.get(reverse('transport', args=[participant.id]))
-        self.assertContains(response, u'1 invité')
+        self.assertContains(response, '1 invité')
 
     def test_facturation_edition(self):
         participant = self.participant
@@ -552,24 +552,24 @@ class GestionTestCase(TestCase):
         response = self.client.get(
             reverse('facturation', args=[participant.id])
         )
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         data = {
-            u'prise_en_charge_hebergement': u'on',
-            u'prise_en_charge_sejour': u'on',
-            u'facturation_validee': u'',
-            u'date_facturation': u'',
-            u'imputation': u'A0394DRI017B3',
-            u'notes_facturation': u'',
-            u'paiement_set-TOTAL_FORMS': u'1',
-            u'paiement_set-INITIAL_FORMS': u'0',
-            u'paiement_set-MAX_NUM_FORMS': u'1000',
-            u'paiement_set-0-id': u'',
-            u'paiement_set-0-date': u'26/10/2016',
-            u'paiement_set-0-moyen': u'VB',
-            u'paiement_set-0-implantation': unicode(imp_id),
-            u'paiement_set-0-ref': u'abcd',
-            u'paiement_set-0-montant_euros': u'100.30',
-            u'paiement_set-0-participant': unicode(participant.id),
+            'prise_en_charge_hebergement': 'on',
+            'prise_en_charge_sejour': 'on',
+            'facturation_validee': '',
+            'date_facturation': '',
+            'imputation': 'A0394DRI017B3',
+            'notes_facturation': '',
+            'paiement_set-TOTAL_FORMS': '1',
+            'paiement_set-INITIAL_FORMS': '0',
+            'paiement_set-MAX_NUM_FORMS': '1000',
+            'paiement_set-0-id': '',
+            'paiement_set-0-date': '26/10/2016',
+            'paiement_set-0-moyen': 'VB',
+            'paiement_set-0-implantation': str(imp_id),
+            'paiement_set-0-ref': 'abcd',
+            'paiement_set-0-montant_euros': '100.30',
+            'paiement_set-0-participant': str(participant.id),
         }
         response = self.client.post(
             reverse('facturation', args=[participant.id]),
@@ -583,7 +583,7 @@ class GestionTestCase(TestCase):
         tree = html5lib.parse(response.content, treebuilder='lxml',
                               namespaceHTMLElements=False)
         input_element = tree.find("//option[@value='{0}']".format(
-            data[u'imputation']))
+            data['imputation']))
         assert "selected" in input_element.attrib
 
     def test_numero_facture(self):
@@ -591,15 +591,15 @@ class GestionTestCase(TestCase):
         self.assertTrue(participant.numero_facture is None)
         participant.facturation_validee = True
         participant.save()
-        self.assertEquals(participant.numero_facture, 1)
-        self.assertEquals(
+        self.assertEqual(participant.numero_facture, 1)
+        self.assertEqual(
             participant.date_facturation, datetime.datetime.now().date()
         )
         # vérifie qu'on ne génère pas un numéro lorsqu'il y en a déjà un
         participant.facturation_validee = True
         participant.save()
-        self.assertEquals(participant.numero_facture, 1)
-        self.assertEquals(
+        self.assertEqual(participant.numero_facture, 1)
+        self.assertEqual(
             participant.date_facturation, datetime.datetime.now().date()
         )
         participant.facturation_validee = False
@@ -610,7 +610,7 @@ class GestionTestCase(TestCase):
         participant = self.participant_etablissement_membre
         participant.facturation_validee = True
         participant.save()
-        self.assertEquals(participant.numero_facture, 1)
+        self.assertEqual(participant.numero_facture, 1)
         # on en crée un deuxième dans le même établissement
         participant.id = None
         participant.facturation_validee = False
@@ -620,7 +620,7 @@ class GestionTestCase(TestCase):
         self.assertTrue(participant.numero_facture is None)
         participant.facturation_validee = True
         participant.save()
-        self.assertEquals(participant.numero_facture, 2)
+        self.assertEqual(participant.numero_facture, 2)
         participant.id = None
         participant.facturation_validee = False
         participant.numero_facture = None
@@ -632,14 +632,14 @@ class GestionTestCase(TestCase):
         self.assertTrue(participant.numero_facture is None)
         participant.facturation_validee = True
         participant.save()
-        self.assertEquals(participant.numero_facture, 1)
+        self.assertEqual(participant.numero_facture, 1)
 
     def test_montants_facturation(self):
         participant = Participant.objects \
             .sql_extra_fields('total_frais') \
             .get(id=self.participant.id)
         forfaits = get_forfaits()
-        self.assertEquals(participant.total_frais,
+        self.assertEqual(participant.total_frais,
                           forfaits[consts.CODE_FRAIS_INSCRIPTION].montant)
 
         invite = Invite(genre='M', nom='nom_invite', prenom='prenom_invite')
@@ -649,15 +649,15 @@ class GestionTestCase(TestCase):
             .sql_extra_fields('total_frais') \
             .get(id=self.participant.id)
         montant_attendu = forfaits[consts.CODE_FRAIS_INSCRIPTION].montant
-        self.assertEquals(participant.total_frais, montant_attendu)
+        self.assertEqual(participant.total_frais, montant_attendu)
 
         activite = Activite.objects.get(code='gala')
         participant.inscrire_a_activite(activite, avec_invites=False)
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        self.assertEquals(participant.total_frais, montant_attendu)
-        self.assertEquals(participant.total_facture, montant_attendu)
+        self.assertEqual(participant.total_frais, montant_attendu)
+        self.assertEqual(participant.total_facture, montant_attendu)
 
         participant.inscrire_a_activite(activite, avec_invites=True)
         participant = Participant.objects \
@@ -665,8 +665,8 @@ class GestionTestCase(TestCase):
             .get(id=self.participant.id)
         if activite.forfait_invite:
             montant_attendu += activite.forfait_invite.montant
-        self.assertEquals(participant.total_frais, montant_attendu)
-        self.assertEquals(participant.total_facture, montant_attendu)
+        self.assertEqual(participant.total_frais, montant_attendu)
+        self.assertEqual(participant.total_facture, montant_attendu)
 
         infos_vol = InfosVol(prix=999, participant=participant,
                              type_infos=consts.VOL_ORGANISE)
@@ -677,32 +677,32 @@ class GestionTestCase(TestCase):
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        self.assertEquals(participant.total_facture, montant_attendu)
+        self.assertEqual(participant.total_facture, montant_attendu)
         participant.prise_en_charge_transport = False
         participant.save()
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
         montant_attendu += infos_vol.prix
-        self.assertEquals(participant.total_frais, montant_attendu)
-        self.assertEquals(participant.total_facture, montant_attendu)
+        self.assertEqual(participant.total_frais, montant_attendu)
+        self.assertEqual(participant.total_facture, montant_attendu)
 
         montant_avant_frais = montant_attendu
         participant.set_frais(TypeFrais.AUTRES_FRAIS, 1, 99)
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        self.assertEquals(participant.total_facture, montant_avant_frais)
+        self.assertEqual(participant.total_facture, montant_avant_frais)
         montant_attendu += 99
-        self.assertEquals(participant.total_frais, montant_attendu)
+        self.assertEqual(participant.total_frais, montant_attendu)
 
         participant.set_frais(TypeFrais.REPAS, 1, 101)
         participant = Participant.objects \
             .sql_extra_fields('total_frais', 'total_facture') \
             .get(id=self.participant.id)
-        self.assertEquals(participant.total_facture, montant_avant_frais)
+        self.assertEqual(participant.total_facture, montant_avant_frais)
         montant_attendu += 101
-        self.assertEquals(participant.total_frais, montant_attendu)
+        self.assertEqual(participant.total_frais, montant_attendu)
 
     def set_hotel_participant(self):
         participant = self.participant
@@ -838,12 +838,12 @@ class GestionTestCase(TestCase):
     def test_frais(self):
         participant = self.participant
         participant.set_frais(TypeFrais.AUTRES_FRAIS, 1, 99)
-        self.assertEquals(
+        self.assertEqual(
             participant.get_frais(TypeFrais.AUTRES_FRAIS).total(), 99)
         participant.set_frais(TypeFrais.AUTRES_FRAIS, 1, 0)
-        self.assertEquals(participant.get_frais(TypeFrais.AUTRES_FRAIS), None)
+        self.assertEqual(participant.get_frais(TypeFrais.AUTRES_FRAIS), None)
         participant.set_frais(TypeFrais.AUTRES_FRAIS, 2, 100)
-        self.assertEquals(
+        self.assertEqual(
             participant.get_frais(TypeFrais.AUTRES_FRAIS).total(), 200)
 
     def test_frais_transport(self):
@@ -852,9 +852,9 @@ class GestionTestCase(TestCase):
         participant.save()
         infos_vol = InfosVol()
         infos_vol.date_depart = datetime.date.today()
-        infos_vol.ville_depart = u'PARIS'
+        infos_vol.ville_depart = 'PARIS'
         infos_vol.date_arrivee = datetime.date.today()
-        infos_vol.ville_depart = u'SAO PAULO'
+        infos_vol.ville_depart = 'SAO PAULO'
         infos_vol.prix = 100
         infos_vol.TYPE_VOL = consts.VOL_ORGANISE
         infos_vol.participant = participant
@@ -864,9 +864,9 @@ class GestionTestCase(TestCase):
         self.assertEqual(participant.frais_transport, 100)
         infos_vol = InfosVol()
         infos_vol.date_depart = datetime.date.today()
-        infos_vol.ville_depart = u'SAO PAULO'
+        infos_vol.ville_depart = 'SAO PAULO'
         infos_vol.date_arrivee = datetime.date.today()
-        infos_vol.ville_depart = u'PARIS'
+        infos_vol.ville_depart = 'PARIS'
         infos_vol.TYPE_VOL = consts.VOL_ORGANISE
         infos_vol.participant = participant
         infos_vol.save()
@@ -886,7 +886,7 @@ class GestionTestCase(TestCase):
         p = Participant.objects.sql_extra_fields('forfaits_invites') \
             .get(id=self.participant.id)
         self.assertEqual(p.forfaits_invites, 0)
-        invite = Invite(nom=u"invité", prenom=u"prénom", participant=p)
+        invite = Invite(nom="invité", prenom="prénom", participant=p)
         invite.save()
         avec_invites = True
         for activite in Activite.objects.all():
@@ -1060,7 +1060,7 @@ class GestionTestCase(TestCase):
         self.assertFalse(p.transport_non_organise)
 
     def creer_vol_groupe(self):
-        vol_groupe = VolGroupe(nom=u"Test vol groupé", nombre_de_sieges=50)
+        vol_groupe = VolGroupe(nom="Test vol groupé", nombre_de_sieges=50)
         vol_groupe.save()
         infos_vol_aller = InfosVol(
             date_depart=datetime.date(2013, 5, 1),
@@ -1159,7 +1159,7 @@ class GestionTestCase(TestCase):
     def test_nombre_participants_point_de_suivi(self):
         def check_nombre(attendu):
             points_de_suivi = PointDeSuivi.objects.avec_nombre_participants() \
-                .filter(code__in=attendu.keys())
+                .filter(code__in=list(attendu.keys()))
             for point in points_de_suivi:
                 self.assertEqual(attendu[point.code],
                                  point.nombre_participants)
@@ -1225,18 +1225,18 @@ class TransfertInscription(TestCase):
         invitation.save()
         i = Inscription()
         i.genre = 'M'
-        i.nom = u'Moon'
-        i.prenom = u'Keith'
-        i.nationalite = u'UK'
+        i.nom = 'Moon'
+        i.prenom = 'Keith'
+        i.nationalite = 'UK'
         i.date_naissance = datetime.date(1945, 2, 2)
-        i.poste = u'Recteur'
-        i.courriel = u'rd@who.net'
-        i.adresse = u'adresse...'
-        i.ville = u'London'
-        i.pays = u'UK'
-        i.code_postal = u'F3D 4P5'
-        i.telephone = u"+34 1 55 5555"
-        i.telecopieur = u"+34 1 55 5555"
+        i.poste = 'Recteur'
+        i.courriel = 'rd@who.net'
+        i.adresse = 'adresse...'
+        i.ville = 'London'
+        i.pays = 'UK'
+        i.code_postal = 'F3D 4P5'
+        i.telephone = "+34 1 55 5555"
+        i.telecopieur = "+34 1 55 5555"
         i.date_arrivee_hotel = datetime.date(2013, 5, 6)
         i.date_depart_hotel = datetime.date(2013, 5, 6)
         i.paiement = 'CB'
@@ -1245,8 +1245,8 @@ class TransfertInscription(TestCase):
         i.conditions_acceptees = True
         i.accompagnateur = True
         i.accompagnateur_genre = 'M'
-        i.accompagnateur_nom = u'Townshend'
-        i.accompagnateur_prenom = u'Peter'
+        i.accompagnateur_nom = 'Townshend'
+        i.accompagnateur_prenom = 'Peter'
         i.programmation_soiree_9_mai = True
         i.programmation_soiree_9_mai_invite = True
         i.programmation_soiree_10_mai = True
@@ -1259,11 +1259,11 @@ class TransfertInscription(TestCase):
         i.forfait_invite_dejeuners = True
         i.arrivee_date = datetime.date(2013, 5, 1)
         i.arrivee_heure = datetime.time(10, 00)
-        i.arrivee_vol = u'CA111'
+        i.arrivee_vol = 'CA111'
         i.depart_de = 'sao-paolo'
         i.depart_date = datetime.date(2013, 5, 6)
         i.depart_heure = datetime.time(21, 00)
-        i.depart_vol = u'CD454'
+        i.depart_vol = 'CD454'
         i.fermee = True
         i.date_fermeture = datetime.date(2012, 7, 23)
         i.save()
@@ -1306,7 +1306,7 @@ class TransfertInscription(TestCase):
         self.assertEqual(p.etablissement, i.get_etablissement())
         self.assertTrue(p.a_forfait(consts.CODE_DEJEUNERS))
         self.assertTrue(p.a_forfait(consts.CODE_TRANSFERT_AEROPORT))
-        self.assertEquals(len(Invite.objects.filter(participant=p)), 1)
+        self.assertEqual(len(Invite.objects.filter(participant=p)), 1)
         self.assertFalse(p.transport_organise_par_auf)
         self.assertFalse(p.reservation_hotel_par_auf)
         forfait_chambre_double = Forfait.objects.get(
@@ -1330,8 +1330,8 @@ class TableauDeBordTestCase(TestCase):
         create_fixtures(self)
         self.client.login(username='john', password='johnpassword')
         self.participants = [
-            creer_participant(nom=u'Participant' + str(n),
-                              prenom=u'prenom' + str(n))
+            creer_participant(nom='Participant' + str(n),
+                              prenom='prenom' + str(n))
             for n in range(10)
             ]
 
@@ -1344,7 +1344,7 @@ class TableauDeBordTestCase(TestCase):
     def test_points_de_suivis(self):
         def check_link(resp, point_de_suivi, nombre):
             self.assertContains(resp,
-                                u'href="%s?suivi=%s">%s'
+                                'href="%s?suivi=%s">%s'
                                 % (reverse('participants'), point_de_suivi.id,
                                    nombre))
 
@@ -1408,7 +1408,7 @@ class PermissionsGestionTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_permissions(self):
-        modif_link_text = "Modifier</a>"
+        modif_link_text = b"Modifier</a>"
         response = self.client.get(reverse('fiche_participant',
                                            args=[self.participant.id]))
         self.assertEqual(response.status_code, 302)
@@ -1420,7 +1420,7 @@ class PermissionsGestionTestCase(TestCase):
         self.login(self.user_sai)
         response = self.client.get(reverse('fiche_participant',
                                            args=[self.participant.id]))
-        self.assertEquals(response.content.count(modif_link_text), 6)
+        self.assertEqual(response.content.count(modif_link_text), 6)
         self.assertContains(response, reverse('renseignements_personnels',
                                               args=[self.participant.id]))
         self.assertContains(response, reverse('invites',
@@ -1429,7 +1429,7 @@ class PermissionsGestionTestCase(TestCase):
         self.login(self.user_sejour)
         response = self.client.get(reverse('fiche_participant',
                                            args=[self.participant.id]))
-        self.assertEquals(response.content.count(modif_link_text), 6)
+        self.assertEqual(response.content.count(modif_link_text), 6)
         self.assertContains(response, reverse('sejour',
                                               args=[self.participant.id]))
         self.assertContains(response, reverse('transport',
@@ -1438,14 +1438,14 @@ class PermissionsGestionTestCase(TestCase):
         self.login(self.user_comptable)
         response = self.client.get(reverse('fiche_participant',
                                            args=[self.participant.id]))
-        self.assertEquals(response.content.count(modif_link_text), 5)
+        self.assertEqual(response.content.count(modif_link_text), 5)
         self.assertContains(response, reverse('facturation',
                                               args=[self.participant.id]))
         self.client.logout()
         self.login(self.user_admin)
         response = self.client.get(reverse('fiche_participant',
                                            args=[self.participant.id]))
-        self.assertEquals(response.content.count(modif_link_text), 9)
+        self.assertEqual(response.content.count(modif_link_text), 9)
 
     def try_url(self, url, accepte, refuse):
         for user in accepte:
@@ -1519,25 +1519,25 @@ class PermissionsGestionTestCase(TestCase):
     # noinspection PyPep8Naming
     def test_permission_region(self):
         region_MO = Region()
-        region_MO.code = u'MO'
-        region_MO.nom = u'Moyen-Orient'
+        region_MO.code = 'MO'
+        region_MO.nom = 'Moyen-Orient'
         region_MO.save()
         region_EO = Region()
-        region_EO.code = u'EO'
-        region_EO.nom = u"Europe de l'Ouest"
+        region_EO.code = 'EO'
+        region_EO.nom = "Europe de l'Ouest"
         region_EO.save()
         pays_eg = Pays.objects.create(
-            nom=u"Égypte", code=u"EG", sud=True)
+            nom="Égypte", code="EG", sud=True)
 
         etablissement_MO = Etablissement(
-            nom=u'etab_mo', pays=pays_eg, region=region_MO, statut=u'A',
-            qualite=u'ESR', membre=True
+            nom='etab_mo', pays=pays_eg, region=region_MO, statut='A',
+            qualite='ESR', membre=True
         )
         etablissement_MO.save()
 
         participant_MO = Participant()
-        participant_MO.nom = u'Khafagui'
-        participant_MO.prenom = u'Nermo'
+        participant_MO.nom = 'Khafagui'
+        participant_MO.prenom = 'Nermo'
         participant_MO.etablissement = etablissement_MO
         participant_MO.fonction = get_fonction_repr_universitaire()
         participant_MO.save()
@@ -1548,20 +1548,20 @@ class PermissionsGestionTestCase(TestCase):
                                             region=region_MO)
 
         participant_MO2 = Participant()
-        participant_MO2.nom = u'Hussein'
-        participant_MO2.prenom = u'Taha'
+        participant_MO2.nom = 'Hussein'
+        participant_MO2.prenom = 'Taha'
         participant_MO2.fonction = fonction_autre
         participant_MO2.institution = institution_MO
         participant_MO2.save()
 
         participant_inst_seulement = Participant()
-        participant_inst_seulement.nom = u'Shokry'
-        participant_inst_seulement.prenom = u'Yasser'
+        participant_inst_seulement.nom = 'Shokry'
+        participant_inst_seulement.prenom = 'Yasser'
         participant_inst_seulement.fonction = get_fonction_instance_seulement()
         participant_inst_seulement.save()
 
         participant_pers_auf_MO = Participant.objects.create(
-            nom=u"El-Badry", prenom=u"Selim",
+            nom="El-Badry", prenom="Selim",
             fonction=get_fonction_personnel_auf(),
             implantation=ImplantationFactory(region=region_MO)
         )
@@ -1629,8 +1629,8 @@ class TestsVolsGroupes(TestCase):
         response = self.client.get(reverse('ajouter_vol_groupe'))
         self.assertEqual(response.status_code, 200)
         data = {
-            u'top-nom': u"test vol",
-            u'top-nombre_de_sieges': u"123"
+            'top-nom': "test vol",
+            'top-nombre_de_sieges': "123"
         }
         data.update(VOL_TEST_DATA)
         response = self.client.post(reverse('ajouter_vol_groupe'), data=data)
@@ -1639,12 +1639,12 @@ class TestsVolsGroupes(TestCase):
         self.assertEqual(InfosVol.objects.filter(
             type_infos=consts.VOL_GROUPE).count(), 1)
         response = self.client.get(reverse('liste_vols_groupes'))
-        self.assertContains(response, u"test vol")
-        self.assertContains(response, u"Aucun participant")
+        self.assertContains(response, "test vol")
+        self.assertContains(response, "Aucun participant")
         vol_test = VolGroupe.objects.all()[0]
         response = self.client.get(reverse('modifier_vol_groupe',
                                            args=(vol_test.id,)))
-        self.assertContains(response, u"test vol")
+        self.assertContains(response, "test vol")
         participant = creer_participant()
         participant.vol_groupe = vol_test
         participant.transport_organise_par_auf = True
@@ -1664,11 +1664,11 @@ class TestsVolsGroupes(TestCase):
 
     def test_prix_facultatif(self):
         data = {
-            u'top-nom': u"test vol",
-            u'top-nombre_de_sieges': u"123"
+            'top-nom': "test vol",
+            'top-nombre_de_sieges': "123"
         }
         data.update(VOL_TEST_DATA)
-        del data[u'vols-0-prix']
+        del data['vols-0-prix']
         response = self.client.post(reverse('ajouter_vol_groupe'), data=data)
         self.assertRedirects(response, reverse('liste_vols_groupes'))
 

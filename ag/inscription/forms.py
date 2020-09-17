@@ -27,7 +27,7 @@ class AccueilForm(forms.ModelForm):
             del self.fields['identite_accompagnateur_confirmee']
             # seul moyen pour supprimer choix vide
             atteste_pha.choices = atteste_pha.choices[1:]
-            atteste_pha.label = u""
+            atteste_pha.label = ""
             atteste_pha.required = True
         else:
             del self.fields['atteste_pha']
@@ -37,20 +37,20 @@ class AccueilForm(forms.ModelForm):
                     inscription_representant.prenom and
                     inscription_representant.nom):
                 label = (
-                    u"J'atteste m'inscrire à la 16e assemblée générale "
-                    u"de l'AUF comme accompagnateur, à la demande de %s %s, "
-                    u"représentant mandaté de l'établissement." %
+                    "J'atteste m'inscrire à la 16e assemblée générale "
+                    "de l'AUF comme accompagnateur, à la demande de %s %s, "
+                    "représentant mandaté de l'établissement." %
                     (inscription_representant.prenom,
                      inscription_representant.nom)
                 )
             else:
-                label = u"J'accompagne le représentant mandaté " \
-                        u"de l'établissement"
+                label = "J'accompagne le représentant mandaté " \
+                        "de l'établissement"
             self.fields['identite_accompagnateur_confirmee'].label = label
         self.require_fields()
 
     def require_fields(self):
-        for name, field in self.fields.iteritems():
+        for name, field in self.fields.items():
             field.required = True
 
 
@@ -80,7 +80,7 @@ class RenseignementsPersonnelsForm(forms.ModelForm):
         )
 
     def require_fields(self):
-        for name, field in self.fields.iteritems():
+        for name, field in self.fields.items():
             if name.startswith('accompagnateur_'):
                 # Afficher comme un champ obligatoire, mais ne pas valider
                 # automatiquement.
@@ -149,14 +149,14 @@ class ProgrammationForm(forms.ModelForm):
 
 
 def get_date_hotel_choices(depart_ou_arrivee):
-    choices = [(u"", u"-----")]
+    choices = [("", "-----")]
     nombre_jours = (
         Inscription.DATE_HOTEL_MAX - Inscription.DATE_HOTEL_MIN
     ).days + 1
     premier_jour = Inscription.DATE_HOTEL_MIN \
         if depart_ou_arrivee == 'arrivee' \
         else Inscription.DATE_HOTEL_MIN + datetime.timedelta(days=1)
-    for numero_jour in xrange(nombre_jours):
+    for numero_jour in range(nombre_jours):
         date = premier_jour + datetime.timedelta(days=numero_jour)
         date_str = date.strftime('%d %B %Y')
         choices.append((date.isoformat(), date_str))

@@ -3,7 +3,6 @@ import datetime
 import os
 import unicodedata
 import collections
-import exceptions
 
 from auf.django.permissions import Role
 from django.conf import settings
@@ -65,8 +64,8 @@ __all__ = ('Participant',
 
 class TypeInstitution(core.TableReferenceOrdonnee):
     class Meta:
-        verbose_name = u"Type d'institution"
-        verbose_name_plural = u"Types d'institutions"
+        verbose_name = "Type d'institution"
+        verbose_name_plural = "Types d'institutions"
         ordering = ['ordre']
 
     @property
@@ -80,14 +79,14 @@ class TypeInstitution(core.TableReferenceOrdonnee):
 
 class CategorieFonction(core.TableReference):
     class Meta:
-        verbose_name = u"Catégorie fonction participant"
-        verbose_name_plural = u"Catégories fonctions participants"
+        verbose_name = "Catégorie fonction participant"
+        verbose_name_plural = "Catégories fonctions participants"
 
 
 class Fonction(core.TableReferenceOrdonnee):
     class Meta:
-        verbose_name = u"Fonction participant"
-        verbose_name_plural = u"Fonctions participants"
+        verbose_name = "Fonction participant"
+        verbose_name_plural = "Fonctions participants"
         ordering = ['ordre']
 
     categorie = ForeignKey(CategorieFonction)
@@ -128,7 +127,7 @@ class Institution(Model):
     pays = ForeignKey(reference.models.Pays)
     region = ForeignKey(reference.models.Region)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nom
 
 
@@ -144,8 +143,8 @@ class PointDeSuiviManager(Manager):
 
 class PointDeSuivi(core.TableReferenceOrdonnee):
     class Meta:
-        verbose_name = u"Point de suivi participant"
-        verbose_name_plural = u"Points de suivi participants"
+        verbose_name = "Point de suivi participant"
+        verbose_name_plural = "Points de suivi participants"
         ordering = ['ordre']
 
     objects = PointDeSuiviManager()
@@ -166,13 +165,13 @@ def get_type_chambre_index(code):
 
 class Hotel(core.TableReference):
     class Meta:
-        verbose_name = u"Hôtel"
-        verbose_name_plural = u"Hôtels"
+        verbose_name = "Hôtel"
+        verbose_name_plural = "Hôtels"
     adresse = TextField()
     telephone = CharField(max_length=32, blank=True)
     courriel = EmailField(blank=True)
-    cacher_dans_tableau_de_bord = BooleanField(u"Ne pas montrer dans le tableau"
-                                               u" de bord", null=False,
+    cacher_dans_tableau_de_bord = BooleanField("Ne pas montrer dans le tableau"
+                                               " de bord", null=False,
                                                blank=False, default=False)
 
     def get_chambres(self):
@@ -196,7 +195,7 @@ class Hotel(core.TableReference):
                 (chambre.type_chambre, {'nb_total': chambre.nb_total or 0})
                 for chambre in self.get_chambres()
             ])
-            for code_type_chambre, chambre in self._info_chambres.items():
+            for code_type_chambre, chambre in list(self._info_chambres.items()):
                 chambre['nb_reservees'] = \
                     self.nombre_chambres_reservees_par_type(
                         code_type_chambre
@@ -230,7 +229,7 @@ class Hotel(core.TableReference):
 class Chambre(Model):
     hotel = ForeignKey(Hotel)
     type_chambre = CharField(
-        u"Type de chambre", max_length=1,
+        "Type de chambre", max_length=1,
         choices=TYPE_CHAMBRE_CHOICES
     )
     places = IntegerField()
@@ -240,20 +239,20 @@ class Chambre(Model):
     class Meta:
         unique_together = ('hotel', 'type_chambre')
 
-    def __unicode__(self):
+    def __str__(self):
         types_chambres = dict(TYPE_CHAMBRE_CHOICES)
         return types_chambres[self.type_chambre]
 
 
 class TypeFrais(core.TableReference):
-    REPAS = u"repas"
-    NUITEES = u"nuitees"
-    TAXI = u"taxi"
-    AUTRES_FRAIS = u"autres"
+    REPAS = "repas"
+    NUITEES = "nuitees"
+    TAXI = "taxi"
+    AUTRES_FRAIS = "autres"
 
     class Meta:
-        verbose_name = u"Type de frais"
-        verbose_name_plural = u"Types de frais"
+        verbose_name = "Type de frais"
+        verbose_name_plural = "Types de frais"
         ordering = ['libelle']
 
 
@@ -285,12 +284,12 @@ class ActiviteManager(Manager):
 
 class Activite(core.TableReference):
     forfait_invite = ForeignKey(Forfait,
-                                verbose_name=u"Forfait invité correspondant",
+                                verbose_name="Forfait invité correspondant",
                                 null=True, blank=True)
     objects = ActiviteManager()
 
     class Meta:
-        verbose_name = u"Activité"
+        verbose_name = "Activité"
 
     def nombre_participants(self):
         if hasattr(self, '_nombre_participants'):
@@ -330,11 +329,11 @@ class Activite(core.TableReference):
 
 class ActiviteScientifique(core.TableReference):
     class Meta:
-        verbose_name = u"activité scientifique"
-        verbose_name_plural = u"activités scientifiques"
+        verbose_name = "activité scientifique"
+        verbose_name_plural = "activités scientifiques"
         ordering = ['libelle']
 
-    max_participants = IntegerField(u"Nb de places", default=999, null=False,
+    max_participants = IntegerField("Nb de places", default=999, null=False,
                                     blank=False)
 
     def nb_participants(self):
@@ -343,9 +342,9 @@ class ActiviteScientifique(core.TableReference):
     def complet(self):
         return self.nb_participants() >= self.max_participants
 
-    def __unicode__(self):
+    def __str__(self):
         # noinspection PyTypeChecker
-        return self.libelle + (u' ** (COMPLET) **' if self.complet() else u'')
+        return self.libelle + (' ** (COMPLET) **' if self.complet() else '')
 
 
 class ParticipationActivite(Model):
@@ -429,18 +428,18 @@ def find_vol_depart_ag(infos, villes_possibles, ville_ag):
 
 class Participant(RenseignementsPersonnels):
     INSTANCES_AUF = (
-        (consts.CA, u"Conseil d'administration"),
-        (consts.CS, u"Conseil scientifique"),
+        (consts.CA, "Conseil d'administration"),
+        (consts.CS, "Conseil scientifique"),
     )
 
     MEMBRE_CA_REPRESENTE = (
-        ("E", u"Établissement"),
-        ("G", u"Gouvernement"),
+        ("E", "Établissement"),
+        ("G", "Gouvernement"),
     )
     MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES = (
-        ('A', u"Lors de votre enregistrement à l'assemblée à Marrakech"),
-        ('I', u"Au bureau AUF le plus proche"),
-        ('V', u"Par virement bancaire")
+        ('A', "Lors de votre enregistrement à l'assemblée à Marrakech"),
+        ('I', "Au bureau AUF le plus proche"),
+        ('V', "Par virement bancaire")
     )
     IMPUTATION_CHOICES = (
         ('A0394DRI017B3', 'A0394DRI017B3'),
@@ -454,11 +453,11 @@ class Participant(RenseignementsPersonnels):
     inscription = OneToOneField(Inscription, null=True)
     # utiliser l'adresse GDE comme adresse du participant
     utiliser_adresse_gde = BooleanField(
-        u"Utiliser adresse GDE pour la facturation", default=False)
+        "Utiliser adresse GDE pour la facturation", default=False)
     notes = TextField(blank=True)
     notes_statut = TextField(blank=True)
     # desactivé
-    desactive = BooleanField(u"Désactivé", default=False)
+    desactive = BooleanField("Désactivé", default=False)
     # suivi
     suivi = ManyToManyField(PointDeSuivi)
 
@@ -467,67 +466,67 @@ class Participant(RenseignementsPersonnels):
     institution = ForeignKey(Institution, null=True, blank=True,
                              on_delete=PROTECT)
     instance_auf = CharField(
-        u"Instance de l'AUF", max_length=1, choices=INSTANCES_AUF,
+        "Instance de l'AUF", max_length=1, choices=INSTANCES_AUF,
         null=True, blank=True)
     membre_ca_represente = CharField(
-        u"Ce membre du CA représente", max_length=1,
+        "Ce membre du CA représente", max_length=1,
         choices=MEMBRE_CA_REPRESENTE, null=True, blank=True)
     implantation = ForeignKey(Implantation, null=True, blank=True,
                               on_delete=PROTECT)
     ###################################################
 
     etablissement = ForeignKey(
-        Etablissement, null=True, verbose_name=u"Établissement",
+        Etablissement, null=True, verbose_name="Établissement",
         db_constraint=False)
-    numero_facture = IntegerField(u"Numéro de facture", null=True)
-    date_facturation = DateField(u"Date de facturation", null=True, blank=True)
-    facturation_validee = BooleanField(u"Facturation validée", default=False)
+    numero_facture = IntegerField("Numéro de facture", null=True)
+    date_facturation = DateField("Date de facturation", null=True, blank=True)
+    facturation_validee = BooleanField("Facturation validée", default=False)
     notes_facturation = TextField(blank=True)
     prise_en_charge_inscription = BooleanField(
-        u"Prise en charge frais d'inscription", default=False
+        "Prise en charge frais d'inscription", default=False
     )
-    prise_en_charge_transport = NullBooleanField(u"Prise en charge transport")
-    prise_en_charge_sejour = NullBooleanField(u"Prise en charge séjour")
+    prise_en_charge_transport = NullBooleanField("Prise en charge transport")
+    prise_en_charge_sejour = NullBooleanField("Prise en charge séjour")
     prise_en_charge_activites = BooleanField(
-        u"Prise en charge activités", default=False
+        "Prise en charge activités", default=False
     )
     imputation = CharField(
         max_length=32, choices=IMPUTATION_CHOICES, blank=True)
     # séjour
     modalite_versement_frais_sejour = CharField(
-        u"Modalité de versement",
+        "Modalité de versement",
         max_length=1,
         choices=MODALITE_VERSEMENT_FRAIS_SEJOUR_CHOICES,
         blank=True)
     # transport
-    transport_organise_par_auf = BooleanField(u"Transport organisé par l'AUF",
+    transport_organise_par_auf = BooleanField("Transport organisé par l'AUF",
                                               default=False)
     statut_dossier_transport = CharField(
-        u"Statut dossier", max_length=1,
-        choices=((EN_COURS, u"En cours"), (COMPLETE, u"Complété")), blank=True
+        "Statut dossier", max_length=1,
+        choices=((EN_COURS, "En cours"), (COMPLETE, "Complété")), blank=True
     )
     modalite_retrait_billet = CharField(
-        u"Modalité de retrait du billet",
+        "Modalité de retrait du billet",
         choices=(
             (BUREAU_REGION,
-             u"Vos billets vous seront transmis par l'AUF"),
+             "Vos billets vous seront transmis par l'AUF"),
             (COMPTOIR_COMPAGNIE,
-             u'Vos billets seront disponibles au '
-             u'comptoir de la compagnie aérienne'),
+             'Vos billets seront disponibles au '
+             'comptoir de la compagnie aérienne'),
         ),
         max_length=1, blank=True)
-    numero_dossier_transport = CharField(u"numéro de dossier", max_length=32,
+    numero_dossier_transport = CharField("numéro de dossier", max_length=32,
                                          blank=True)
-    notes_transport = TextField(u"Notes", blank=True)
+    notes_transport = TextField("Notes", blank=True)
     remarques_transport = TextField(
-        u"Remarques reprises sur itinéraire", blank=True
+        "Remarques reprises sur itinéraire", blank=True
     )
     vol_groupe = ForeignKey("VolGroupe", null=True, blank=True,
                             on_delete=PROTECT)
     # hébergement
-    reservation_hotel_par_auf = BooleanField(u"réservation d'un hôtel",
+    reservation_hotel_par_auf = BooleanField("réservation d'un hôtel",
                                              default=False)
-    notes_hebergement = TextField(u"notes hébergement", blank=True)
+    notes_hebergement = TextField("notes hébergement", blank=True)
     hotel = ForeignKey(Hotel, null=True, on_delete=PROTECT)
     # activités (excursions, soirées etc.)
     activites = ManyToManyField(Activite, through='ParticipationActivite')
@@ -544,7 +543,7 @@ class Participant(RenseignementsPersonnels):
         limit_choices_to={'candidat_a__code': consts.ELEC_CA},
         related_name='suppleant',
         on_delete=PROTECT)
-    candidat_libre = BooleanField(u"libre", default=False)
+    candidat_libre = BooleanField("libre", default=False)
     candidat_statut = CharField(max_length=16, choices=consts.STATUTS_CANDIDATS,
                                 default=consts.DANS_LA_COURSE)
 
@@ -562,7 +561,7 @@ class Participant(RenseignementsPersonnels):
         moyens = set()
         for paiement in self.paiement_set.all():
             moyens.add(paiement.moyen)
-        return u",".join(moyens)
+        return ",".join(moyens)
 
     def candidatures_possibles(self):
         result = set()
@@ -585,7 +584,7 @@ class Participant(RenseignementsPersonnels):
 
     def get_nom_suppleant(self):
         suppleant = self.get_suppleant()
-        return suppleant.get_nom_complet() if suppleant else u""
+        return suppleant.get_nom_complet() if suppleant else ""
 
     @property
     def represente_etablissement(self):
@@ -715,19 +714,19 @@ class Participant(RenseignementsPersonnels):
         Renvoie le nom de l'institution à laquelle appartient le participant
         """
         if self.represente_etablissement:
-            return self.etablissement.nom if self.etablissement_id else u"???"
+            return self.etablissement.nom if self.etablissement_id else "???"
         elif self.represente_instance_seulement:
-            nom = u"{} AUF seulement".format(self.get_instance_auf_display())
+            nom = "{} AUF seulement".format(self.get_instance_auf_display())
             if self.instance_auf == 'A':
-                nom += u"({})".format(self.get_membre_ca_represente_display())
+                nom += "({})".format(self.get_membre_ca_represente_display())
             return nom
         elif self.est_personnel_auf:
-            return u"AUF ({})".format(self.implantation.nom) \
-                if self.implantation_id else u"???"
+            return "AUF ({})".format(self.implantation.nom) \
+                if self.implantation_id else "???"
         elif self.institution_id:
             return self.institution.nom
         else:
-            return u"N/A"
+            return "N/A"
 
     def inscrire_a_activite(self, activite, avec_invites=False):
         """ Permet d'inscrire le participant à une activité """
@@ -826,13 +825,13 @@ class Participant(RenseignementsPersonnels):
             self.set_infos_arrivee(inscription.arrivee_date,
                                    inscription.arrivee_heure,
                                    inscription.arrivee_vol,
-                                   inscription.arrivee_compagnie or u"",
+                                   inscription.arrivee_compagnie or "",
                                    inscription.arrivee_a)
         if inscription.depart_date:
             self.set_infos_depart(inscription.depart_date,
                                   inscription.depart_heure,
                                   inscription.depart_vol,
-                                  inscription.depart_compagnie or u"",
+                                  inscription.depart_compagnie or "",
                                   inscription.depart_de)
 
     def set_infos_depart(self, date, heure, numero_vol, compagnie,
@@ -853,7 +852,7 @@ class Participant(RenseignementsPersonnels):
 
     def filter_infos_vols(self, **filtr):
         def check(infos_vol):
-            for field, val in filtr.iteritems():
+            for field, val in filtr.items():
                 if not getattr(infos_vol, field) == val:
                     return False
             return True
@@ -975,7 +974,7 @@ class Participant(RenseignementsPersonnels):
         if self.represente_etablissement:
             return self.etablissement.region
         elif self.est_personnel_auf:
-            return self.implantation.region if self.implantation else u""
+            return self.implantation.region if self.implantation else ""
         elif not self.represente_instance_seulement:
             return self.institution and self.institution.region
         else:
@@ -983,7 +982,7 @@ class Participant(RenseignementsPersonnels):
 
     def get_region_nom(self):
         region = self.get_region()
-        return region.nom if region else u""
+        return region.nom if region else ""
 
     def get_region_id(self):
         region = self.get_region()
@@ -991,38 +990,38 @@ class Participant(RenseignementsPersonnels):
 
     def get_region_code(self):
         region = self.get_region()
-        return region.code if region else u""
+        return region.code if region else ""
 
     def get_nom_bureau_regional(self):
         return self.get_region().implantation_bureau.nom
 
     def get_nom_prenom(self):
-        return self.nom.upper() + u", " + self.prenom
+        return self.nom.upper() + ", " + self.prenom
 
     def get_nom_prenom_sans_accents(self):
-        return strip_accents(self.nom.upper() + u", " + self.prenom)
+        return strip_accents(self.nom.upper() + ", " + self.prenom)
 
     def get_nom_complet(self):
-        return u'{0} {1}'.format(self.get_genre_display(),
+        return '{0} {1}'.format(self.get_genre_display(),
                                  self.get_nom_prenom())
 
     # noinspection PyTypeChecker
     def get_prenom_nom_poste(self):
-        result = self.prenom + u" " + self.nom.upper()
+        result = self.prenom + " " + self.nom.upper()
         if self.poste:
-            result += u", " + self.poste
+            result += ", " + self.poste
         return result
 
     @staticmethod
     def get_prise_en_charge_text(value, value_demande):
         if value is None:
-            text = u"À traiter"
+            text = "À traiter"
         elif value:
-            text = u"Acceptée"
+            text = "Acceptée"
         else:
-            text = u"Refusée"
+            text = "Refusée"
         if value_demande:
-            text += u" (demandée)"
+            text += " (demandée)"
         return text
 
     def get_prise_en_charge_transport_text(self):
@@ -1095,15 +1094,15 @@ class Participant(RenseignementsPersonnels):
         if region_vote:
             return REGIONS_VOTANTS_DICT[region_vote]
         else:
-            return u""
+            return ""
 
     def get_fonction_libelle(self):
-        return self.fonction.libelle if self.fonction else u"(aucune)"
+        return self.fonction.libelle if self.fonction else "(aucune)"
 
     # noinspection PyTypeChecker
-    def __unicode__(self):
-        return u"<Participant: " + self.get_nom_prenom() + \
-               u" (" + str(self.id) + u")>"
+    def __str__(self):
+        return "<Participant: " + self.get_nom_prenom() + \
+               " (" + str(self.id) + ")>"
 
 
 facturation_validee = Signal()
@@ -1112,15 +1111,15 @@ facturation_validee = Signal()
 class Paiement(Model):
     participant = ForeignKey(Participant)
     date = DateField()
-    montant_euros = DecimalField(u"Montant (€)", decimal_places=2,
+    montant_euros = DecimalField("Montant (€)", decimal_places=2,
                                  max_digits=10)
-    moyen = CharField(u"modalité", max_length=2, choices=PAIEMENT_CHOICES)
+    moyen = CharField("modalité", max_length=2, choices=PAIEMENT_CHOICES)
     implantation = ForeignKey(Implantation)
-    ref = CharField(u"référence", max_length=255)
+    ref = CharField("référence", max_length=255)
     montant_devise_locale = DecimalField(
-        u'paiement en devises locales', blank=True, null=True,
+        'paiement en devises locales', blank=True, null=True,
         decimal_places=2, max_digits=16)
-    devise_locale = CharField(u'devise paiement', max_length=3,
+    devise_locale = CharField('devise paiement', max_length=3,
                               blank=True, null=True)
 
     def to_paiement_namedtuple(self):
@@ -1145,10 +1144,10 @@ class Invite(Model):
 
     @property
     def nom_complet(self):
-        return u'{0} {1} {2}'.format(self.get_genre_display(), self.nom,
+        return '{0} {1} {2}'.format(self.get_genre_display(), self.nom,
                                      self.prenom)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nom_complet
 
 
@@ -1193,8 +1192,8 @@ class VolGroupe(Model):
     def est_utilise(self):
         return self.get_nb_participants() > 0
 
-    def __unicode__(self):
-        return self.nom + u" (%s/%s)" % (self.get_nb_participants(),
+    def __str__(self):
+        return self.nom + " (%s/%s)" % (self.get_nb_participants(),
                                          self.nombre_de_sieges)
 
     def get_participants(self):
@@ -1214,10 +1213,10 @@ class InfosVol(Model):
     pris en charge, ainsi que pour les vols groupés.
     """
     TYPE_VOL = (
-        (ARRIVEE_SEULEMENT, u'Arrivée seulement'),
-        (DEPART_SEULEMENT, u'Départ seulement'),
-        (VOL_ORGANISE, u"Vol organisé par l'AUF"),
-        (VOL_GROUPE, u"Vol groupé"),
+        (ARRIVEE_SEULEMENT, 'Arrivée seulement'),
+        (DEPART_SEULEMENT, 'Départ seulement'),
+        (VOL_ORGANISE, "Vol organisé par l'AUF"),
+        (VOL_GROUPE, "Vol groupé"),
     )
 
     class Meta:
@@ -1225,13 +1224,13 @@ class InfosVol(Model):
 
     participant = ForeignKey(Participant, null=True)
     vol_groupe = ForeignKey(VolGroupe, null=True)
-    ville_depart = CharField(u"Ville de départ", max_length=128, blank=True)
-    date_depart = DateField(u"Date de départ", null=True, blank=True)
-    heure_depart = TimeField(u"Heure de départ", null=True, blank=True)
-    ville_arrivee = CharField(u"Ville d'arrivée", max_length=128, blank=True)
-    date_arrivee = DateField(u"Date d'arrivée", null=True, blank=True)
-    heure_arrivee = TimeField(u"Heure d'arrivée", null=True, blank=True)
-    numero_vol = CharField(u"N° vol", max_length=16, blank=True)
+    ville_depart = CharField("Ville de départ", max_length=128, blank=True)
+    date_depart = DateField("Date de départ", null=True, blank=True)
+    heure_depart = TimeField("Heure de départ", null=True, blank=True)
+    ville_arrivee = CharField("Ville d'arrivée", max_length=128, blank=True)
+    date_arrivee = DateField("Date d'arrivée", null=True, blank=True)
+    heure_arrivee = TimeField("Heure d'arrivée", null=True, blank=True)
+    numero_vol = CharField("N° vol", max_length=16, blank=True)
     compagnie = CharField(max_length=64, blank=True)
     prix = DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     type_infos = IntegerField(choices=TYPE_VOL, default=VOL_ORGANISE)
@@ -1248,8 +1247,8 @@ class InfosVol(Model):
         else:
             return self.heure_depart, self.ville_depart, self.date_depart
 
-    def __unicode__(self):
-        return u"{} {} {} → {} {} {}".format(
+    def __str__(self):
+        return "{} {} {} → {} {} {}".format(
             self.compagnie, self.numero_vol, self.ville_depart,
             self.ville_arrivee, self.date_depart, self.heure_depart
         )
@@ -1258,7 +1257,7 @@ class InfosVol(Model):
 class Frais(Model):
     participant = ForeignKey(Participant)
     type_frais = ForeignKey(TypeFrais)
-    quantite = IntegerField(u"quantité", default=1)
+    quantite = IntegerField("quantité", default=1)
     montant = DecimalField(max_digits=10, decimal_places=2)
 
     def total(self):
@@ -1277,12 +1276,12 @@ class Fichier(Model):
     fichier = FileField(upload_to=get_participant_file_path,
                         storage=FILE_STORAGE)
     type_fichier = IntegerField(default=0, choices=(
-        (0, u"Autres"),
-        (1, u"Passeport")
+        (0, "Autres"),
+        (1, "Passeport")
     ))
-    cree_le = DateTimeField(u"créé le ", auto_now_add=True)
+    cree_le = DateTimeField("créé le ", auto_now_add=True)
     cree_par = ForeignKey(User, on_delete=PROTECT, null=True, related_name='+')
-    efface_le = DateTimeField(u"effacé le ", null=True)
+    efface_le = DateTimeField("effacé le ", null=True)
     efface_par = ForeignKey(
         User, on_delete=PROTECT, null=True, related_name='+')
 
@@ -1341,7 +1340,7 @@ def get_donnees_hotels():
 
     totaux = []
     for hotel in hotels:
-        for code_type_chambre in hotel.chambres().keys():
+        for code_type_chambre in list(hotel.chambres().keys()):
             if code_type_chambre in totaux_dict[hotel.id]:
                 totaux.append(totaux_dict[hotel.id][code_type_chambre])
             else:
@@ -1386,33 +1385,33 @@ class InscriptionWeb(Inscription):
     class Meta:
         proxy = True
         app_label = 'gestion'
-        verbose_name = u'Inscription'
+        verbose_name = 'Inscription'
         ordering = ['date_fermeture']
 
 
 class AGRole(Model, Role):
 
     TYPES_ROLES = (
-        (ROLE_COMPTABLE, u'Comptable'),
-        (ROLE_SAI, u'SAI'),
-        (ROLE_LECTEUR, u'Lecteur'),
-        (ROLE_ADMIN, u'Admin'),
-        (ROLE_SEJOUR, u'Séjour')
+        (ROLE_COMPTABLE, 'Comptable'),
+        (ROLE_SAI, 'SAI'),
+        (ROLE_LECTEUR, 'Lecteur'),
+        (ROLE_ADMIN, 'Admin'),
+        (ROLE_SEJOUR, 'Séjour')
     )
-    user = ForeignKey(User, verbose_name=u'utilisateur', related_name='roles')
-    region = ForeignKey(Region, verbose_name=u'Région', null=True, blank=True,
+    user = ForeignKey(User, verbose_name='utilisateur', related_name='roles')
+    region = ForeignKey(Region, verbose_name='Région', null=True, blank=True,
                         db_constraint=False)
-    type_role = CharField(u'Type', max_length=1, choices=TYPES_ROLES)
+    type_role = CharField('Type', max_length=1, choices=TYPES_ROLES)
 
     class Meta:
-        verbose_name = u'Rôle utilisateur'
-        verbose_name_plural = u'Rôles des utilisateurs'
+        verbose_name = 'Rôle utilisateur'
+        verbose_name_plural = 'Rôles des utilisateurs'
 
     # noinspection PyTypeChecker
-    def __unicode__(self):
+    def __str__(self):
         s = self.get_type_role_display()
         if self.region:
-            s += u' ' + self.region.nom
+            s += ' ' + self.region.nom
         return s
 
     def check_participant_region(self, obj):
@@ -1484,9 +1483,9 @@ class Invitation(Model):
 
     class Meta:
         managed = False
-        db_table = u'invitations'
+        db_table = 'invitations'
         app_label = 'gestion'
-        verbose_name = u'Invitation'
+        verbose_name = 'Invitation'
 
 
 def get_inscriptions_par_mois():
@@ -1505,7 +1504,7 @@ def get_inscriptions_par_mois():
 
 
 def strip_accents(s):
-    return ''.join((c for c in unicodedata.normalize('NFD', unicode(s))
+    return ''.join((c for c in unicodedata.normalize('NFD', str(s))
                     if unicodedata.category(c) != 'Mn'))
 
 
@@ -1519,16 +1518,16 @@ InfosDepartArrivee = collections.namedtuple(
 EMPTY_ARRIVEE = {
     'arrivee_date': None,
     'arrivee_heure': None,
-    'arrivee_compagnie': u"",
-    'arrivee_vol': u"",
-    'arrivee_a': u"", }
+    'arrivee_compagnie': "",
+    'arrivee_vol': "",
+    'arrivee_a': "", }
 
 EMPTY_DEPART = {
     'depart_date': None,
     'depart_heure': None,
-    'depart_compagnie': u"",
-    'depart_vol': u"",
-    'depart_de': u"", }
+    'depart_compagnie': "",
+    'depart_vol': "",
+    'depart_de': "", }
 
 
 def infos_depart_arrivee_from_infos_vols(infos_depart, infos_arrivee):
