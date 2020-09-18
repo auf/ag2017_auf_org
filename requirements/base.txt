@@ -4,6 +4,8 @@
 #
 #    pip-compile requirements/base.in
 #
+-e file:auf_packages/auf_django_permissions#egg=auf.django.permissions  # via -r requirements/base.in
+-e file:auf_packages/auf_django_mailing#egg=auf_django_mailing  # via -r requirements/base.in
 django-classy-tags==0.8.0  # via -r requirements/base.in, django-cms, django-sekizai
 django-cms==3.6.0         # via -r requirements/base.in, djangocms-link, djangocms-text-ckeditor
 django-crispy-forms==1.8.1  # via -r requirements/base.in

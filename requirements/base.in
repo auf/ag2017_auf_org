@@ -23,3 +23,5 @@ requests==2.11.1
 djangocms_admin_style==1.2.6
 
 mysqlclient==1.4.6
+-e file:auf_packages/auf_django_permissions#egg=auf.django.permissions
+-e file:auf_packages/auf_django_mailing#egg=auf_django_mailing
